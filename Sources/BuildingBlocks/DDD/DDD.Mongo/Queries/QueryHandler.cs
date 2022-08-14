@@ -9,7 +9,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Queries
     public class QueryHandler : IDisposable
     {
         public MongoDbSessionFactory Factory { get; }
-        public IMongoDatabase Database => Factory.Database;
+        private IMongoDatabase Database => Factory.Database;
         public IMongoClient Client => Factory.Client;
         public IClientSessionHandle CurrentHandle
         {

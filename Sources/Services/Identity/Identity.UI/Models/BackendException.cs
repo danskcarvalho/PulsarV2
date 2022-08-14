@@ -14,7 +14,7 @@ namespace Pulsar.Services.Identity.UI.Models
 
         private static string GetMessage(ExceptionDTO details)
         {
-            if (details.Key is not null)
+            if (details.Types.Any(t => t.Contains("DomainException")))
                 return details.Message;
             else
                 return "Erro interno do servidor. Tente novamente mais tarde.";

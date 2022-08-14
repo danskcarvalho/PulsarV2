@@ -15,36 +15,36 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
     async Task<Unit> IRequestHandler<TRequest, Unit>.Handle(TRequest request, CancellationToken cancellationToken)
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
-        var requiresTran = this.GetType().GetCustomAttributes(typeof(RequiresTransactionAttribute), true).Cast<RequiresTransactionAttribute>().FirstOrDefault();
+        var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionExceptionAttribute), true).Cast<RetryOnExceptionExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        if (withIso != null)
+        if (withIso != null && noTran != null)
         {
             await _session.WithIsolationLevelAsync(async (ct1) =>
             {
-                await RetryOnDuplicateException(request, requiresCC, requiresTran, retryOnExc, ct1);
+                await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
                 return 0;
             }, withIso.IsolationLevel, cancellationToken);
         }
         else
-            await RetryOnDuplicateException(request, requiresCC, requiresTran, retryOnExc, cancellationToken);
+            await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
 
         return Unit.Value;
     }
 
-    private async Task RetryOnDuplicateException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, RequiresTransactionAttribute? requiresTran, RetryOnExceptionExceptionAttribute? retryOnExc, CancellationToken ct1)
+    private async Task RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
             await _session.RetryOnExceptions(async ct2 =>
             {
-                await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, ct2);
+                await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct2);
                 return 0;
             }, GetExceptionTypes(retryOnExc), retryOnExc.Retries ?? 1, ct1);
         }
         else
-            await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, ct1);
+            await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct1);
     }
 
     private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionExceptionAttribute retryOnExc)
@@ -60,9 +60,9 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
         }
     }
 
-    private async Task CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, RequiresTransactionAttribute? requiresTran, CancellationToken ct)
+    private async Task CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
     {
-        if (requiresTran != null && requiresCC != null)
+        if (noTran == null && requiresCC != null)
         {
             var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
@@ -74,7 +74,7 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
                     return 0;
                 },
                 token,
-                requiresTran.IsolationLevel,
+                withIso?.IsolationLevel ?? IsolationLevel.Committed,
                 ct);
             }
             else
@@ -84,19 +84,19 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
                     await HandleAsync(request, ct1);
                     return 0;
                 },
-                requiresTran.IsolationLevel,
+                withIso?.IsolationLevel ?? IsolationLevel.Committed,
                 ct);
             }
 
         }
-        else if (requiresTran != null)
+        else if (noTran == null)
         {
             await _session.OpenTransactionAsync(async ct1 =>
             {
                 await HandleAsync(request, ct1);
                 return 0;
             },
-            requiresTran.IsolationLevel,
+            withIso?.IsolationLevel ?? IsolationLevel.Committed,
             ct);
         }
         else if (requiresCC != null)
@@ -138,7 +138,7 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
-        var requiresTran = this.GetType().GetCustomAttributes(typeof(RequiresTransactionAttribute), true).Cast<RequiresTransactionAttribute>().FirstOrDefault();
+        var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionExceptionAttribute), true).Cast<RetryOnExceptionExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
@@ -146,24 +146,24 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
         {
             return await _session.WithIsolationLevelAsync(async (ct1) =>
             {
-                return await RetryOnDuplicateException(request, requiresCC, requiresTran, retryOnExc, ct1);
+                return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
             }, withIso.IsolationLevel, cancellationToken);
         }
         else
-            return await RetryOnDuplicateException(request, requiresCC, requiresTran, retryOnExc, cancellationToken);
+            return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
     }
 
-    private async Task<TResponse> RetryOnDuplicateException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, RequiresTransactionAttribute? requiresTran, RetryOnExceptionExceptionAttribute? retryOnExc, CancellationToken ct1)
+    private async Task<TResponse> RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? requiresTran, RetryOnExceptionExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
             return await _session.RetryOnExceptions(async ct2 =>
             {
-                return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, ct2);
+                return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, withIso, ct2);
             }, GetExceptionTypes(retryOnExc), retryOnExc.Retries ?? 1, ct1);
         }
         else
-            return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, ct1);
+            return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, withIso, ct1);
     }
 
     private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionExceptionAttribute retryOnExc)
@@ -179,9 +179,9 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
         }
     }
 
-    private async Task<TResponse> CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, RequiresTransactionAttribute? requiresTran, CancellationToken ct)
+    private async Task<TResponse> CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
     {
-        if (requiresTran != null && requiresCC != null)
+        if (noTran == null && requiresCC != null)
         {
             var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
@@ -192,7 +192,7 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
                     return await HandleAsync(request, ct1);
                 },
                 token,
-                requiresTran.IsolationLevel,
+                withIso?.IsolationLevel ?? IsolationLevel.Committed,
                 ct);
             }
             else
@@ -201,18 +201,18 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
                 {
                     return await HandleAsync(request, ct1);
                 },
-                requiresTran.IsolationLevel,
+                withIso?.IsolationLevel ?? IsolationLevel.Committed,
                 ct);
             }
 
         }
-        else if (requiresTran != null)
+        else if (noTran == null)
         {
             return await _session.OpenTransactionAsync(async ct1 =>
             {
                 return await HandleAsync(request, ct1);
             },
-            requiresTran.IsolationLevel,
+            withIso?.IsolationLevel ?? IsolationLevel.Committed,
             ct);
         }
         else if (requiresCC != null)

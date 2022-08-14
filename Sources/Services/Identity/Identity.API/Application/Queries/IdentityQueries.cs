@@ -4,12 +4,12 @@ public class IdentityQueries : QueryHandler
 {
     public IdentityQueries(MongoDbSessionFactory factory) : base(factory)
     {
-        Usuarios = Database.GetCollection<Usuario>(Constants.CollectionNames.Usuarios);
-        Dominios = Database.GetCollection<Dominio>(Constants.CollectionNames.Dominios);
-        Convites = Database.GetCollection<Convite>(Constants.CollectionNames.Convites);
-        Grupos = Database.GetCollection<Grupo>(Constants.CollectionNames.Grupos);
-        Estabelecimentos = Database.GetCollection<Estabelecimento>(Constants.CollectionNames.Estabelecimentos);
-        RedesEstabelecimentos = Database.GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.RedesEstabelecimentos);
+        Usuarios = GetCollection<Usuario>(Constants.CollectionNames.Usuarios);
+        Dominios = GetCollection<Dominio>(Constants.CollectionNames.Dominios);
+        Convites = GetCollection<Convite>(Constants.CollectionNames.Convites);
+        Grupos = GetCollection<Grupo>(Constants.CollectionNames.Grupos);
+        Estabelecimentos = GetCollection<Estabelecimento>(Constants.CollectionNames.Estabelecimentos);
+        RedesEstabelecimentos = GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.RedesEstabelecimentos);
     }
 
     protected IMongoCollection<Usuario> Usuarios { get; private set; }
