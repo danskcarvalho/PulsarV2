@@ -148,6 +148,9 @@ public partial class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptio
 
     public string GetEventKey<T>()
     {
-        return typeof(T).Name;
+        var n = EventNameAttribute.GetEventName<T>();
+        if (n is null)
+            throw new InvalidOperationException("type T is no valid event");
+        return n;
     }
 }
