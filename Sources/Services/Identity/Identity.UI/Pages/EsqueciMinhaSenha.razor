@@ -1,0 +1,60 @@
+﻿@page "/account/recover"
+@inject NavigationManager NavManager
+
+<PageTitle>Esqueci minha senha</PageTitle>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-auto">
+        <img id="img-logo" src="images/logo-loading.png" />
+    </div>
+</div>
+
+@if (_stage == EsqueciMinhaSenhaStage.DigitarEmail)
+{
+    <div class="row text-center mt-3 justify-content-center">
+        <div class="col-10">
+            <span class="fw-bold fs-3">Recuperar senha</span>
+        </div>
+    </div>
+    <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
+        <div class="col-10 text-danger">
+            @_errorMessage
+        </div>
+    </div>
+    <div class="row text-center mt-2 mb-3 justify-content-center">
+        <div class="col-10">
+            <input type="text" placeholder="e-mail ou nome de usuário" class="form-control" />
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center g-2">
+        <div class="col-5">
+            <button type="submit" class="btn btn-outline-secondary w-100 btn-lg" @onclick="Cancelar">Cancelar</button>
+        </div>
+        <div class="col-5">
+            <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="ContinueFromDigitarEmail">Continuar</button>
+        </div>
+    </div>
+}
+else {
+    <div class="row text-center mt-3 justify-content-center">
+        <div class="col-10">
+            <span class="fs-6">Foi enviado um e-mail para o usuário <strong>danskcarvalho</strong> com instruções para a recuperação da senha.</span>
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center" hidden>
+        <div class="col-auto">
+            <a href="javascript:void(0);" class="fs-6">Reenviar e-mail</a>
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center">
+        <div class="col-auto">
+            <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+            Reenviando e-mail...
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center">
+        <div class="col-10">
+            <button type="submit" class="btn btn-primary btn-lg w-100">Continuar</button>
+        </div>
+    </div>
+}

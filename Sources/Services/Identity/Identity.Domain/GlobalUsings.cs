@@ -1,0 +1,14 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using Pulsar.BuildingBlocks.DDD;
+global using Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+global using MongoDB.Bson;
+global using Pulsar.BuildingBlocks.DDD.Abstractions;
+global using MongoDB.Bson.Serialization.Attributes;
+global using Pulsar.Services.Identity.Domain.Shared;
+global using System.ComponentModel.DataAnnotations;
+global using Pulsar.BuildingBlocks.Utils;
+global using Pulsar.Services.Identity.Contracts.Enumerations;

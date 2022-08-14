@@ -1,0 +1,43 @@
+﻿@inject IJSRuntime JS
+
+<select data-live-search="true" data-width="100%" @bind="Value" @ref="_innerSelect">
+    @foreach (var item in Options)
+    {
+        <option value="@item.Id">@item.Text</option>
+    }
+</select>
+
+@code {
+    ElementReference? _innerSelect;
+    private string _value = string.Empty;
+
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value != value)
+            {
+                _value = value;
+                UpdateValueChanged(_value);
+            }
+        }
+    }
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+    [Parameter]
+    public SelectOption[] Options { get; set; } = new SelectOption[0];
+
+    public async void UpdateValueChanged(string newValue) {
+        if (ValueChanged.HasDelegate)
+        {
+            await ValueChanged.InvokeAsync(newValue);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("InitializeSelectComponents", _innerSelect);
+    }
+}

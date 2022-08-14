@@ -1,0 +1,55 @@
+﻿@inject LogoutClient LogoutClient
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+@page "/account/logout"
+
+<PageTitle>Logout</PageTitle>
+
+<div @ref="_logoutIFrame">
+</div>
+<div class="row justify-content-center mt-2">
+    <div class="col-auto">
+        <img id="img-logo" src="images/logo-loading.png" />
+    </div>
+</div>
+
+@if (_stage == LogoutStage.Confirmacao)
+{
+    <!--Confirmacao-->
+    <div class="row text-center mt-3 justify-content-center">
+        <div class="col-10">
+            <span class="fw-bold fs-3">Gostaria de deslogar?</span>
+        </div>
+    </div>
+    <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
+        <div class="col-10 text-danger">
+            @_errorMessage
+        </div>
+    </div>
+    <div class="row text-center mt-2 mb-4 justify-content-center g-2">
+        <div class="col-10">
+            <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="Confirm">Sim</button>
+        </div>
+    </div>
+}
+else if (_stage == LogoutStage.Deslogando)
+{
+    <!--Deslogando-->
+    <div class="row mt-3">
+        <div class="col">
+            <div class="text-center m-3">
+                <span class="spinner-border text-primary me-2" role="status" aria-hidden="true"></span>
+                <span class="h3">Deslogando...</span>
+            </div>
+        </div>
+    </div>
+}
+else if (_stage == LogoutStage.Deslogado)
+{
+    <!--Deslogado-->
+    <div class="row text-center mt-3 mb-4 justify-content-center">
+        <div class="col-10">
+            <span class="fw-bold fs-3">O usuário foi deslogado.</span>
+        </div>
+    </div>
+}

@@ -1,0 +1,76 @@
+﻿@page "/account/new"
+@inject NavigationManager NavManager
+
+<PageTitle>Aceitar Convite</PageTitle>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-auto">
+        <img id="img-logo" src="images/logo-loading.png" />
+    </div>
+</div>
+
+@if (_stage == AceitarConviteStage.InformarDados)
+{
+    <div class="row text-center mt-3 justify-content-center">
+        <div class="col-11">
+            <span class="fw-bold fs-3">Novo Usuário</span>
+        </div>
+    </div>
+    <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
+        <div class="col-11 text-danger">
+            @_errorMessage
+        </div>
+    </div>
+    <div class="row mt-2 mb-3 justify-content-center">
+        <div class="col-11">
+            <div class="row gy-3">
+                <div class="col-sm-6">
+                    <label for="primeiroNome" class="form-label">Primeiro Nome</label>
+                    <input type="text" class="form-control" id="senha" />
+                </div>
+                <div class="col-sm-6">
+                    <label for="sobrenome" class="form-label">Sobrenome</label>
+                    <input type="text" class="form-control" id="sobrenome" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3 justify-content-center">
+        <div class="col-11">
+            <label for="nomeUsuario" class="form-label">Nome de usuário</label>
+            <input type="text" class="form-control" id="nomeUsuario" />
+        </div>
+    </div>
+    <div class="row mb-4 justify-content-center">
+        <div class="col-11">
+            <div class="row gy-3">
+                <div class="col-sm-6">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="senha" />
+                </div>
+                <div class="col-sm-6">
+                    <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                    <input type="password" class="form-control" id="confirmarSenha" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center">
+        <div class="col-11">
+            <button type="submit" class="btn btn-primary btn-lg w-100" @onclick="ContinueFromInformarDados">Continuar</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row text-center mt-3 mb-3 justify-content-center">
+        <div class="col-10">
+            <span class="fs-6">O usuário <strong>danskcarvalho</strong> foi adicionado à base de dados do Pulsar.</span>
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center">
+        <div class="col-10">
+            <button type="submit" class="btn btn-primary btn-lg w-100">Continuar</button>
+        </div>
+    </div>
+}

@@ -1,0 +1,13 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using Pulsar.BuildingBlocks.FileSystem.Abstractions;
+global using Amazon.Runtime;
+global using Amazon.S3;
+global using Microsoft.Extensions.Logging;
+global using Minio;
+global using Polly;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;

@@ -1,0 +1,11 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+global using Pulsar.Services.Identity.Domain.Aggregates.Convites;
+global using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
+global using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+global using Pulsar.Services.Identity.Domain.Aggregates.Others;
+global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;

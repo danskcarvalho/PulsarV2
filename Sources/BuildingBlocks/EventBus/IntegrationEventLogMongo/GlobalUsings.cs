@@ -1,0 +1,10 @@
+﻿global using System.Collections.Generic;
+global using System.Linq;
+global using System;
+global using Pulsar.BuildingBlocks.EventBus.Abstractions;
+global using Pulsar.BuildingBlocks.EventBus.Events;
+global using MongoDB.Bson;
+global using MongoDB.Driver;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;

@@ -1,0 +1,146 @@
+﻿@page "/account/login"
+@inject LoginClient LoginClient
+@inject NavigationManager NavManager
+
+<PageTitle>Login</PageTitle>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-auto">
+        <img id="img-logo" src="images/logo-loading.png" />
+    </div>
+</div>
+
+<EditForm Model="_model">
+    @if (_model.Stage == LoginStage.UsuarioSenha)
+    {
+        <!--UsuarioSenha-->
+        <div class="row text-center mt-3 justify-content-center">
+            <div class="col-10">
+                <span class="fw-bold fs-3">Entrar</span>
+            </div>
+        </div>
+        <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_model.ErrorMessage == null)">
+            <div class="col-10 text-danger">
+                @_model.ErrorMessage
+            </div>
+        </div>
+        <div class="row text-center mt-2 mb-3 justify-content-center">
+            <div class="col-10">
+                <input type="text" placeholder="e-mail ou nome de usuário" class="form-control" @bind="_model.UsernameOrEmail" />
+            </div>
+        </div>
+        <div class="row text-center justify-content-center mb-4">
+            <div class="col-10">
+                <input type="password" placeholder="senha" class="form-control" @bind="_model.Password" />
+            </div>
+        </div>
+        <div class="row text-center mb-2 justify-content-center">
+            <div class="col-10">
+                @if (!_loading)
+                {
+                    <button type="submit" class="btn btn-primary btn-lg w-100" @onclick="ContinueFromUsuarioSenha">Continuar</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Processando
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="row text-center mb-4 justify-content-center">
+            <div class="col-auto">
+                <NavLink href="@(QueryHelpers.AddQueryString("/account/recover", "ReturnUrl", ReturnUrl))">Esqueci minha senha</NavLink>
+            </div>
+        </div>
+    }
+    else if (_model.Stage == LoginStage.Dominio)
+    {
+        <!--Dominio-->
+        <div class="row text-center mt-3 justify-content-center">
+            <div class="col-10">
+                <span class="fw-bold fs-3">Selecione o domínio</span>
+            </div>
+        </div>
+        <div class="row text-center mt-2 mb-4 justify-content-center">
+            <div class="col-10">
+                <SearchableSelect @bind-Value="_model.DominioId" Options="_model.Dominios"></SearchableSelect>
+            </div>
+        </div>
+        <div class="row text-center mb-4 justify-content-center g-2">
+            <div class="col-5">
+                <button type="submit" class="btn btn-outline-secondary w-100 btn-lg" @onclick="Previous">Voltar</button>
+            </div>
+            <div class="col-5">
+                @if (!_loading)
+                {
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="ContinueFromDominio">Continuar</button>
+                }
+                else 
+                {
+                    <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Processando
+                    </button>
+                }
+            </div>
+        </div>
+    }
+    else 
+    {
+        <!--Estabelecimento-->
+        <InputRadioGroup @bind-Value="_model.LoginOn">
+            <div class="row mt-4 justify-content-center">
+                <div class="col-10">
+                    <div class="form-check">
+                        <InputRadio Value="LoginOn.Dominio" class="form-check-input" id="rAdmin" disabled="@(_dominioCorrente?.PodeLogarDominio != true)"></InputRadio>
+                        <label class="form-check-label fw-bold" for="rAdmin">
+                            Usuário do domínio
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2 justify-content-center">
+                <div class="col-10">
+                    <div id="passwordHelpBlock" class="form-text">
+                        Você será logado como o administrador ou usuário do domínio <strong>INTS</strong> com as permissões concedidas a vocês pelo administrador deste domínio.
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2 justify-content-center">
+                <div class="col-10">
+                    <div class="form-check">
+                        <InputRadio Value="LoginOn.Estabelecimento" class="form-check-input" id="rFacility" disabled="@(_dominioCorrente?.Estabelecimentos.Any(e => e.Permissoes.Any()) != true)"></InputRadio>
+                        <label class="form-check-label fw-bold" for="rFacility">
+                            Usuário do Estabelecimento
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </InputRadioGroup>  
+        <div class="row text-center mt-2 mb-4 justify-content-center" hidden="@(_model.LoginOn != LoginOn.Estabelecimento)">
+            <div class="col-10">
+                <SearchableSelect @bind-Value="_model.EstabelecimentoId" Options="_model.Estabelecimentos"></SearchableSelect>
+            </div>
+        </div>
+        <div class="row text-center mb-4 mt-4 justify-content-center g-2">
+            <div class="col-5">
+                <button type="submit" class="btn btn-outline-secondary w-100 btn-lg" @onclick="Previous">Voltar</button>
+            </div>
+            <div class="col-5">
+                @if (!_loading)
+                {
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="ContinueFromEstabelecimento">Continuar</button>
+                }
+                else 
+                {
+                    <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Processando
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</EditForm>
