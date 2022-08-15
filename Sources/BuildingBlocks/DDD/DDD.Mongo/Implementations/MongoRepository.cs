@@ -130,9 +130,9 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
 
         return r.IsAcknowledged ? r.DeletedCount : 0;
     }
-    public async Task<long> DeleteOneAsync(TModel model, bool testVersion = false, CancellationToken ct = default)
+    public async Task<long> DeleteOneAsync(TModel model, long? version = null, CancellationToken ct = default)
     {
-        var r = await DeleteOneByIdAsync(model.Id, testVersion ? model.Version : null, ct);
+        var r = await DeleteOneByIdAsync(model.Id, version, ct);
         Track(model);
         return r;
     }
@@ -340,12 +340,12 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         return r != default(TModel);
     }
 
-    public async Task<long> ReplaceOneAsync(TModel model, bool testVersion = false, CancellationToken ct = default)
+    public async Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var filter = Builders<TModel>.Filter.Eq("_id", model.Id);
-        if (testVersion)
-            filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", model.Version));
+        if (version.HasValue)
+            filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", version));
 
         ReplaceOneResult r;
         if (Session is null || Session.CurrentHandle is null)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
-
-namespace Pulsar.Services.Identity.Contracts.DTOs;
+﻿namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class UsuarioLogadoDTO
 {

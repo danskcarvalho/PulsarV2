@@ -3,6 +3,7 @@
 public class LogoutResultDTO
 {
     public bool ShowSignoutPrompt { get; set; }
+    public bool NoUser { get; set; }
     public string? ClientName { get; set; }
     public string? PostLogoutRedirectUri { get; set; }
     public string? SignOutIFrameUrl { get; set; }

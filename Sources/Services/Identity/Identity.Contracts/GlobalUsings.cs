@@ -7,3 +7,4 @@ global using MediatR;
 global using Pulsar.Services.Identity.Contracts.DTOs;
 global using System.ComponentModel.DataAnnotations;
 global using Pulsar.Services.Identity.Contracts.Enumerations;
+global using System.Text.Json.Serialization;

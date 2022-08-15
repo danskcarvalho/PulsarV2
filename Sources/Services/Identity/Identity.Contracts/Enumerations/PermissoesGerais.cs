@@ -2,5 +2,5 @@
 
 public enum PermissoesGerais
 {
-    GerenciarGrupos = 1,
+    EditarGrupos = 1,
 }

@@ -17,15 +17,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsSES\EmailsSES.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Emails\Emails\Emails.csproj" />
     <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Identity.UI\Identity.UI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Application\Commands\" />
-    <Folder Include="Application\DomainEvents\" />
   </ItemGroup>
 
 

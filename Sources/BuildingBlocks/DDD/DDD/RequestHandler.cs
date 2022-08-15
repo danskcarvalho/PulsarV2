@@ -16,7 +16,7 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
-        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionExceptionAttribute), true).Cast<RetryOnExceptionExceptionAttribute>().FirstOrDefault();
+        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
         if (withIso != null && noTran != null)
@@ -33,7 +33,7 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
         return Unit.Value;
     }
 
-    private async Task RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
+    private async Task RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
@@ -41,13 +41,13 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
             {
                 await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct2);
                 return 0;
-            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries ?? 1, ct1);
+            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries <= 0 ? 1 : retryOnExc.Retries, ct1);
         }
         else
             await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct1);
     }
 
-    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionExceptionAttribute retryOnExc)
+    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionAttribute retryOnExc)
     {
         if (retryOnExc.DuplicatedKey)
             yield return Session.GetDuplicatedKeyExceptionType();
@@ -139,7 +139,7 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
-        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionExceptionAttribute), true).Cast<RetryOnExceptionExceptionAttribute>().FirstOrDefault();
+        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
         if (withIso != null)
@@ -153,20 +153,20 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
             return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
     }
 
-    private async Task<TResponse> RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? requiresTran, RetryOnExceptionExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
+    private async Task<TResponse> RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? requiresTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
             return await _session.RetryOnExceptions(async ct2 =>
             {
                 return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, withIso, ct2);
-            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries ?? 1, ct1);
+            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries <= 0 ? 1 : retryOnExc.Retries, ct1);
         }
         else
             return await CreateTransactionOrCCSesction(request, requiresCC, requiresTran, withIso, ct1);
     }
 
-    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionExceptionAttribute retryOnExc)
+    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionAttribute retryOnExc)
     {
         if (retryOnExc.DuplicatedKey)
             yield return Session.GetDuplicatedKeyExceptionType();

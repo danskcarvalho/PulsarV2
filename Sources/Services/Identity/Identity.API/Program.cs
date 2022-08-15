@@ -1,14 +1,3 @@
-using Duende.IdentityServer.Events;
-using Duende.IdentityServer.Services;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Polly;
-using Pulsar.Services.Identity.API.Filters;
-using Pulsar.Services.Identity.API.Services;
-using System.Net;
-using System.Text.Json;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +7,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
 builder.Services.AddMediatR(typeof(UsuarioQueries).Assembly);
+builder.Services.AddSESEmailSupport();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 {
     options.Authority = builder.Configuration["IdentityServer:Authority"];

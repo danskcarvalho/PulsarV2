@@ -151,8 +151,8 @@ public class MongoDbSession : IDbSession
                 alreadyDispatched.Add(root);
                 foreach (var evt in root.DomainEvents)
                 {
-                    if (!IsInTransaction)
-                        throw new InvalidOperationException("dispatching domain events needs a transaction");
+                    //if (!IsInTransaction)
+                    //    throw new InvalidOperationException("dispatching domain events needs a transaction");
                     await _mediator.Publish(evt);
                 }
                 root.ClearDomainEvents();
@@ -370,24 +370,24 @@ public class MongoDbSession : IDbSession
         }
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         while (_trackedRoots.Count != 0)
         {
-            //HashSet<object> alreadyDispatched = new HashSet<object>(ReferenceEqualityComparer.Instance);
+            HashSet<object> alreadyDispatched = new HashSet<object>(ReferenceEqualityComparer.Instance);
             var listRoots = _trackedRoots.Pop();
             foreach (var root in listRoots)
             {
-                throw new InvalidOperationException("dispatching domain events needs a transaction");
-                //if (!alreadyDispatched.Contains(root))
-                //{
-                //    alreadyDispatched.Add(root);
-                //    foreach (var evt in root.DomainEvents)
-                //    {
-                //        await _mediator.Publish(evt);
-                //    }
-                //    root.ClearDomainEvents();
-                //}
+                //throw new InvalidOperationException("dispatching domain events needs a transaction");
+                if (!alreadyDispatched.Contains(root))
+                {
+                    alreadyDispatched.Add(root);
+                    foreach (var evt in root.DomainEvents)
+                    {
+                        await _mediator.Publish(evt);
+                    }
+                    root.ClearDomainEvents();
+                }
             }
         }
         _trackedRoots.Clear();
@@ -409,8 +409,6 @@ public class MongoDbSession : IDbSession
             _baseSession.Dispose();
             _baseSession = null;
         }
-
-        return ValueTask.CompletedTask;
     }
 
     public Type GetDuplicatedKeyExceptionType()

@@ -18,7 +18,11 @@ public partial class Logout
         try
         {
             var r = await LogoutClient.TryLogout(LogoutId);
-            if (r.ShowSignoutPrompt)
+            if (r.NoUser)
+            {
+                _stage = LogoutStage.Deslogado;
+            }
+            else if (r.ShowSignoutPrompt)
             {
                 _stage = LogoutStage.Confirmacao;
             }

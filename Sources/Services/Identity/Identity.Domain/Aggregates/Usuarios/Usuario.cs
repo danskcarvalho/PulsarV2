@@ -109,4 +109,19 @@ public class Usuario : AggregateRoot
     {
         return (this.SenhaSalt + password).SHA256Hash() == this.SenhaHash;
     }
+
+    public void GerarTokenMudancaSenha(out long previousVersion)
+    {
+        if (this.Email is null)
+            throw new IdentityDomainException(ExceptionKey.UsuarioSemEmail);
+
+        if (this.TokenMudancaSenha is null || this.TokenMudancaSenhaExpiraEm is null || DateTime.UtcNow > this.TokenMudancaSenhaExpiraEm.Value.AddMinutes(-15))
+        {
+            this.TokenMudancaSenha = GeneralExtensions.GetSalt();
+            this.TokenMudancaSenhaExpiraEm = DateTime.UtcNow.AddMinutes(30);
+        }
+        this.AddDomainEvent(new TokenMudancaSenhaGeradoDomainEvent(this.Id.ToString(), this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
+        previousVersion = Version;
+        Version++;
+    }
 }

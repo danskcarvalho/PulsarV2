@@ -9,17 +9,15 @@ namespace Pulsar.Services.Identity.API.Controllers;
 [ApiController]
 [Route("v1/login")]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class LoginController : ControllerBase
+public class LoginController : IdentityController
 {
     private readonly ILogger<LoginController> _logger;
-    private readonly IUsuarioQueries _usuarioQueries;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IConfiguration _configuration;
 
-    public LoginController(ILogger<LoginController> logger, IUsuarioQueries usuarioQueries, IIdentityServerInteractionService interaction, IConfiguration configuration)
+    public LoginController(ILogger<LoginController> logger, IMediator mediator, IUsuarioQueries usuarioQueries, IIdentityServerInteractionService interaction, IConfiguration configuration) : base(mediator, usuarioQueries)
     {
         _logger = logger;
-        _usuarioQueries = usuarioQueries;
         _interaction = interaction;
         _configuration = configuration;
     }
@@ -28,7 +26,7 @@ public class LoginController : ControllerBase
     [Route("test")]
     public async Task<ActionResult<UsuarioLogadoDTO>> TestCredentials([FromBody] UsuarioSenhaDTO usuarioSenha)
     {
-        var r = await _usuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
+        var r = await UsuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
         if (r == null)
             return NotFound();
         else
@@ -38,7 +36,7 @@ public class LoginController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<LoginResultDTO>> Login([FromBody] LoginDTO login)
     {
-        var user = await _usuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
+        var user = await UsuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
 
         if (user is not null && user.ValidateLogin(login.DominioId, login.EstabelecimentoId))
         {

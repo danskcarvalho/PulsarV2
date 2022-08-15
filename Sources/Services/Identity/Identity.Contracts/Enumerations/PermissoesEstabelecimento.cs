@@ -2,6 +2,6 @@
 
 public enum PermissoesEstabelecimento
 {
-    EditarEstabelecimento = 1,
-    GerenciarAgendas = 2,
+    EditarEstabelecimentos = 1,
+    EditarAgendas = 2,
 }

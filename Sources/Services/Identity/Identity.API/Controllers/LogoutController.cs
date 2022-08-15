@@ -13,12 +13,12 @@ namespace Pulsar.Services.Identity.API.Controllers;
 [ApiController]
 [Route("v1/logout")]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class LogoutController : ControllerBase
+public class LogoutController : IdentityController
 {
     private readonly ILogger<LogoutController> _logger;
     private readonly IIdentityServerInteractionService _interaction;
 
-    public LogoutController(ILogger<LogoutController> logger, IIdentityServerInteractionService interaction)
+    public LogoutController(ILogger<LogoutController> logger, IIdentityServerInteractionService interaction, IMediator mediator, IUsuarioQueries usuarioQueries) : base(mediator, usuarioQueries)
     {
         _logger = logger;
         _interaction = interaction;
@@ -26,20 +26,23 @@ public class LogoutController : ControllerBase
 
     [Route("try")]
     [HttpPost]
-    public async Task<ActionResult<LogoutResultDTO>> TryLogout([FromBody] string? logoutId)
+    public async Task<ActionResult<LogoutResultDTO>> TryLogout([FromBody] LogoutDTO logout)
     {
-        if (User.Identity == null || User.Identity.IsAuthenticated == false)
+        if (User == null || User.Identity == null || User.Identity.IsAuthenticated == false)
         {
             // if the user is not authenticated, then just show logged out page
-            return await Logout(logoutId);
+            return Ok(new LogoutResultDTO()
+            {
+                NoUser = true
+            });
         }
 
         //Test for Xamarin. 
-        var context = await _interaction.GetLogoutContextAsync(logoutId);
+        var context = await _interaction.GetLogoutContextAsync(logout.LogoutId);
         if (context?.ShowSignoutPrompt == false)
         {
             //it's safe to automatically sign-out
-            return await Logout(logoutId);
+            return await Logout(logout);
         }
 
         // show the logout prompt. this prevents attacks where the user
@@ -50,43 +53,17 @@ public class LogoutController : ControllerBase
         });
     }
 
-    public async Task<ActionResult<LogoutResultDTO>> Logout([FromBody] string? logoutId)
+    public async Task<ActionResult<LogoutResultDTO>> Logout([FromBody] LogoutDTO lougoutModel)
     {
-        var idp = User?.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-
-        if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider)
+        if (User?.Identity?.IsAuthenticated == true)
         {
-            if (logoutId == null)
-            {
-                // if there's no current logout context, we need to create one
-                // this captures necessary info from the current logged in user
-                // before we signout and redirect away to the external IdP for signout
-                logoutId = await _interaction.CreateLogoutContextAsync();
-            }
-
-            string url = "/account/logout?logoutId=" + logoutId;
-
-            try
-            {
-
-                // hack: try/catch to handle social providers that throw
-                await HttpContext.SignOutAsync(idp, new AuthenticationProperties
-                {
-                    RedirectUri = url
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "LOGOUT ERROR: {ExceptionMessage}", ex.Message);
-            }
+            // delete local authentication cookie
+            await HttpContext.SignOutAsync();
         }
 
-        // delete authentication cookie
-        await HttpContext.SignOutAsync();
-        await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
 
         // get context information (client name, post logout redirect URI and iframe for federated signout)
-        var logout = await _interaction.GetLogoutContextAsync(logoutId);
+        var logout = await _interaction.GetLogoutContextAsync(lougoutModel.LogoutId);
 
         return Ok(new LogoutResultDTO()
         {
@@ -94,7 +71,7 @@ public class LogoutController : ControllerBase
             ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
             PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
             SignOutIFrameUrl = logout?.SignOutIFrameUrl,
-            LogoutId = logoutId
+            LogoutId = lougoutModel.LogoutId
         });
     }
 }

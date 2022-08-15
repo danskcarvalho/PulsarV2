@@ -16,7 +16,7 @@ public abstract class NotificationHandler<TNofication> : INotificationHandler<TN
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
-        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionExceptionAttribute), true).Cast<RetryOnExceptionExceptionAttribute>().FirstOrDefault();
+        var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
         if (withIso != null && noTran != null)
@@ -31,7 +31,7 @@ public abstract class NotificationHandler<TNofication> : INotificationHandler<TN
             await RetryOnException(notification, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
     }
 
-    private async Task RetryOnException(TNofication request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
+    private async Task RetryOnException(TNofication request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
@@ -39,13 +39,13 @@ public abstract class NotificationHandler<TNofication> : INotificationHandler<TN
             {
                 await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct2);
                 return 0;
-            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries ?? 1, ct1);
+            }, GetExceptionTypes(retryOnExc), retryOnExc.Retries <= 0 ? 1 : retryOnExc.Retries, ct1);
         }
         else
             await CreateTransactionOrCCSesction(request, requiresCC, noTran, withIso, ct1);
     }
 
-    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionExceptionAttribute retryOnExc)
+    private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionAttribute retryOnExc)
     {
         if (retryOnExc.DuplicatedKey)
             yield return Session.GetDuplicatedKeyExceptionType();

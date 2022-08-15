@@ -18,10 +18,7 @@ namespace Pulsar.Services.Identity.UI.Clients
 
         public async Task<LogoutResultDTO> TryLogout(string? logoutId, CancellationToken ct = default)
         {
-            var data = new Dictionary<string, string>();
-            if (logoutId is not null)
-                data.Add("logoutId", logoutId);
-            var r = await _httpClient.PostAsync("v1/logout/try", new FormUrlEncodedContent(data), ct);
+            var r = await _httpClient.PostAsJsonAsync("v1/logout/try", new LogoutDTO { LogoutId = logoutId }, ct);
             if (r.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
@@ -33,10 +30,7 @@ namespace Pulsar.Services.Identity.UI.Clients
 
         public async Task<LogoutResultDTO> Logout(string? logoutId, CancellationToken ct = default)
         {
-            var data = new Dictionary<string, string>();
-            if (logoutId is not null)
-                data.Add("logoutId", logoutId);
-            var r = await _httpClient.PostAsync("v1/logout", new FormUrlEncodedContent(data), ct);
+            var r = await _httpClient.PostAsJsonAsync("v1/logout", new LogoutDTO { LogoutId = logoutId }, ct);
             if (r.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
