@@ -1,11 +1,11 @@
 ﻿namespace Pulsar.BuildingBlocks.DDD;
 
-public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where TRequest : IRequest<Unit>
+public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where TRequest : IRequest<Unit>
 {
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected RequestHandler(IDbSession session)
+    protected CommandHandler(IDbSession session)
     {
         _session = session;
     }
@@ -123,12 +123,12 @@ public abstract class RequestHandler<TRequest> : IRequestHandler<TRequest> where
     }
 }
 
-public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public abstract class CommandHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected RequestHandler(IDbSession session)
+    protected CommandHandler(IDbSession session)
     {
         _session = session;
     }

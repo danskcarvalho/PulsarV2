@@ -3,7 +3,7 @@ using Pulsar.Services.Identity.Domain.Events;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents;
 
-public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityNotificationHandler<TokenMudancaSenhaGeradoDomainEvent>
+public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityDomainEventHandler<TokenMudancaSenhaGeradoDomainEvent>
 {
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;

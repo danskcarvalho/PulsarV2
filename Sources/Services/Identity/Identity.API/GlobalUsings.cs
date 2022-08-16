@@ -33,3 +33,4 @@ global using System.Text.Json;
 global using Pulsar.BuildingBlocks.Emails.Abstractions;
 global using Pulsar.Services.Identity.API.ViewModels;
 global using Pulsar.BuildingBlocks.DDD;
+global using Pulsar.BuildingBlocks.DDD.Abstractions;

@@ -2,7 +2,7 @@
 
 namespace Pulsar.Services.Identity.API.Application.Commands;
 
-public abstract class IdentityCommandHandler<TRequest> : BuildingBlocks.DDD.RequestHandler<TRequest> where TRequest : IRequest<Unit>
+public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest<Unit>
 {
     protected IConviteRepository ConviteRepository { get; }
     protected IDominioRepository DominioRepository { get; }
@@ -23,7 +23,7 @@ public abstract class IdentityCommandHandler<TRequest> : BuildingBlocks.DDD.Requ
     }
 }
 
-public abstract class IdentityCommandHandler<TRequest, TResponse> : BuildingBlocks.DDD.RequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     protected IConviteRepository ConviteRepository { get; }
     protected IDominioRepository DominioRepository { get; }

@@ -267,10 +267,10 @@ public class MongoDbSession : IDbSession
 
     public async Task<TResult> RetryOnExceptions<TResult>(Func<CancellationToken, Task<TResult>> action, IEnumerable<Type> exceptionTypes, int retries = 1, CancellationToken ct = default)
     {
-        if (IsCausalllyConsistent)
-            throw new InvalidOperationException("already causally consistent");
-        if (IsInTransaction)
-            throw new InvalidOperationException("in transaction");
+        //if (IsCausalllyConsistent)
+        //    throw new InvalidOperationException("already causally consistent");
+        //if (IsInTransaction)
+        //    throw new InvalidOperationException("in transaction");
 
         var retryPolicy = Policy
                     .Handle<Exception>(e => exceptionTypes.Any(eb => eb.IsAssignableFrom(e.GetType())))
