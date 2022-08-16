@@ -35,6 +35,7 @@ public static class DIExtensions
                 var interfaceType = repoType.GetInterfaces().Where(t => t.GetInterfaces().Any(s => s.IsGenericType && s.GetGenericTypeDefinition() == typeof(IRepository<,>))).First();
                 col.AddTransient(repoType);
                 col.AddTransient(interfaceType, repoType);
+                col.AddTransient(typeof(IIsRepository), repoType);
             }
         }
 

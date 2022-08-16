@@ -8,7 +8,7 @@ public interface IRepository<TSelf, TModel> : IRepositoryBase<TModel>
     TSelf WithIsolation(IsolationLevel level);
 }
 
-public interface IRepositoryBase<TModel> where TModel : class, IAggregateRoot
+public interface IRepositoryBase<TModel> : IIsRepository where TModel : class, IAggregateRoot
 {
     void Track(TModel model);
     Task InsertOneAsync(TModel item, CancellationToken ct = default);
@@ -29,4 +29,9 @@ public interface IRepositoryBase<TModel> where TModel : class, IAggregateRoot
     Task<TProjection?> FindOneAsync<TProjection>(IFindSpecification<TModel, TProjection> spec, CancellationToken ct = default);
     Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, bool noTracking = false, CancellationToken ct = default);
     Task<List<TProjection>> FindManyAsync<TProjection>(IFindSpecification<TModel, TProjection> spec, CancellationToken ct = default);
+}
+
+public interface IIsRepository
+{
+
 }

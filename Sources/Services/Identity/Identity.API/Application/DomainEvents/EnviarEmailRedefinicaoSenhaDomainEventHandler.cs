@@ -8,7 +8,8 @@ public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityDomainEvent
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IConfiguration configuration, IEmailService emailService, IConviteRepository conviteRepository, IDominioRepository dominioRepository, IEstabelecimentoRepository estabelecimentoRepository, IGrupoRepository grupoRepository, IRedeEstabelecimentosRepository redeEstabelecimentosRepository, IUsuarioRepository usuarioRepository, IDbSession session) : base(conviteRepository, dominioRepository, estabelecimentoRepository, grupoRepository, redeEstabelecimentosRepository, usuarioRepository, session)
+    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IEmailService emailService, IConfiguration configuration, 
+        IDbSession session, IEnumerable<IIsRepository> repositories) : base(session, repositories)
     {
         _emailService = emailService;
         _configuration = configuration;

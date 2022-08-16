@@ -8,6 +8,7 @@ builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
 builder.Services.AddMediatR(typeof(UsuarioQueries).Assembly);
 builder.Services.AddSESEmailSupport();
+builder.Services.AddTransient<IdentityControllerContext>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 {
     options.Authority = builder.Configuration["IdentityServer:Authority"];

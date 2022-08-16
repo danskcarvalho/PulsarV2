@@ -34,3 +34,4 @@ global using Pulsar.BuildingBlocks.Emails.Abstractions;
 global using Pulsar.Services.Identity.API.ViewModels;
 global using Pulsar.BuildingBlocks.DDD;
 global using Pulsar.BuildingBlocks.DDD.Abstractions;
+global using Pulsar.Services.Identity.API.Controllers;

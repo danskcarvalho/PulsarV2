@@ -7,16 +7,14 @@ namespace Pulsar.Services.Identity.API.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 public class EsqueciMinhaSenhaController : IdentityController
 {
-    private IMediator _mediator;
-    public EsqueciMinhaSenhaController(IMediator mediator)
+    public EsqueciMinhaSenhaController(IdentityControllerContext context) : base(context)
     {
-        this._mediator = mediator;
     }
 
     [HttpPost]
     public async Task<ActionResult> EsqueciMinhaSenha([FromBody] EsqueciMinhaSenhaCommand cmd)
     {
-        await _mediator.Send(cmd);
+        await Mediator.Send(cmd);
         return Ok();
     }
 }

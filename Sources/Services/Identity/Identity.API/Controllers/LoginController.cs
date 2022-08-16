@@ -11,24 +11,18 @@ namespace Pulsar.Services.Identity.API.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 public class LoginController : IdentityController
 {
-    private readonly ILogger<LoginController> _logger;
     private readonly IIdentityServerInteractionService _interaction;
-    private readonly IConfiguration _configuration;
-    private readonly IUsuarioQueries _usuarioQueries;
 
-    public LoginController(ILogger<LoginController> logger, IMediator mediator, IUsuarioQueries usuarioQueries, IIdentityServerInteractionService interaction, IConfiguration configuration)
+    public LoginController(IIdentityServerInteractionService interaction, IdentityControllerContext context) : base(context)
     {
-        _logger = logger;
         _interaction = interaction;
-        _configuration = configuration;
-        _usuarioQueries = usuarioQueries;
     }
 
     [HttpPost]
     [Route("test")]
     public async Task<ActionResult<UsuarioLogadoDTO>> TestCredentials([FromBody] UsuarioSenhaDTO usuarioSenha)
     {
-        var r = await _usuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
+        var r = await UsuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
         if (r == null)
             return NotFound();
         else
@@ -38,11 +32,11 @@ public class LoginController : IdentityController
     [HttpPost]
     public async Task<ActionResult<LoginResultDTO>> Login([FromBody] LoginDTO login)
     {
-        var user = await _usuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
+        var user = await UsuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
 
         if (user is not null && user.ValidateLogin(login.DominioId, login.EstabelecimentoId))
         {
-            var tokenLifetime = _configuration.GetValue("TokenLifetimeMinutes", 120);
+            var tokenLifetime = Configuration.GetValue("TokenLifetimeMinutes", 120);
 
             var props = new AuthenticationProperties
             {
@@ -68,11 +62,10 @@ public class LoginController : IdentityController
                 return Ok(new LoginResultDTO() { Ok = false, Erro = "Não é possível logar no domínio/estabelecimento informado." });
 
         }
-    }
 
-    private async Task SignInAsync(UsuarioLogadoDTO userInfo, LoginDTO login, AuthenticationProperties props)
-    {
-        var claims = new List<Claim> {
+        async Task SignInAsync(UsuarioLogadoDTO userInfo, LoginDTO login, AuthenticationProperties props)
+        {
+            var claims = new List<Claim> {
             new Claim("sub", GetSub(userInfo, login)),
             new Claim("email", userInfo.Email ?? string.Empty),
             new Claim("username", userInfo.NomeUsuario),
@@ -85,29 +78,32 @@ public class LoginController : IdentityController
             new Claim("ep", GetEstabelecimentoPerms(userInfo, login)),
         };
 
-        var identity = new ClaimsIdentity(claims, "pwd");
-        var user = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync(user, props);
+            var identity = new ClaimsIdentity(claims, "pwd");
+            var user = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(user, props);
+
+            string GetEstabelecimentoPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
+            {
+                if (login.DominioId != null && login.EstabelecimentoId != null)
+                    return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).Estabelecimentos.First(e => e.Id == login.EstabelecimentoId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
+                else
+                    return String.Empty;
+            }
+
+            string GetDominioPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
+            {
+                if (login.DominioId != null && login.EstabelecimentoId == null)
+                    return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
+                else
+                    return String.Empty;
+            }
+
+            string GetSub(UsuarioLogadoDTO userInfo, LoginDTO login)
+            {
+                return $"{login.DominioId ?? "_"}/{login.EstabelecimentoId ?? "_"}/{userInfo.Id}";
+            }
+        }
     }
 
-    private string GetEstabelecimentoPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
-    {
-        if (login.DominioId != null && login.EstabelecimentoId != null)
-            return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).Estabelecimentos.First(e => e.Id == login.EstabelecimentoId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
-        else
-            return String.Empty;
-    }
-
-    private string GetDominioPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
-    {
-        if (login.DominioId != null && login.EstabelecimentoId == null)
-            return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
-        else
-            return String.Empty;
-    }
-
-    private string GetSub(UsuarioLogadoDTO userInfo, LoginDTO login)
-    {
-        return $"{login.DominioId ?? "_"}/{login.EstabelecimentoId ?? "_"}/{userInfo.Id}";
-    }
+   
 }

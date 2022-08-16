@@ -8,8 +8,7 @@ namespace Pulsar.Services.Identity.API.Application.Commands;
 [NoTransaction, RetryOnException(VersionConcurrency = true, Retries = 2)]
 public class EsqueciMinhaSenhaCommandHandler : IdentityCommandHandler<EsqueciMinhaSenhaCommand>
 {
-    public EsqueciMinhaSenhaCommandHandler(IConviteRepository conviteRepository, IDominioRepository dominioRepository, IEstabelecimentoRepository estabelecimentoRepository, IGrupoRepository grupoRepository, 
-        IRedeEstabelecimentosRepository redeEstabelecimentosRepository, IUsuarioRepository usuarioRepository, IDbSession session) : base(conviteRepository, dominioRepository, estabelecimentoRepository, grupoRepository, redeEstabelecimentosRepository, usuarioRepository, session)
+    public EsqueciMinhaSenhaCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session, repositories)
     {
     }
 

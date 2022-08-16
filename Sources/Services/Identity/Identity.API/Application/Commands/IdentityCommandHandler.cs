@@ -11,15 +11,14 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
     protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
 
-    protected IdentityCommandHandler(IConviteRepository conviteRepository, IDominioRepository dominioRepository, IEstabelecimentoRepository estabelecimentoRepository, IGrupoRepository grupoRepository, 
-        IRedeEstabelecimentosRepository redeEstabelecimentosRepository, IUsuarioRepository usuarioRepository, IDbSession session) : base(session)
+    protected IdentityCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
     {
-        ConviteRepository = conviteRepository;
-        DominioRepository = dominioRepository;
-        EstabelecimentoRepository = estabelecimentoRepository;
-        GrupoRepository = grupoRepository;
-        RedeEstabelecimentosRepository = redeEstabelecimentosRepository;
-        UsuarioRepository = usuarioRepository;
+        ConviteRepository = (IConviteRepository)repositories.First(r => r is IConviteRepository);
+        DominioRepository = (IDominioRepository)repositories.First(r => r is IDominioRepository);
+        EstabelecimentoRepository = (IEstabelecimentoRepository)repositories.First(r => r is IEstabelecimentoRepository);
+        GrupoRepository = (IGrupoRepository)repositories.First(r => r is IGrupoRepository);
+        RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)repositories.First(r => r is IRedeEstabelecimentosRepository);
+        UsuarioRepository = (IUsuarioRepository)repositories.First(r => r is IUsuarioRepository);
     }
 }
 
@@ -32,14 +31,13 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
     protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
 
-    protected IdentityCommandHandler(IConviteRepository conviteRepository, IDominioRepository dominioRepository, IEstabelecimentoRepository estabelecimentoRepository, IGrupoRepository grupoRepository,
-        IRedeEstabelecimentosRepository redeEstabelecimentosRepository, IUsuarioRepository usuarioRepository, IDbSession session) : base(session)
+    protected IdentityCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
     {
-        ConviteRepository = conviteRepository;
-        DominioRepository = dominioRepository;
-        EstabelecimentoRepository = estabelecimentoRepository;
-        GrupoRepository = grupoRepository;
-        RedeEstabelecimentosRepository = redeEstabelecimentosRepository;
-        UsuarioRepository = usuarioRepository;
+        ConviteRepository = (IConviteRepository)repositories.First(r => r is IConviteRepository);
+        DominioRepository = (IDominioRepository)repositories.First(r => r is IDominioRepository);
+        EstabelecimentoRepository = (IEstabelecimentoRepository)repositories.First(r => r is IEstabelecimentoRepository);
+        GrupoRepository = (IGrupoRepository)repositories.First(r => r is IGrupoRepository);
+        RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)repositories.First(r => r is IRedeEstabelecimentosRepository);
+        UsuarioRepository = (IUsuarioRepository)repositories.First(r => r is IUsuarioRepository);
     }
 }

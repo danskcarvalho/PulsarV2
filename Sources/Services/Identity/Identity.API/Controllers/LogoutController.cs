@@ -14,13 +14,11 @@ namespace Pulsar.Services.Identity.API.Controllers;
 [Route("v1/logout")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class LogoutController : IdentityController
-{
-    private readonly ILogger<LogoutController> _logger;
+{ 
     private readonly IIdentityServerInteractionService _interaction;
 
-    public LogoutController(ILogger<LogoutController> logger, IIdentityServerInteractionService interaction)
+    public LogoutController(IIdentityServerInteractionService interaction, IdentityControllerContext context) : base(context)
     {
-        _logger = logger;
         _interaction = interaction;
     }
 
