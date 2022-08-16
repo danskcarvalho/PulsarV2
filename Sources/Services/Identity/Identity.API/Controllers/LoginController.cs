@@ -14,19 +14,21 @@ public class LoginController : IdentityController
     private readonly ILogger<LoginController> _logger;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IConfiguration _configuration;
+    private readonly IUsuarioQueries _usuarioQueries;
 
-    public LoginController(ILogger<LoginController> logger, IMediator mediator, IUsuarioQueries usuarioQueries, IIdentityServerInteractionService interaction, IConfiguration configuration) : base(mediator, usuarioQueries)
+    public LoginController(ILogger<LoginController> logger, IMediator mediator, IUsuarioQueries usuarioQueries, IIdentityServerInteractionService interaction, IConfiguration configuration)
     {
         _logger = logger;
         _interaction = interaction;
         _configuration = configuration;
+        _usuarioQueries = usuarioQueries;
     }
 
     [HttpPost]
     [Route("test")]
     public async Task<ActionResult<UsuarioLogadoDTO>> TestCredentials([FromBody] UsuarioSenhaDTO usuarioSenha)
     {
-        var r = await UsuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
+        var r = await _usuarioQueries.TestUsuarioCredentials(usuarioSenha.UsernameOrEmail, usuarioSenha.Senha);
         if (r == null)
             return NotFound();
         else
@@ -36,7 +38,7 @@ public class LoginController : IdentityController
     [HttpPost]
     public async Task<ActionResult<LoginResultDTO>> Login([FromBody] LoginDTO login)
     {
-        var user = await UsuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
+        var user = await _usuarioQueries.TestUsuarioCredentials(login.UsernameOrEmail, login.Senha);
 
         if (user is not null && user.ValidateLogin(login.DominioId, login.EstabelecimentoId))
         {
@@ -99,7 +101,7 @@ public class LoginController : IdentityController
     private string GetDominioPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
     {
         if (login.DominioId != null && login.EstabelecimentoId == null)
-            return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).PermissoesGerais.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
+            return String.Join(',', userInfo.Dominios.First(d => d.Id == login.DominioId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
         else
             return String.Empty;
     }

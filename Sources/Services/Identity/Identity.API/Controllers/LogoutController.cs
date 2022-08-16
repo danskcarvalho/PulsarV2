@@ -18,7 +18,7 @@ public class LogoutController : IdentityController
     private readonly ILogger<LogoutController> _logger;
     private readonly IIdentityServerInteractionService _interaction;
 
-    public LogoutController(ILogger<LogoutController> logger, IIdentityServerInteractionService interaction, IMediator mediator, IUsuarioQueries usuarioQueries) : base(mediator, usuarioQueries)
+    public LogoutController(ILogger<LogoutController> logger, IIdentityServerInteractionService interaction)
     {
         _logger = logger;
         _interaction = interaction;

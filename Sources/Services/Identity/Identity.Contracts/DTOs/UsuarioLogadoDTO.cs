@@ -34,17 +34,17 @@ public class UsuarioLogadoDTO
         public string Nome { get; set; }
         public bool IsAdministrador { get; set; }
         public bool PodeLogarDominio { get; set; }
-        public List<PermissoesGerais> PermissoesGerais { get; set; }
+        public List<PermissoesDominio> Permissoes { get; set; }
         public List<EstabelecimentoDTO> Estabelecimentos { get; set; }
 
         [JsonConstructor]
-        public DominioDTO(string id, string nome, bool isAdministrador, bool podeLogarDominio, List<PermissoesGerais> permissoesGerais, List<EstabelecimentoDTO> estabelecimentos)
+        public DominioDTO(string id, string nome, bool isAdministrador, bool podeLogarDominio, List<PermissoesDominio> permissoesDominio, List<EstabelecimentoDTO> estabelecimentos)
         {
             Id = id;
             Nome = nome;
             IsAdministrador = isAdministrador;
             PodeLogarDominio = podeLogarDominio;
-            PermissoesGerais = permissoesGerais;
+            Permissoes = permissoesDominio;
             Estabelecimentos = estabelecimentos;
         }
     }
@@ -78,7 +78,7 @@ public class UsuarioLogadoDTO
         else if (estabelecimentoId is not null)
             return this.Dominios.Any(d => d.Id == dominioId && d.Estabelecimentos.Any(e => e.Id == estabelecimentoId && e.Permissoes.Any()));
         else if (dominioId is not null)
-            return this.Dominios.Any(d => d.Id == dominioId && (d.IsAdministrador || d.PermissoesGerais.Any()));
+            return this.Dominios.Any(d => d.Id == dominioId && (d.IsAdministrador || d.Permissoes.Any()));
         else
             return false;
     }

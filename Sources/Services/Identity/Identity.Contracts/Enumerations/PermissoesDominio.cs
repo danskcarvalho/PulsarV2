@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.Services.Identity.Contracts.Enumerations;
 
-public enum PermissoesGerais
+public enum PermissoesDominio
 {
     EditarGrupos = 1,
 }

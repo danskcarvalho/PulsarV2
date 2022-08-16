@@ -44,8 +44,9 @@ public class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var gruposIds = usuario.Grupos.Select(g => g.GrupoId).ToList();
         var grupos = await (await Grupos.FindAsync(g => gruposIds.Contains(g.Id))).ToListAsync();
         var dominioIds = grupos.Select(g => g.DominioId).Distinct().ToList();
+        var dominiosBloqueados = new HashSet<ObjectId>(usuario.DominiosBloqueados);
         var todosDominiosIds = dominioIds.Union(usuario.DominiosAdministrados).Union(usuario.DominiosBloqueados).ToList();
-        var dominios = await (await Dominios.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync();
+        var dominios = (await (await Dominios.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
         var redesIds = grupos
                 .SelectMany(g => g.SubGrupos)
                 .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
@@ -64,21 +65,22 @@ public class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .ToList();
         var allEstabelecimentos = await (await Estabelecimentos.FindAsync(e => estabelecimentosIds.Contains(e.Id) ||
             e.Redes.Any(rid => redesIds.Contains(rid)))).ToListAsync();
+        var subgrupos = new HashSet<ObjectId>(usuario.Grupos.Select(ug => ug.SubGrupoId));
 
-        var permissions = dominioIds.Union(usuario.DominiosAdministrados).Where(d => !usuario.DominiosBloqueados.Contains(d)).Select(d => new
+        var permissions = dominioIds.Union(usuario.DominiosAdministrados).Where(d => !dominiosBloqueados.Contains(d) && dominios[d].IsAtivo).Select(d => new
         {
             DominioId = d,
             IsAdministrador = usuario.DominiosAdministrados.Contains(d),
-            DominioName = dominios.First(d2 => d2.Id == d).Nome,
+            DominioName = dominios[d].Nome,
             PermissoesGerais = grupos
                 .Where(g => g.DominioId == d)
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
-                .SelectMany(sg => sg.PermissoesGerais).Distinct().ToList(),
+                .Where(sg => subgrupos.Contains(sg.Id))
+                .SelectMany(sg => sg.PermissoesDominio).Distinct().ToList(),
             PermissoesEstabelecimentos = grupos
                 .Where(g => g.DominioId == d)
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
+                .Where(sg => subgrupos.Contains(sg.Id))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Select(sg => sg.Seletor.EstabelecimentoId != null ?
                     (Estabelecimentos: new[] { allEstabelecimentos.First(e => e.Id == sg.Seletor.EstabelecimentoId) }, Permissoes: sg) :

@@ -126,7 +126,7 @@ public class UserProfileService : IProfileService
     private string GetDominioPerms(UsuarioLogadoDTO userInfo, string? dominioId, string? estabelecimentoId)
     {
         if (dominioId != null && estabelecimentoId == null)
-            return String.Join(',', userInfo.Dominios.First(d => d.Id == dominioId).PermissoesGerais.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
+            return String.Join(',', userInfo.Dominios.First(d => d.Id == dominioId).Permissoes.Select(p => (int)p).OrderBy(p => p).Select(p => p.ToString(CultureInfo.InvariantCulture)));
         else
             return String.Empty;
     }
@@ -175,9 +175,18 @@ public class UserProfileService : IProfileService
         var usuarioId = GetId(context.Subject);
         if (usuarioId == null)
             return;
+
+        var dominioId = GetDominioId(context.Subject);
+        var estabelecimentoId = GetEstabelecimentoId(context.Subject);
+
         UsuarioLogadoDTO? userInfo = await _usuarioQueries.GetUsuarioLogadoById(usuarioId);
         if (userInfo == null)
             return;
+        if (dominioId != null && estabelecimentoId == null && !userInfo.Dominios.Any(d => d.Id == dominioId && d.Permissoes.Any()))
+            return;
+        if (dominioId != null && estabelecimentoId != null && !userInfo.Dominios.Any(d => d.Id == dominioId && d.Estabelecimentos.Any(e => e.Id == estabelecimentoId && e.Permissoes.Any())))
+            return;
+
         context.IsActive = userInfo.IsAtivo;
     }
 }
