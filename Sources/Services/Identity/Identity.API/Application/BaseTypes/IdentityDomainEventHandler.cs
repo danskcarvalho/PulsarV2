@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.API.Application.DomainEvents;
+﻿namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
 public abstract class IdentityDomainEventHandler<TRequest> : DomainEventHandler<TRequest> where TRequest : INotification
 {

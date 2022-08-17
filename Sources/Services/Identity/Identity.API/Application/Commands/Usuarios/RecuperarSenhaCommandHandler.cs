@@ -1,7 +1,8 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Attributes;
+using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.Contracts.Commands;
 
-namespace Pulsar.Services.Identity.API.Application.Commands;
+namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 
 [NoTransaction, RetryOnException(VersionConcurrency = true, Retries = 2)]
 public class RecuperarSenhaCommandHandler : IdentityCommandHandler<RecuperarSenhaCommand>

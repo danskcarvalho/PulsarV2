@@ -10,24 +10,24 @@
                 var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
                 var factory = new ConnectionFactory()
                 {
-                    HostName = config["RabbitMQ:EventBusConnection"],
+                    HostName = config["RabbitMQ:Connection"],
                     DispatchConsumersAsync = true
                 };
 
-                if (!string.IsNullOrEmpty(config["RabbitMQ:EventBusUserName"]))
+                if (!string.IsNullOrEmpty(config["RabbitMQ:UserName"]))
                 {
-                    factory.UserName = config["RabbitMQ:EventBusUserName"];
+                    factory.UserName = config["RabbitMQ:UserName"];
                 }
 
-                if (!string.IsNullOrEmpty(config["RabbitMQ:EventBusPassword"]))
+                if (!string.IsNullOrEmpty(config["RabbitMQ:Password"]))
                 {
-                    factory.Password = config["RabbitMQ:EventBusPassword"];
+                    factory.Password = config["RabbitMQ:Password"];
                 }
 
                 var retryCount = 5;
-                if (!string.IsNullOrEmpty(config["RabbitMQ:EventBusRetryCount"]))
+                if (!string.IsNullOrEmpty(config["RabbitMQ:RetryCount"]))
                 {
-                    retryCount = int.Parse(config["RabbitMQ:EventBusRetryCount"]);
+                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]);
                 }
 
                 return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
@@ -43,9 +43,9 @@
                 var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
 
                 var retryCount = 5;
-                if (!string.IsNullOrEmpty(config["RabbitMQ:EventBusRetryCount"]))
+                if (!string.IsNullOrEmpty(config["RabbitMQ:RetryCount"]))
                 {
-                    retryCount = int.Parse(config["RabbitMQ:EventBusRetryCount"]);
+                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]);
                 }
 
                 return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);

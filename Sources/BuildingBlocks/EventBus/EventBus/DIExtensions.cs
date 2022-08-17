@@ -24,7 +24,7 @@ public static class DIExtensions
         col.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
     }
 
-    public static void ConfigureEventBusSubscribers(this IApplicationBuilder app, Assembly assembly)
+    public static void UseEventBus(this IApplicationBuilder app, Assembly assembly)
     {
         var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 

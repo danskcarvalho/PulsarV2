@@ -14,11 +14,11 @@ public record IntegrationEvent
         CreationDate = DateTime.UtcNow;
     }
 
-    public IntegrationEvent(Guid id, bool noRetryOnFailure)
+    public IntegrationEvent(Guid id, bool noRetrySendOnFailure)
     {
         Id = id;
         CreationDate = DateTime.UtcNow;
-        NoRetryOnFailure = noRetryOnFailure;
+        NoRetrySendOnFailure = noRetrySendOnFailure;
     }
 
     public IntegrationEvent(Guid id, DateTime creationDate)
@@ -32,7 +32,7 @@ public record IntegrationEvent
     {
         Id = id;
         CreationDate = creationDate;
-        NoRetryOnFailure = noRetryOnFailure;
+        NoRetrySendOnFailure = noRetryOnFailure;
     }
 
     [JsonInclude]
@@ -40,5 +40,5 @@ public record IntegrationEvent
 
     [JsonInclude]
     public DateTime CreationDate { get; private init; }
-    public bool NoRetryOnFailure { get; private init; }
+    public bool NoRetrySendOnFailure { get; private init; }
 }

@@ -29,7 +29,7 @@ public class IntegrationEventLogEntry
             throw new InvalidOperationException("invalid eventName");
         IntegrationEvent = (JsonSerializer.Deserialize(SerializedEvent, eventType, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }) as IntegrationEvent)!;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
-        NoRetryOnFailure = IntegrationEvent.NoRetryOnFailure;
+        NoRetryOnFailure = IntegrationEvent.NoRetrySendOnFailure;
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public IntegrationEventLogEntry(IntegrationEvent @event)
@@ -47,7 +47,7 @@ public class IntegrationEventLogEntry
         });
         Status = IntegrationEventStatus.Pending;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
-        NoRetryOnFailure = @event.NoRetryOnFailure;
+        NoRetryOnFailure = @event.NoRetrySendOnFailure;
         ScheduledOn = DateTime.UtcNow;
         Version = 1;
     }

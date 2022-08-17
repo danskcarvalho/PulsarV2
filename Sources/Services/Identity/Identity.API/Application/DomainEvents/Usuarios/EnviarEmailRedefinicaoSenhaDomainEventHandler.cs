@@ -1,14 +1,15 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Abstractions;
+using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.Domain.Events;
 
-namespace Pulsar.Services.Identity.API.Application.DomainEvents;
+namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios;
 
 public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityDomainEventHandler<TokenMudancaSenhaGeradoDomainEvent>
 {
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IEmailService emailService, IConfiguration configuration, 
+    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IEmailService emailService, IConfiguration configuration,
         IDbSession session, IEnumerable<IIsRepository> repositories) : base(session, repositories)
     {
         _emailService = emailService;

@@ -1,3 +1,5 @@
+using Pulsar.Services.Identity.API.Application.BaseTypes;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,7 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
-builder.Services.AddMediatR(typeof(UsuarioQueries).Assembly);
+builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
 builder.Services.AddTransient<IdentityControllerContext>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>

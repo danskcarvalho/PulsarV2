@@ -2,7 +2,7 @@
 
 public static class DIExtensions
 {
-    public static void AddEventBus(this IServiceCollection col)
+    public static void AddMongoEventBus(this IServiceCollection col)
     {
         col.AddSingleton<IIntegrationEventLogStorage, MongoIntegrationEventLogStorage>(sp =>
         {

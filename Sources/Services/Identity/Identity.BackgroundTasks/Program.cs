@@ -1,17 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
+builder.Services.AddEventBus();
+builder.Services.AddRabbitMQ(); 
+builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
+builder.Services.AddMediatR(typeof(Program).Assembly);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
+app.UseEventBus(typeof(Program).Assembly);
 
 app.Run();

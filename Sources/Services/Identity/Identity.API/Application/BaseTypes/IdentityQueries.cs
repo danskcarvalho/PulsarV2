@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.API.Application.Queries;
+﻿namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
 public class IdentityQueries : QueryHandler
 {

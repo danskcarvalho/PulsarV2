@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.API.Application.Queries;
+﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
+
+namespace Pulsar.Services.Identity.API.Application.Queries;
 
 public class UsuarioQueries : IdentityQueries, IUsuarioQueries
 {

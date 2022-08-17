@@ -1,6 +1,6 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Abstractions;
 
-namespace Pulsar.Services.Identity.API.Application.Commands;
+namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
 public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest<Unit>
 {
