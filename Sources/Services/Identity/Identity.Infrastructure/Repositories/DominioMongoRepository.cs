@@ -6,7 +6,7 @@ public class DominioMongoRepository : MongoRepository<IDominioRepository, Domini
     {
     }
 
-    protected override string CollectionName => Constants.CollectionNames.Convites;
+    protected override string CollectionName => Constants.CollectionNames.Dominios;
 
     protected override IDominioRepository Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
     {

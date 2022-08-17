@@ -1,0 +1,69 @@
+﻿@page "/account/change_password"
+@inject NavigationManager NavManager
+@inject EsqueciMinhaSenhaClient EsqueciMinhaSenhaClient
+
+<PageTitle>Esqueci minha senha</PageTitle>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-auto">
+        <img id="img-logo" src="images/logo-loading.png" />
+    </div>
+</div>
+
+@if (_stage == MudarSenhaStage.InformarSenha)
+{
+    <EditForm Model="_model" OnValidSubmit="ContinueFromInformarSenha">
+        <FluentValidationValidator />
+        <div class="row text-center mt-3 justify-content-center">
+            <div class="col-10">
+                <span class="fw-bold fs-3">Alterar senha</span>
+            </div>
+        </div>
+        <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
+            <div class="col-10 text-danger">
+                @_errorMessage
+            </div>
+        </div>
+        <div class="row mt-2 mb-3 justify-content-center">
+            <div class="col-10">
+                <InputText type="password" placeholder="nova senha" class="form-control" @bind-Value="_model.Senha"></InputText>
+                <ValidationMessage For="@(() => _model.Senha)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row mb-3 justify-content-center">
+            <div class="col-10">
+                <InputText type="password" placeholder="confirmar senha" class="form-control" @bind-Value="_model.ConfirmarSenha"></InputText>
+                <ValidationMessage For="@(() => _model.ConfirmarSenha)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row text-center mb-4 justify-content-center">
+            <div class="col-10">
+                @if (!_loading)
+                {
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Continuar</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Processando
+                    </button>
+                }
+            </div>
+        </div>
+    </EditForm>
+}
+else
+{
+    <div class="row text-center mt-3 mb-3 justify-content-center">
+        <div class="col-10">
+            <span class="fs-6">A senha do usuário <strong>danskcarvalho</strong> foi alterada.</span>
+        </div>
+    </div>
+    <div class="row text-center mb-4 justify-content-center">
+        <div class="col-10">
+            <button type="submit" class="btn btn-primary btn-lg w-100">Continuar</button>
+        </div>
+    </div>
+}

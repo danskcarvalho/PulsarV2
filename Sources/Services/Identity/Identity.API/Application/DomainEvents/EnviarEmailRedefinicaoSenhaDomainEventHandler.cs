@@ -15,9 +15,9 @@ public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityDomainEvent
         _configuration = configuration;
     }
 
-    protected override async Task HandleAsync(TokenMudancaSenhaGeradoDomainEvent notification, CancellationToken ct)
+    protected override async Task HandleAsync(TokenMudancaSenhaGeradoDomainEvent evt, CancellationToken ct)
     {
-        var url = _configuration["ResetPasswordUrl"].Replace("{TOKEN}", notification.Token).Replace("{USERID}", notification.UsuarioId);
-        await _emailService.Send(new ResetPasswordViewModel(notification.Email, notification.Nome, url));
+        var url = _configuration["ResetPasswordUrl"].Replace("{TOKEN}", evt.Token).Replace("{USERID}", evt.UsuarioId);
+        await _emailService.Send(new ResetPasswordViewModel(evt.Email, evt.Nome, url));
     }
 }

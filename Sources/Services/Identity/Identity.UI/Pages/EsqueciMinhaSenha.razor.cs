@@ -1,23 +1,43 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
+using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.UI.Clients;
 using Pulsar.Services.Identity.UI.Models;
 
 namespace Pulsar.Services.Identity.UI.Pages;
 
 public partial class EsqueciMinhaSenha
 {
+    EsqueciMinhaSenhaStage _stage = EsqueciMinhaSenhaStage.DigitarEmail;
+    string? _errorMessage = null;
+    EsqueciMinhaSenhaCommand _model = new EsqueciMinhaSenhaCommand();
+    bool _loading = false;
+
     [Parameter, SupplyParameterFromQuery]
     public string? ReturnUrl { get; set; }
 
-    EsqueciMinhaSenhaStage _stage = EsqueciMinhaSenhaStage.DigitarEmail;
-    string? _errorMessage = null;
-
-    void ContinueFromDigitarEmail()
+    async Task ContinueFromDigitarEmail()
     {
-        _stage = EsqueciMinhaSenhaStage.EmailEnviado;
+        _errorMessage = null;
+        _loading = true;
+        try
+        {
+            await EsqueciMinhaSenhaClient.EsqueciMinhaSenha(_model);
+            _stage = EsqueciMinhaSenhaStage.EmailEnviado;
+        }
+        catch(BackendException e)
+        {
+            _errorMessage = e.Message;
+            _stage = EsqueciMinhaSenhaStage.DigitarEmail;
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     void Cancelar()
     {
-        NavManager.NavigateTo("/account/login");
+        NavManager.NavigateTo(QueryHelpers.AddQueryString("/account/login", "ReturnUrl", ReturnUrl));
     }
 }

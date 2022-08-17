@@ -2,7 +2,7 @@
 
 namespace Pulsar.BuildingBlocks.DDD;
 
-public abstract class DomainEventHandler<TNofication> : INotificationHandler<TNofication> where TNofication : INotification
+public abstract class DomainEventHandler<TEvent> : INotificationHandler<TEvent> where TEvent : INotification
 {
     private IDbSession _session;
     public IDbSession Session => _session;
@@ -12,9 +12,9 @@ public abstract class DomainEventHandler<TNofication> : INotificationHandler<TNo
         _session = session;
     }
 
-    protected abstract Task HandleAsync(TNofication request, CancellationToken ct);
+    protected abstract Task HandleAsync(TEvent evt, CancellationToken ct);
 
-    async Task INotificationHandler<TNofication>.Handle(TNofication notification, CancellationToken cancellationToken)
+    async Task INotificationHandler<TEvent>.Handle(TEvent notification, CancellationToken cancellationToken)
     {
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
 

@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.DDD.Abstractions;
 
-public interface IDbSession : IAsyncDisposable
+public interface IDbSession : IDisposable
 {
     bool IsCausalllyConsistent { get; }
     bool IsInTransaction { get; }
@@ -12,5 +12,6 @@ public interface IDbSession : IAsyncDisposable
     Task<TResult> OpenCausallyConsistentTransactionAsync<TResult>(Func<CancellationToken, Task<TResult>> action, string? consistencyToken = null, IsolationLevel? level = null, CancellationToken ct = default);
     Task<TResult> WithIsolationLevelAsync<TResult>(Func<CancellationToken, Task<TResult>> action, IsolationLevel level, CancellationToken ct = default);
     Task<TResult> RetryOnExceptions<TResult>(Func<CancellationToken, Task<TResult>> action, IEnumerable<Type> exceptionTypes, int retries = 1, CancellationToken ct = default);
+    Task<TResult> TrackAggregateRoots<TResult>(Func<CancellationToken, Task<TResult>> action, CancellationToken ct = default);
     Type GetDuplicatedKeyExceptionType();
 }

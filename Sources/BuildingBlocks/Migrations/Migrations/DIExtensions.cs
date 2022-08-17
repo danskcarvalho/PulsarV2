@@ -14,7 +14,7 @@ public static class DIExtensions
             var connStr = config["MongoDB:ConnectionString"];
             var database = config["MongoDB:Database"];
 
-            return new MongoDbSessionFactory(connStr, database, () => sp.GetRequiredService<IMediator>());
+            return new MongoDbSessionFactory(connStr, database, null, () => sp.GetRequiredService<IMediator>());
         });
         col.AddSingleton<IDbSessionFactory, MongoDbSessionFactory>(sp => sp.GetRequiredService<MongoDbSessionFactory>());
         col.AddScoped<MongoDbSession>(sp =>

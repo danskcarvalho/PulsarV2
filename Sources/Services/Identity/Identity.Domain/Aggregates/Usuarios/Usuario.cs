@@ -121,7 +121,22 @@ public class Usuario : AggregateRoot
             this.TokenMudancaSenhaExpiraEm = DateTime.UtcNow.AddMinutes(30);
         }
         this.AddDomainEvent(new TokenMudancaSenhaGeradoDomainEvent(this.Id.ToString(), this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
-        previousVersion = Version;
-        Version++;
+        previousVersion = Version++;
+    }
+
+    public void RecuperarSenha(string token, string senha, out long previousVersion)
+    {
+        if (TokenMudancaSenhaExpiraEm == null)
+            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaExpirado);
+        if (DateTime.UtcNow > this.TokenMudancaSenhaExpiraEm)
+            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaExpirado);
+        if (TokenMudancaSenha != token)
+            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaInvalido);
+
+        this.SenhaSalt = GeneralExtensions.GetSalt();
+        this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
+        this.TokenMudancaSenha = null;
+        this.TokenMudancaSenhaExpiraEm = null;
+        previousVersion = Version++;
     }
 }

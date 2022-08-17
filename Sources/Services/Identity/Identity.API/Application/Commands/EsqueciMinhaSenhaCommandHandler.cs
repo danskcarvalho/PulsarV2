@@ -12,9 +12,9 @@ public class EsqueciMinhaSenhaCommandHandler : IdentityCommandHandler<EsqueciMin
     {
     }
 
-    protected override async Task HandleAsync(EsqueciMinhaSenhaCommand request, CancellationToken ct)
+    protected override async Task HandleAsync(EsqueciMinhaSenhaCommand cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneAsync(new GetUsuarioByUsenameOrEmailSpec(request.UsernameOrEmail), ct);
+        var usuario = await UsuarioRepository.FindOneAsync(new FindUsuarioByUsenameOrEmailSpec(cmd.UsernameOrEmail!), ct);
         if (usuario is null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
         

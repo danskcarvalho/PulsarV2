@@ -22,8 +22,8 @@ class MigrationWorker
     public async Task Migrate()
     {
         var startTransaction = GetRequiresTransaction(MigrationType);
-        await using var session = (MongoDbSession)Factory.CreateSession();
-        await using var migrationSession = !startTransaction ? (MongoDbSession)Factory.CreateSession() : session;
+        using var session = (MongoDbSession)Factory.CreateSession();
+        using var migrationSession = !startTransaction ? (MongoDbSession)Factory.CreateSession() : session;
 
         await session.OpenTransactionAsync(async ct =>
         {

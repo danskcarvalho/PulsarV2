@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.DDD;
 
-public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where TRequest : IRequest<Unit>
+public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where TCommand : IRequest<Unit>
 {
     private IDbSession _session;
     public IDbSession Session => _session;
@@ -10,30 +10,33 @@ public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where
         _session = session;
     }
 
-    protected abstract Task HandleAsync(TRequest request, CancellationToken ct);
+    protected abstract Task HandleAsync(TCommand cmd, CancellationToken ct);
 
-    async Task<Unit> IRequestHandler<TRequest, Unit>.Handle(TRequest request, CancellationToken cancellationToken)
+    async Task<Unit> IRequestHandler<TCommand, Unit>.Handle(TCommand request, CancellationToken cancellationToken)
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        if (withIso != null && noTran != null)
+        return await _session.TrackAggregateRoots(async ct =>
         {
-            await _session.WithIsolationLevelAsync(async (ct1) =>
+            if (withIso != null && noTran != null)
             {
-                await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
-                return 0;
-            }, withIso.IsolationLevel, cancellationToken);
-        }
-        else
-            await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
+                await _session.WithIsolationLevelAsync(async (ct1) =>
+                {
+                    await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
+                    return 0;
+                }, withIso.IsolationLevel, ct);
+            }
+            else
+                await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct);
 
-        return Unit.Value;
+            return Unit.Value;
+        }, cancellationToken);
     }
 
-    private async Task RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
+    private async Task RetryOnException(TCommand request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
@@ -60,11 +63,11 @@ public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where
         }
     }
 
-    private async Task CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
+    private async Task CreateTransactionOrCCSesction(TCommand request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
     {
         if (noTran == null && requiresCC != null)
         {
-            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
+            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TCommand).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
             if (token != null || !requiresCC.IfTokenIsPresent)
             {
@@ -101,7 +104,7 @@ public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where
         }
         else if (requiresCC != null)
         {
-            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
+            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TCommand).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
             if (token != null || !requiresCC.IfTokenIsPresent)
             {
@@ -123,7 +126,7 @@ public abstract class CommandHandler<TRequest> : IRequestHandler<TRequest> where
     }
 }
 
-public abstract class CommandHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TCommand, TResult> where TCommand : IRequest<TResult>
 {
     private IDbSession _session;
     public IDbSession Session => _session;
@@ -133,27 +136,30 @@ public abstract class CommandHandler<TRequest, TResponse> : IRequestHandler<TReq
         _session = session;
     }
 
-    protected abstract Task<TResponse> HandleAsync(TRequest request, CancellationToken ct);
+    protected abstract Task<TResult> HandleAsync(TCommand cmd, CancellationToken ct);
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TCommand request, CancellationToken cancellationToken)
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        if (withIso != null)
+        return await _session.TrackAggregateRoots(async ct =>
         {
-            return await _session.WithIsolationLevelAsync(async (ct1) =>
+            if (withIso != null)
             {
-                return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
-            }, withIso.IsolationLevel, cancellationToken);
-        }
-        else
-            return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, cancellationToken);
+                return await _session.WithIsolationLevelAsync(async (ct1) =>
+                {
+                    return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct1);
+                }, withIso.IsolationLevel, ct);
+            }
+            else
+                return await RetryOnException(request, requiresCC, noTran, retryOnExc, withIso, ct);
+        }, cancellationToken);
     }
 
-    private async Task<TResponse> RetryOnException(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? requiresTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
+    private async Task<TResult> RetryOnException(TCommand request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? requiresTran, RetryOnExceptionAttribute? retryOnExc, WithIsolationLevelAttribute? withIso, CancellationToken ct1)
     {
         if (retryOnExc != null)
         {
@@ -179,11 +185,11 @@ public abstract class CommandHandler<TRequest, TResponse> : IRequestHandler<TReq
         }
     }
 
-    private async Task<TResponse> CreateTransactionOrCCSesction(TRequest request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
+    private async Task<TResult> CreateTransactionOrCCSesction(TCommand request, RequiresCausalConsistencyAttribute? requiresCC, NoTransactionAttribute? noTran, WithIsolationLevelAttribute? withIso, CancellationToken ct)
     {
         if (noTran == null && requiresCC != null)
         {
-            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
+            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TCommand).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
             if (token != null || !requiresCC.IfTokenIsPresent)
             {
@@ -217,7 +223,7 @@ public abstract class CommandHandler<TRequest, TResponse> : IRequestHandler<TReq
         }
         else if (requiresCC != null)
         {
-            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TRequest).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
+            var token = requiresCC.CasualConsistencyTokenProperty != null ? typeof(TCommand).GetProperty(requiresCC.CasualConsistencyTokenProperty)?.GetValue(request) as string : null;
 
             if (token != null || !requiresCC.IfTokenIsPresent)
             {

@@ -11,14 +11,15 @@ public static class DIExtensions
             var config = sp.GetRequiredService<IConfiguration>();
             var connStr = config["MongoDB:ConnectionString"];
             var database = config["MongoDB:Database"];
+            var clusterName = config["MongoDB:ClusterName"];
 
-            return new MongoDbSessionFactory(connStr, database, () => sp.GetRequiredService<IMediator>());
+            return new MongoDbSessionFactory(connStr, database, clusterName, () => sp.GetRequiredService<IMediator>());
         });
         col.AddSingleton<IDbSessionFactory, MongoDbSessionFactory>(sp => sp.GetRequiredService<MongoDbSessionFactory>());
         col.AddScoped<MongoDbSession>(sp =>
         {
             var factory = sp.GetRequiredService<MongoDbSessionFactory>();
-            return (MongoDbSession)factory.CreateSession();
+            return (MongoDbSession)factory.CreateSession(sp.GetRequiredService<IMediator>());
         });
         col.AddScoped<IDbSession, MongoDbSession>(sp => sp.GetRequiredService<MongoDbSession>());
 

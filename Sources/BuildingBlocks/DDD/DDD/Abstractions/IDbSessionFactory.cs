@@ -2,5 +2,5 @@
 
 public interface IDbSessionFactory
 {
-    IDbSession CreateSession();
+    IDbSession CreateSession(IMediator? mediator = null);
 }

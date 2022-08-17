@@ -11,4 +11,11 @@ public class UsuarioController : IdentityController
     public UsuarioController(IdentityControllerContext context) : base(context)
     {
     }
+
+    //TODO: Remove later...
+    [HttpGet]
+    public ActionResult GetOk()
+    {
+        return Ok();
+    }
 }

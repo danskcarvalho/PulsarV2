@@ -29,7 +29,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         {
             if (Session is not null && Session.DefaultIsolationLevel != null)
             {
-                if (lastSeenIsolationLevelFromSession != null && lastSeenIsolationLevelFromSession != Session.DefaultIsolationLevel)
+                if (lastSeenIsolationLevelFromSession != null && lastSeenIsolationLevelFromSession != Session.DefaultIsolationLevel && !Session.IsInTransaction)
                 {
                     ApplyIsolationLevel(Session.DefaultIsolationLevel.Value);
                     return true;

@@ -2,11 +2,11 @@
 
 namespace Pulsar.Services.Identity.Domain.Specifications;
 
-public class GetUsuarioByUsenameOrEmailSpec : IFindSpecification<Usuario>
+public class FindUsuarioByUsenameOrEmailSpec : IFindSpecification<Usuario>
 {
     public string UsernameOrEmail { get; }
 
-    public GetUsuarioByUsenameOrEmailSpec(string usernameOrEmail)
+    public FindUsuarioByUsenameOrEmailSpec(string usernameOrEmail)
     {
         UsernameOrEmail = usernameOrEmail;
     }

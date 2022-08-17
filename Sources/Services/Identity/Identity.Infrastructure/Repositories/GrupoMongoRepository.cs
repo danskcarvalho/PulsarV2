@@ -6,7 +6,7 @@
         {
         }
 
-        protected override string CollectionName => Constants.CollectionNames.Convites;
+        protected override string CollectionName => Constants.CollectionNames.Grupos;
 
         protected override IGrupoRepository Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
         {

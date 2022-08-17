@@ -18,7 +18,7 @@ namespace Pulsar.Services.Identity.UI.Clients
 
         public async Task<UsuarioLogadoDTO?> TestCredentials(UsuarioSenhaDTO usuarioSenha, CancellationToken ct = default)
         {
-            var r = await _httpClient.PostAsJsonAsync("v1/login/test", usuarioSenha, ct);
+            using var r = await _httpClient.PostAsJsonAsync("v1/login/test", usuarioSenha, ct);
             if (r.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return null;
             if (r.StatusCode != System.Net.HttpStatusCode.OK)
@@ -32,7 +32,7 @@ namespace Pulsar.Services.Identity.UI.Clients
 
         public async Task<LoginResultDTO?> Login(LoginDTO login, CancellationToken ct = default)
         {
-            var r = await _httpClient.PostAsJsonAsync("v1/login", login, ct);
+            using var r = await _httpClient.PostAsJsonAsync("v1/login", login, ct);
             if (r.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return null;
             if (r.StatusCode != System.Net.HttpStatusCode.OK)

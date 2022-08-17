@@ -17,4 +17,11 @@ public class EsqueciMinhaSenhaController : IdentityController
         await Mediator.Send(cmd);
         return Ok();
     }
+
+    [HttpPost("recuperar")]
+    public async Task<ActionResult> RecuperarSenha([FromBody] RecuperarSenhaCommand cmd)
+    {
+        await Mediator.Send(cmd);
+        return Ok();
+    }
 }

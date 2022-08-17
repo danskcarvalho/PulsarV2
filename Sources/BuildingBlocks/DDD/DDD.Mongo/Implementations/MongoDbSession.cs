@@ -1,4 +1,7 @@
-﻿namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+﻿using Polly.Retry;
+using System.Diagnostics;
+
+namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
 
 public class MongoDbSession : IDbSession
 {
@@ -31,11 +34,13 @@ public class MongoDbSession : IDbSession
     private IClientSessionHandle? _tranSession = null;
     private IMediator _mediator;
     private Stack<List<IAggregateRoot>> _trackedRoots = new Stack<List<IAggregateRoot>>();
+    private string? _clusterName;
 
-    public MongoDbSession(MongoDbSessionFactory factory, IMediator mediator)
+    public MongoDbSession(MongoDbSessionFactory factory, IMediator mediator, string? clusterName)
     {
         Factory = factory;
         _mediator = mediator;
+        _clusterName = clusterName;
     }
 
     public bool IsCausalllyConsistent => CurrentHandle?.Options?.CausalConsistency == true;
@@ -51,6 +56,7 @@ public class MongoDbSession : IDbSession
 
         var bson = new BsonDocument
         {
+            { "clusterName", _clusterName },
             { "clusterTime", clusterTime },
             { "operationTime", operationTime  }
         };
@@ -68,6 +74,9 @@ public class MongoDbSession : IDbSession
                 return false;
             var json = Encoding.UTF8.GetString(Convert.FromBase64String(consistencyToken));
             var doc = json.ToBsonDocument();
+            var clusterName = doc["clusterName"].AsString;
+            if (_clusterName != null && clusterName != _clusterName)
+                throw new InvalidOperationException($"expected consistency token from cluster '{_clusterName}' but got '{clusterName}'");
             clusterTime = doc["clusterTime"].AsBsonDocument;
             operationTime = doc["operationTime"].AsBsonTimestamp;
             return true;
@@ -122,8 +131,8 @@ public class MongoDbSession : IDbSession
         try
         {
             var r = await action(ct);
-            await DispatchDomainEventsAndPopLastFrame();
             popped = true;
+            await DispatchDomainEventsAndPopLastFrame();
             return r;
         }
         finally
@@ -142,23 +151,23 @@ public class MongoDbSession : IDbSession
 
     private async Task DispatchDomainEventsAndPopLastFrame()
     {
+        var listRoots = _trackedRoots.Pop();
         HashSet<object> alreadyDispatched = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        var listRoots = _trackedRoots.Peek();
         foreach (var root in listRoots)
         {
             if (!alreadyDispatched.Contains(root))
             {
+                var events = root.DomainEvents.ToList();
+                root.ClearDomainEvents();
                 alreadyDispatched.Add(root);
-                foreach (var evt in root.DomainEvents)
+                foreach (var evt in events)
                 {
                     //if (!IsInTransaction)
                     //    throw new InvalidOperationException("dispatching domain events needs a transaction");
                     await _mediator.Publish(evt);
                 }
-                root.ClearDomainEvents();
             }
         }
-        _trackedRoots.Pop();
     }
 
     public void TrackAggregateRoot(IAggregateRoot root)
@@ -208,23 +217,26 @@ public class MongoDbSession : IDbSession
                 _ccSession.AdvanceOperationTime(_baseSession.OperationTime);
         }
 
-        _trackedRoots.Push(new List<IAggregateRoot>());
-        bool popped = false;
         try
         {
             return await _ccSession.WithTransactionAsync(async (ss2, ct2) =>
             {
+                _trackedRoots.Push(new List<IAggregateRoot>());
+                bool popped = false;
                 this._tranSession = ss2;
                 try
                 {
 
                     var r = await action(ct2);
-                    await DispatchDomainEventsAndPopLastFrame();
                     popped = true;
+                    await DispatchDomainEventsAndPopLastFrame();
                     return r;
                 }
                 finally
                 {
+                    if (!popped)
+                        _trackedRoots.Pop();
+
                     if (!object.ReferenceEquals(_tranSession, _ccSession))
                     {
                         if (_tranSession.ClusterTime != null)
@@ -238,9 +250,6 @@ public class MongoDbSession : IDbSession
         }
         finally
         {
-            if (!popped)
-                _trackedRoots.Pop();
-
             if (dispose)
             {
                 if (_ccSession.ClusterTime != null)
@@ -276,23 +285,25 @@ public class MongoDbSession : IDbSession
                     .Handle<Exception>(e => exceptionTypes.Any(eb => eb.IsAssignableFrom(e.GetType())))
                     .WaitAndRetryAsync(retries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt) * 0.5 + Math.Pow(2, retryAttempt) * Random.Shared.NextDouble()));
 
-        _trackedRoots.Push(new List<IAggregateRoot>());
-        bool popped = false;
-        try
+        return await retryPolicy.ExecuteAsync(async ct2 =>
         {
-            return await retryPolicy.ExecuteAsync(async ct2 =>
+            _trackedRoots.Push(new List<IAggregateRoot>());
+            bool popped = false;
+            try
             {
+
                 var r = await action(ct2);
-                await DispatchDomainEventsAndPopLastFrame();
                 popped = true;
+                await DispatchDomainEventsAndPopLastFrame();
                 return r;
-            }, ct);
-        }
-        finally
-        {
-            if (!popped)
-                _trackedRoots.Pop();
-        }
+
+            }
+            finally
+            {
+                if (!popped)
+                    _trackedRoots.Pop();
+            }
+        }, ct);
     }
 
     public async Task<TResult> WithIsolationLevelAsync<TResult>(Func<CancellationToken, Task<TResult>> action, IsolationLevel level, CancellationToken ct = default)
@@ -303,8 +314,8 @@ public class MongoDbSession : IDbSession
         try
         {
             var r = await action(ct);
-            await DispatchDomainEventsAndPopLastFrame();
             popped = true;
+            await DispatchDomainEventsAndPopLastFrame();
             return r;
         }
         finally
@@ -370,28 +381,8 @@ public class MongoDbSession : IDbSession
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public void Dispose()
     {
-        while (_trackedRoots.Count != 0)
-        {
-            HashSet<object> alreadyDispatched = new HashSet<object>(ReferenceEqualityComparer.Instance);
-            var listRoots = _trackedRoots.Pop();
-            foreach (var root in listRoots)
-            {
-                //throw new InvalidOperationException("dispatching domain events needs a transaction");
-                if (!alreadyDispatched.Contains(root))
-                {
-                    alreadyDispatched.Add(root);
-                    foreach (var evt in root.DomainEvents)
-                    {
-                        await _mediator.Publish(evt);
-                    }
-                    root.ClearDomainEvents();
-                }
-            }
-        }
-        _trackedRoots.Clear();
-
         if (_tranSession != null)
         {
             _tranSession.Dispose();
@@ -414,5 +405,23 @@ public class MongoDbSession : IDbSession
     public Type GetDuplicatedKeyExceptionType()
     {
         return typeof(MongoDuplicateKeyException);
+    }
+
+    public async Task<TResult> TrackAggregateRoots<TResult>(Func<CancellationToken, Task<TResult>> action, CancellationToken ct = default)
+    {
+        _trackedRoots.Push(new List<IAggregateRoot>());
+        bool popped = false;
+        try
+        {
+            var r = await action(ct);
+            popped = true;
+            await DispatchDomainEventsAndPopLastFrame();
+            return r;
+        }
+        finally
+        {
+            if (!popped)
+                _trackedRoots.Pop();
+        }
     }
 }

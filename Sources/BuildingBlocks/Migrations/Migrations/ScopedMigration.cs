@@ -11,7 +11,7 @@ class ScopedMigration
 
     public async Task Run(Assembly assembly)
     {
-        await using var gatheringSession = (MongoDbSession)_sessionFactory.CreateSession();
+        using var gatheringSession = (MongoDbSession)_sessionFactory.CreateSession();
         var migrations = await GatherMigrations(assembly, gatheringSession);
 
         //run migrations

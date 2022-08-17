@@ -6,13 +6,7 @@ namespace Pulsar.Services.Identity.Contracts.Commands
 {
     public class EsqueciMinhaSenhaCommand : IRequest
     {
-        public string UsernameOrEmail { get; set; }
-
-        [JsonConstructor]
-        public EsqueciMinhaSenhaCommand(string usernameOrEmail)
-        {
-            UsernameOrEmail = usernameOrEmail;
-        }
+        public string? UsernameOrEmail { get; set; }
     }
 
     public class EsqueciMinhaSenhaCommandValidator : AbstractValidator<EsqueciMinhaSenhaCommand>
@@ -24,9 +18,11 @@ namespace Pulsar.Services.Identity.Contracts.Commands
                 .Must(x => IsEmailOrUserName(x)).WithMessage("Nome de usuário ou e-mail inválidos.");
         }
 
-        private bool IsEmailOrUserName(string usernameOrEmail)
+        private bool IsEmailOrUserName(string? usernameOrEmail)
         {
-            if (usernameOrEmail.All(c => char.IsLetterOrDigit(c) || c == '_'))
+            if (usernameOrEmail == null)
+                return true;
+            else if (usernameOrEmail.All(c => char.IsLetterOrDigit(c) || c == '_'))
                 return true;
             else if (Regex.IsMatch(usernameOrEmail, "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"))
                 return true;
