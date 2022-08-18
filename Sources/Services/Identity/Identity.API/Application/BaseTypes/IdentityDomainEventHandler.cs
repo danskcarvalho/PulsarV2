@@ -8,8 +8,9 @@ public abstract class IdentityDomainEventHandler<TRequest> : DomainEventHandler<
     protected IGrupoRepository GrupoRepository { get; }
     protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
+    protected ILogger Logger { get; }
 
-    protected IdentityDomainEventHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
+    protected IdentityDomainEventHandler(ILogger<IdentityDomainEventHandler<TRequest>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
     {
         ConviteRepository = (IConviteRepository)repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)repositories.First(r => r is IDominioRepository);
@@ -17,5 +18,6 @@ public abstract class IdentityDomainEventHandler<TRequest> : DomainEventHandler<
         GrupoRepository = (IGrupoRepository)repositories.First(r => r is IGrupoRepository);
         RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)repositories.First(r => r is IRedeEstabelecimentosRepository);
         UsuarioRepository = (IUsuarioRepository)repositories.First(r => r is IUsuarioRepository);
+        Logger = logger;
     }
 }

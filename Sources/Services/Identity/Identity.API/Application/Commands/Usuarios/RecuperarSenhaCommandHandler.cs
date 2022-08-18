@@ -1,13 +1,13 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Attributes;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
-using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 
 [NoTransaction, RetryOnException(VersionConcurrency = true, Retries = 2)]
 public class RecuperarSenhaCommandHandler : IdentityCommandHandler<RecuperarSenhaCommand>
 {
-    public RecuperarSenhaCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session, repositories)
+    public RecuperarSenhaCommandHandler(ILogger<IdentityCommandHandler<RecuperarSenhaCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 

@@ -1,4 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.Commands;
+﻿using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 namespace Pulsar.Services.Identity.API.Controllers;
 

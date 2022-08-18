@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.Contracts.Commands;
+﻿namespace Pulsar.Services.Identity.Contracts.Utils;
 
 public class CommandResult
 {

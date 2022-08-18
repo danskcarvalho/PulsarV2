@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.EventBus.Events;
 
-public record IntegrationEvent
+public class IntegrationEvent
 {
     public IntegrationEvent()
     {
@@ -40,5 +40,6 @@ public record IntegrationEvent
 
     [JsonInclude]
     public DateTime CreationDate { get; private init; }
+    [JsonIgnore]
     public bool NoRetrySendOnFailure { get; private init; }
 }

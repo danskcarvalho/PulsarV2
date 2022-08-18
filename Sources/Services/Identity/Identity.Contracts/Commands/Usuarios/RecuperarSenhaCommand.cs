@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.Text.RegularExpressions;
 
-namespace Pulsar.Services.Identity.Contracts.Commands;
+namespace Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 public class RecuperarSenhaCommand : IRequest
 {

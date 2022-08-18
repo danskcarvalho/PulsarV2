@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.UI.Clients;
 using Pulsar.Services.Identity.UI.Models;
 

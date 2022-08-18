@@ -14,4 +14,16 @@ public class RedeEstabelecimentos : AggregateRoot
     public ObjectId DominioId { get; private set; }
     public string Nome { get; set; }
     public DateTime TimeStamp { get; set; }
+
+    public bool Editar(string nome, DateTime timeStamp, out long previousVersion)
+    {
+        previousVersion = Version;
+        if (timeStamp <= this.TimeStamp)
+            return false;
+
+        this.Nome = nome;
+        this.TimeStamp = timeStamp;
+        this.Version++;
+        return true;
+    }
 }

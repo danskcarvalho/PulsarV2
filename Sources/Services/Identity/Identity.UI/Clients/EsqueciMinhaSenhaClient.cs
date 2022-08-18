@@ -1,5 +1,5 @@
 ﻿using Microsoft.JSInterop;
-using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.Contracts.DTOs;
 using Pulsar.Services.Identity.UI.Models;
 using System.Net.Http.Json;

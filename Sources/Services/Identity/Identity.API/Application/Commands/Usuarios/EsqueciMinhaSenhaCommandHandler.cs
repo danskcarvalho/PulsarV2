@@ -1,7 +1,7 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Abstractions;
 using Pulsar.BuildingBlocks.DDD.Attributes;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
-using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.Domain.Specifications;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
@@ -9,7 +9,7 @@ namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 [NoTransaction, RetryOnException(VersionConcurrency = true, Retries = 2)]
 public class EsqueciMinhaSenhaCommandHandler : IdentityCommandHandler<EsqueciMinhaSenhaCommand>
 {
-    public EsqueciMinhaSenhaCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session, repositories)
+    public EsqueciMinhaSenhaCommandHandler(ILogger<IdentityCommandHandler<EsqueciMinhaSenhaCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 

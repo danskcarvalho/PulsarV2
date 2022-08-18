@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;
 
 public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest<Unit>
 {
@@ -8,8 +10,9 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
     protected IGrupoRepository GrupoRepository { get; }
     protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
+    protected ILogger Logger { get; }
 
-    protected IdentityCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
+    protected IdentityCommandHandler(ILogger<IdentityCommandHandler<TRequest>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
     {
         ConviteRepository = (IConviteRepository)repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)repositories.First(r => r is IDominioRepository);
@@ -17,6 +20,7 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
         GrupoRepository = (IGrupoRepository)repositories.First(r => r is IGrupoRepository);
         RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)repositories.First(r => r is IRedeEstabelecimentosRepository);
         UsuarioRepository = (IUsuarioRepository)repositories.First(r => r is IUsuarioRepository);
+        Logger = logger;
     }
 }
 
@@ -28,8 +32,9 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
     protected IGrupoRepository GrupoRepository { get; }
     protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
+    protected ILogger Logger { get; }
 
-    protected IdentityCommandHandler(IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
+    protected IdentityCommandHandler(ILogger<IdentityCommandHandler<TRequest, TResponse>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(session)
     {
         ConviteRepository = (IConviteRepository)repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)repositories.First(r => r is IDominioRepository);
@@ -37,5 +42,6 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
         GrupoRepository = (IGrupoRepository)repositories.First(r => r is IGrupoRepository);
         RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)repositories.First(r => r is IRedeEstabelecimentosRepository);
         UsuarioRepository = (IUsuarioRepository)repositories.First(r => r is IUsuarioRepository);
+        Logger = logger;
     }
 }
