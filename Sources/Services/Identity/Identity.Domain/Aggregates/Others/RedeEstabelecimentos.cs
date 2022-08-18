@@ -12,6 +12,6 @@ public class RedeEstabelecimentos : AggregateRoot
 
 
     public ObjectId DominioId { get; private set; }
-    public string Nome { get; private set; }
-    public DateTime TimeStamp { get; private set; }
+    public string Nome { get; set; }
+    public DateTime TimeStamp { get; set; }
 }

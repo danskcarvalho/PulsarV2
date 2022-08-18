@@ -88,6 +88,7 @@ public class UsuarioQueries : IdentityQueries, IUsuarioQueries
                     (Estabelecimentos: new[] { allEstabelecimentos.First(e => e.Id == sg.Seletor.EstabelecimentoId) }, Permissoes: sg) :
                     (Estabelecimentos: allEstabelecimentos.Where(e => e.Redes.Contains(sg.Seletor.RedeEstabelecimentoId!.Value)).ToArray(), Permissoes: sg))
                 .SelectMany(sg => sg.Estabelecimentos.Select(e => (Estabelecimento: e, Permissoes: sg.Item2)))
+                .Where(sg => sg.Estabelecimento.Ativo)
                 .GroupBy(sg => sg.Estabelecimento.Id)
                 .Select(sg => new
                 {
