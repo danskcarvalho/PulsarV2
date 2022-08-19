@@ -1,4 +1,4 @@
-﻿namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+﻿namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class ValueObject : IValueObject, IEquatable<ValueObject>
 {
@@ -36,10 +36,10 @@ public abstract class ValueObject : IValueObject, IEquatable<ValueObject>
     {
         if (other == null || other.GetType() != GetType())
             return false;
-        if (object.ReferenceEquals(this, other))
+        if (ReferenceEquals(this, other))
             return true;
 
-        return this.GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
+        return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
     }
 
     public override bool Equals(object? obj)
@@ -49,8 +49,8 @@ public abstract class ValueObject : IValueObject, IEquatable<ValueObject>
 
     public static bool operator ==(ValueObject? left, ValueObject? right)
     {
-        if (Object.Equals(left, null))
-            return (Object.Equals(right, null)) ? true : false;
+        if (Equals(left, null))
+            return Equals(right, null) ? true : false;
         else
             return left.Equals(right);
     }

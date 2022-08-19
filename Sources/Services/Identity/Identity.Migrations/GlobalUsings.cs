@@ -10,6 +10,5 @@ global using Microsoft.Extensions.DependencyInjection;
 global using MongoDB.Bson;
 global using Pulsar.BuildingBlocks.Utils;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
-global using Pulsar.Services.Identity.Domain.Shared;
 global using MongoDB.Driver;
 global using Pulsar.BuildingBlocks.EventBus.Abstractions;

@@ -14,4 +14,14 @@ public class Dominio : AggregateRoot
         AuditInfo = auditInfo;
         UsuarioAdministradorId = usuarioAdministradorId;
     }
+
+    public void SetAdministradorDominio(ObjectId usuarioId, ObjectId? editadoPorUsuarioId)
+    {
+        if (this.UsuarioAdministradorId != null || !this.IsAtivo)
+            throw new IdentityDomainException(ExceptionKey.ConviteDominioInvalido);
+        this.UsuarioAdministradorId = usuarioId;
+        if (editadoPorUsuarioId != null)
+            this.AuditInfo = this.AuditInfo.EditadoPor(editadoPorUsuarioId.Value);
+        Version++;
+    }
 }

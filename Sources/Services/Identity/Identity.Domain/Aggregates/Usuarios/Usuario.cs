@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+﻿using Pulsar.Services.Identity.Domain.Events.Usuarios;
+
+namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 public class Usuario : AggregateRoot
 {
@@ -10,15 +12,15 @@ public class Usuario : AggregateRoot
     private string _termosBusca;
 
     [BsonConstructor]
-    public Usuario(ObjectId id, string primeiroNome, string? email, string nomeUsuario, string senhaHash, string senhaSalt, AuditInfo auditInfo) : base(id)
+    public Usuario(ObjectId id, string primeiroNome, string? email, string nomeUsuario, string senha, AuditInfo auditInfo) : base(id)
     {
         _primeiroNome = primeiroNome;
         _nomeCompleto = _primeiroNome;
         _email = email?.Trim().ToLowerInvariant();
         _nomeCompleto = nomeUsuario.Trim().ToLowerInvariant();
         _nomeUsuario = nomeUsuario;
-        SenhaHash = senhaHash;
-        SenhaSalt = senhaSalt;
+        SenhaSalt = GeneralExtensions.GetSalt();
+        SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
         Grupos = new HashSet<UsuarioGrupo>();
         DominiosBloqueados = new List<ObjectId>();
         DominiosAdministrados = new List<ObjectId>();
@@ -120,7 +122,7 @@ public class Usuario : AggregateRoot
             this.TokenMudancaSenha = GeneralExtensions.GetSalt();
             this.TokenMudancaSenhaExpiraEm = DateTime.UtcNow.AddMinutes(30);
         }
-        this.AddDomainEvent(new TokenMudancaSenhaGeradoDomainEvent(this.Id.ToString(), this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
+        this.AddDomainEvent(new TokenMudancaSenhaGeradoDomainEvent(this.Id, this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
         previousVersion = Version++;
     }
 

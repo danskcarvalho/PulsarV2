@@ -463,6 +463,25 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                     break;
                 case UpdateCommandNames.Unset:
                     break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    UpdateDefinition = Builders<T>.Update.Max(expression, value);
+                    break;
+                case UpdateCommandNames.Min:
+                    UpdateDefinition = Builders<T>.Update.Min(expression, value);
+                    break;
+                case UpdateCommandNames.Mul:
+                    UpdateDefinition = Builders<T>.Update.Mul(expression, value);
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    break;
                 default:
                     break;
             }
@@ -486,6 +505,25 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                     UpdateDefinition = UpdateDefinition.Set(expression, value);
                     break;
                 case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    UpdateDefinition = UpdateDefinition.Max(expression, value);
+                    break;
+                case UpdateCommandNames.Min:
+                    UpdateDefinition = UpdateDefinition.Min(expression, value);
+                    break;
+                case UpdateCommandNames.Mul:
+                    UpdateDefinition = UpdateDefinition.Mul(expression, value);
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
                     break;
                 default:
                     break;
@@ -516,6 +554,22 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                 case UpdateCommandNames.Unset:
                     UpdateDefinition = Builders<T>.Update.Unset(expression);
                     break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    break;
                 default:
                     break;
             }
@@ -540,6 +594,22 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                     break;
                 case UpdateCommandNames.Unset:
                     UpdateDefinition = UpdateDefinition.Unset(expression);
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
                     break;
                 default:
                     break;
@@ -569,6 +639,23 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                     break;
                 case UpdateCommandNames.Unset:
                     break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    UpdateDefinition = Builders<T>.Update.Pull(expression, value);
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    break;
                 default:
                     break;
             }
@@ -592,6 +679,191 @@ class UpdateInjector<T> : IUpdateInjectField<T>
                 case UpdateCommandNames.Set:
                     break;
                 case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    UpdateDefinition = UpdateDefinition.Pull(expression, value);
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void Inject<TField>(string commandName, Expression<Func<T, IEnumerable<TField>>> expression, IEnumerable<TField> values)
+    {
+        if (UpdateDefinition == null)
+        {
+            switch (commandName)
+            {
+                case UpdateCommandNames.Inc:
+                    break;
+                case UpdateCommandNames.AddToSet:
+                    break;
+                case UpdateCommandNames.PopFirst:
+                    break;
+                case UpdateCommandNames.PopLast:
+                    break;
+                case UpdateCommandNames.Push:
+                    break;
+                case UpdateCommandNames.Set:
+                    break;
+                case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    UpdateDefinition = Builders<T>.Update.AddToSetEach(expression, values);
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    UpdateDefinition = Builders<T>.Update.PullAll(expression, values);
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    UpdateDefinition = Builders<T>.Update.PushEach(expression, values);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (commandName)
+            {
+                case UpdateCommandNames.Inc:
+                    break;
+                case UpdateCommandNames.AddToSet:
+                    break;
+                case UpdateCommandNames.PopFirst:
+                    break;
+                case UpdateCommandNames.PopLast:
+                    break;
+                case UpdateCommandNames.Push:
+                    break;
+                case UpdateCommandNames.Set:
+                    break;
+                case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    UpdateDefinition = UpdateDefinition.AddToSetEach(expression, values);
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    UpdateDefinition = UpdateDefinition.PullAll(expression, values);
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    break;
+                case UpdateCommandNames.PushEach:
+                    UpdateDefinition = UpdateDefinition.PushEach(expression, values);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void Inject<TField>(string commandName, Expression<Func<T, IEnumerable<TField>>> expression, Expression<Func<TField, bool>> filter)
+    {
+        if (UpdateDefinition == null)
+        {
+            switch (commandName)
+            {
+                case UpdateCommandNames.Inc:
+                    break;
+                case UpdateCommandNames.AddToSet:
+                    break;
+                case UpdateCommandNames.PopFirst:
+                    break;
+                case UpdateCommandNames.PopLast:
+                    break;
+                case UpdateCommandNames.Push:
+                    break;
+                case UpdateCommandNames.Set:
+                    break;
+                case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    UpdateDefinition = Builders<T>.Update.PullFilter(expression, filter);
+                    break;
+                case UpdateCommandNames.PushEach:
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (commandName)
+            {
+                case UpdateCommandNames.Inc:
+                    break;
+                case UpdateCommandNames.AddToSet:
+                    break;
+                case UpdateCommandNames.PopFirst:
+                    break;
+                case UpdateCommandNames.PopLast:
+                    break;
+                case UpdateCommandNames.Push:
+                    break;
+                case UpdateCommandNames.Set:
+                    break;
+                case UpdateCommandNames.Unset:
+                    break;
+                case UpdateCommandNames.AddToSetEach:
+                    break;
+                case UpdateCommandNames.Max:
+                    break;
+                case UpdateCommandNames.Min:
+                    break;
+                case UpdateCommandNames.Mul:
+                    break;
+                case UpdateCommandNames.Pull:
+                    break;
+                case UpdateCommandNames.PullAll:
+                    break;
+                case UpdateCommandNames.PullFilter:
+                    UpdateDefinition = UpdateDefinition.PullFilter(expression, filter);
+                    break;
+                case UpdateCommandNames.PushEach:
                     break;
                 default:
                     break;

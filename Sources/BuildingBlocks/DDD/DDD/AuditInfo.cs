@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.Domain.Shared;
+﻿namespace Pulsar.BuildingBlocks.DDD;
 
 public class AuditInfo : ValueObject
 {
@@ -22,12 +22,12 @@ public class AuditInfo : ValueObject
 
     public AuditInfo EditadoPor(ObjectId editadoPorUsuarioId, DateTime? editadoEm = null)
     {
-        return new AuditInfo(this.CriadoPorUsuarioId, this.CriadoEm, editadoPorUsuarioId, editadoEm ?? DateTime.UtcNow);
+        return new AuditInfo(CriadoPorUsuarioId, CriadoEm, editadoPorUsuarioId, editadoEm ?? DateTime.UtcNow);
     }
 
     public AuditInfo RemovidoPor(ObjectId removidoPorUsuarioId, DateTime? removidoEm = null)
     {
-        return new AuditInfo(this.CriadoPorUsuarioId, this.CriadoEm, this.EditadoPorUsuarioId, this.EditadoEm, removidoPorUsuarioId, removidoEm ?? DateTime.UtcNow);
+        return new AuditInfo(CriadoPorUsuarioId, CriadoEm, EditadoPorUsuarioId, EditadoEm, removidoPorUsuarioId, removidoEm ?? DateTime.UtcNow);
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()

@@ -1,4 +1,4 @@
-﻿namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+﻿namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 {
@@ -60,31 +60,31 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     public override int GetHashCode()
     {
-        return !IsTransient ? this.Id.GetHashCode() : base.GetHashCode();
+        return !IsTransient ? Id.GetHashCode() : base.GetHashCode();
 
     }
 
     public bool Equals(AggregateRoot? other)
     {
-        if (object.ReferenceEquals(this, other))
+        if (ReferenceEquals(this, other))
             return true;
 
-        if (object.ReferenceEquals(other, null))
+        if (ReferenceEquals(other, null))
             return false;
 
-        if (this.GetType() != other.GetType())
+        if (GetType() != other.GetType())
             return false;
 
-        if (other.IsTransient || this.IsTransient)
+        if (other.IsTransient || IsTransient)
             return false;
         else
-            return other.Id == this.Id;
+            return other.Id == Id;
     }
 
     public static bool operator ==(AggregateRoot? left, AggregateRoot? right)
     {
-        if (Object.Equals(left, null))
-            return (Object.Equals(right, null)) ? true : false;
+        if (Equals(left, null))
+            return Equals(right, null) ? true : false;
         else
             return left.Equals(right);
     }

@@ -14,3 +14,4 @@ global using Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
 global using Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;
 global using Pulsar.BuildingBlocks.DDD.Attributes;
 global using Pulsar.Services.Identity.Contracts.Commands.Others;
+global using Pulsar.Services.Shared;

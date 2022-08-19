@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
     <ProjectReference Include="..\..\Estabelecimentos\Estabelecimentos.Contracts\Estabelecimentos.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared\Shared.csproj" />
     <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />

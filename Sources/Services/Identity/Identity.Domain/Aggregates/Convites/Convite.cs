@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
+﻿using Pulsar.Services.Identity.Domain.Events.Convites;
+
+namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
 
 public class Convite : AggregateRoot
 {
@@ -18,6 +20,7 @@ public class Convite : AggregateRoot
     public string Email { get => _email; private set => _email = value.Trim().ToLowerInvariant(); }
     public DateTime ConviteExpiraEm { get; private set; }
     public string TokenAceitacao { get; private set; }
+    public bool IsAceito { get; set; }
     public ObjectId DominioId { get; private set; }
     /// <summary>
     /// Caso o domínio já esteja sendo administrado, o convite falha.
@@ -26,4 +29,19 @@ public class Convite : AggregateRoot
     public IReadOnlySet<ConviteGrupo> Grupos { get; private set; }
 
     public AuditInfo AuditInfo { get; set; }
+
+    public void Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
+    {
+        if (IsAceito)
+            throw new IdentityDomainException(ExceptionKey.ConviteJaAceito);
+        if (DateTime.UtcNow > ConviteExpiraEm)
+            throw new IdentityDomainException(ExceptionKey.ConviteExpirado);
+        if (TokenAceitacao != token)
+            throw new IdentityDomainException(ExceptionKey.ConviteTokenInvalido);
+
+        IsAceito = true;
+        Version++;
+        this.AddDomainEvent(new ConviteAceitoDomainEvent(DominioId, this.Id, ObjectId.GenerateNewId(), primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, this.AdministrarDominio, this.Grupos, AuditInfo.CriadoPorUsuarioId));
+
+    }
 }
