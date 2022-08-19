@@ -9,12 +9,14 @@ public class AddSuperUser : Migration
     {
         var usuarioCollection = GetCollection<Usuario>("Usuarios");
         var sid = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
+        var salt = GeneralExtensions.GetSalt();
         var superUser = new Usuario(
             sid,
             "Administrador",
             null,
             "administrador",
-            "administrador",
+            salt,
+            (salt + "administrador").SHA256Hash(),
             new AuditInfo(sid));
         superUser.IsAtivo = true;
         await usuarioCollection.InsertOneAsync(this.Session, superUser);

@@ -44,7 +44,7 @@ public class UsuarioQueries : IdentityQueries, IUsuarioQueries
     private async Task<UsuarioLogadoDTO> GetUsuarioLogado(Usuario usuario)
     {
         var gruposIds = usuario.Grupos.Select(g => g.GrupoId).ToList();
-        var grupos = await (await Grupos.FindAsync(g => gruposIds.Contains(g.Id))).ToListAsync();
+        var grupos = await (await Grupos.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
         var dominioIds = grupos.Select(g => g.DominioId).Distinct().ToList();
         var dominiosBloqueados = new HashSet<ObjectId>(usuario.DominiosBloqueados);
         var todosDominiosIds = dominioIds.Union(usuario.DominiosAdministrados).Union(usuario.DominiosBloqueados).ToList();

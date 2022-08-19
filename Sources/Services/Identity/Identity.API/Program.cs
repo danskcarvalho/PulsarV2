@@ -1,4 +1,5 @@
 using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
+builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
 builder.Services.AddTransient<IdentityControllerContext>();

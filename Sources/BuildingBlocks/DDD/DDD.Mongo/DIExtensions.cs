@@ -2,6 +2,27 @@
 
 public static class DIExtensions
 {
+    public static void AddValidators(this IServiceCollection col, params Assembly[] assemblies)
+    {
+        foreach (var assembly in assemblies)
+        {
+            var types = assembly.GetTypes().Where(t =>
+            {
+                return t.IsPublic && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract &&
+                    t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>));
+            });
+
+            foreach (var validator in types)
+            {
+                col.AddTransient(validator);
+                var interfaceTypes = validator.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>));
+                foreach (var interfaceType in interfaceTypes)
+                {
+                    col.AddTransient(interfaceType, validator);
+                }
+            }
+        }
+    }
     public static void AddMongoDB(this IServiceCollection col, params Assembly[] assemblies)
     {
         AutoMappingConventions.Register();

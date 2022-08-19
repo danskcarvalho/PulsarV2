@@ -1,5 +1,6 @@
 ﻿@page "/account/new"
 @inject NavigationManager NavManager
+@inject AceitarConviteClient AceitarConviteClient
 
 <PageTitle>Aceitar Convite</PageTitle>
 
@@ -11,61 +12,80 @@
 
 @if (_stage == AceitarConviteStage.InformarDados)
 {
-    <div class="row text-center mt-3 justify-content-center">
-        <div class="col-11">
-            <span class="fw-bold fs-3">Novo Usuário</span>
+    <EditForm Model="_model" OnValidSubmit="ContinueFromInformarDados">
+        <FluentValidationValidator />
+        <div class="row text-center mt-3 justify-content-center">
+            <div class="col-11">
+                <span class="fw-bold fs-3">Novo Usuário</span>
+            </div>
         </div>
-    </div>
-    <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
-        <div class="col-11 text-danger">
-            @_errorMessage
+        <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_errorMessage == null)">
+            <div class="col-11 text-danger">
+                @_errorMessage
+            </div>
         </div>
-    </div>
-    <div class="row mt-2 mb-3 justify-content-center">
-        <div class="col-11">
-            <div class="row gy-3">
-                <div class="col-sm-6">
-                    <label for="primeiroNome" class="form-label">Primeiro Nome</label>
-                    <input type="text" class="form-control" id="senha" />
-                </div>
-                <div class="col-sm-6">
-                    <label for="sobrenome" class="form-label">Sobrenome</label>
-                    <input type="text" class="form-control" id="sobrenome" />
+        <div class="row mt-2 mb-3 justify-content-center">
+            <div class="col-11">
+                <div class="row gy-3">
+                    <div class="col-sm-6">
+                        <label for="primeiroNome" class="form-label">Primeiro Nome</label>
+                        <InputText class="form-control" id="primeiroNome" @bind-Value="_model.PrimeiroNome"></InputText>
+                        <ValidationMessage For="@(() => _model.PrimeiroNome)" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="sobrenome" class="form-label">Sobrenome</label>
+                        <InputText class="form-control" id="sobrenome" @bind-Value="_model.Sobrenome"></InputText>
+                        <ValidationMessage For="@(() => _model.Sobrenome)" />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row mb-3 justify-content-center">
-        <div class="col-11">
-            <label for="nomeUsuario" class="form-label">Nome de usuário</label>
-            <input type="text" class="form-control" id="nomeUsuario" />
+        <div class="row mb-3 justify-content-center">
+            <div class="col-11">
+                <label for="nomeUsuario" class="form-label">Nome de usuário</label>
+                <InputText class="form-control" id="nomeUsuario" @bind-Value="_model.NomeUsuario"></InputText>
+                <ValidationMessage For="@(() => _model.NomeUsuario)" />
+            </div>
         </div>
-    </div>
-    <div class="row mb-4 justify-content-center">
-        <div class="col-11">
-            <div class="row gy-3">
-                <div class="col-sm-6">
-                    <label for="senha" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="senha" />
-                </div>
-                <div class="col-sm-6">
-                    <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
-                    <input type="password" class="form-control" id="confirmarSenha" />
+        <div class="row mb-4 justify-content-center">
+            <div class="col-11">
+                <div class="row gy-3">
+                    <div class="col-sm-6">
+                        <label for="senha" class="form-label">Senha</label>
+                        <InputText type="password" class="form-control" id="senha" @bind-Value="_model.Senha"></InputText>
+                        <ValidationMessage For="@(() => _model.Senha)" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                        <InputText type="password" class="form-control" id="confirmarSenha" @bind-Value="_model.ConfirmarSenha"></InputText>
+                        <ValidationMessage For="@(() => _model.ConfirmarSenha)" />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row text-center mb-4 justify-content-center">
-        <div class="col-11">
-            <button type="submit" class="btn btn-primary btn-lg w-100" @onclick="ContinueFromInformarDados">Continuar</button>
+        <div class="row text-center mb-4 justify-content-center">
+            <div class="col-11">
+                @if (!_loading)
+                {
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Continuar</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Processando
+                    </button>
+                }
+            </div>
         </div>
-    </div>
+    </EditForm>
 }
 else
 {
     <div class="row text-center mt-3 mb-3 justify-content-center">
         <div class="col-10">
-            <span class="fs-6">O usuário <strong>danskcarvalho</strong> foi adicionado à base de dados do Pulsar.</span>
+            <span class="fs-6">O usuário <strong>@_model.NomeUsuario</strong> foi adicionado à base de dados do Pulsar.</span>
         </div>
     </div>
     <div class="row text-center mb-4 justify-content-center">

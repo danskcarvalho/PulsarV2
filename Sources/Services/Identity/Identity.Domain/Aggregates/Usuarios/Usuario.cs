@@ -12,15 +12,15 @@ public class Usuario : AggregateRoot
     private string _termosBusca;
 
     [BsonConstructor]
-    public Usuario(ObjectId id, string primeiroNome, string? email, string nomeUsuario, string senha, AuditInfo auditInfo) : base(id)
+    public Usuario(ObjectId id, string primeiroNome, string? email, string nomeUsuario, string senhaSalt, string senhaHash, AuditInfo auditInfo) : base(id)
     {
         _primeiroNome = primeiroNome;
         _nomeCompleto = _primeiroNome;
         _email = email?.Trim().ToLowerInvariant();
         _nomeCompleto = nomeUsuario.Trim().ToLowerInvariant();
         _nomeUsuario = nomeUsuario;
-        SenhaSalt = GeneralExtensions.GetSalt();
-        SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
+        SenhaSalt = senhaSalt;
+        SenhaHash = senhaHash;
         Grupos = new HashSet<UsuarioGrupo>();
         DominiosBloqueados = new List<ObjectId>();
         DominiosAdministrados = new List<ObjectId>();

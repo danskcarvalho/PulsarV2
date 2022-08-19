@@ -16,7 +16,8 @@ public class CriarUsuarioConvidadoDomainEventHandler : IdentityDomainEventHandle
         if (usuarioExistente != null)
             throw new IdentityDomainException(ExceptionKey.UsuarioJaConvidado);
 
-        var usuario = new Usuario(evt.UsuarioId, evt.PrimeiroNome, evt.Email, evt.NomeUsuario, evt.Senha, new AuditInfo(evt.CriadoPorUsuarioId))
+        var salt = GeneralExtensions.GetSalt();
+        var usuario = new Usuario(evt.UsuarioId, evt.PrimeiroNome, evt.Email, evt.NomeUsuario, salt, (salt + evt.Senha).SHA256Hash(), new AuditInfo(evt.CriadoPorUsuarioId))
         {
             IsAtivo = true,
             UltimoNome = evt.Sobrenome

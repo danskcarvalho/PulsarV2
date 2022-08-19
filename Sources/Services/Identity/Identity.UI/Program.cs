@@ -11,5 +11,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<LoginClient>();
 builder.Services.AddScoped<LogoutClient>();
 builder.Services.AddScoped<EsqueciMinhaSenhaClient>();
+builder.Services.AddScoped<AceitarConviteClient>();
 
 await builder.Build().RunAsync();

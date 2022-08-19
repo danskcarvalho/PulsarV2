@@ -27,7 +27,7 @@ public class AceitarConviteCommandValidator : AbstractValidator<AceitarConviteCo
             .Length(2, 128).WithMessage("O primeiro nome deve ter entre 2 e 128 caracteres.");
         RuleFor(x => x.Sobrenome)
             .Length(2, 256).WithMessage("O sobrenome deve ter entre 2 e 256 caracteres.");
-        RuleFor(x => x.Sobrenome)
+        RuleFor(x => x.NomeUsuario)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("O nome de usuário é de preenchimento obrigatório.")
             .Length(8, 32).WithMessage("O nome de usuário deve ter entre 8 e 32 caracteres.")
