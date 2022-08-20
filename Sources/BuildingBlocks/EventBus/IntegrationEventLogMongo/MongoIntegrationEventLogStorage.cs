@@ -9,7 +9,7 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
     public MongoIntegrationEventLogStorage(IMongoDatabase database, ILogger<MongoIntegrationEventLogStorage> logger)
     {
         _Database = database ?? throw new ArgumentNullException(nameof(database));
-        _Collection = _Database.GetCollection<IntegrationEventLogEntry>(Constants.EventLogCollectionName)
+        _Collection = _Database.GetCollection<IntegrationEventLogEntry>(Constants.EVENT_LOG_COLLECTION_NAME)
             .WithWriteConcern(WriteConcern.WMajority)
             .WithReadConcern(ReadConcern.Majority)
             .WithReadPreference(ReadPreference.PrimaryPreferred);

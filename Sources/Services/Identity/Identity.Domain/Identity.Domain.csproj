@@ -8,13 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD\DDD.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
-    <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
+    <Compile Remove="Shared\**" />
+    <EmbeddedResource Remove="Shared\**" />
+    <None Remove="Shared\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Shared\" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD\DDD.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
+    <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,32 +1,30 @@
 ﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Identity.Domain.Aggregates.Convites;
 using Pulsar.Services.Identity.Domain.Events.Convites;
-using Pulsar.Services.Identity.Domain.Specifications;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios;
 
-public class CriarUsuarioConvidadoDomainEventHandler : IdentityDomainEventHandler<ConviteAceitoDomainEvent>
+public class CriarUsuarioConvidadoDomainEventHandler : IdentityDomainEventHandler<UsuarioConvidadoDomainEvent>
 {
-    public CriarUsuarioConvidadoDomainEventHandler(ILogger<IdentityDomainEventHandler<ConviteAceitoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public CriarUsuarioConvidadoDomainEventHandler(ILogger<IdentityDomainEventHandler<UsuarioConvidadoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 
-    protected override async Task HandleAsync(ConviteAceitoDomainEvent evt, CancellationToken ct)
+    protected override async Task HandleAsync(UsuarioConvidadoDomainEvent evt, CancellationToken ct)
     {
-        var usuarioExistente = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(evt.NomeUsuario, evt.Email), ct);
-        if (usuarioExistente != null)
-            throw new IdentityDomainException(ExceptionKey.UsuarioJaConvidado);
-
-        var salt = GeneralExtensions.GetSalt();
-        var usuario = new Usuario(evt.UsuarioId, evt.PrimeiroNome, evt.Email, evt.NomeUsuario, salt, (salt + evt.Senha).SHA256Hash(), new AuditInfo(evt.CriadoPorUsuarioId))
+        var usuario = new Usuario(
+            evt.UsuarioId,
+            evt.Email!,
+            evt.Email,
+            Guid.NewGuid().ToString("N"),
+            GeneralExtensions.GetSalt(),
+            GeneralExtensions.GetSalt(),
+            new AuditInfo(evt.UsuarioLogadoId))
         {
-            IsAtivo = true,
-            UltimoNome = evt.Sobrenome
+            IsAtivo = false,
+            IsConvitePendente = true
         };
-        if (evt.AdministrarDominio)
-            usuario.DominiosAdministrados.Add(evt.DominioId);
-        foreach (var grp in evt.Grupos)
-        {
-            usuario.Grupos.Add(new UsuarioGrupo(evt.DominioId, grp.GrupoId, grp.SubGrupoId));
-        }
+
+        await UsuarioRepository.InsertOneAsync(usuario);
     }
 }

@@ -447,40 +447,40 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     UpdateDefinition = Builders<T>.Update.Inc(expression, value);
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     UpdateDefinition = Builders<T>.Update.Set(expression, value);
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     UpdateDefinition = Builders<T>.Update.Max(expression, value);
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     UpdateDefinition = Builders<T>.Update.Min(expression, value);
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     UpdateDefinition = Builders<T>.Update.Mul(expression, value);
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -490,40 +490,40 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     UpdateDefinition = UpdateDefinition.Inc(expression, value);
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     UpdateDefinition = UpdateDefinition.Set(expression, value);
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     UpdateDefinition = UpdateDefinition.Max(expression, value);
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     UpdateDefinition = UpdateDefinition.Min(expression, value);
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     UpdateDefinition = UpdateDefinition.Mul(expression, value);
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -537,38 +537,38 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     UpdateDefinition = Builders<T>.Update.PopFirst(expression);
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     UpdateDefinition = Builders<T>.Update.PopLast(expression);
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     UpdateDefinition = Builders<T>.Update.Unset(expression);
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -578,38 +578,38 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     UpdateDefinition = UpdateDefinition.PopFirst(expression);
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     UpdateDefinition = UpdateDefinition.PopLast(expression);
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     UpdateDefinition = UpdateDefinition.Unset(expression);
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -623,38 +623,38 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     UpdateDefinition = Builders<T>.Update.AddToSet(expression, value);
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     UpdateDefinition = Builders<T>.Update.Push(expression, value);
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     UpdateDefinition = Builders<T>.Update.Pull(expression, value);
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -664,38 +664,38 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     UpdateDefinition = UpdateDefinition.AddToSet(expression, value);
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     UpdateDefinition = UpdateDefinition.Push(expression, value);
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     UpdateDefinition = UpdateDefinition.Pull(expression, value);
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -709,37 +709,37 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     UpdateDefinition = Builders<T>.Update.AddToSetEach(expression, values);
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     UpdateDefinition = Builders<T>.Update.PullAll(expression, values);
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     UpdateDefinition = Builders<T>.Update.PushEach(expression, values);
                     break;
                 default:
@@ -750,37 +750,37 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     UpdateDefinition = UpdateDefinition.AddToSetEach(expression, values);
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     UpdateDefinition = UpdateDefinition.PullAll(expression, values);
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     UpdateDefinition = UpdateDefinition.PushEach(expression, values);
                     break;
                 default:
@@ -795,36 +795,36 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     UpdateDefinition = Builders<T>.Update.PullFilter(expression, filter);
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;
@@ -834,36 +834,36 @@ class UpdateInjector<T> : IUpdateInjectField<T>
         {
             switch (commandName)
             {
-                case UpdateCommandNames.Inc:
+                case UpdateCommandNames.INC:
                     break;
-                case UpdateCommandNames.AddToSet:
+                case UpdateCommandNames.ADD_TO_SET:
                     break;
-                case UpdateCommandNames.PopFirst:
+                case UpdateCommandNames.POP_FIRST:
                     break;
-                case UpdateCommandNames.PopLast:
+                case UpdateCommandNames.POP_LAST:
                     break;
-                case UpdateCommandNames.Push:
+                case UpdateCommandNames.PUSH:
                     break;
-                case UpdateCommandNames.Set:
+                case UpdateCommandNames.SET:
                     break;
-                case UpdateCommandNames.Unset:
+                case UpdateCommandNames.UNSET:
                     break;
-                case UpdateCommandNames.AddToSetEach:
+                case UpdateCommandNames.ADD_TO_SET_EACH:
                     break;
-                case UpdateCommandNames.Max:
+                case UpdateCommandNames.MAX:
                     break;
-                case UpdateCommandNames.Min:
+                case UpdateCommandNames.MIN:
                     break;
-                case UpdateCommandNames.Mul:
+                case UpdateCommandNames.MUL:
                     break;
-                case UpdateCommandNames.Pull:
+                case UpdateCommandNames.PULL:
                     break;
-                case UpdateCommandNames.PullAll:
+                case UpdateCommandNames.PULL_ALL:
                     break;
-                case UpdateCommandNames.PullFilter:
+                case UpdateCommandNames.PULL_FILTER:
                     UpdateDefinition = UpdateDefinition.PullFilter(expression, filter);
                     break;
-                case UpdateCommandNames.PushEach:
+                case UpdateCommandNames.PUSH_EACH:
                     break;
                 default:
                     break;

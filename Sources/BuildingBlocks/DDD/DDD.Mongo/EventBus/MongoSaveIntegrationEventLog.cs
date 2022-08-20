@@ -10,7 +10,7 @@ public class MongoSaveIntegrationEventLog : ISaveIntegrationEventLog
     public MongoSaveIntegrationEventLog(MongoDbSession session)
     {
         _session = session;
-        _collection = session.Database.GetCollection<IntegrationEventLogEntry>(Constants.EventLogCollectionName)
+        _collection = session.Database.GetCollection<IntegrationEventLogEntry>(Constants.EVENT_LOG_COLLECTION_NAME)
             .WithWriteConcern(WriteConcern.WMajority);
     }
 

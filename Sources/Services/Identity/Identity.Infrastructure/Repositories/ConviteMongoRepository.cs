@@ -6,7 +6,7 @@ public class ConviteMongoRepository : MongoRepository<IConviteRepository, Convit
     {
     }
 
-    protected override string CollectionName => Constants.CollectionNames.Convites;
+    protected override string CollectionName => Constants.CollectionNames.CONVITES;
 
     protected override IConviteRepository Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
     {

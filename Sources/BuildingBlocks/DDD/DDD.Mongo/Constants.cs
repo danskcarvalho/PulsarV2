@@ -2,5 +2,5 @@
 
 public class Constants
 {
-    public const string EventLogCollectionName = "_EventLogs";
+    public const string EVENT_LOG_COLLECTION_NAME = "_EventLogs";
 }

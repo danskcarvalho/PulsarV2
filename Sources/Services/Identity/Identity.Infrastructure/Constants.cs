@@ -4,11 +4,11 @@ public static class Constants
 {
     public static class CollectionNames
     {
-        public const string Convites = "Convites";
-        public const string Dominios = "Dominios";
-        public const string Grupos = "Grupos";
-        public const string Estabelecimentos = "Estabelecimentos";
-        public const string RedesEstabelecimentos = "RedesEstabelecimentos";
-        public const string Usuarios = "Usuarios";
+        public const string CONVITES = "Convites";
+        public const string DOMINIOS = "Dominios";
+        public const string GRUPOS = "Grupos";
+        public const string ESTABELECIMENTOS = "Estabelecimentos";
+        public const string REDES_ESTABELECIMENTOS = "RedesEstabelecimentos";
+        public const string USUARIOS = "Usuarios";
     }
 }

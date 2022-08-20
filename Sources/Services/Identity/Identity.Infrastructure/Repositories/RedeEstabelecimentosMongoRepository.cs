@@ -6,7 +6,7 @@
         {
         }
 
-        protected override string CollectionName => Constants.CollectionNames.RedesEstabelecimentos;
+        protected override string CollectionName => Constants.CollectionNames.REDES_ESTABELECIMENTOS;
 
         protected override IRedeEstabelecimentosRepository Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
         {

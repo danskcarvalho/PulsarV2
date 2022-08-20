@@ -7,10 +7,10 @@ public static class MigrationsExtensions
         if (mig.Database == null)
             return;
 
-        if (!(await mig.Database.CollectionExists(DDD.Mongo.Constants.EventLogCollectionName)))
-            await mig.Database.CreateCollectionAsync(DDD.Mongo.Constants.EventLogCollectionName);
+        if (!(await mig.Database.CollectionExists(DDD.Mongo.Constants.EVENT_LOG_COLLECTION_NAME)))
+            await mig.Database.CreateCollectionAsync(DDD.Mongo.Constants.EVENT_LOG_COLLECTION_NAME);
 
-        var col = mig.Database.GetCollection<IntegrationEventLogEntry>(DDD.Mongo.Constants.EventLogCollectionName);
+        var col = mig.Database.GetCollection<IntegrationEventLogEntry>(DDD.Mongo.Constants.EVENT_LOG_COLLECTION_NAME);
 
 
         var ix_pending_scheduled_on = Builders<IntegrationEventLogEntry>.IndexKeys

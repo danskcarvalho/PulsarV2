@@ -15,9 +15,7 @@ public class Usuario : AggregateRoot
     public Usuario(ObjectId id, string primeiroNome, string? email, string nomeUsuario, string senhaSalt, string senhaHash, AuditInfo auditInfo) : base(id)
     {
         _primeiroNome = primeiroNome;
-        _nomeCompleto = _primeiroNome;
         _email = email?.Trim().ToLowerInvariant();
-        _nomeCompleto = nomeUsuario.Trim().ToLowerInvariant();
         _nomeUsuario = nomeUsuario;
         SenhaSalt = senhaSalt;
         SenhaHash = senhaHash;
@@ -25,6 +23,7 @@ public class Usuario : AggregateRoot
         DominiosBloqueados = new List<ObjectId>();
         DominiosAdministrados = new List<ObjectId>();
         _termosBusca = GetTermosBusca();
+        _nomeCompleto = $"{_primeiroNome} {_ultimoNome}".Trim();
         AuditInfo = auditInfo;
         if (nomeUsuario == "administrador")
             this.IsSuperUsuario = true;
@@ -96,6 +95,7 @@ public class Usuario : AggregateRoot
     public string SenhaSalt { get; set; }
     public string? TokenMudancaSenha { get; set; }
     public DateTime? TokenMudancaSenhaExpiraEm { get; set; }
+    public bool IsConvitePendente { get; set; }
     public AuditInfo AuditInfo { get; set; }
 
     private void UpdateNomeCompleto()
@@ -140,5 +140,17 @@ public class Usuario : AggregateRoot
         this.TokenMudancaSenha = null;
         this.TokenMudancaSenhaExpiraEm = null;
         previousVersion = Version++;
+    }
+
+    public void AceitarConvite(string primeiroNome, string? sobrenome, string nomeUsuario, string senha)
+    {
+        this.PrimeiroNome = primeiroNome;
+        this.UltimoNome = sobrenome;
+        this.NomeUsuario = nomeUsuario;
+        this.SenhaSalt = GeneralExtensions.GetSalt();
+        this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
+        this.IsConvitePendente = false;
+        this.IsAtivo = true;
+        this.Version++;
     }
 }

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Identity.API.Authorization;
 using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,7 @@ builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
 builder.Services.AddTransient<IdentityControllerContext>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 {
     options.Authority = builder.Configuration["IdentityServer:Authority"];
@@ -47,6 +50,15 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
     options.OperationFilter<AuthorizeOperationFilter>();
+    options.SchemaFilter<SwaggerExcludeFilter>();
+
+    // Set the comments path for the Swagger JSON and UI.
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+    xmlFile = "Identity.Contracts.xml";
+    xmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddTransient<IProfileService, UserProfileService>();
 var idserver = builder.Services.AddIdentityServer(options =>

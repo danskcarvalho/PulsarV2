@@ -133,7 +133,7 @@ public class UserProfileService : IProfileService
 
     private string? GetEstabelecimentoId(ClaimsPrincipal user)
     {
-        var subjectId = user.Claims.Where(x => x.Type == "sub").FirstOrDefault()?.Value;
+        var subjectId = user.Claims.Where(x => x.Type == "sub" || x.Type == ClaimTypes.NameIdentifier).FirstOrDefault()?.Value;
         if (subjectId == null)
             return null;
 
@@ -143,7 +143,7 @@ public class UserProfileService : IProfileService
 
     private string? GetDominioId(ClaimsPrincipal user)
     {
-        var subjectId = user.Claims.Where(x => x.Type == "sub").FirstOrDefault()?.Value;
+        var subjectId = user.Claims.Where(x => x.Type == "sub" || x.Type == ClaimTypes.NameIdentifier).FirstOrDefault()?.Value;
         if (subjectId == null)
             return null;
 
@@ -153,7 +153,7 @@ public class UserProfileService : IProfileService
 
     private static string? GetId(ClaimsPrincipal user)
     {
-        var subjectId = user.Claims.Where(x => x.Type == "sub").FirstOrDefault()?.Value;
+        var subjectId = user.Claims.Where(x => x.Type == "sub" || x.Type == ClaimTypes.NameIdentifier).FirstOrDefault()?.Value;
         if (subjectId == null)
             return null;
 

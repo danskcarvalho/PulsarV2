@@ -35,3 +35,5 @@ global using Pulsar.Services.Identity.API.ViewModels;
 global using Pulsar.BuildingBlocks.DDD;
 global using Pulsar.BuildingBlocks.DDD.Abstractions;
 global using Pulsar.Services.Identity.API.Controllers;
+global using Pulsar.Services.Identity.API.Authorization;
+global using Pulsar.Services.Identity.API.Utils;

@@ -11,7 +11,7 @@ public class RedeEstabelecimentosRemovidaDomainEventHandler : IdentityDomainEven
 
     protected override async Task HandleAsync(RedeEstabelecimentosRemovidaDomainEvent evt, CancellationToken ct)
     {
-        var spec = new RemoveRedesFromEstabelecimentosSpec(evt.RedeEstabelecimentosId);
+        var spec = new RemoveRedesFromEstabelecimentosSpec(evt.RedeEstabelecimentosId, evt.TimeStamp);
         await EstabelecimentoRepository.UpdateManyAsync(spec, ct);
     }
 }

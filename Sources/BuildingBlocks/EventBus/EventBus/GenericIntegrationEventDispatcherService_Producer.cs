@@ -69,11 +69,11 @@ public partial class GenericIntegrationEventDispatcherService
                         _Logger.LogInformation($"about to sleep for {_Options.PollingTimeout} milliseconds");
                         await Task.Delay(_Options.PollingTimeout, ct);
 
-                        if (_Queue.Count >= Constants.MaxEventsOnQueue)
+                        if (_Queue.Count >= Constants.MAX_EVENTS_ON_QUEUE)
                             continue;
 
-                        _Logger.LogInformation($"about to poll for up to {Constants.MaxPolledEvents} events");
-                        var events = (await _Storage.RetrieveRelevantEventLogsAsync(Constants.MaxPolledEvents, ct)).ToList();
+                        _Logger.LogInformation($"about to poll for up to {Constants.MAX_POLLED_EVENTS} events");
+                        var events = (await _Storage.RetrieveRelevantEventLogsAsync(Constants.MAX_POLLED_EVENTS, ct)).ToList();
 
                         _Logger.LogInformation($"polled {events.Count} events");
                         foreach (var evt in events)
@@ -119,7 +119,7 @@ public partial class GenericIntegrationEventDispatcherService
                         await _Storage.WatchRelevantEventLogsAsync((evt, ct2) =>
                         {
                             timeout = 1000;
-                            if (_Queue.Count >= Constants.MaxEventsOnQueue)
+                            if (_Queue.Count >= Constants.MAX_EVENTS_ON_QUEUE)
                                 return Task.CompletedTask;
 
                             if (ct2.IsCancellationRequested)

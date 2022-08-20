@@ -4,15 +4,13 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
 
 public class Convite : AggregateRoot
 {
-    [BsonConstructor(nameof(Id), nameof(Email), nameof(ConviteExpiraEm), nameof(TokenAceitacao), nameof(DominioId), nameof(AdministrarDominio), nameof(Grupos), nameof(AuditInfo))]
-    public Convite(ObjectId id, string email, DateTime conviteExpiraEm, string tokenAceitacao, ObjectId dominioId, bool administrarDominio, IEnumerable<ConviteGrupo> grupos, AuditInfo auditInfo) : base(id)
+    [BsonConstructor(nameof(Id), nameof(Email), nameof(ConviteExpiraEm), nameof(TokenAceitacao), nameof(UsuarioId), nameof(AuditInfo))]
+    public Convite(ObjectId id, string email, DateTime conviteExpiraEm, string tokenAceitacao, ObjectId usuarioId, AuditInfo auditInfo) : base(id)
     {
         _email = email.Trim().ToLowerInvariant();
         ConviteExpiraEm = conviteExpiraEm;
         TokenAceitacao = tokenAceitacao;
-        DominioId = dominioId;
-        AdministrarDominio = administrarDominio;
-        Grupos = new HashSet<ConviteGrupo>(grupos);
+        UsuarioId = usuarioId;
         AuditInfo = auditInfo;
     }
 
@@ -21,13 +19,7 @@ public class Convite : AggregateRoot
     public DateTime ConviteExpiraEm { get; private set; }
     public string TokenAceitacao { get; private set; }
     public bool IsAceito { get; set; }
-    public ObjectId DominioId { get; private set; }
-    /// <summary>
-    /// Caso o domínio já esteja sendo administrado, o convite falha.
-    /// </summary>
-    public bool AdministrarDominio { get; private set; }
-    public IReadOnlySet<ConviteGrupo> Grupos { get; private set; }
-
+    public ObjectId UsuarioId { get; private set; }
     public AuditInfo AuditInfo { get; set; }
 
     public void Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
@@ -41,7 +33,12 @@ public class Convite : AggregateRoot
 
         IsAceito = true;
         Version++;
-        this.AddDomainEvent(new ConviteAceitoDomainEvent(DominioId, this.Id, ObjectId.GenerateNewId(), primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, this.AdministrarDominio, this.Grupos, AuditInfo.CriadoPorUsuarioId));
+        this.AddDomainEvent(new ConviteAceitoDomainEvent(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
 
+    }
+
+    public void ConvidarUsuario()
+    {
+        AddDomainEvent(new UsuarioConvidadoDomainEvent(this.Id, this.UsuarioId, this.Email, this.TokenAceitacao, this.AuditInfo.CriadoPorUsuarioId!.Value));
     }
 }

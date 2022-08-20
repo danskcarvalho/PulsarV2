@@ -126,21 +126,21 @@ public class UpdateSpecificationBuilder<TModel>
 
 public static class UpdateCommandNames
 {
-    public const string Set = "Set";
-    public const string Unset = "Unset";
-    public const string Inc = "Inc";
-    public const string Push = "Push";
-    public const string AddToSet = "AddToSet";
-    public const string PopFirst = "PopFirst";
-    public const string PopLast = "PopLast";
-    public const string AddToSetEach = "AddToSetEach";
-    public const string Max = "Max";
-    public const string Min = "Min";
-    public const string Mul = "Mul";
-    public const string Pull = "Pull";
-    public const string PullAll = "PullAll";
-    public const string PullFilter = "PullFilter";
-    public const string PushEach = "PushEach";
+    public const string SET = "Set";
+    public const string UNSET = "Unset";
+    public const string INC = "Inc";
+    public const string PUSH = "Push";
+    public const string ADD_TO_SET = "AddToSet";
+    public const string POP_FIRST = "PopFirst";
+    public const string POP_LAST = "PopLast";
+    public const string ADD_TO_SET_EACH = "AddToSetEach";
+    public const string MAX = "Max";
+    public const string MIN = "Min";
+    public const string MUL = "Mul";
+    public const string PULL = "Pull";
+    public const string PULL_ALL = "PullAll";
+    public const string PULL_FILTER = "PullFilter";
+    public const string PUSH_EACH = "PushEach";
 }
 
 public abstract record UpdateCommand<T>()
@@ -151,105 +151,105 @@ public record SetUpdateCommand<T, TField>(Expression<Func<T, TField>> Expression
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Set, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.SET, Expression, Value);
     }
 }
 public record UnsetUpdateCommand<T>(Expression<Func<T, object>> Expression) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Unset, Expression);
+        updateInjectField.Inject(UpdateCommandNames.UNSET, Expression);
     }
 }
 public record IncUpdateCommand<T, TField>(Expression<Func<T, TField>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Inc, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.INC, Expression, Value);
     }
 }
 public record PushUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Push, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.PUSH, Expression, Value);
     }
 }
 public record AddToSetUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.AddToSet, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.ADD_TO_SET, Expression, Value);
     }
 }
 public record PopFirstUpdateCommand<T>(Expression<Func<T, object>> Expression) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.PopFirst, Expression);
+        updateInjectField.Inject(UpdateCommandNames.POP_FIRST, Expression);
     }
 }
 public record PopLastUpdateCommand<T>(Expression<Func<T, object>> Expression) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.PopLast, Expression);
+        updateInjectField.Inject(UpdateCommandNames.POP_LAST, Expression);
     }
 }
 public record AddToSetEachUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, IEnumerable<TField> Values) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.AddToSetEach, Expression, Values);
+        updateInjectField.Inject(UpdateCommandNames.ADD_TO_SET_EACH, Expression, Values);
     }
 }
 public record MaxUpdateCommand<T, TField>(Expression<Func<T, TField>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Max, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.MAX, Expression, Value);
     }
 }
 public record MinUpdateCommand<T, TField>(Expression<Func<T, TField>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Min, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.MIN, Expression, Value);
     }
 }
 public record MulUpdateCommand<T, TField>(Expression<Func<T, TField>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Mul, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.MUL, Expression, Value);
     }
 }
 public record PullUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, TField Value) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.Pull, Expression, Value);
+        updateInjectField.Inject(UpdateCommandNames.PULL, Expression, Value);
     }
 }
 public record PullAllUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, IEnumerable<TField> Values) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.PullAll, Expression, Values);
+        updateInjectField.Inject(UpdateCommandNames.PULL_ALL, Expression, Values);
     }
 }
 public record PullFilterUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, Expression<Func<TField, bool>> Filter) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.PullFilter, Expression, Filter);
+        updateInjectField.Inject(UpdateCommandNames.PULL_FILTER, Expression, Filter);
     }
 }
 public record PushEachUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TField>>> Expression, IEnumerable<TField> Values) : UpdateCommand<T>()
 {
     public override void InjectField(IUpdateInjectField<T> updateInjectField)
     {
-        updateInjectField.Inject(UpdateCommandNames.PushEach, Expression, Values);
+        updateInjectField.Inject(UpdateCommandNames.PUSH_EACH, Expression, Values);
     }
 }
 

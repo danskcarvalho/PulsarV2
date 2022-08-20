@@ -57,26 +57,26 @@ class ScopedMigration
 
     private async Task<List<MigrationModel>> GetCurrentMigrations(MongoDbSession session)
     {
-        var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.CollectionName);
+        var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
         return await (await collection.FindAsync(m => true)).ToListAsync();
     }
 
     private async Task CreateMigrationsCollectionIfNotExists(MongoDbSession session)
     {
         //check for existence of collection _Migrations
-        var filter = new BsonDocument("name", MigrationConstants.CollectionName);
+        var filter = new BsonDocument("name", MigrationConstants.COLLECTION_NAME);
         var collections = await session.Database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
         var exists = await collections.AnyAsync();
         if (!exists)
-            await session.Database.CreateCollectionAsync(MigrationConstants.CollectionName);
+            await session.Database.CreateCollectionAsync(MigrationConstants.COLLECTION_NAME);
         //creates unique index to ensure that version is always unique
         //indexes are indempotent
-        var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.CollectionName);
+        var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
         var keys = Builders<MigrationModel>.IndexKeys.Ascending(x => x.Version);
         await collection.Indexes.CreateOneAsync(new CreateIndexModel<MigrationModel>(keys, new CreateIndexOptions()
         {
             Unique = true,
-            Name = MigrationConstants.VersionIsUniqueIndexName
+            Name = MigrationConstants.VERSION_IS_UNIQUE_INDEX_NAME
         }));
     }
 }

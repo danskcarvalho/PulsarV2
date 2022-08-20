@@ -104,6 +104,8 @@ public class UsuarioQueries : IdentityQueries, IUsuarioQueries
         }
         if (usuario.IsSuperUsuario)
             isAtivo = true;
+        if (usuario.IsConvitePendente)
+            isAtivo = false;
 
         var result = new UsuarioLogadoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, isAtivo, usuario.IsSuperUsuario, usuario.Avatar?.PublicUrl,
             permissions.Select(p => new UsuarioLogadoDTO.DominioDTO(p.DominioId.ToString(), p.DominioName, p.IsAdministrador, p.IsAdministrador || p.PermissoesGerais.Any(),

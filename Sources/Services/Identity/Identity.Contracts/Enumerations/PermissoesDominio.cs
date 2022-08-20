@@ -2,5 +2,8 @@
 
 public enum PermissoesDominio
 {
+    [Display(Description = "Editar Grupos")]
     EditarGrupos = 1,
+    [Display(Description = "Convidar Usuário")]
+    ConvidarUsuario = 2,
 }

@@ -20,6 +20,6 @@ public class EsqueciMinhaSenhaCommandHandler : IdentityCommandHandler<EsqueciMin
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         usuario.GerarTokenMudancaSenha(out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion).CheckModified();
+        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion, ct).CheckModified();
     }
 }

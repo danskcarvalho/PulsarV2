@@ -1,4 +1,4 @@
-﻿@model Pulsar.Services.Identity.API.ViewModels.ResetPasswordViewModel
+﻿@model Pulsar.Services.Identity.API.ViewModels.ConvidarUsuarioViewModel
 @{
     Layout = null;
 }
@@ -8,7 +8,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width; initial-scale=0.5;">
-    <title>Pulsar - Redefinir Senha</title>
+    <title>Pulsar - Aceitar Convite</title>
     <style>
         html, body {
             margin: 0;
@@ -30,7 +30,7 @@
         <tr>
             <td width="600" align="center">
                 <p align="center" style="font-family:Arial, Helvetica, sans-serif; font-size:0.8em; line-height:20px; color:#0f3d5b;">
-                    <marquee width="600px"><strong> Redefina sua Senha. </strong></marquee><br />
+                    <marquee width="600px"><strong> Aceitar Convite. </strong></marquee><br />
                     <font color="#626262">Siga as instruções abaixo.</font><br>
                 </p>
             </td>
@@ -48,19 +48,18 @@
         </tr>
         <tr>
             <td valign="top" align="center">
-                <p align="left" style="font-family:Arial, Helvetica, sans-serif; font-size:24px; line-height:40px; color:#0f3d5b; margin-left: 20px"><b>REDEFINIÇÃO DE SENHA</b></p>
+                <p align="left" style="font-family:Arial, Helvetica, sans-serif; font-size:24px; line-height:40px; color:#0f3d5b; margin-left: 20px"><b>ACEITAR CONVITE</b></p>
                 <p align="left" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:40px; color:#626262; margin-left: 20px;">
                     Prezado(a) @Model.UserName,<br />
-                    Recebemos um pedido para redefinição de senha da sua conta no Sistema Pulsar.<br />
-                    Caso não tenha feito o pedido de redefinição de senha, basta ignorar este e-mail.<br />
-                    Para redefinir a senha da sua conta, clique no botão abaixo.
+                    Você foi convidado para entrar no Pulsar.<br />
+                    Para aceitar o convite, clique no botão abaixo e siga as instruções.
                 </p>
             </td>
         </tr>
 
         <!--LINK DE VALIDAÇÃO-->
         <tr style="font-family:Arial, Helvetica, sans-serif; overflow:auto; text-align: center; font-size: 1.0em; font-weight: bold; line-height: 200%;">
-            <td width="25%"><a href="@Model.Link" target="_blank" style="display: inline-block; width: 12em; height: 2.5em; margin-left: 20px; padding-top: .6em; color: #fff; background-color: #1d8e81; border-radius: 4px; clear:left; float:left; text-decoration: none;">Redefinir</a></td>
+            <td width="25%"><a href="@Model.Link" target="_blank" style="display: inline-block; width: 12em; height: 2.5em; margin-left: 20px; padding-top: .6em; color: #fff; background-color: #1d8e81; border-radius: 4px; clear:left; float:left; text-decoration: none;">Aceitar Convite</a></td>
         </tr>
 
         <tr style="border-bottom: 1px solid #0f3d5b">

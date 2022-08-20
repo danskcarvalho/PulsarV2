@@ -21,5 +21,9 @@ public enum ExceptionKey
     [Display(Description = "Token inválido.")]
     ConviteTokenInvalido = 9,
     [Display(Description = "Usuário foi convidado para administrar o domínio mas o domínio já tem administrador ou está inativo.")]
-    ConviteDominioInvalido = 10
+    ConviteDominioInvalido = 10,
+    [Display(Description = "Convite Inválido.")]
+    ConviteInvalido = 11,
+    [Display(Description = "Já existe um usuário com o nome de usuário informado.")]
+    NomeUsuarioNaoUnico = 12
 }

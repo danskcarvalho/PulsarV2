@@ -40,7 +40,7 @@ class MigrationWorker
             };
             PrintGreen($"[{MigrationNumber}/{TotalMigrations}] executing {model.Version}:{MigrationType.Name}");
             //insert into the collection _Migrations
-            var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.CollectionName);
+            var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
             await collection.InsertOneAsync(session.CurrentHandle, model);
 
             try
