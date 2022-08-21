@@ -73,6 +73,8 @@ public class CachedDictionaryKey<TKey, TValue> : IReadOnlyDictionary<TKey, TValu
 
             if (_dictionary[key] == null)
                 builder.Append("null");
+            else if (_dictionary[key] is ICacheKey)
+                builder.Append(_dictionary[key]!.ToString());
             else
                 builder.Append($"<{_dictionary[key]!.ToString()}>");
         }

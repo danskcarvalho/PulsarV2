@@ -1,13 +1,13 @@
 ﻿namespace Pulsar.Services.Identity.BackgroundTasks.Application.Commands.Others;
 
 [NoTransaction, RetryOnException(DuplicatedKey = true, VersionConcurrency = true, Retries = 2)]
-public class EstabelecimentoEditadoOuCriadoCommandHandler : IdentityCommandHandler<EstabelecimentoEditadoOuCriadoCommand>
+public class EstabelecimentoModificadoCommandHandler : IdentityCommandHandler<EstabelecimentoModificadoCommand>
 {
-    public EstabelecimentoEditadoOuCriadoCommandHandler(ILogger<IdentityCommandHandler<EstabelecimentoEditadoOuCriadoCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public EstabelecimentoModificadoCommandHandler(ILogger<IdentityCommandHandler<EstabelecimentoModificadoCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 
-    protected override async Task HandleAsync(EstabelecimentoEditadoOuCriadoCommand cmd, CancellationToken ct)
+    protected override async Task HandleAsync(EstabelecimentoModificadoCommand cmd, CancellationToken ct)
     {
         var estabelecimento = await EstabelecimentoRepository.FindOneByIdAsync(cmd.EstabelecimentoId.ToObjectId(), ct);
         if (estabelecimento == null)

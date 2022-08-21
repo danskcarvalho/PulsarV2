@@ -3,9 +3,9 @@ using Pulsar.Services.Identity.Domain.Specifications;
 
 namespace Pulsar.Services.Identity.BackgroundTasks.Application.DomainEvents.Others;
 
-public class RedeEstabelecimentosRemovidaDomainEventHandler : IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>
+public class RemoverRedeEstabelecimentosFromEstabelecimentosDomainEventHandler : IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>
 {
-    public RedeEstabelecimentosRemovidaDomainEventHandler(ILogger<IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public RemoverRedeEstabelecimentosFromEstabelecimentosDomainEventHandler(ILogger<IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 

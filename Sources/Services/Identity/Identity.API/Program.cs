@@ -14,6 +14,7 @@ builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
 builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
+builder.Services.AddRedisCache();
 builder.Services.AddTransient<IdentityControllerContext>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>

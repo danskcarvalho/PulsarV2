@@ -1,32 +1,41 @@
 ﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;
 
 public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 {
-    public UsuarioQueries(MongoDbSessionFactory factory) : base(factory)
+    public UsuarioQueries(MongoDbSessionFactory factory, ICacheServer cache) : base(factory, cache)
     {
     }
 
     public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(UsuarioFiltroDTO filtro)
     {
-        return await this.StartCausallyConsistentSectionAsync(async ct =>
+        var key = new { filtro.Limit, filtro.Cursor, filtro.Filtro };
+        return await Cache.Category(CacheCategories.FindUsuarios).Get(key.ToCacheKey(), async () =>
         {
-            if (filtro.Cursor is null)
-                return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
-            else
-                return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
-        }, filtro.ConsistencyToken);
+            return await this.StartCausallyConsistentSectionAsync(async ct =>
+            {
+                if (filtro.Cursor is null)
+                    return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
+                else
+                    return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
+            }, filtro.ConsistencyToken);
+        });
     }
 
     public async Task<BasicUserInfoDTO?> GetBasicUserInfo(string usuarioId)
     {
-        var id = ObjectId.Parse(usuarioId);
-        var usuario = await(await Usuarios.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
-        if (usuario == null)
-            return null;
-        return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
+        var key = CacheCategories.GetBasicUserInfoKey(usuarioId);
+        return await Cache.Get(key.ToCacheKey(), async () =>
+        {
+            var id = ObjectId.Parse(usuarioId);
+            var usuario = await (await Usuarios.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+            if (usuario == null)
+                return null;
+            return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
+        });
     }
 
     public async Task<UsuarioLogadoDTO?> GetUsuarioLogadoById(string usuarioId)
@@ -40,7 +49,6 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     public async Task<UsuarioLogadoDTO?> TestUsuarioCredentials(string? usernameOrEmail, string? password)
     {
-
         if (usernameOrEmail == null || password == null || usernameOrEmail.IsEmpty() || password.IsEmpty())
             return null;
         usernameOrEmail = usernameOrEmail.Trim().ToLowerInvariant();
@@ -127,4 +135,11 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
         return result;
     }
+
+    public static class CacheCategories
+    {
+        public const string FindUsuarios = "UsuarioQueries.FindUsuarios";
+        public static object GetBasicUserInfoKey(string usuarioId) => new { Action = "GetBasicUserInfo", UsuarioId = usuarioId };
+    }
+
 }

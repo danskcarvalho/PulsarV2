@@ -5,6 +5,6 @@ global using System.Text;
 global using System.Threading.Tasks;
 global using System.Text.Json.Serialization;
 global using Pulsar.BuildingBlocks.EventBus.Events;
-global using Pulsar.Services.Estabelecimentos.Contracts.Enumerations;
 global using Pulsar.Services.Shared;
 global using Pulsar.BuildingBlocks.EventBus.Contracts;
+global using Pulsar.Services.Shared.Enumerations;

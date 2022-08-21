@@ -13,3 +13,4 @@ global using Pulsar.Services.Identity.Contracts.Enumerations;
 global using Pulsar.Services.Identity.Domain.Events;
 global using Pulsar.Services.Identity.Domain.Exceptions;
 global using MediatR;
+global using Pulsar.Services.Shared.Enumerations;

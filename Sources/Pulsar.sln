@@ -89,7 +89,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estabelecimentos.Contracts"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Services\Shared\Shared\Shared.csproj", "{4A6E40EC-7B13-467C-B727-05A39C018ED9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Services\Shared\Shared\Shared.csproj", "{4A6E40EC-7B13-467C-B727-05A39C018ED9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisCaching", "BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj", "{C16540C1-43B4-4F12-918C-4804922791EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,6 +203,10 @@ Global
 		{4A6E40EC-7B13-467C-B727-05A39C018ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A6E40EC-7B13-467C-B727-05A39C018ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A6E40EC-7B13-467C-B727-05A39C018ED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C16540C1-43B4-4F12-918C-4804922791EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C16540C1-43B4-4F12-918C-4804922791EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C16540C1-43B4-4F12-918C-4804922791EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C16540C1-43B4-4F12-918C-4804922791EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -249,6 +255,7 @@ Global
 		{1F8B29EB-FABF-4DCC-90A0-E650DDA48571} = {79E63503-3E56-43E5-AF5E-D150FB3D5CFE}
 		{A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29} = {E3A62949-4F0C-48D7-9F65-AFD7AAAB52F2}
 		{4A6E40EC-7B13-467C-B727-05A39C018ED9} = {A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29}
+		{C16540C1-43B4-4F12-918C-4804922791EE} = {A0C70962-4BDD-44A1-8A57-B3E0A163CB68}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}

@@ -38,6 +38,8 @@ public class CachedArrayKey<T> : IEnumerable<T>, IReadOnlyList<T>, IReadOnlyColl
 
             if (_array[i] == null)
                 builder.Append("null");
+            else if (_array[i] is ICacheKey)
+                builder.Append(_array[i]!.ToString());
             else
                 builder.Append($"<{_array[i]!.ToString()}>");
         }

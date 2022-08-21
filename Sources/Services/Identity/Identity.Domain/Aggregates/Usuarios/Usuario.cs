@@ -153,4 +153,10 @@ public class Usuario : AggregateRoot
         this.IsAtivo = true;
         this.Version++;
     }
+
+    public void Criar()
+    {
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created, ChangeDetails.None));
+    }
 }

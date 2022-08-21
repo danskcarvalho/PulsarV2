@@ -3,9 +3,9 @@
 namespace Pulsar.Services.Identity.BackgroundTasks.Application.Commands.Others;
 
 [NoTransaction, RetryOnException(DuplicatedKey = true, VersionConcurrency = true, Retries = 2)]
-public class RedeEstabelecimentosEditadaOuCriadaCommandHandler : IdentityCommandHandler<RedeEstabelecimentosEditadaOuCriadaCommand>
+public class RedeEstabelecimentosModificadaCommandHandler : IdentityCommandHandler<RedeEstabelecimentosEditadaOuCriadaCommand>
 {
-    public RedeEstabelecimentosEditadaOuCriadaCommandHandler(ILogger<IdentityCommandHandler<RedeEstabelecimentosEditadaOuCriadaCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public RedeEstabelecimentosModificadaCommandHandler(ILogger<IdentityCommandHandler<RedeEstabelecimentosEditadaOuCriadaCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
     {
     }
 

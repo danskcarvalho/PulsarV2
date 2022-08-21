@@ -37,3 +37,6 @@ global using Pulsar.BuildingBlocks.DDD.Abstractions;
 global using Pulsar.Services.Identity.API.Controllers;
 global using Pulsar.Services.Identity.API.Authorization;
 global using Pulsar.Services.Identity.API.Utils;
+global using Pulsar.BuildingBlocks.RedisCaching;
+global using Pulsar.BuildingBlocks.Caching.Abstractions;
+global using Pulsar.BuildingBlocks.Caching;

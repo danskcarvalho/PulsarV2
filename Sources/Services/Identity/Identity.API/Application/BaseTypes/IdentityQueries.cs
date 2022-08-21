@@ -2,7 +2,7 @@
 
 public class IdentityQueries : QueryHandler
 {
-    public IdentityQueries(MongoDbSessionFactory factory) : base(factory)
+    public IdentityQueries(MongoDbSessionFactory factory, ICacheServer cache) : base(factory)
     {
         Usuarios = GetCollection<Usuario>(Constants.CollectionNames.USUARIOS);
         Dominios = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
@@ -10,6 +10,7 @@ public class IdentityQueries : QueryHandler
         Grupos = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
         Estabelecimentos = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
         RedesEstabelecimentos = GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
+        Cache = cache;
     }
 
     protected IMongoCollection<Usuario> Usuarios { get; private set; }
@@ -18,4 +19,5 @@ public class IdentityQueries : QueryHandler
     protected IMongoCollection<Grupo> Grupos { get; private set; }
     protected IMongoCollection<Estabelecimento> Estabelecimentos { get; private set; }
     protected IMongoCollection<RedeEstabelecimentos> RedesEstabelecimentos { get; private set; }
+    protected ICacheServer Cache { get; private set; }
 }

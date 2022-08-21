@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsSES\EmailsSES.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\Emails\Emails.csproj" />
