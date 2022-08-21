@@ -6,4 +6,6 @@ public enum PermissoesDominio
     EditarGrupos = 1,
     [Display(Description = "Convidar Usuário")]
     ConvidarUsuario = 2,
+    [Display(Description = "Listar Usuários")]
+    ListarUsuarios = 3,
 }

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
+using Pulsar.BuildingBlocks.EventBus.Contracts;
 using Pulsar.BuildingBlocks.EventBus.Events;
 
 namespace Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;

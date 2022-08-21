@@ -25,21 +25,38 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
     {
         if (policyName.StartsWith(DOMINIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            var requiredPermission = policyName.Substring(DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
+            var requiredPermissions = policyName.Substring(DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
             var builder = new AuthorizationPolicyBuilder("Bearer");
             builder.RequireAuthenticatedUser();
-            builder.RequireAssertion(ctx =>
-                ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
-                (ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "dp" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermission))));
+            if (requiredPermissions.Length != 0)
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
+                    (ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "dp" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermissions))));
+            }
+            else
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
+                    ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()));
+            }
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }
         else if (policyName.StartsWith(ESTABELECIMENTO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            var requiredPermission = policyName.Substring(ESTABELECIMENTO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
+            var requiredPermissions = policyName.Substring(ESTABELECIMENTO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
             var builder = new AuthorizationPolicyBuilder("Bearer");
             builder.RequireAuthenticatedUser();
-            builder.RequireAssertion(ctx =>
-                (ctx.User.HasClaim(c => c.Type == "e" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "ep" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermission))));
+            if (requiredPermissions.Length != 0)
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "e" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "ep" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermissions)));
+            }
+            else
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "e" && c.Value.IsNotEmpty()));
+            }
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }
         else if (policyName.StartsWith(SUPERUSUARIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
@@ -51,13 +68,23 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         }
         else if (policyName.StartsWith(SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            var requiredPermission = policyName.Substring(SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
+            var requiredPermissions = policyName.Substring(SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
             var builder = new AuthorizationPolicyBuilder("Bearer");
             builder.RequireAuthenticatedUser();
-            builder.RequireAssertion(ctx =>
-                ctx.User.HasClaim(c => c.Type == "uag" && c.Value == "true") ||
-                ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
-                (ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "dp" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermission))));
+            if (requiredPermissions.Length != 0)
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "uag" && c.Value == "true") ||
+                    ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
+                    (ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()) && ctx.User.HasClaim(c => c.Type == "dp" && c.Value.IsNotEmpty() && ContainsPermissions(c.Value, requiredPermissions))));
+            }
+            else
+            {
+                builder.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "uag" && c.Value == "true") ||
+                    ctx.User.HasClaim(c => c.Type == "uad" && c.Value == "true") ||
+                    ctx.User.HasClaim(c => c.Type == "d" && c.Value.IsNotEmpty()));
+            }
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }
         else if (policyName == "Read")

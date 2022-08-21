@@ -88,6 +88,10 @@ public class QueryHandler : IDisposable
 
     public async Task<TResult> StartCausallyConsistentSectionAsync<TResult>(Func<CancellationToken, Task<TResult>> action, string? consistencyToken = null, CancellationToken ct = default)
     {
+        if(consistencyToken == null)
+        {
+            return await action(ct);
+        }
         if (IsCausalllyConsistent)
             throw new InvalidOperationException("already causally consistent");
 

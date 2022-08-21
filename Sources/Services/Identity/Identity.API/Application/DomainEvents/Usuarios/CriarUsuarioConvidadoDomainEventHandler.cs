@@ -12,6 +12,10 @@ public class CriarUsuarioConvidadoDomainEventHandler : IdentityDomainEventHandle
 
     protected override async Task HandleAsync(UsuarioConvidadoDomainEvent evt, CancellationToken ct)
     {
+        var usuarioExistente = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioId, ct);
+        if (usuarioExistente is not null)
+            return;
+
         var usuario = new Usuario(
             evt.UsuarioId,
             evt.Email!,

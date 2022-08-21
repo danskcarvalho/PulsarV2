@@ -1,11 +1,23 @@
 ﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;
 
-public class UsuarioQueries : IdentityQueries, IUsuarioQueries
+public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 {
     public UsuarioQueries(MongoDbSessionFactory factory) : base(factory)
     {
+    }
+
+    public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(UsuarioFiltroDTO filtro)
+    {
+        return await this.StartCausallyConsistentSectionAsync(async ct =>
+        {
+            if (filtro.Cursor is null)
+                return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
+            else
+                return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
+        }, filtro.ConsistencyToken);
     }
 
     public async Task<BasicUserInfoDTO?> GetBasicUserInfo(string usuarioId)

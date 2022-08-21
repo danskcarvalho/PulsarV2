@@ -12,6 +12,9 @@ public class AddIndexes_1 : Migration
             .Ascending(u => u.Email);
         var ix_username = Builders<Usuario>.IndexKeys
             .Ascending(u => u.NomeUsuario);
+        var ix_user_text = Builders<Usuario>.IndexKeys
+            .Text(x => x.TermosBusca)
+            .Ascending(u => u.Email);
 
         await usuarioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Usuario>(ix_email, new CreateIndexOptions()
         {
@@ -22,6 +25,10 @@ public class AddIndexes_1 : Migration
         {
             Name = "ix_username",
             Unique = true
+        }));
+        await usuarioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Usuario>(ix_user_text, new CreateIndexOptions()
+        {
+            Name = "ix_user_text"
         }));
 
         var estabelecimentoCol = this.Database.GetCollection<Estabelecimento>("Estabelecimentos");

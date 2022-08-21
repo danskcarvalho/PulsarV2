@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.EventBus;
+﻿using Pulsar.BuildingBlocks.EventBus.Contracts;
+
+namespace Pulsar.BuildingBlocks.EventBus;
 
 public partial class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager
 {

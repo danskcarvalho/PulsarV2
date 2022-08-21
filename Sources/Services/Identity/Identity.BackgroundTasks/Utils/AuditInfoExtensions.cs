@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.BackgroundTasks.Utils;
+﻿using Pulsar.Services.Shared.DTOs;
+
+namespace Pulsar.Services.Identity.BackgroundTasks.Utils;
 
 public static class AuditInfoExtensions
 {

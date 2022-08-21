@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Shared;
+﻿namespace Pulsar.Services.Shared.DTOs;
 
 public class AuditInfoDTO
 {

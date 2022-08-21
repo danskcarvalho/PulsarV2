@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
+namespace Pulsar.BuildingBlocks.EventBus.Contracts;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public class EventNameAttribute : Attribute
@@ -9,7 +9,7 @@ public class EventNameAttribute : Attribute
 
     public EventNameAttribute(string name)
     {
-        this.Name = name;
+        Name = name;
     }
 
     public static string? GetEventName(Type type)

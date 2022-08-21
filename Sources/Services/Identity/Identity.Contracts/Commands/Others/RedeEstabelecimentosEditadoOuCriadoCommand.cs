@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.Contracts.Commands.Others;
+﻿using Pulsar.Services.Shared.DTOs;
+
+namespace Pulsar.Services.Identity.Contracts.Commands.Others;
 
 public class RedeEstabelecimentosEditadaOuCriadaCommand : IRequest
 {

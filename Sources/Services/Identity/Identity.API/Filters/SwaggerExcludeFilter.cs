@@ -1,4 +1,4 @@
-﻿using Pulsar.Services.Shared;
+﻿using Pulsar.Services.Shared.Attributes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Globalization;
 using System.Reflection;

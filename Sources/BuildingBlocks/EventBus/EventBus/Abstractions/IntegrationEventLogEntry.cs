@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
+﻿using Pulsar.BuildingBlocks.EventBus.Contracts;
+
+namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
 
 public class IntegrationEventLogEntry
 {
