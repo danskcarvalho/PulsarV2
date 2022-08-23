@@ -2,12 +2,17 @@ using Microsoft.AspNetCore.Authorization;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.API.Authorization;
 using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(j =>
+{
+    j.JsonSerializerOptions.Converters.Add(new AssertDateTimeConverter());
+    j.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
