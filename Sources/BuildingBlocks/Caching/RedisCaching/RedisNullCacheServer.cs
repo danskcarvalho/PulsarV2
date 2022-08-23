@@ -1,4 +1,5 @@
-﻿using Pulsar.BuildingBlocks.Caching.Abstractions;
+﻿using Pulsar.BuildingBlocks.Caching;
+using Pulsar.BuildingBlocks.Caching.Abstractions;
 
 namespace Pulsar.BuildingBlocks.RedisCaching;
 
@@ -34,12 +35,12 @@ public class RedisNullCacheServer : ICacheServer
         return await produceResult();
     }
 
-    public async Task<Dictionary<ICacheKey, TResult>> GetMultiple<TResult>(IEnumerable<ICacheKey> keys, Func<ICacheKey, Task<TResult>> produceResult) where TResult : class?
+    public async Task<Dictionary<TKey, TResult>> GetMultiple<TKey, TResult>(IEnumerable<TKey> keys, Func<TKey, Task<TResult>> produceResult) where TKey : notnull where TResult : class?
     {
-        Dictionary<ICacheKey, Task<TResult>> dic = new Dictionary<ICacheKey, Task<TResult>>();
+        Dictionary<TKey, Task<TResult>> dic = new Dictionary<TKey, Task<TResult>>();
         foreach (var k in keys)
         {
-            dic[k] = Get(k, () => produceResult(k));
+            dic[k] = Get(k.ToCacheKey(), () => produceResult(k));
         }
         List<Task> allTasks = new List<Task>();
         foreach (var k in dic.Keys)
@@ -47,12 +48,19 @@ public class RedisNullCacheServer : ICacheServer
             allTasks.Add(dic[k]);
         }
         await Task.WhenAll(allTasks);
-        Dictionary<ICacheKey, TResult> res = new Dictionary<ICacheKey, TResult>();
+        Dictionary<TKey, TResult> res = new Dictionary<TKey, TResult>();
         foreach (var k in dic.Keys)
         {
             res[k] = dic[k].Result;
         }
         return res;
+    }
+
+    public async Task<Dictionary<TKey, TResult>> GetMultipleBatches<TKey, TResult>(IEnumerable<TKey> keys, Func<List<TKey>, Task<Dictionary<TKey, TResult>>> produceResult)
+        where TKey : notnull
+        where TResult : class?
+    {
+        return await produceResult(keys.ToList());
     }
 }
 
@@ -83,12 +91,12 @@ class RedisNullCategory : ICategory
         return await produceResult();
     }
 
-    public async Task<Dictionary<ICacheKey, TResult>> GetMultiple<TResult>(IEnumerable<ICacheKey> keys, Func<ICacheKey, Task<TResult>> produceResult) where TResult : class?
+    public async Task<Dictionary<TKey, TResult>> GetMultiple<TKey, TResult>(IEnumerable<TKey> keys, Func<TKey, Task<TResult>> produceResult) where TKey : notnull where TResult : class?
     {
-        Dictionary<ICacheKey, Task<TResult>> dic = new Dictionary<ICacheKey, Task<TResult>>();
+        Dictionary<TKey, Task<TResult>> dic = new Dictionary<TKey, Task<TResult>>();
         foreach (var k in keys)
         {
-            dic[k] = Get(k, () => produceResult(k));
+            dic[k] = Get(k.ToCacheKey(), () => produceResult(k));
         }
         List<Task> allTasks = new List<Task>();
         foreach (var k in dic.Keys)
@@ -96,11 +104,18 @@ class RedisNullCategory : ICategory
             allTasks.Add(dic[k]);
         }
         await Task.WhenAll(allTasks);
-        Dictionary<ICacheKey, TResult> res = new Dictionary<ICacheKey, TResult>();
+        Dictionary<TKey, TResult> res = new Dictionary<TKey, TResult>();
         foreach (var k in dic.Keys)
         {
             res[k] = dic[k].Result;
         }
         return res;
+    }
+
+    public async Task<Dictionary<TKey, TResult>> GetMultipleBatches<TKey, TResult>(IEnumerable<TKey> keys, Func<List<TKey>, Task<Dictionary<TKey, TResult>>> produceResult)
+        where TKey : notnull
+        where TResult : class?
+    {
+        return await produceResult(keys.ToList());
     }
 }

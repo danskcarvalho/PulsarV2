@@ -15,5 +15,7 @@ public static class AllApiScopes
         new ApiScope(name: "identity.usuarios.*"),
         new ApiScope(name: "identity.usuarios.listar"),
         new ApiScope(name: "identity.usuarios.logado"),
+        new ApiScope(name: "identity.usuarios.dados_basicos"),
+        new ApiScope(name: "identity.usuarios.detalhes"),
     };
 }

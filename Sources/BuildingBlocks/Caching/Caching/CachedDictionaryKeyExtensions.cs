@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.Caching;
+﻿using System.Runtime.CompilerServices;
+
+namespace Pulsar.BuildingBlocks.Caching;
 
 public static class CachedDictionaryKeyExtensions
 {
@@ -14,6 +16,15 @@ public static class CachedDictionaryKeyExtensions
             return new CachedPrimitiveValue(obj);
         else if (obj is IEnumerable en)
             return new CachedArrayKey<object?>(en.Cast<object>().Select(x => ToCacheKey(x)));
+        else if (obj is ITuple t)
+        {
+            List<object?> objs = new List<object?>();
+            for (int i = 0; i < t.Length; i++)
+            {
+                objs.Add(t[i]);
+            }
+            return new CachedArrayKey<object?>(objs.Cast<object>().Select(x => ToCacheKey(x)));
+        }
         else
         {
             Dictionary<string, object?> dict = new Dictionary<string, object?>();

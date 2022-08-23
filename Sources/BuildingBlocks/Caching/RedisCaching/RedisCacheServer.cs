@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pulsar.BuildingBlocks.Caching;
 using Pulsar.BuildingBlocks.Caching.Abstractions;
 using StackExchange.Redis;
+using System.Data.Common;
 using System.Text.Json;
 
 namespace Pulsar.BuildingBlocks.RedisCaching;
@@ -58,12 +60,12 @@ public class RedisCacheServer : ICacheServer
         }
     }
 
-    public async Task<Dictionary<ICacheKey, TResult>> GetMultiple<TResult>(IEnumerable<ICacheKey> keys, Func<ICacheKey, Task<TResult>> produceResult) where TResult : class?
+    public async Task<Dictionary<TKey, TResult>> GetMultiple<TKey, TResult>(IEnumerable<TKey> keys, Func<TKey, Task<TResult>> produceResult) where TKey : notnull where TResult : class?
     {
-        Dictionary<ICacheKey, Task<TResult>> dic = new Dictionary<ICacheKey, Task<TResult>>();
+        Dictionary<TKey, Task<TResult>> dic = new Dictionary<TKey, Task<TResult>>();
         foreach (var k in keys)
         {
-            dic[k] = Get(k, () => produceResult(k));
+            dic[k] = Get(k.ToCacheKey(), () => produceResult(k));
         }
         List<Task> allTasks = new List<Task>();
         foreach (var k in dic.Keys)
@@ -71,12 +73,58 @@ public class RedisCacheServer : ICacheServer
             allTasks.Add(dic[k]);
         }
         await Task.WhenAll(allTasks);
-        Dictionary<ICacheKey, TResult> res = new Dictionary<ICacheKey, TResult>();
+        Dictionary<TKey, TResult> res = new Dictionary<TKey, TResult>();
         foreach (var k in dic.Keys)
         {
             res[k] = dic[k].Result;
         }
         return res;
+    }
+
+    public async Task<Dictionary<TKey, TResult>> GetMultipleBatches<TKey, TResult>(IEnumerable<TKey> keys, Func<List<TKey>, Task<Dictionary<TKey, TResult>>> produceResult)
+        where TKey : notnull
+        where TResult : class?
+    {
+        var keysArray = keys.ToArray();
+        Dictionary<TKey, TResult> dic = new Dictionary<TKey, TResult>();
+        List<TKey> missing = new List<TKey>();
+        List<Task<RedisValue>> tasks = new List<Task<RedisValue>>();
+        var database = _connection.GetDatabase();
+
+        foreach (var k in keysArray)
+        {
+            var kc = k.ToCacheKey();
+            tasks.Add(database.StringGetAsync(kc.ToString()));
+        }
+
+        await Task.WhenAll(tasks);
+
+        for (int i = 0; i < keysArray.Length; i++)
+        {
+            var val = (string?)tasks[i].Result;
+            if (val != null)
+            {
+                var cached = FromJson<TResult>(val);
+                if (!cached.Failed && DateTime.UtcNow <= cached.ExpiresOn)
+                    dic[keysArray[i]] = cached.Value!;
+                else
+                    missing.Add(keysArray[i]);
+            }
+            else
+                missing.Add(keysArray[i]);
+        }
+
+        var results = await produceResult(missing);
+        var storeTasks = new List<Task<bool>>();
+        foreach (var k in results.Keys)
+        {
+            dic[k] = results[k];
+            var kc = k.ToCacheKey();
+            storeTasks.Add(database.StringSetAsync(kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
+        }
+
+        await Task.WhenAll(storeTasks);
+        return dic;
     }
 
     public async Task Clear(ICacheKey key)
@@ -134,7 +182,6 @@ public class RedisCacheServer : ICacheServer
 
         return typeName;
     }
-
 }
 
 class CachedValue<T> where T : class?
@@ -192,12 +239,12 @@ class RedisCategory : ICategory
         }
     }
 
-    public async Task<Dictionary<ICacheKey, TResult>> GetMultiple<TResult>(IEnumerable<ICacheKey> keys, Func<ICacheKey, Task<TResult>> produceResult) where TResult : class?
+    public async Task<Dictionary<TKey, TResult>> GetMultiple<TKey, TResult>(IEnumerable<TKey> keys, Func<TKey, Task<TResult>> produceResult) where TKey : notnull where TResult : class?
     {
-        Dictionary<ICacheKey, Task<TResult>> dic = new Dictionary<ICacheKey, Task<TResult>>();
+        Dictionary<TKey, Task<TResult>> dic = new Dictionary<TKey, Task<TResult>>();
         foreach (var k in keys)
         {
-            dic[k] = Get(k, () => produceResult(k));
+            dic[k] = Get(k.ToCacheKey(), () => produceResult(k));
         }
         List<Task> allTasks = new List<Task>();
         foreach (var k in dic.Keys)
@@ -205,12 +252,57 @@ class RedisCategory : ICategory
             allTasks.Add(dic[k]);
         }
         await Task.WhenAll(allTasks);
-        Dictionary<ICacheKey, TResult> res = new Dictionary<ICacheKey, TResult>();
+        Dictionary<TKey, TResult> res = new Dictionary<TKey, TResult>();
         foreach (var k in dic.Keys)
         {
             res[k] = dic[k].Result;
         }
         return res;
+    }
+
+    public async Task<Dictionary<TKey, TResult>> GetMultipleBatches<TKey, TResult>(IEnumerable<TKey> keys, Func<List<TKey>, Task<Dictionary<TKey, TResult>>> produceResult)
+        where TKey : notnull
+        where TResult : class?
+    {
+        var keysArray = keys.ToArray();
+        Dictionary<TKey, TResult> dic = new Dictionary<TKey, TResult>();
+        List<TKey> missing = new List<TKey>();
+        List<Task<RedisValue>> tasks = new List<Task<RedisValue>>();
+
+        foreach (var k in keysArray)
+        {
+            var kc = k.ToCacheKey();
+            tasks.Add(_database.HashGetAsync(_categoryName, kc.ToString()));
+        }
+
+        await Task.WhenAll(tasks);
+
+        for (int i = 0; i < keysArray.Length; i++)
+        {
+            var val = (string?)tasks[i].Result;
+            if (val != null)
+            {
+                var cached = FromJson<TResult>(val);
+                if (!cached.Failed && DateTime.UtcNow <= cached.ExpiresOn)
+                    dic[keysArray[i]] = cached.Value!;
+                else
+                    missing.Add(keysArray[i]);
+            }
+            else
+                missing.Add(keysArray[i]);
+        }
+
+        var results = await produceResult(missing);
+        var storeTasks = new List<Task<bool>>();
+        foreach (var k in results.Keys)
+        {
+            dic[k] = results[k];
+            var kc = k.ToCacheKey();
+            storeTasks.Add(_database.HashSetAsync(_categoryName, kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
+        }
+
+        await Task.WhenAll(storeTasks);
+        return dic;
     }
 
     private CachedValue<T> FromJson<T>(string val) where T : class?

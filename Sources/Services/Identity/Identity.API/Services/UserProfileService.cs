@@ -53,7 +53,7 @@ public class UserProfileService : IProfileService
         }
         else if (profileClaims.Count != 0)
         {
-            basicInfo = await _usuarioQueries.GetBasicUserInfo(usuarioId);
+            basicInfo = await _usuarioQueries.GetBasicUserInfo(usuarioId, null);
             if (basicInfo == null)
                 return new List<Claim>();
         }
