@@ -4,18 +4,42 @@ namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class BasicUserInfoDTO
 {
-    public string Id { get; set; }
+    /// <summary>
+    /// Id do usuário.
+    /// </summary>
+    public string UsuarioId { get; set; }
+    /// <summary>
+    /// Primeiro nome.
+    /// </summary>
     public string PrimeiroNome { get; set; }
+    /// <summary>
+    /// Sobrenome.
+    /// </summary>
     public string? UltimoNome { get; set; }
+    /// <summary>
+    /// Nome completo. Junção do primeiro nome + sobrenome.
+    /// </summary>
     public string NomeCompleto { get; set; }
+    /// <summary>
+    /// E-mail do usuário. Único.
+    /// </summary>
     public string? Email { get; set; }
+    /// <summary>
+    /// Nome de usuário. Único.
+    /// </summary>
     public string NomeUsuario { get; set; }
+    /// <summary>
+    /// Apenas o usuário administrador é um super usuário.
+    /// </summary>
     public bool IsSuperUsuario { get; set; }
+    /// <summary>
+    /// Url da imagem utilizada como avatar do usuário.
+    /// </summary>
     public string? AvatarUrl { get; set; }
 
-    public BasicUserInfoDTO(string id, string primeiroNome, string? ultimoNome, string nomeCompleto, string? email, string nomeUsuario, string? avatarUrl, bool isSuperUsuario)
+    public BasicUserInfoDTO(string usuarioId, string primeiroNome, string? ultimoNome, string nomeCompleto, string? email, string nomeUsuario, string? avatarUrl, bool isSuperUsuario)
     {
-        Id = id;
+        UsuarioId = usuarioId;
         PrimeiroNome = primeiroNome;
         UltimoNome = ultimoNome;
         NomeCompleto = nomeCompleto;

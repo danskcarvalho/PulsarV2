@@ -3,14 +3,19 @@
 public class UsuarioListadoDTO
 {
     [JsonConstructor]
-    public UsuarioListadoDTO(string email, string primeiroNome, string nomeCompleto, string nomeUsuario)
+    public UsuarioListadoDTO(string usuarioId, string email, string primeiroNome, string nomeCompleto, string nomeUsuario)
     {
         PrimeiroNome = primeiroNome;
         NomeCompleto = nomeCompleto;
         NomeUsuario = nomeUsuario;
         Email = email;
+        UsuarioId = usuarioId;
     }
 
+    /// <summary>
+    /// Id do usuário.
+    /// </summary>
+    public string UsuarioId { get; set; }
     /// <summary>
     /// Url do avatar do usuário.
     /// </summary>

@@ -7,7 +7,13 @@ public static class AllApiScopes
     public readonly static ApiScope[] Resources = new ApiScope[]
     {
         //Identity API
-        new ApiScope(name: "identity.read", displayName: "Read identity data."),
-        new ApiScope(name: "identity.write", displayName: "Write identity data.")
+        new ApiScope(name: "identity.*"),
+        //Convites
+        new ApiScope(name: "identity.convites.*"),
+        new ApiScope(name: "identity.convites.criar"),
+        //Usuarios
+        new ApiScope(name: "identity.usuarios.*"),
+        new ApiScope(name: "identity.usuarios.listar"),
+        new ApiScope(name: "identity.usuarios.logado"),
     };
 }

@@ -43,10 +43,7 @@ builder.Services.AddSwaggerGen(options =>
             {
                 AuthorizationUrl = new Uri(builder.Configuration["IdentityServer:AuthorizationUrl"]),
                 TokenUrl = new Uri(builder.Configuration["IdentityServer:TokenUrl"]),
-                Scopes = new Dictionary<string, string>() {
-                    { "identity.read", "Read identity data." },
-                    { "identity.write", "Write identity data." }
-                }
+                Scopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).ToDictionary(s => (s.Name, s.Description))
             }
         }
     });

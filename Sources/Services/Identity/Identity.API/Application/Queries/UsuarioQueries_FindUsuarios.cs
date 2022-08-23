@@ -14,7 +14,7 @@ public partial class UsuarioQueries
 
         var findOptions = new FindOptions<Usuario, UsuarioListadoDTO>()
         {
-            Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
+            Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
             {
                 AvatarUrl = x.Avatar == null ? null : x.Avatar.PublicUrl,
                 IsAtivo = x.IsAtivo,
@@ -37,7 +37,7 @@ public partial class UsuarioQueries
 
         var findOptions = new FindOptions<Usuario, UsuarioListadoDTO>()
         {
-            Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
+            Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
             {
                 AvatarUrl = x.Avatar == null ? null : x.Avatar.PublicUrl,
                 IsAtivo = x.IsAtivo,

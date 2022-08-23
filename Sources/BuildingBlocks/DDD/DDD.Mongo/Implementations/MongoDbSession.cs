@@ -1,4 +1,5 @@
 ﻿using Polly.Retry;
+using Pulsar.BuildingBlocks.Utils;
 using System.Diagnostics;
 
 namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
@@ -61,7 +62,7 @@ public class MongoDbSession : IDbSession
             { "operationTime", operationTime  }
         };
 
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(bson.ToJson()));
+        return Encoding.UTF8.GetBytes(bson.ToJson()).ToSafeBase64();
     }
 
     private bool ParseConsistencyToken(string consistencyToken, out BsonDocument? clusterTime, out BsonTimestamp? operationTime)
@@ -72,8 +73,8 @@ public class MongoDbSession : IDbSession
         {
             if (string.IsNullOrWhiteSpace(consistencyToken))
                 return false;
-            var json = Encoding.UTF8.GetString(Convert.FromBase64String(consistencyToken));
-            var doc = json.ToBsonDocument();
+            var json = Encoding.UTF8.GetString(consistencyToken.FromSafeBase64());
+            var doc = BsonSerializer.Deserialize<BsonDocument>(json);
             var clusterName = doc["clusterName"].AsString;
             if (_clusterName != null && clusterName != _clusterName)
                 throw new InvalidOperationException($"expected consistency token from cluster '{_clusterName}' but got '{clusterName}'");

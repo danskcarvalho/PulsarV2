@@ -93,15 +93,37 @@ public static class GeneralExtensions
         }
         return dic;
     }
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue, T>(this IEnumerable<T> items, Func<T, (TKey, TValue)> keyValuePairs) where TKey : notnull
+    {
+        Dictionary<TKey, TValue> dic = new();
+        foreach (var item in items)
+        {
+            var kv = keyValuePairs(item);
+            dic[kv.Item1] = kv.Item2;
+        }
+        return dic;
+
+    }
     public static string? Tokenize(this string? str) => Pulsar.BuildingBlocks.Utils.Tokenize.Perform(str);
+    public static string ToSafeBase64(this byte[] bytes)
+    {
+        var s = Convert.ToBase64String(bytes);
+        return s.Replace("z", "zz").Replace("+", "za").Replace("/", "zd").Replace("=", "ze");
+    }
+    public static byte[] FromSafeBase64(this string base64)
+    {
+        base64 = base64.Replace("za", "+").Replace("zd", "/").Replace("ze", "=").Replace("zz", "z");
+        return Convert.FromBase64String(base64);
+       
+    }
     public static string ToBase64Json(this object obj)
     {
         var json = JsonSerializer.Serialize(obj, obj.GetType(), new JsonSerializerOptions());
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        return Encoding.UTF8.GetBytes(json).ToSafeBase64();
     }
     public static T? FromBase64Json<T>(this string json)
     {
-        var og = Encoding.UTF8.GetString(Convert.FromBase64String(json));
+        var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, new JsonSerializerOptions());
     }
     public static BsonDocument ToTextSearch(this string? term)

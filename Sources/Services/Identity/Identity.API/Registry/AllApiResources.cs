@@ -8,7 +8,7 @@ public static class AllApiResources
     {
         new ApiResource("identity", "Identity API")
         {
-            Scopes = { "identity.read", "identity.write" },
+            Scopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).Select(s => s.Name).ToList(),
             UserClaims =
             {
                "d", "de", "e", "dp", "ep", "uag", "uad"

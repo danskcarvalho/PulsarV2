@@ -18,11 +18,11 @@ public static class AllClients
 
                 RedirectUris = { configuration["IdentityServer:Clients:IdentitySwaggerUI:RedirectUri"] },
                 PostLogoutRedirectUris = { configuration["IdentityServer:Clients:IdentitySwaggerUI:PostLogoutRedirectUri"] },
-                AllowedScopes =
+                AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).Select(s => s.Name).Union(new string[]
                 {
-                    "identity.read", "identity.write", "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
-                }
-            },
+                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
+                }).ToList()
+            }
         };
     }
 }

@@ -14,7 +14,7 @@ public class UsuarioController : IdentityController
     {
     }
 
-    [HttpGet, ReadAuthorize, SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
+    [HttpGet, ScopeAuthorize("usuarios.listar"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
     public async Task<ActionResult<PaginatedListDTO<UsuarioListadoDTO>>> FindUsuarios([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
         var r = await UsuarioQueries.FindUsuarios(new UsuarioFiltroDTO()
@@ -24,6 +24,13 @@ public class UsuarioController : IdentityController
             Filtro = filtro,
             Limit = limit
         });
+        return Ok(r);
+    }
+
+    [HttpGet("logado"), ScopeAuthorize("usuarios.logado")]
+    public async Task<ActionResult<BasicUserInfoDTO>> Logado()
+    {
+        var r = await UsuarioQueries.GetBasicUserInfo(User.Id());
         return Ok(r);
     }
 }

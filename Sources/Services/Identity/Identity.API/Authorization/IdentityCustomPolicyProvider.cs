@@ -9,6 +9,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
     const string ESTABELECIMENTO_POLICY_PREFIX = "Estabelecimento_";
     const string SUPERUSUARIO_POLICY_PREFIX = "SuperUsuario_";
     const string SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX = "SuperUsuarioOrDominio_";
+    const string SCOPE_PREFIX = "Scope_";
 
     private DefaultAuthorizationPolicyProvider BackupPolicyProvider { get; }
 
@@ -87,18 +88,15 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
             }
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }
-        else if (policyName == "Read")
+        else if (policyName.StartsWith(SCOPE_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
             var builder = new AuthorizationPolicyBuilder("Bearer");
             builder.RequireAuthenticatedUser();
-            builder.RequireClaim("scope", "identity.read");
-            return Task.FromResult((AuthorizationPolicy?)builder.Build());
-        }
-        else if (policyName == "Write")
-        {
-            var builder = new AuthorizationPolicyBuilder("Bearer");
-            builder.RequireAuthenticatedUser();
-            builder.RequireClaim("scope", "identity.write");
+            var claim = policyName.Substring(SCOPE_PREFIX.Length);
+            var api = claim.Substring(0, claim.IndexOf('.'));
+            var controller = claim.Substring(api.Length + 1).Substring(0, claim.IndexOf('.'));
+            var action = claim.Substring(api.Length + controller.Length + 2);
+            builder.RequireAssertion(ctx => ctx.User.HasClaim("scope", claim) || ctx.User.HasClaim("scope", $"{api}.*") || ctx.User.HasClaim("scope", $"{api}.{controller}.*"));
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }
         else
