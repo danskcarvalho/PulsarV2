@@ -17,5 +17,10 @@ public static class AllApiScopes
         new ApiScope(name: "identity.usuarios.logado"),
         new ApiScope(name: "identity.usuarios.dados_basicos"),
         new ApiScope(name: "identity.usuarios.detalhes"),
+        new ApiScope(name: "identity.usuarios.bloquear"),
+        new ApiScope(name: "identity.usuarios.desbloquear"),
+        new ApiScope(name: "identity.usuarios.editar_meus_dados"),
+        new ApiScope(name: "identity.usuarios.mudar_minha_senha"),
+        new ApiScope(name: "identity.usuarios.mudar_meu_avatar")
     };
 }

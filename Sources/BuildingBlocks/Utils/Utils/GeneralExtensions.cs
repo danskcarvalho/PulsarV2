@@ -147,4 +147,10 @@ public static class GeneralExtensions
         };
     }
     public static int Limit(this int limit) => Math.Max(Math.Min(limit, 1000), 1);
+
+    public static bool IsValidExtension(this string fn, params string[] validExtensions)
+    {
+        var ext = Path.GetExtension(fn).ToLowerInvariant();
+        return validExtensions.Any(e => string.Compare(e, ext, true) == 0);
+    }
 }

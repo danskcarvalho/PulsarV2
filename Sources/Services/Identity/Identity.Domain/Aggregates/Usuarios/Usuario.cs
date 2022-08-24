@@ -198,4 +198,13 @@ public class Usuario : AggregateRoot
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
     }
+
+    public void AlterarAvatar(string publiclUrl, string internalUrl)
+    {
+        this.Avatar = new UsuarioAvatar(publiclUrl, internalUrl);
+        this.Version++;
+        this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+    }
 }

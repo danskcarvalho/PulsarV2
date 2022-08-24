@@ -104,7 +104,7 @@ public class UsuarioController : IdentityController
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
-    [HttpPost("editar_meus_dados"), ScopeAuthorize("usuarios.editar_meus_dados")]
+    [HttpPost("meus_dados"), ScopeAuthorize("usuarios.editar_meus_dados")]
     public async Task<ActionResult<CommandResult>> EditarMeusDados([FromBody] EditarMeusDadosCommand cmd)
     {
         cmd.UsuarioId = User.Id();
@@ -117,11 +117,20 @@ public class UsuarioController : IdentityController
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
-    [HttpPost("mudar_minha_senha"), ScopeAuthorize("usuarios.mudar_minha_senha")]
+    [HttpPost("minha_senha"), ScopeAuthorize("usuarios.mudar_minha_senha")]
     public async Task<ActionResult<CommandResult>> MudarMinhaSenha([FromBody] MudarMinhaSenhaCommand cmd)
     {
         cmd.UsuarioId = User.Id();
         var r = await Mediator.Send(cmd);
         return Ok(r);
+    }
+
+    [HttpPost("avatar"), ScopeAuthorize("usuarios.mudar_meu_avatar"), RequestFormLimits(MultipartBodyLengthLimit = 4_194_304)]
+    public async Task<ActionResult<CommandResult>> MudarMeuAvatar([FromForm] MudarMeuAvatarViewModel viewModel)
+    {
+        if (viewModel.Validate() is UnsupportedMediaTypeResult um)
+            return um;
+
+        return Ok(await Mediator.Send(new MudarMeuAvatarCommand(User.Id(), viewModel.Imagem!.OpenReadStream(), viewModel.Imagem.FileName)));
     }
 }

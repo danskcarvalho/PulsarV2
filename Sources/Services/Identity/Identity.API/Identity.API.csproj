@@ -21,6 +21,7 @@
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.7" />
+    <PackageReference Include="SkiaSharp" Version="2.88.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
@@ -29,6 +30,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsSES\EmailsSES.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\Emails\Emails.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\FileSystem\FileSystemMinio\FileSystemMinio.csproj" />
     <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />

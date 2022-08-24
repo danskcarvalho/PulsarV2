@@ -37,7 +37,7 @@ public class MinioFileSystem : IFileSystem
             return await retryPolicy.ExecuteAsync(async (CancellationToken ct2) =>
             {
                 var minioClient = BuildMinioClient();
-                var objectName = Guid.NewGuid().ToString() + Path.GetExtension(args.FileName);
+                var objectName = Path.GetDirectoryName(args.FileName) != null ? Path.GetDirectoryName(args.FileName)!.Replace("\\", "/") + "/" + Guid.NewGuid().ToString() + Path.GetExtension(args.FileName) : Guid.NewGuid().ToString() + Path.GetExtension(args.FileName);
                 var minioArgs = new PutObjectArgs()
                     .WithBucket(Configuration.BucketName)
                     .WithObject(objectName)

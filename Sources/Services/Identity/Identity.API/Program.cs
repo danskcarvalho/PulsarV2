@@ -1,11 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
-using Pulsar.BuildingBlocks.EventBus.Extensions;
-using Pulsar.Services.Identity.API.Application.BaseTypes;
-using Pulsar.Services.Identity.API.Authorization;
-using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
-using System.Text.Json.Serialization;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,7 +14,9 @@ builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
 builder.Services.AddRedisCache();
+builder.Services.AddMinio();
 builder.Services.AddTransient<IdentityControllerContext>();
+builder.Services.AddSingleton<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
 builder.Services.AddTransient(typeof(IdentityCommandHandlerContext<>));
 builder.Services.AddTransient(typeof(IdentityDomainEventHandlerContext<>));
 builder.Services.AddTransient(typeof(IdentityCommandHandlerContext<,>));
