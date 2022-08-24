@@ -25,5 +25,11 @@ public enum ExceptionKey
     [Display(Description = "Convite Inválido.")]
     ConviteInvalido = 11,
     [Display(Description = "Já existe um usuário com o nome de usuário informado.")]
-    NomeUsuarioNaoUnico = 12
+    NomeUsuarioNaoUnico = 12,
+    [Display(Description = "Convite para este usuário ainda não foi aceito.")]
+    ConviteNaoAceito = 13,
+    [Display(Description = "Senha atual inválida.")]
+    SenhaAtualInvalida = 14,
+    [Display(Description = "O usuário 'administrador' não pode ser bloqueado/desbloqueado.")]
+    SuperUsuarioNaoPodeSerBloqueado = 15,
 }

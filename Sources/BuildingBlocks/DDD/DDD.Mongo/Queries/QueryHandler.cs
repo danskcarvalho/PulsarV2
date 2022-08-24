@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pulsar.BuildingBlocks.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,7 @@ public class QueryHandler : IDisposable
 
     private IClientSessionHandle? _baseSession;
     private IClientSessionHandle? _ccSession = null;
+    private string? _clusterName;
 
     public IMongoCollection<TModel> GetCollection<TModel>(string collectionName, ReadPref pref = ReadPref.Secondary)
     {
@@ -43,28 +45,13 @@ public class QueryHandler : IDisposable
         return col;
     }
 
-    public QueryHandler(MongoDbSessionFactory factory)
+    public QueryHandler(MongoDbSessionFactory factory, string clusterName)
     {
         Factory = factory;
+        _clusterName = clusterName;
     }
 
     public bool IsCausalllyConsistent => CurrentHandle?.Options?.CausalConsistency == true;
-
-    public string? ConsistencyToken => GetConsistencyToken(CurrentHandle.ClusterTime, CurrentHandle.OperationTime);
-
-    private string? GetConsistencyToken(BsonDocument? clusterTime, BsonTimestamp? operationTime)
-    {
-        if (clusterTime is null || operationTime is null)
-            return null;
-
-        var bson = new BsonDocument
-    {
-        { "clusterTime", clusterTime },
-        { "operationTime", operationTime  }
-    };
-
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(bson.ToJson()));
-    }
 
     private bool ParseConsistencyToken(string consistencyToken, out BsonDocument? clusterTime, out BsonTimestamp? operationTime)
     {
@@ -74,8 +61,11 @@ public class QueryHandler : IDisposable
         {
             if (string.IsNullOrWhiteSpace(consistencyToken))
                 return false;
-            var json = Encoding.UTF8.GetString(Convert.FromBase64String(consistencyToken));
-            var doc = json.ToBsonDocument();
+            var json = Encoding.UTF8.GetString(consistencyToken.FromSafeBase64());
+            var doc = BsonSerializer.Deserialize<BsonDocument>(json);
+            var clusterName = doc["clusterName"].AsString;
+            if (_clusterName != null && clusterName != _clusterName)
+                throw new InvalidOperationException($"expected consistency token from cluster '{_clusterName}' but got '{clusterName}'");
             clusterTime = doc["clusterTime"].AsBsonDocument;
             operationTime = doc["operationTime"].AsBsonTimestamp;
             return true;
@@ -88,7 +78,7 @@ public class QueryHandler : IDisposable
 
     public async Task<TResult> StartCausallyConsistentSectionAsync<TResult>(Func<CancellationToken, Task<TResult>> action, string? consistencyToken = null, CancellationToken ct = default)
     {
-        if(consistencyToken == null)
+        if (consistencyToken == null)
         {
             return await action(ct);
         }
@@ -101,9 +91,7 @@ public class QueryHandler : IDisposable
             throw new InvalidOperationException("invalid consistency token");
 
         if (_baseSession == null)
-        {
             _baseSession = await Client.StartSessionAsync(cancellationToken: ct);
-        }
 
         _ccSession = await Client.StartSessionAsync(new ClientSessionOptions()
         {
@@ -111,20 +99,10 @@ public class QueryHandler : IDisposable
         }, ct);
 
 
-        if (consistencyToken != null)
-        {
-            if (clusterTime != null)
-                _ccSession.AdvanceClusterTime(clusterTime);
-            if (operationTime != null)
-                _ccSession.AdvanceOperationTime(operationTime);
-        }
-        else
-        {
-            if (_baseSession.ClusterTime != null)
-                _ccSession.AdvanceClusterTime(_baseSession.ClusterTime);
-            if (_baseSession.OperationTime != null)
-                _ccSession.AdvanceOperationTime(_baseSession.OperationTime);
-        }
+        if (clusterTime != null)
+            _ccSession.AdvanceClusterTime(clusterTime);
+        if (operationTime != null)
+            _ccSession.AdvanceOperationTime(operationTime);
 
         try
         {

@@ -1,4 +1,5 @@
 ﻿using Pulsar.BuildingBlocks.Utils.Bson;
+using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;

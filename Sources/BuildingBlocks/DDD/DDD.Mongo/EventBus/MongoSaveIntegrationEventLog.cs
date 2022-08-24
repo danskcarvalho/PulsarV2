@@ -14,7 +14,7 @@ public class MongoSaveIntegrationEventLog : ISaveIntegrationEventLog
             .WithWriteConcern(WriteConcern.WMajority);
     }
 
-    public async Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct)
+    public async Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct = default)
     {
         var entry = new IntegrationEventLogEntry(@event);
         await _collection.InsertOneAsync(_session.CurrentHandle, entry, cancellationToken: ct);

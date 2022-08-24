@@ -4,10 +4,10 @@ using Pulsar.Services.Shared.Enumerations;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios
 {
-    public class UsuarioModificadoDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>
+    public class LimparCacheUsuariosDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>
     {
         private readonly ICacheServer _cacheServer;
-        public UsuarioModificadoDomainEventHandler(ILogger<IdentityDomainEventHandler<UsuarioModificadoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories, ICacheServer cacheServer) : base(logger, session, repositories)
+        public LimparCacheUsuariosDomainEventHandler(ICacheServer cacheServer, IdentityDomainEventHandlerContext<UsuarioModificadoDomainEvent> ctx) : base(ctx)
         {
             _cacheServer = cacheServer;
         }

@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
 
-[EventName("Estabelecimentos:EstabelecimentoEditadoOuCriadoIntegrationEvent")]
+[EventName("Estabelecimentos:EstabelecimentoModificado")]
 public class EstabelecimentoModificadoIntegrationEvent : IntegrationEvent
 {
     public string EstabelecimentoId { get; private set; }

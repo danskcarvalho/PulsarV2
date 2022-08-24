@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
+using Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
+using Pulsar.BuildingBlocks.EventBus.Extensions;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.API.Authorization;
 using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
@@ -21,6 +23,17 @@ builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSESEmailSupport();
 builder.Services.AddRedisCache();
 builder.Services.AddTransient<IdentityControllerContext>();
+builder.Services.AddTransient(typeof(IdentityCommandHandlerContext<>));
+builder.Services.AddTransient(typeof(IdentityDomainEventHandlerContext<>));
+builder.Services.AddTransient(typeof(IdentityCommandHandlerContext<,>));
+builder.Services.AddTransient<IdentityQueriesContext>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return new IdentityQueriesContext(
+        sp.GetRequiredService<MongoDbSessionFactory>(),
+        sp.GetRequiredService<ICacheServer>(),
+        configuration["MongoDB:ClusterName"]);
+});
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 {
@@ -33,6 +46,7 @@ builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.CustomSchemaIds(x => GenericTypeExtensions.GetGenericTypeName(x));
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Identity HTTP API",
@@ -48,7 +62,7 @@ builder.Services.AddSwaggerGen(options =>
             {
                 AuthorizationUrl = new Uri(builder.Configuration["IdentityServer:AuthorizationUrl"]),
                 TokenUrl = new Uri(builder.Configuration["IdentityServer:TokenUrl"]),
-                Scopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).ToDictionary(s => (s.Name, s.Description))
+                Scopes = AllApiScopes.Resources.Where(s => s.Name == "identity.*").ToDictionary(s => (s.Name, s.Description))
             }
         }
     });

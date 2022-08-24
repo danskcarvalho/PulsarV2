@@ -2,32 +2,12 @@
 
 public class IntegrationEvent
 {
-    public IntegrationEvent()
-    {
-        Id = Guid.NewGuid();
-        CreationDate = DateTime.UtcNow;
-    }
-
-    public IntegrationEvent(Guid id)
-    {
-        Id = id;
-        CreationDate = DateTime.UtcNow;
-    }
-
-    public IntegrationEvent(Guid id, bool noRetrySendOnFailure)
-    {
-        Id = id;
-        CreationDate = DateTime.UtcNow;
-        NoRetrySendOnFailure = noRetrySendOnFailure;
-    }
-
     public IntegrationEvent(Guid id, DateTime creationDate)
     {
         Id = id;
         CreationDate = creationDate;
     }
 
-    [JsonConstructor]
     public IntegrationEvent(Guid id, DateTime creationDate, bool noRetryOnFailure)
     {
         Id = id;

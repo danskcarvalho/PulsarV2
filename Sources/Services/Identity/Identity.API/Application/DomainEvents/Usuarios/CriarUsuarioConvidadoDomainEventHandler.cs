@@ -6,7 +6,7 @@ namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios;
 
 public class CriarUsuarioConvidadoDomainEventHandler : IdentityDomainEventHandler<UsuarioConvidadoDomainEvent>
 {
-    public CriarUsuarioConvidadoDomainEventHandler(ILogger<IdentityDomainEventHandler<UsuarioConvidadoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public CriarUsuarioConvidadoDomainEventHandler(IdentityDomainEventHandlerContext<UsuarioConvidadoDomainEvent> ctx) : base(ctx)
     {
     }
 

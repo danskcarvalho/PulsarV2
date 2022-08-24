@@ -159,4 +159,43 @@ public class Usuario : AggregateRoot
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created, ChangeDetails.None));
     }
+
+    public void MudarMinhaSenha(string senhaAtual, string novaSenha, out long previousVersion)
+    {
+        previousVersion = Version;
+        if (IsConvitePendente)
+            throw new IdentityDomainException(ExceptionKey.ConviteNaoAceito);
+        if (!TestarSenha(senhaAtual))
+            throw new IdentityDomainException(ExceptionKey.SenhaAtualInvalida);
+        this.MudarMinhaSenha(novaSenha);
+        this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        Version++;
+    }
+
+    private void MudarMinhaSenha(string novaSenha)
+    {
+        this.SenhaSalt = GeneralExtensions.GetSalt();
+        this.SenhaHash = (this.SenhaSalt + novaSenha).SHA256Hash();
+    }
+
+    public void EditarMeusDados(string primeiroNome, string? sobrenome)
+    {
+        this.PrimeiroNome = primeiroNome;
+        this.UltimoNome = sobrenome;
+        Version++;
+        this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+    }
+
+    public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
+    {
+        if (IsSuperUsuario)
+            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueado);
+        this.IsAtivo = !bloquear;
+        Version++;
+        this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+    }
 }

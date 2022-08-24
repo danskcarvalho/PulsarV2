@@ -2,6 +2,7 @@
 using Pulsar.BuildingBlocks.DDD;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Pulsar.Services.Identity.API.Services;
 
@@ -26,7 +27,9 @@ public static class JsonExceptionMiddleware
 
         context.Response.ContentType = "application/json";
 
-        await JsonSerializer.SerializeAsync(context.Response.Body, error, error.GetType());
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new JsonStringEnumConverter());
+        await JsonSerializer.SerializeAsync(context.Response.Body, error, error.GetType(), options);
     }
 
     private static ExceptionKey? GetKey(Exception ex)

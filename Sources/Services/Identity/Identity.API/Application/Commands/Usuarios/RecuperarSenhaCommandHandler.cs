@@ -7,7 +7,7 @@ namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 [NoTransaction, RetryOnException(VersionConcurrency = true, Retries = 2)]
 public class RecuperarSenhaCommandHandler : IdentityCommandHandler<RecuperarSenhaCommand>
 {
-    public RecuperarSenhaCommandHandler(ILogger<IdentityCommandHandler<RecuperarSenhaCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public RecuperarSenhaCommandHandler(IdentityCommandHandlerContext<RecuperarSenhaCommand> ctx) : base(ctx)
     {
     }
 

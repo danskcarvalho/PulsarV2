@@ -108,11 +108,11 @@ public static class GeneralExtensions
     public static string ToSafeBase64(this byte[] bytes)
     {
         var s = Convert.ToBase64String(bytes);
-        return s.Replace("z", "zz").Replace("+", "za").Replace("/", "zd").Replace("=", "ze");
+        return s.Replace("z", "zn").Replace("+", "za").Replace("/", "zd").Replace("=", "ze");
     }
     public static byte[] FromSafeBase64(this string base64)
     {
-        base64 = base64.Replace("za", "+").Replace("zd", "/").Replace("ze", "=").Replace("zz", "z");
+        base64 = base64.Replace("za", "+").Replace("zd", "/").Replace("ze", "=").Replace("zn", "z");
         return Convert.FromBase64String(base64);
        
     }

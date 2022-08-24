@@ -9,8 +9,7 @@ public class EnviarEmailUsuarioConvidadoDomainEventHandler : IdentityDomainEvent
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public EnviarEmailUsuarioConvidadoDomainEventHandler(IEmailService emailService, IConfiguration configuration, 
-        ILogger<IdentityDomainEventHandler<UsuarioConvidadoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public EnviarEmailUsuarioConvidadoDomainEventHandler(IEmailService emailService, IConfiguration configuration, IdentityDomainEventHandlerContext<UsuarioConvidadoDomainEvent> ctx) : base(ctx)
     {
         _emailService = emailService;
         _configuration = configuration;

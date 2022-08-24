@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Pulsar.Services.Identity.Contracts.Commands;
+using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
+using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.DTOs;
 using System.Security.Claims;
 
@@ -70,6 +72,56 @@ public class UsuarioController : IdentityController
     public async Task<ActionResult<List<UsuarioDetalhesDTO>>> Detalhes([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
     {
         var r = await UsuarioQueries.GetUsuarioDetalhes(ids, consistencyToken);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Bloqueia o usuário globalmente. Apenas o superusuário pode realizar essa ação.
+    /// </summary>
+    /// <param name="usuarioId">Id do usuário a ser bloqueado.</param>
+    /// <returns>Ok.</returns>
+    [HttpPost("{usuarioId}/bloquear"), ScopeAuthorize("usuarios.bloquear"), SuperUsuarioAuthorize]
+    public async Task<ActionResult<CommandResult>> Bloquear(string usuarioId)
+    {
+        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCommand(User.Id(), usuarioId, true));
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Desbloqueia o usuário globalmente. Apenas o superusuário pode realizar essa ação.
+    /// </summary>
+    /// <param name="usuarioId">Id do usuário a ser desbloqueado.</param>
+    /// <returns></returns>
+    [HttpPost("{usuarioId}/desbloquear"), ScopeAuthorize("usuarios.desbloquear"), SuperUsuarioAuthorize]
+    public async Task<ActionResult<CommandResult>> Desbloquear(string usuarioId)
+    {
+        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCommand(User.Id(), usuarioId, false));
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Edita os dados (primeiro nome, etc..) do usuário logado.
+    /// </summary>
+    /// <param name="cmd">Dados.</param>
+    /// <returns>Ok.</returns>
+    [HttpPost("editar_meus_dados"), ScopeAuthorize("usuarios.editar_meus_dados")]
+    public async Task<ActionResult<CommandResult>> EditarMeusDados([FromBody] EditarMeusDadosCommand cmd)
+    {
+        cmd.UsuarioId = User.Id();
+        var r = await Mediator.Send(cmd);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Muda a senha do usuário logado. É necessário informar a senha atual.
+    /// </summary>
+    /// <param name="cmd">Dados.</param>
+    /// <returns>Ok.</returns>
+    [HttpPost("mudar_minha_senha"), ScopeAuthorize("usuarios.mudar_minha_senha")]
+    public async Task<ActionResult<CommandResult>> MudarMinhaSenha([FromBody] MudarMinhaSenhaCommand cmd)
+    {
+        cmd.UsuarioId = User.Id();
+        var r = await Mediator.Send(cmd);
         return Ok(r);
     }
 }

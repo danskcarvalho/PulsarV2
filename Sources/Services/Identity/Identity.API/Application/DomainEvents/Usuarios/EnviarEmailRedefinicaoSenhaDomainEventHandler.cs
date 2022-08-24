@@ -9,8 +9,7 @@ public class EnviarEmailRedefinicaoSenhaDomainEventHandler : IdentityDomainEvent
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IEmailService emailService, IConfiguration configuration, 
-        ILogger<IdentityDomainEventHandler<TokenMudancaSenhaGeradoDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public EnviarEmailRedefinicaoSenhaDomainEventHandler(IEmailService emailService, IConfiguration configuration, IdentityDomainEventHandlerContext<TokenMudancaSenhaGeradoDomainEvent> ctx) : base(ctx)
     {
         _emailService = emailService;
         _configuration = configuration;

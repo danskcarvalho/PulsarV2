@@ -6,7 +6,7 @@ namespace Pulsar.Services.Identity.API.Application.Queries;
 
 public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 {
-    public UsuarioQueries(MongoDbSessionFactory factory, ICacheServer cache) : base(factory, cache)
+    public UsuarioQueries(IdentityQueriesContext ctx) : base(ctx)
     {
     }
 
@@ -90,15 +90,17 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                     u.Email,
                     u.NomeUsuario,
                     u.IsConvitePendente,
-                    ToDTO(u.AuditInfo)
+                    u.AuditInfo.ToDTO()
                 )).ToList();
         }, consistencyToken);
     }
 
     public async Task<UsuarioLogadoDTO?> GetUsuarioLogadoById(string usuarioId)
     {
+        var usuarioCollection = GetCollection<Usuario>(Constants.CollectionNames.USUARIOS, ReadPref.Primary);
+
         var id = ObjectId.Parse(usuarioId);
-        var usuario = await (await Usuarios.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+        var usuario = await (await usuarioCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
         if (usuario == null)
             return null;
         return await GetUsuarioLogado(usuario);
@@ -106,11 +108,13 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     public async Task<UsuarioLogadoDTO?> TestUsuarioCredentials(string? usernameOrEmail, string? password)
     {
+        var usuarioCollection = GetCollection<Usuario>(Constants.CollectionNames.USUARIOS, ReadPref.Primary);
+
         if (usernameOrEmail == null || password == null || usernameOrEmail.IsEmpty() || password.IsEmpty())
             return null;
         usernameOrEmail = usernameOrEmail.Trim().ToLowerInvariant();
 
-        var usuario = await (await Usuarios.FindAsync(u => u.Email == usernameOrEmail || u.NomeUsuario == usernameOrEmail)).FirstOrDefaultAsync();
+        var usuario = await (await usuarioCollection.FindAsync(u => u.Email == usernameOrEmail || u.NomeUsuario == usernameOrEmail)).FirstOrDefaultAsync();
         if (usuario == null)
             return null;
         if (!usuario.TestarSenha(password))
@@ -120,12 +124,16 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     private async Task<UsuarioLogadoDTO> GetUsuarioLogado(Usuario usuario)
     {
+        var gruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS, ReadPref.Primary);
+        var dominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS, ReadPref.Primary);
+        var estabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS, ReadPref.Primary);
+
         var gruposIds = usuario.Grupos.Select(g => g.GrupoId).ToList();
-        var grupos = await (await Grupos.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
+        var grupos = await (await gruposCollection.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
         var dominioIds = grupos.Select(g => g.DominioId).Distinct().ToList();
         var dominiosBloqueados = new HashSet<ObjectId>(usuario.DominiosBloqueados);
         var todosDominiosIds = dominioIds.Union(usuario.DominiosAdministrados).Union(usuario.DominiosBloqueados).ToList();
-        var dominios = (await (await Dominios.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
+        var dominios = (await (await dominiosCollection.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
         var redesIds = grupos
                 .SelectMany(g => g.SubGrupos)
                 .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
@@ -142,7 +150,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .Select(pe => pe.Seletor.EstabelecimentoId!.Value)
                 .Distinct()
                 .ToList();
-        var allEstabelecimentos = await (await Estabelecimentos.FindAsync(e => estabelecimentosIds.Contains(e.Id) ||
+        var allEstabelecimentos = await (await estabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id) ||
             e.Redes.Any(rid => redesIds.Contains(rid)))).ToListAsync();
         var subgrupos = new HashSet<ObjectId>(usuario.Grupos.Select(ug => ug.SubGrupoId));
 
@@ -192,16 +200,6 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
         return result;
     }
-
-    private AuditInfoDTO ToDTO(AuditInfo ai) => new AuditInfoDTO()
-    {
-        CriadoEm = ai.CriadoEm,
-        CriadoPorUsuarioId = ai.CriadoPorUsuarioId?.ToString(),
-        EditadoEm = ai.EditadoEm,
-        EditadoPorUsuarioId = ai.EditadoPorUsuarioId?.ToString(),
-        RemovidoEm = ai.RemovidoEm,
-        RemovidoPorUsuarioId = ai.RemovidoPorUsuarioId?.ToString()
-    };
 
     public static class CacheCategories
     {

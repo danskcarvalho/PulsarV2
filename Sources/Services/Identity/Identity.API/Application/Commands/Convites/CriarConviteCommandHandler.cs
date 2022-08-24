@@ -8,7 +8,7 @@ namespace Pulsar.Services.Identity.API.Application.Commands.Convites;
 [RetryOnException(DuplicatedKey = true)]
 public class CriarConviteCommandHandler : IdentityCommandHandler<CriarConviteCommand>
 {
-    public CriarConviteCommandHandler(ILogger<IdentityCommandHandler<CriarConviteCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public CriarConviteCommandHandler(IdentityCommandHandlerContext<CriarConviteCommand> ctx) : base(ctx)
     {
     }
 

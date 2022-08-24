@@ -2,5 +2,5 @@
 
 public interface ISaveIntegrationEventLog
 {
-    Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct);
+    Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct = default);
 }
