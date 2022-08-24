@@ -148,7 +148,7 @@ public partial class GenericIntegrationEventDispatcherService
                     var putFailedState = false;
                     if (!evt.NoRetryOnFailure)
                     {
-                        if (evt.Attempts.Count < Constants.MAX_LATER_ATTEMPTS)
+                        if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
                         {
                             if (evt.ScheduledOn is not null)
                                 evt.ScheduledOn = evt.ScheduledOn?.AddHours(evt.Attempts.Count);
