@@ -4,6 +4,9 @@ namespace Pulsar.Services.Identity.API.ViewModels
 {
     public class MudarMeuAvatarViewModel
     {
+        /// <summary>
+        /// Nova imagem representando o avatar do usuário.
+        /// </summary>
         [Required]
         public IFormFile? Imagem { get; set; }
 

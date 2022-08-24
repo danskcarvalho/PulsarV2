@@ -125,6 +125,11 @@ public class UsuarioController : IdentityController
         return Ok(r);
     }
 
+    /// <summary>
+    /// Muda o avatar do usuário. O avatar é uma imagem representando o usuário.
+    /// </summary>
+    /// <param name="viewModel">Dados.</param>
+    /// <returns>Ok.</returns>
     [HttpPost("avatar"), ScopeAuthorize("usuarios.mudar_meu_avatar"), RequestFormLimits(MultipartBodyLengthLimit = 4_194_304)]
     public async Task<ActionResult<CommandResult>> MudarMeuAvatar([FromForm] MudarMeuAvatarViewModel viewModel)
     {
