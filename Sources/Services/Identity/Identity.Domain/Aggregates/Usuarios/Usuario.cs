@@ -159,7 +159,7 @@ public class Usuario : AggregateRoot
     public void Criar()
     {
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created, ChangeDetails.None));
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created));
     }
 
     public void MudarMinhaSenha(string senhaAtual, string novaSenha, out long previousVersion)
@@ -187,7 +187,7 @@ public class Usuario : AggregateRoot
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
     public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
@@ -198,7 +198,7 @@ public class Usuario : AggregateRoot
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
     public void AlterarAvatar(string publiclUrl, string internalUrl)
@@ -207,7 +207,7 @@ public class Usuario : AggregateRoot
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+            this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
     public void RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
@@ -215,8 +215,6 @@ public class Usuario : AggregateRoot
         this.DominiosAdministrados.Remove(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-           this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.NonBasic));
     }
 
     public void AdicionarDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
@@ -225,7 +223,5 @@ public class Usuario : AggregateRoot
             this.DominiosAdministrados.Add(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
-           this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.NonBasic));
     }
 }

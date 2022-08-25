@@ -20,8 +20,7 @@ public class EnviarDominioModificadoEventoIntegracaoDomainEventHandler : Identit
                 evt.AuditInfo.ToDTO(),
                 evt.UsuarioAdministradorId.ToString(),
                 evt.UsuarioAdministradorAnteriorId.ToString(),
-                evt.Modificacao,
-                evt.DetalhesModificacao
+                evt.Modificacao
             ));
     }
 }

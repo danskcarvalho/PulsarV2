@@ -17,7 +17,7 @@ public class LimparCacheDominiosDomainEventHandler : IdentityDomainEventHandler<
         {
             await _cacheServer.Category(DominioQueries.CacheCategories.FindDominios).ClearAll();
         }
-        else if (evt.DetalhesModificacao.HasBasic())
+        else
         {
             await _cacheServer.Category(DominioQueries.CacheCategories.FindDominios).ClearAll();
             var key = DominioQueries.CacheCategories.GetDominioDetails(evt.DominioId.ToString()).ToCacheKey();

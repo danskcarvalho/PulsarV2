@@ -5,21 +5,12 @@ using Pulsar.Services.Shared.Enumerations;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios
 {
-    public class LimparCacheUsuariosDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>, INotificationHandler<UsuariosModificadosNonBasicDomainEvent>
+    public class LimparCacheUsuariosDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>
     {
         private readonly ICacheServer _cacheServer;
         public LimparCacheUsuariosDomainEventHandler(ICacheServer cacheServer, IdentityDomainEventHandlerContext<UsuarioModificadoDomainEvent> ctx) : base(ctx)
         {
             _cacheServer = cacheServer;
-        }
-
-        public async Task Handle(UsuariosModificadosNonBasicDomainEvent evt, CancellationToken ct)
-        {
-            //Limpa o cache de usuários
-            if (evt.Modificacao == ChangeEvent.Created)
-            {
-                await _cacheServer.Category(UsuarioQueries.CacheCategories.FindUsuarios).ClearAll();
-            }
         }
 
         protected override async Task HandleAsync(UsuarioModificadoDomainEvent evt, CancellationToken ct)
@@ -29,7 +20,7 @@ namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios
             {
                 await _cacheServer.Category(UsuarioQueries.CacheCategories.FindUsuarios).ClearAll();
             }
-            else if (evt.DetalhesModificacao.HasBasic())
+            else
             {
                 await LimparCacheDominios(evt.UsuarioId, ct);
                 await _cacheServer.Category(UsuarioQueries.CacheCategories.FindUsuarios).ClearAll();

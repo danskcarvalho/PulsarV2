@@ -51,7 +51,7 @@ public class Dominio : AggregateRoot
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
 
-        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, null, ChangeEvent.Created, ChangeDetails.None));
+        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, null, ChangeEvent.Created));
     }
 
     public void Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
@@ -66,7 +66,7 @@ public class Dominio : AggregateRoot
         this.UsuarioAdministradorId = usuarioAdministrador?.Id;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, previousAdmin, ChangeEvent.Edited, ChangeDetails.Basic));
+        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, previousAdmin, ChangeEvent.Edited));
     }
 
     public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
@@ -74,7 +74,7 @@ public class Dominio : AggregateRoot
         this.IsAtivo = !bloquear;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited, ChangeDetails.Basic));
+        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited));
     }
 
     public void BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
@@ -85,12 +85,6 @@ public class Dominio : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueadoDominio);
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new DominioModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited, ChangeDetails.NonBasic));
         this.AddDomainEvent(new UsuariosBloqueadosEmDominioDomainEvent(usuarioLogadoId, this.Id, usuarioIds, bloquear));
-    }
-
-    public void UsuariosBloqueados(ObjectId usuarioLogadoId, List<ObjectId> usuariosIds, bool bloquear)
-    {
-        this.AddDomainEvent(new UsuariosModificadosNonBasicDomainEvent(usuarioLogadoId, usuariosIds, ChangeEvent.Edited));
     }
 }

@@ -16,10 +16,9 @@ public class DominioModificadoIntegrationEvent : IntegrationEvent
     public string? UsuarioAdministradorId { get; set; }
     public string? UsuarioAdministradorAnteriorId { get; set; }
     public ChangeEvent Modificacao { get; set; }
-    public ChangeDetails DetalhesModificacao { get; set; }
 
     public DominioModificadoIntegrationEvent(Guid id, DateTime creationDate, string dominioId, string nome, bool isAtivo, AuditInfoDTO auditInfo, string? usuarioAdministradorId, string? usuarioAdministradorAnteriorId, 
-        ChangeEvent modificacao, ChangeDetails detalhesModificacao) : base(id, creationDate)
+        ChangeEvent modificacao) : base(id, creationDate)
     {
         DominioId = dominioId;
         Nome = nome;
@@ -28,6 +27,5 @@ public class DominioModificadoIntegrationEvent : IntegrationEvent
         UsuarioAdministradorId = usuarioAdministradorId;
         UsuarioAdministradorAnteriorId = usuarioAdministradorAnteriorId;
         Modificacao = modificacao;
-        DetalhesModificacao = detalhesModificacao;
     }
 }

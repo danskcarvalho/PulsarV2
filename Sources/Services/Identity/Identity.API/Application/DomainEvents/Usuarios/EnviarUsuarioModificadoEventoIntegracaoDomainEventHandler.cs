@@ -25,7 +25,6 @@ public class EnviarUsuarioModificadoEventoIntegracaoDomainEventHandler : Identit
             evt.NomeUsuario,
             evt.IsConvitePendente,
             evt.AuditInfo.ToDTO(),
-            evt.Modificacao,
-            evt.DetalhesModificacao), ct);
+            evt.Modificacao), ct);
     }
 }

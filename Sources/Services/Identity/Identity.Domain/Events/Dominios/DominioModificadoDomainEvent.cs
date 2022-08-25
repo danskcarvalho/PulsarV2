@@ -10,9 +10,8 @@ public class DominioModificadoDomainEvent : INotification
     public ObjectId? UsuarioAdministradorId { get; set; }
     public ObjectId? UsuarioAdministradorAnteriorId { get; set; }
     public ChangeEvent Modificacao { get; set; }
-    public ChangeDetails DetalhesModificacao { get; set; }
 
-    public DominioModificadoDomainEvent(ObjectId usuarioLogadoId, ObjectId dominioId, string nome, bool isAtivo, AuditInfo auditInfo, ObjectId? usuarioAdministradorId, ObjectId? usuarioAdministradorAnteriorId, ChangeEvent modificacao, ChangeDetails detalhesModificacao)
+    public DominioModificadoDomainEvent(ObjectId usuarioLogadoId, ObjectId dominioId, string nome, bool isAtivo, AuditInfo auditInfo, ObjectId? usuarioAdministradorId, ObjectId? usuarioAdministradorAnteriorId, ChangeEvent modificacao)
     {
         UsuarioLogadoId = usuarioLogadoId;
         DominioId = dominioId;
@@ -22,6 +21,5 @@ public class DominioModificadoDomainEvent : INotification
         UsuarioAdministradorId = usuarioAdministradorId;
         UsuarioAdministradorAnteriorId = usuarioAdministradorAnteriorId;
         Modificacao = modificacao;
-        DetalhesModificacao = detalhesModificacao;
     }
 }

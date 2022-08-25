@@ -15,10 +15,9 @@ public class UsuarioModificadoDomainEvent : INotification
     public bool IsConvitePendente { get; set; }
     public AuditInfo AuditInfo { get; set; }
     public ChangeEvent Modificacao { get; set; }
-    public ChangeDetails DetalhesModificacao { get; set; }
 
     public UsuarioModificadoDomainEvent(ObjectId usuarioId, string? publicAvatarUrl, string? privateAvatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, bool isAtivo, string nomeUsuario, 
-        bool isConvitePendente, AuditInfo auditInfo, ChangeEvent modificacao, ChangeDetails detalhesModificacao)
+        bool isConvitePendente, AuditInfo auditInfo, ChangeEvent modificacao)
     {
         UsuarioId = usuarioId;
         PublicAvatarUrl = publicAvatarUrl;
@@ -31,6 +30,5 @@ public class UsuarioModificadoDomainEvent : INotification
         IsConvitePendente = isConvitePendente;
         AuditInfo = auditInfo;
         Modificacao = modificacao;
-        DetalhesModificacao = detalhesModificacao;
     }
 }

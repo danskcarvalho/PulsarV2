@@ -20,10 +20,9 @@ public class UsuarioModificadoIntegrationEvent : IntegrationEvent
     public bool IsConvitePendente { get; set; }
     public AuditInfoDTO AuditInfo { get; set; }
     public ChangeEvent Modificacao { get; set; }
-    public ChangeDetails DetalhesModificacao { get; set; }
 
     public UsuarioModificadoIntegrationEvent(Guid id, DateTime creationDate, string usuarioId, string? publicAvatarUrl, string? privateAvatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, bool isAtivo, string nomeUsuario,
-        bool isConvitePendente, AuditInfoDTO auditInfo, ChangeEvent modificacao, ChangeDetails detalhesModificacao) : base(id, creationDate, false)
+        bool isConvitePendente, AuditInfoDTO auditInfo, ChangeEvent modificacao) : base(id, creationDate, false)
     {
         UsuarioId = usuarioId;
         PublicAvatarUrl = publicAvatarUrl;
@@ -36,6 +35,5 @@ public class UsuarioModificadoIntegrationEvent : IntegrationEvent
         IsConvitePendente = isConvitePendente;
         AuditInfo = auditInfo;
         Modificacao = modificacao;
-        DetalhesModificacao = detalhesModificacao;
     }
 }

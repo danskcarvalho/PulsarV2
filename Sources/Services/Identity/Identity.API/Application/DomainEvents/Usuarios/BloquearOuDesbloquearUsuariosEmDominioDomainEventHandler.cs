@@ -15,6 +15,6 @@ public class BloquearOuDesbloquearUsuariosEmDominioDomainEventHandler : Identity
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
         var updateUsuarios = new BloquearOuDesbloquearUsuariosEmDominioSpec(evt.UsuarioLogadoId, evt.DominioId, evt.UsuariosIds, evt.Bloquear);
-        dominio.UsuariosBloqueados(evt.UsuarioLogadoId, evt.UsuariosIds, evt.Bloquear);
+        await UsuarioRepository.UpdateManyAsync(updateUsuarios, ct);
     }
 }
