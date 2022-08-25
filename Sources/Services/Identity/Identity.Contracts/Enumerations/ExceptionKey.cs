@@ -32,4 +32,14 @@ public enum ExceptionKey
     SenhaAtualInvalida = 14,
     [Display(Description = "O usuário 'administrador' não pode ser bloqueado/desbloqueado.")]
     SuperUsuarioNaoPodeSerBloqueado = 15,
+    [Display(Description = "O usuário 'administrador' não pode administrar um domínio.")]
+    SuperUsuarioNaoPodeAdministrarDominio = 16,
+    [Display(Description = "Domínio não encontrado.")]
+    DominioNaoEncontrado = 17,
+    [Display(Description = "O usuário informado para administrar este domínio está bloqueado nele.")]
+    UsuarioAdministradorIsBloqueadoDominio = 18,
+    [Display(Description = "O usuário administrador não pode ser bloqueado neste domínio.")]
+    UsuarioAdministradorNaoPodeSerBloqueadoDominio = 19,
+    [Display(Description = "O usuário 'administrador' não pode ser bloqueado ou desbloqueado dentro deste domínio.")]
+    SuperUsuarioNaoPodeSerBloqueadoDominio = 20
 }

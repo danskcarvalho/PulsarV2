@@ -77,3 +77,33 @@ public class CursorUsuarioListadoDTO
         return new CursorUsuarioListadoDTO(usuarios.Last().Email, filtro);
     }
 }
+
+public class CursorUsuariosBloqueadosDTO
+{
+    public string LastEmail { get; set; }
+    public string DominioId { get; set; }
+    public string? Filtro { get; set; }
+
+    public CursorUsuariosBloqueadosDTO(string lastEmail, string dominioId, string? filtro)
+    {
+        LastEmail = lastEmail;
+        DominioId = dominioId;
+        Filtro = filtro;
+    }
+
+    public CursorUsuariosBloqueadosDTO? Next(List<UsuarioListadoDTO> usuarios)
+    {
+        if (usuarios == null || usuarios.Count == 0)
+            return null;
+
+        return new CursorUsuariosBloqueadosDTO(usuarios.Last().Email, this.DominioId, this.Filtro);
+    }
+
+    public static CursorUsuariosBloqueadosDTO? Next(List<UsuarioListadoDTO> usuarios, string dominioId, string? filtro)
+    {
+        if (usuarios == null || usuarios.Count == 0)
+            return null;
+
+        return new CursorUsuariosBloqueadosDTO(usuarios.Last().Email, dominioId, filtro);
+    }
+}

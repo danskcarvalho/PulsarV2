@@ -4,9 +4,9 @@ using Pulsar.Services.Identity.Domain.Events.Usuarios;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios;
 
-public class EnviarEventoIntegracaoDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>
+public class EnviarUsuarioModificadoEventoIntegracaoDomainEventHandler : IdentityDomainEventHandler<UsuarioModificadoDomainEvent>
 {
-    public EnviarEventoIntegracaoDomainEventHandler(IdentityDomainEventHandlerContext<UsuarioModificadoDomainEvent> ctx) : base(ctx)
+    public EnviarUsuarioModificadoEventoIntegracaoDomainEventHandler(IdentityDomainEventHandlerContext<UsuarioModificadoDomainEvent> ctx) : base(ctx)
     {
     }
 

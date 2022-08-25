@@ -1,0 +1,27 @@
+﻿namespace Pulsar.Services.Identity.Domain.Events.Dominios;
+
+public class DominioModificadoDomainEvent : INotification
+{
+    public ObjectId UsuarioLogadoId { get; set; }
+    public ObjectId DominioId { get; set; }
+    public string Nome { get; set; }
+    public bool IsAtivo { get; set; }
+    public AuditInfo AuditInfo { get; set; }
+    public ObjectId? UsuarioAdministradorId { get; set; }
+    public ObjectId? UsuarioAdministradorAnteriorId { get; set; }
+    public ChangeEvent Modificacao { get; set; }
+    public ChangeDetails DetalhesModificacao { get; set; }
+
+    public DominioModificadoDomainEvent(ObjectId usuarioLogadoId, ObjectId dominioId, string nome, bool isAtivo, AuditInfo auditInfo, ObjectId? usuarioAdministradorId, ObjectId? usuarioAdministradorAnteriorId, ChangeEvent modificacao, ChangeDetails detalhesModificacao)
+    {
+        UsuarioLogadoId = usuarioLogadoId;
+        DominioId = dominioId;
+        Nome = nome;
+        IsAtivo = isAtivo;
+        AuditInfo = auditInfo;
+        UsuarioAdministradorId = usuarioAdministradorId;
+        UsuarioAdministradorAnteriorId = usuarioAdministradorAnteriorId;
+        Modificacao = modificacao;
+        DetalhesModificacao = detalhesModificacao;
+    }
+}

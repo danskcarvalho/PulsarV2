@@ -33,7 +33,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             return await this.StartCausallyConsistentSectionAsync(async ct =>
             {
                 var id = ObjectId.Parse(usuarioId);
-                var usuario = await (await Usuarios.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+                var usuario = await (await UsuariosCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
                 if (usuario == null)
                     return null;
                 return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
@@ -43,13 +43,15 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     public async Task<List<BasicUserInfoDTO>> GetBasicUsersInfo(IEnumerable<string> usuarioIds, string? consistencyToken)
     {
+        if (usuarioIds.Count() == 0)
+            return new List<BasicUserInfoDTO>();
         var keys = usuarioIds.Select(u => CacheCategories.GetBasicUserInfoKey(u));
         var r = await Cache.GetMultipleBatches(keys, async (k) =>
         {
             return await this.StartCausallyConsistentSectionAsync(async ct =>
             {
                 var allIds = k.Select(x => x.UsuarioId.ToObjectId()).ToList();
-                var usuarios = await (await Usuarios.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
+                var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
 
                 return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.Avatar?.PublicUrl, u.IsSuperUsuario))
                     .MapByUnique(u => CacheCategories.GetBasicUserInfoKey(u.UsuarioId));
@@ -60,15 +62,17 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     public async Task<List<UsuarioDetalhesDTO>> GetUsuarioDetalhes(IEnumerable<string> usuarioIds, string? consistencyToken)
     {
+        if (usuarioIds.Count() == 0)
+            return new List<UsuarioDetalhesDTO>();
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
-            var usuarios = await (await Usuarios.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
+            var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
             var allDominioIds = usuarios.SelectMany(u => u.DominiosAdministrados).Union(usuarios.SelectMany(u => u.DominiosBloqueados))
                 .Union(usuarios.SelectMany(u => u.Grupos.Select(g => g.DominioId))).ToList();
             var allGruposIds = usuarios.SelectMany(u => u.Grupos.Select(g => g.GrupoId)).ToList();
-            var dominios = (await (await Dominios.FindAsync(d => allDominioIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
-            var grupos = await (await Grupos.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
+            var dominios = (await (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
+            var grupos = await (await GruposCollection.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
             var subgruposPorIds = grupos.SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg))).MapByUnique(x => (GrupoId: x.Grupo.Id, SubGrupoId: x.SubGrupo.Id));
 
             return usuarios.Select(u => new UsuarioDetalhesDTO(

@@ -63,7 +63,7 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Retorna dados detalhados de todos os usuários.
+    /// Retorna dados detalhados dos usuários com os ids informados.
     /// </summary>
     /// <param name="ids">Ids dos usuários.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>

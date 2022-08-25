@@ -132,8 +132,7 @@ public class MongoDbSession : IDbSession
         try
         {
             var r = await action(ct);
-            popped = true;
-            await DispatchDomainEventsAndPopLastFrame();
+            popped = await DispatchDomainEventsAndPopLastFrame(r);
             return r;
         }
         finally
@@ -150,25 +149,34 @@ public class MongoDbSession : IDbSession
         }
     }
 
-    private async Task DispatchDomainEventsAndPopLastFrame()
+    private async Task<bool> DispatchDomainEventsAndPopLastFrame(object? result)
     {
-        var listRoots = _trackedRoots.Pop();
-        HashSet<object> alreadyDispatched = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var root in listRoots)
+        while (_trackedRoots.Peek().Count != 0)
         {
-            if (!alreadyDispatched.Contains(root))
+            var events = new List<INotification>();
+
+            foreach (var root in _trackedRoots.Peek())
             {
-                var events = root.DomainEvents.ToList();
+                events.AddRange(root.DomainEvents);
                 root.ClearDomainEvents();
-                alreadyDispatched.Add(root);
-                foreach (var evt in events)
-                {
-                    //if (!IsInTransaction)
-                    //    throw new InvalidOperationException("dispatching domain events needs a transaction");
-                    await _mediator.Publish(evt);
-                }
             }
+
+
+            foreach (var evt in events)
+            {
+                //if (!IsInTransaction)
+                //    throw new InvalidOperationException("dispatching domain events needs a transaction");
+                await _mediator.Publish(evt);
+            }
+
+            _trackedRoots.Peek().RemoveAll(tr => tr.DomainEvents.Count == 0); //clear roots without events from current frame
         }
+
+        var prop = result?.GetType().GetProperty("ConsistencyToken");
+        if (prop != null && prop.CanWrite)
+            prop.SetValue(result, this.ConsistencyToken);
+        _trackedRoots.Pop();
+        return true;
     }
 
     public void TrackAggregateRoot(IAggregateRoot root)
@@ -229,8 +237,7 @@ public class MongoDbSession : IDbSession
                 {
 
                     var r = await action(ct2);
-                    popped = true;
-                    await DispatchDomainEventsAndPopLastFrame();
+                    popped = await DispatchDomainEventsAndPopLastFrame(r);
                     return r;
                 }
                 finally
@@ -294,8 +301,7 @@ public class MongoDbSession : IDbSession
             {
 
                 var r = await action(ct2);
-                popped = true;
-                await DispatchDomainEventsAndPopLastFrame();
+                popped = await DispatchDomainEventsAndPopLastFrame(r);
                 return r;
 
             }
@@ -315,8 +321,7 @@ public class MongoDbSession : IDbSession
         try
         {
             var r = await action(ct);
-            popped = true;
-            await DispatchDomainEventsAndPopLastFrame();
+            popped = await DispatchDomainEventsAndPopLastFrame(r);
             return r;
         }
         finally
@@ -415,8 +420,7 @@ public class MongoDbSession : IDbSession
         try
         {
             var r = await action(ct);
-            popped = true;
-            await DispatchDomainEventsAndPopLastFrame();
+            popped = await DispatchDomainEventsAndPopLastFrame(r);
             return r;
         }
         finally

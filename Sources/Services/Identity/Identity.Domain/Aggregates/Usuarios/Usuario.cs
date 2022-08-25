@@ -4,6 +4,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 public class Usuario : AggregateRoot
 {
+    public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
+
     private string _primeiroNome;
     private string? _ultimoNome;
     private string _nomeCompleto;
@@ -206,5 +208,24 @@ public class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.Basic));
+    }
+
+    public void RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
+    {
+        this.DominiosAdministrados.Remove(dominioId);
+        this.Version++;
+        this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+           this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.NonBasic));
+    }
+
+    public void AdicionarDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
+    {
+        if (!this.DominiosAdministrados.Contains(dominioId))
+            this.DominiosAdministrados.Add(dominioId);
+        this.Version++;
+        this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        this.AddDomainEvent(new UsuarioModificadoDomainEvent(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+           this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited, ChangeDetails.NonBasic));
     }
 }

@@ -92,6 +92,14 @@ public class BSONCreatorHelper
         };
     }
 
+    public BsonDocument In(params object?[] values)
+    {
+        return new BsonDocument
+        {
+            { "$in", new BsonArray(values.Select(x => Serialize(x))) }
+        };
+    }
+
     private object Serialize(object? obj)
     {
         if (obj is BsonDocument)

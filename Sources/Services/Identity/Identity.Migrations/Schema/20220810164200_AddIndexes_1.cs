@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Others;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
+using Pulsar.Services.Identity.Domain.Aggregates.Others;
 
 namespace Pulsar.Services.Identity.Migrations.Schema;
 
@@ -15,7 +16,13 @@ public class AddIndexes_1 : Migration
         var ix_user_text = Builders<Usuario>.IndexKeys
             .Text(x => x.TermosBusca)
             .Ascending(u => u.Email);
+        var ix_dominios_bloqueados = Builders<Usuario>.IndexKeys
+            .Ascending(x => x.DominiosBloqueados);
 
+        await usuarioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Usuario>(ix_dominios_bloqueados, new CreateIndexOptions()
+        {
+            Name = "ix_dominios_bloqueados"
+        }));
         await usuarioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Usuario>(ix_email, new CreateIndexOptions()
         {
             Name = "ix_email",
@@ -37,6 +44,14 @@ public class AddIndexes_1 : Migration
         await estabelecimentoCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Estabelecimento>(ix_redeId, new CreateIndexOptions()
         {
             Name = "ix_redeId"
+        }));
+
+        var dominioCol = this.Database.GetCollection<Dominio>("Dominios");
+        var ix_dominio_text = Builders<Dominio>.IndexKeys.Text(x => x.TermosBusca).Ascending(x => x.Nome).Ascending(x => x.Id);
+
+        await dominioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Dominio>(ix_dominio_text, new CreateIndexOptions()
+        {
+            Name = "ix_dominio_text"
         }));
     }
 }

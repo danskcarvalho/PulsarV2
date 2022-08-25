@@ -14,5 +14,5 @@ public class CommandResult
     /// <summary>
     /// Token de consistência.
     /// </summary>
-    public string? ConsistencyToken { get; }
+    public string? ConsistencyToken { get; set; }
 }

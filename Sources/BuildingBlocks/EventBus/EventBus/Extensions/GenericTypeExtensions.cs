@@ -9,11 +9,11 @@ public static class GenericTypeExtensions
         if (type.IsGenericType)
         {
             var genericTypes = string.Join(", ", type.GetGenericArguments().Select(t => GetGenericTypeName(t)).ToArray());
-            typeName = $"{type.FullName!.Remove(type.FullName.IndexOf('`'))}<{genericTypes}>";
+            typeName = $"{type.FullName!.Remove(type.FullName.IndexOf('`')).Replace('+', '.')}<{genericTypes}>";
         }
         else
         {
-            typeName = type.FullName!;
+            typeName = type.FullName!.Replace('+', '.');
         }
 
         return typeName;

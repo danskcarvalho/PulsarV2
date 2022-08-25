@@ -21,6 +21,17 @@ public static class AllApiScopes
         new ApiScope(name: "identity.usuarios.desbloquear"),
         new ApiScope(name: "identity.usuarios.editar_meus_dados"),
         new ApiScope(name: "identity.usuarios.mudar_minha_senha"),
-        new ApiScope(name: "identity.usuarios.mudar_meu_avatar")
+        new ApiScope(name: "identity.usuarios.mudar_meu_avatar"),
+        //Domínios
+        new ApiScope(name: "identity.dominios.*"),
+        new ApiScope(name: "identity.dominios.listar"),
+        new ApiScope(name: "identity.dominios.detalhes"),
+        new ApiScope(name: "identity.dominios.usuarios_bloqueados"),
+        new ApiScope(name: "identity.dominios.criar"),
+        new ApiScope(name: "identity.dominios.editar"),
+        new ApiScope(name: "identity.dominios.bloquear"),
+        new ApiScope(name: "identity.dominios.desbloquear"),
+        new ApiScope(name: "identity.dominios.bloquear_usuarios"),
+        new ApiScope(name: "identity.dominios.desbloquear_usuarios")
     };
 }
