@@ -52,7 +52,7 @@ public class DominioController : IdentityController
     /// <param name="limit">Limite de domínios retornados. Opcional.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>
     /// <returns>Ok.</returns>
-    [HttpGet("{dominioId}/usuarios_bloqueados"), ScopeAuthorize("dominios.usuarios_bloqueados"), SuperUsuarioAuthorize]
+    [HttpGet("{dominioId}/usuarios_bloqueados"), ScopeAuthorize("dominios.usuarios_bloqueados"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.BloquearUsuarios)]
     public async Task<ActionResult<PaginatedListDTO<BasicUserInfoDTO>>> UsuariosBloqueados(string dominioId, [FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
         var r = await DominioQueries.FindUsuariosBloqueados(dominioId, filtro, cursor, limit, consistencyToken);
@@ -145,6 +145,36 @@ public class DominioController : IdentityController
     public async Task<ActionResult<CreatedCommandResult>> Criar([FromBody] CriarDominioCommand cmd)
     {
         cmd.UsuarioLogadoId = User.Id();
+        var r = await Mediator.Send(cmd);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Bloqueia usuários em um domínio.
+    /// </summary>
+    /// <param name="cmd">Dados.</param>
+    /// <returns>Ok.</returns>
+    [HttpPost("bloquear_usuarios"), ScopeAuthorize("dominios.bloquear_usuarios"), DominioAuthorize(PermissoesDominio.BloquearUsuarios)]
+    public async Task<ActionResult<CommandResult>> BloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    {
+        cmd.Bloquear = true;
+        cmd.UsuarioLogadoId = User.Id();
+        cmd.DominioId = User.DominioId();
+        var r = await Mediator.Send(cmd);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Desbloqueia usuários em um domínio.
+    /// </summary>
+    /// <param name="cmd">Dados.</param>
+    /// <returns>Ok.</returns>
+    [HttpPost("desbloquear_usuarios"), ScopeAuthorize("dominios.desbloquear_usuarios"), DominioAuthorize(PermissoesDominio.BloquearUsuarios)]
+    public async Task<ActionResult<CommandResult>> DesbloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    {
+        cmd.Bloquear = false;
+        cmd.UsuarioLogadoId = User.Id();
+        cmd.DominioId = User.DominioId();
         var r = await Mediator.Send(cmd);
         return Ok(r);
     }

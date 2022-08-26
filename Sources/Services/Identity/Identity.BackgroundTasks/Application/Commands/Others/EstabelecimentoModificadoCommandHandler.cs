@@ -3,7 +3,7 @@
 [NoTransaction, RetryOnException(DuplicatedKey = true, VersionConcurrency = true, Retries = 2)]
 public class EstabelecimentoModificadoCommandHandler : IdentityCommandHandler<EstabelecimentoModificadoCommand>
 {
-    public EstabelecimentoModificadoCommandHandler(ILogger<IdentityCommandHandler<EstabelecimentoModificadoCommand>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public EstabelecimentoModificadoCommandHandler(IdentityCommandHandlerContext<EstabelecimentoModificadoCommand> ctx) : base(ctx)
     {
     }
 

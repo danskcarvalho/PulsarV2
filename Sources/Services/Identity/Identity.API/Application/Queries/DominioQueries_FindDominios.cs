@@ -13,7 +13,7 @@ public partial class DominioQueries
         var textSearch = cursor.Filtro.ToTextSearch();
         var filter = BSON.Create(b => b.And(
             textSearch, 
-            b.Or(new { Nome = b.Gt(cursor.LastNome) }, b.And(new { Nome = b.Eq(cursor.LastNome) }, new { Id = b.Gt(cursor.LastDominioId) }))));
+            b.Or(new { Nome = b.Gt(cursor.LastNome) }, b.And(new { Nome = b.Eq(cursor.LastNome) }, new { Id = b.Gt(cursor.LastDominioId.ToObjectId()) }))));
 
         var findOptions = new FindOptions<Dominio, Dominio>()
         {

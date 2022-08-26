@@ -5,7 +5,7 @@ namespace Pulsar.Services.Identity.BackgroundTasks.Application.DomainEvents.Othe
 
 public class RemoverRedeEstabelecimentosFromEstabelecimentosDomainEventHandler : IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>
 {
-    public RemoverRedeEstabelecimentosFromEstabelecimentosDomainEventHandler(ILogger<IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDomainEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories) : base(logger, session, repositories)
+    public RemoverRedeEstabelecimentosFromEstabelecimentosDomainEventHandler(IdentityDomainEventHandlerContext<RedeEstabelecimentosRemovidaDomainEvent> ctx) : base(ctx)
     {
     }
 

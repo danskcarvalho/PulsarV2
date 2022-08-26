@@ -73,7 +73,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             var allGruposIds = usuarios.SelectMany(u => u.Grupos.Select(g => g.GrupoId)).ToList();
             var dominios = (await (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
             var grupos = await (await GruposCollection.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
-            var subgruposPorIds = grupos.SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg))).MapByUnique(x => (GrupoId: x.Grupo.Id, SubGrupoId: x.SubGrupo.Id));
+            var subgruposPorIds = grupos.SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg))).MapByUnique(x => (GrupoId: x.Grupo.Id, SubGrupoId: x.SubGrupo.SubGrupoId));
 
             return usuarios.Select(u => new UsuarioDetalhesDTO(
                     u.Id.ToString(),
@@ -140,7 +140,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var dominios = (await (await dominiosCollection.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
         var redesIds = grupos
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
+                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.SubGrupoId))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Where(pe => pe.Seletor.RedeEstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.RedeEstabelecimentoId!.Value)
@@ -148,7 +148,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .ToList();
         var estabelecimentosIds = grupos
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.Id))
+                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.SubGrupoId))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Where(pe => pe.Seletor.EstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.EstabelecimentoId!.Value)
@@ -166,12 +166,12 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             PermissoesGerais = grupos
                 .Where(g => g.DominioId == d)
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => subgrupos.Contains(sg.Id))
+                .Where(sg => subgrupos.Contains(sg.SubGrupoId))
                 .SelectMany(sg => sg.PermissoesDominio).Distinct().ToList(),
             PermissoesEstabelecimentos = grupos
                 .Where(g => g.DominioId == d)
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => subgrupos.Contains(sg.Id))
+                .Where(sg => subgrupos.Contains(sg.SubGrupoId))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Select(sg => sg.Seletor.EstabelecimentoId != null ?
                     (Estabelecimentos: new[] { allEstabelecimentos.First(e => e.Id == sg.Seletor.EstabelecimentoId) }, Permissoes: sg) :

@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿#define NO_COMMAND_OUTPUT
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Events;
 using System.Diagnostics;
 
@@ -21,7 +22,7 @@ public class MongoDbSessionFactory : IDbSessionFactory
         settings.WriteConcern = WriteConcern.WMajority;
         settings.ReadPreference = ReadPreference.Primary;
         settings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
-#if DEBUG
+#if DEBUG && !NO_COMMAND_OUTPUT
         settings.ClusterConfigurator = cb => {
             cb.Subscribe<CommandStartedEvent>(e => {
                 Debug.WriteLine($"{e.CommandName} - {e.Command.ToJson()}");

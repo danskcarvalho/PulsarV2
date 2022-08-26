@@ -10,7 +10,7 @@ public partial class DominioQueries
         limit = limit.Limit();
         var cursor = strCursor.FromBase64Json<CursorUsuariosBloqueadosDTO>()!;
         var textSearch = !IsEmail(cursor.Filtro) ? cursor.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(cursor.Filtro) });
-        var filter = BSON.Create(b => b.And(textSearch, new { DominiosBloqueados = b.In(cursor.DominioId) }, new { Email = b.Ne(null) }, new { Email = b.Gt(cursor.LastEmail) }));
+        var filter = BSON.Create(b => b.And(textSearch, new { DominiosBloqueados = b.In(cursor.DominioId.ToObjectId()) }, new { Email = b.Ne(null) }, new { Email = b.Gt(cursor.LastEmail) }));
 
         var findOptions = new FindOptions<Usuario, UsuarioListadoDTO>()
         {
@@ -33,7 +33,7 @@ public partial class DominioQueries
     {
         limit = limit.Limit();
         var textSearch = !IsEmail(filtro) ? filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(filtro) });
-        var filter = BSON.Create(b => b.And(textSearch, new { DominiosBloqueados = b.In(dominioId) }, new { Email = b.Ne(null) }));
+        var filter = BSON.Create(b => b.And(textSearch, new { DominiosBloqueados = b.In(dominioId.ToObjectId()) }, new { Email = b.Ne(null) }));
 
         var findOptions = new FindOptions<Usuario, UsuarioListadoDTO>()
         {

@@ -6,5 +6,6 @@ public static class DIExtensions
     {
         collection.AddTransient<IUsuarioQueries, UsuarioQueries>();
         collection.AddTransient<IDominioQueries, DominioQueries>();
+        collection.AddTransient<IGrupoQueries, GrupoQueries>();
     }
 }

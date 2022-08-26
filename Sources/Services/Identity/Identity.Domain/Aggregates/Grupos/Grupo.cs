@@ -23,6 +23,9 @@ public class Grupo : AggregateRoot
         private set => _termosBusca = value;
     }
 
+    public int NumSubGrupos { get; set; }
+    public int NumUsuarios { get; set; }
+
     [BsonConstructor(nameof(Id), nameof(DominioId), nameof(Nome), nameof(AuditInfo), nameof(SubGrupos))]
     public Grupo(ObjectId id, ObjectId dominioId, string nome, AuditInfo auditInfo, IEnumerable<SubGrupo>? subGrupos = null) : base(id)
     {

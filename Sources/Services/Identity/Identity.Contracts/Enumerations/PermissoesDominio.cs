@@ -8,4 +8,6 @@ public enum PermissoesDominio
     ConvidarUsuario = 2,
     [Display(Description = "Listar Usuários")]
     ListarUsuarios = 3,
+    [Display(Description = "Bloquear/Desbloquear Usuários")]
+    BloquearUsuarios = 4,
 }
