@@ -17,7 +17,8 @@ public class AddIndexes_1 : Migration
             .Text(x => x.TermosBusca)
             .Ascending(u => u.Email);
         var ix_dominios_bloqueados = Builders<Usuario>.IndexKeys
-            .Ascending(x => x.DominiosBloqueados);
+            .Ascending(x => x.DominiosBloqueados)
+            .Ascending(x => x.Email);
 
         await usuarioCol.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<Usuario>(ix_dominios_bloqueados, new CreateIndexOptions()
         {
