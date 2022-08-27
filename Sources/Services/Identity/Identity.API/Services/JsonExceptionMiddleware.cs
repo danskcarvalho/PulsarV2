@@ -32,10 +32,10 @@ public static class JsonExceptionMiddleware
         await JsonSerializer.SerializeAsync(context.Response.Body, error, error.GetType(), options);
     }
 
-    private static ExceptionKey? GetKey(Exception ex)
+    private static string? GetKey(Exception ex)
     {
         if (ex is IdentityDomainException ie)
-            return ie.Key;
+            return "Identity." + ie.Key.ToString();
         else
             return null;
     }

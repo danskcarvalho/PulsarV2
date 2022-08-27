@@ -32,6 +32,19 @@ public static class AllApiScopes
         new ApiScope(name: "identity.dominios.bloquear"),
         new ApiScope(name: "identity.dominios.desbloquear"),
         new ApiScope(name: "identity.dominios.bloquear_usuarios"),
-        new ApiScope(name: "identity.dominios.desbloquear_usuarios")
+        new ApiScope(name: "identity.dominios.desbloquear_usuarios"),
+        //Grupos
+        new ApiScope(name: "identity.grupos.*"),
+        new ApiScope(name: "identity.grupos.listar"),
+        new ApiScope(name: "identity.grupos.detalhes"),
+        new ApiScope(name: "identity.grupos.usuarios"),
+        new ApiScope(name: "identity.grupos.criar"),
+        new ApiScope(name: "identity.grupos.criar_subgrupo"),
+        new ApiScope(name: "identity.grupos.editar"),
+        new ApiScope(name: "identity.grupos.editar_subgrupo"),
+        new ApiScope(name: "identity.grupos.remover"),
+        new ApiScope(name: "identity.grupos.remover_subgrupo"),
+        new ApiScope(name: "identity.grupos.adicionar_usuarios"),
+        new ApiScope(name: "identity.grupos.remover_usuarios"),
     };
 }

@@ -24,7 +24,7 @@ public class DominioController : IdentityController
     /// <returns>Domínios.</returns>
 
     [HttpGet, ScopeAuthorize("dominios.listar"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<PaginatedListDTO<DominioListadoDTO>>> FindUsuarios([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
+    public async Task<ActionResult<PaginatedListDTO<DominioListadoDTO>>> FindDominios([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
         var r = await DominioQueries.FindDominios(filtro, cursor, limit, consistencyToken);
         return Ok(r);
@@ -40,6 +40,20 @@ public class DominioController : IdentityController
     public async Task<ActionResult<List<DominioDetalhesDTO>>> Detalhes([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
     {
         var r = await DominioQueries.GetDominioDetalhes(ids, consistencyToken);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Retorna os detalhes do domínio logado.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("logado")]
+    public async Task<ActionResult<List<DominioDetalhesDTO>>> Logado()
+    {
+        var dominioId = User.DominioId();
+        if (dominioId == null)
+            throw new IdentityDomainException(ExceptionKey.DominioNaoLogado);
+        var r = await DominioQueries.GetDominioDetalhes(new string[] { dominioId }, null);
         return Ok(r);
     }
 

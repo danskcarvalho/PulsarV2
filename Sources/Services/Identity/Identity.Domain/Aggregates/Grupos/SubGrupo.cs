@@ -1,4 +1,7 @@
-﻿namespace Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+﻿using Pulsar.Services.Identity.Contracts.Commands.Grupos;
+using Pulsar.Services.Identity.Contracts.Enumerations;
+
+namespace Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
 public class SubGrupo : AggregateComponent
 {
@@ -14,5 +17,14 @@ public class SubGrupo : AggregateComponent
         Nome = nome;
         PermissoesDominio = permissoesDominio != null ? new HashSet<PermissoesDominio>(permissoesDominio) : new HashSet<PermissoesDominio>();
         PermissoesEstabelecimentos = permissoesEstabelecimentos != null ? new List<SubGrupoPermissoesEstabelecimento>(permissoesEstabelecimentos) : new List<SubGrupoPermissoesEstabelecimento>();
+    }
+
+    public void Editar(string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCommand.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
+    {
+        nome = nome.Trim();
+        this.PermissoesDominio.Clear();
+        this.PermissoesDominio.UnionWith(permissoesDominios);
+        this.PermissoesEstabelecimentos.Clear();
+        this.PermissoesEstabelecimentos.AddRange(permissoesEstabelecimentoOuRedes.Select(pe => new SubGrupoPermissoesEstabelecimento(new Seletor(pe.EstabelecimentoId?.ToObjectId(), pe.RedeEstabelecimentosId?.ToObjectId()), pe.Permissoes!)));
     }
 }

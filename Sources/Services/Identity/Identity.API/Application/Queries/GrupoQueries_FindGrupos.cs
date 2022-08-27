@@ -10,10 +10,10 @@ public partial class GrupoQueries
         limit = limit.Limit();
         var cursor = strCursor.FromBase64Json<CursorGrupoListadoDTO>()!;
         var textSearch = cursor.Filtro.ToTextSearch();
-        //TODO: Add indexes
         var filter = BSON.Create(b => b.And(
             textSearch,
             new { DominioId = b.Eq(dominioId) },
+            new Dictionary<string, object> { ["AuditInfo.RemovidoEm"] = b.Eq(null) },
             b.Or(new { Nome = b.Gt(cursor.LastNome) }, b.And(new { Nome = b.Eq(cursor.LastNome) }, new { Id = b.Gt(cursor.LastGrupoId.ToObjectId()) }))));
 
         var findOptions = new FindOptions<Grupo, Grupo>()
@@ -30,9 +30,9 @@ public partial class GrupoQueries
     private async Task<PaginatedListDTO<GrupoListadoDTO>> FindGruposWithoutCursor(string dominioId, string? filtro, int limit)
     {
         limit = limit.Limit();
-        //TODO: Add indexes
         var filter = BSON.Create(b => b.And(
             filtro.ToTextSearch(),
+            new Dictionary<string, object> { ["AuditInfo.RemovidoEm"] = b.Eq(null) },
             new { DominioId = b.Eq(dominioId) }));
 
         var findOptions = new FindOptions<Grupo, Grupo>()

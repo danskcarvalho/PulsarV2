@@ -41,5 +41,15 @@ public enum ExceptionKey
     [Display(Description = "O usuário administrador não pode ser bloqueado neste domínio.")]
     UsuarioAdministradorNaoPodeSerBloqueadoDominio = 19,
     [Display(Description = "O usuário 'administrador' não pode ser bloqueado ou desbloqueado dentro deste domínio.")]
-    SuperUsuarioNaoPodeSerBloqueadoDominio = 20
+    SuperUsuarioNaoPodeSerBloqueadoDominio = 20,
+    [Display(Description = "Grupo não encontrado.")]
+    GrupoNaoEncontrado = 21,
+    [Display(Description = "Subgrupo com o nome informado já existe.")]
+    SubgrupoJaExistente = 22,
+    [Display(Description = "Subgrupo não encontrado.")]
+    SubgrupoNaoEncontrado = 23,
+    [Display(Description = "O usuário 'administrador' não pode ser adicionado ou removido de um grupo.")]
+    SuperUsuarioNaoPodeserAdicionadoEmGrupo = 24,
+    [Display(Description = "Você não está logado em um domínio.")]
+    DominioNaoLogado = 25
 }

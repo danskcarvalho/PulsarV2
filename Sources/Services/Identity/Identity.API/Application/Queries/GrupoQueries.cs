@@ -23,12 +23,12 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
         });
     }
 
-    public async Task<PaginatedListDTO<UsuarioGrupoListadoDTO>> FindUsuarios(string dominioId, string grupoId, string? filtro, string? cursor, int? limit, string? consistencyToken)
+    public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursor, int? limit, string? consistencyToken)
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             if (cursor is null)
-                return await FindUsuariosWithoutCursor(dominioId, filtro, dominioId, limit ?? 50);
+                return await FindUsuariosWithoutCursor(dominioId, filtro, grupoId, subgrupoId, limit ?? 50);
             else
                 return await FindUsuariosByCursor(dominioId, cursor, limit ?? 50);
         }, consistencyToken);

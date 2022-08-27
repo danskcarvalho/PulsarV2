@@ -6,5 +6,5 @@ public interface IGrupoQueries
 {
     Task<PaginatedListDTO<GrupoListadoDTO>> FindGrupos(string dominioId, string? filtro, string? cursor, int? limit, string? consistencyToken);
     Task<List<GrupoDetalhesDTO>> GetGrupoDetalhes(string dominioId, IEnumerable<string> grupoIds, string? consistencyToken);
-    Task<PaginatedListDTO<UsuarioGrupoListadoDTO>> FindUsuarios(string dominioId, string grupoId, string? filtro, string? cursor, int? limit, string? consistencyToken);
+    Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursor, int? limit, string? consistencyToken);
 }

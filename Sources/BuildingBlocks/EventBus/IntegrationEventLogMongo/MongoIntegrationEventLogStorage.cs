@@ -84,7 +84,6 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
 
     public async Task<IEnumerable<IntegrationEventLogEntry>> RetrieveRelevantEventLogsAsync(int maxEvents, CancellationToken ct)
     {
-        //TODO: Create index to optimize this
         var list = await (await _Collection.FindAsync(
             e => (e.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > e.ScheduledOn) ||
                  (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressExpirationDate) || 
