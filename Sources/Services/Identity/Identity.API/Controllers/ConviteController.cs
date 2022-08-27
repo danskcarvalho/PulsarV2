@@ -5,7 +5,7 @@ using Pulsar.Services.Identity.Contracts.Commands.Convites;
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/convites")]
+[Route("v2/convites")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 public class ConviteController : IdentityController
 {

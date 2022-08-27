@@ -1,12 +1,11 @@
-﻿using Pulsar.Services.Identity.API.Authorization;
-using Pulsar.Services.Identity.Contracts.Commands.Dominios;
+﻿using Pulsar.Services.Identity.Contracts.Commands.Dominios;
 using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/dominios")]
+[Route("v2/dominios")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 public class DominioController : IdentityController
 {
@@ -66,10 +65,25 @@ public class DominioController : IdentityController
     /// <param name="limit">Limite de domínios retornados. Opcional.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>
     /// <returns>Ok.</returns>
-    [HttpGet("{dominioId}/usuarios_bloqueados"), ScopeAuthorize("dominios.usuarios_bloqueados"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.BloquearUsuarios)]
+    [HttpGet("{dominioId}/usuarios_bloqueados"), ScopeAuthorize("dominios.usuarios_bloqueados"), SuperUsuarioAuthorize]
     public async Task<ActionResult<PaginatedListDTO<BasicUserInfoDTO>>> UsuariosBloqueados(string dominioId, [FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
         var r = await DominioQueries.FindUsuariosBloqueados(dominioId, filtro, cursor, limit, consistencyToken);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Retorna os usuários bloqueados no domínio logado.
+    /// </summary>
+    /// <param name="filtro">Filtro de texto. Opcional.</param>
+    /// <param name="cursor">Cursor. Opcional.</param>
+    /// <param name="limit">Limite de domínios retornados. Opcional.</param>
+    /// <param name="consistencyToken">Token de consistência. Opcional.</param>
+    /// <returns>Ok.</returns>
+    [HttpGet("usuarios_bloqueados"), ScopeAuthorize("dominios.usuarios_bloqueados"), DominioAuthorize(PermissoesDominio.BloquearUsuarios)]
+    public async Task<ActionResult<PaginatedListDTO<BasicUserInfoDTO>>> UsuariosBloqueados([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
+    {
+        var r = await DominioQueries.FindUsuariosBloqueados(User.DominioId()!, filtro, cursor, limit, consistencyToken);
         return Ok(r);
     }
 
@@ -164,7 +178,7 @@ public class DominioController : IdentityController
     }
 
     /// <summary>
-    /// Bloqueia usuários em um domínio.
+    /// Bloqueia usuários no domínio logado.
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
@@ -179,7 +193,7 @@ public class DominioController : IdentityController
     }
 
     /// <summary>
-    /// Desbloqueia usuários em um domínio.
+    /// Desbloqueia usuários no domínio logado.
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>

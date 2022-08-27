@@ -51,5 +51,9 @@ public enum ExceptionKey
     [Display(Description = "O usuário 'administrador' não pode ser adicionado ou removido de um grupo.")]
     SuperUsuarioNaoPodeserAdicionadoEmGrupo = 24,
     [Display(Description = "Você não está logado em um domínio.")]
-    DominioNaoLogado = 25
+    DominioNaoLogado = 25,
+    [Display(Description = "Estabelecimento não encontrado.")]
+    EstabelecimentoNaoEncontrado = 26,
+    [Display(Description = "Rede de Estabelecimentos não encontrado.")]
+    RedeEstabelecimentosNaoEncontrado = 27
 }

@@ -5,6 +5,21 @@ public interface IDeleteSpecification<TModel>
     DeleteSpecification<TModel> GetSpec();
 }
 
+public class DeleteSpecificationWrapper<TModel> : IDeleteSpecification<TModel>
+{
+    public DeleteSpecification<TModel> Spec { get; }
+
+    public DeleteSpecificationWrapper(DeleteSpecification<TModel> spec)
+    {
+        Spec = spec;
+    }
+
+    public DeleteSpecification<TModel> GetSpec()
+    {
+        return Spec;
+    }
+}
+
 public class DeleteSpecification<TModel>
 {
     public Expression<Func<TModel, bool>> Predicate { get; }

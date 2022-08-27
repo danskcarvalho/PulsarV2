@@ -6,7 +6,7 @@ using Pulsar.Services.Shared.DTOs;
 namespace Pulsar.Services.Identity.API.Controllers
 {
     [ApiController]
-    [Route("v1/grupos")]
+    [Route("v2/grupos")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class GrupoController : IdentityController
     {

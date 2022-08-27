@@ -41,10 +41,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.CustomSchemaIds(x => GenericTypeExtensions.GetGenericTypeName(x));
-    options.SwaggerDoc("v1", new OpenApiInfo
+    options.SwaggerDoc("v2", new OpenApiInfo
     {
         Title = "Identity HTTP API",
-        Version = "v1",
+        Version = "v2",
         Description = "The Identity Service HTTP API"
     });
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -114,6 +114,7 @@ app.UseRouting();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
+    c.SwaggerEndpoint($"/swagger/v2/swagger.json", "Identity.API v2");
     c.OAuthClientId("identityswaggerui");
     c.OAuthAppName("Identity Swagger UI");
     c.OAuthUsePkce();

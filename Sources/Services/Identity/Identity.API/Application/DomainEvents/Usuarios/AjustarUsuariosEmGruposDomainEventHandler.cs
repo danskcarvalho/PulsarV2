@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Identity.Domain.Events.Grupos;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+using Pulsar.Services.Identity.Domain.Events.Grupos;
 using Pulsar.Services.Identity.Domain.Specifications;
 using Pulsar.Services.Shared.Enumerations;
 using System.Runtime.CompilerServices;
@@ -20,7 +21,7 @@ public class AjustarUsuariosEmGruposDomainEventHandler : IdentityDomainEventHand
         {
             var removerSpec = new RemoverUsuariosEmGrupoRemovidoSpec(evt.GrupoId, null, evt.UsuarioLogadoId);
             var modified = await UsuarioRepository.UpdateManyAsync(removerSpec, ct);
-            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, (int)-modified);
+            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, grupo.SubGrupos.Select(sg => sg.SubGrupoId).ToList());
         }
         else if (evt.Modificacao == ChangeEvent.Edited)
         {
@@ -28,7 +29,7 @@ public class AjustarUsuariosEmGruposDomainEventHandler : IdentityDomainEventHand
             {
                 var removerSpec = new RemoverUsuariosEmGrupoRemovidoSpec(evt.GrupoId, evt.SubGruposRemovidos.Select(sg => sg.SubGrupoId).ToList(), evt.UsuarioLogadoId);
                 var modified = await UsuarioRepository.UpdateManyAsync(removerSpec, ct);
-                grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, (int)-modified);
+                grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, evt.SubGruposRemovidos.Select(sg => sg.SubGrupoId).ToList());
             }
         }
     }

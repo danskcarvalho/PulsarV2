@@ -18,26 +18,26 @@ namespace Pulsar.Services.Identity.UI.Clients
 
         public async Task<LogoutResultDTO> TryLogout(string? logoutId, CancellationToken ct = default)
         {
-            using var r = await _httpClient.PostAsJsonAsync("v1/logout/try", new LogoutDTO { LogoutId = logoutId }, ct);
+            using var r = await _httpClient.PostAsJsonAsync("v2/logout/try", new LogoutDTO { LogoutId = logoutId }, cancellationToken: ct, options: SerializationOptions.Default);
             if (r.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
+                var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
                 await _jsRuntime.InvokeVoidAsync("console.error", exception);
                 throw new BackendException(exception);
             }
-            return (await r.Content.ReadFromJsonAsync<LogoutResultDTO>(cancellationToken: ct))!;
+            return (await r.Content.ReadFromJsonAsync<LogoutResultDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
         }
 
         public async Task<LogoutResultDTO> Logout(string? logoutId, CancellationToken ct = default)
         {
-            using var r = await _httpClient.PostAsJsonAsync("v1/logout", new LogoutDTO { LogoutId = logoutId }, ct);
+            using var r = await _httpClient.PostAsJsonAsync("v2/logout", new LogoutDTO { LogoutId = logoutId }, cancellationToken: ct, options: SerializationOptions.Default);
             if (r.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
+                var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
                 await _jsRuntime.InvokeVoidAsync("console.error", exception);
                 throw new BackendException(exception);
             }
-            return (await r.Content.ReadFromJsonAsync<LogoutResultDTO>(cancellationToken: ct))!;
+            return (await r.Content.ReadFromJsonAsync<LogoutResultDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
         }
     }
 }

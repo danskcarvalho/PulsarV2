@@ -11,7 +11,6 @@ public class AtualizarNumUsuariosDomainEventHandler : IdentityDomainEventHandler
 
     protected override async Task HandleAsync(NumUsuariosEmGrupoModificadoDomainEvent evt, CancellationToken ct)
     {
-        var atualizarNum = new AtualizarNumUsuariosEmGrupoSpec(evt.UsuarioLogadoId, evt.GrupoId, evt.DeltaNumUsuarios);
-        await GrupoRepository.UpdateOneAsync(atualizarNum, ct);
+        await GrupoRepository.AtualizarNumUsuarios(evt.UsuarioLogadoId, evt.GrupoId, evt.SubGrupoIds);
     }
 }

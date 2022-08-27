@@ -4,13 +4,13 @@
     {
         public ObjectId UsuarioLogadoId { get; set; }
         public ObjectId GrupoId { get; set; }
-        public int DeltaNumUsuarios { get; set; }
+        public List<ObjectId>? SubGrupoIds { get; set; }
 
-        public NumUsuariosEmGrupoModificadoDomainEvent(ObjectId usuarioLogadoId, ObjectId grupoId, int deltaNumUsuarios)
+        public NumUsuariosEmGrupoModificadoDomainEvent(ObjectId usuarioLogadoId, ObjectId grupoId, List<ObjectId>? subGrupoIds)
         {
             UsuarioLogadoId = usuarioLogadoId;
             GrupoId = grupoId;
-            DeltaNumUsuarios = deltaNumUsuarios;
+            SubGrupoIds = subGrupoIds;
         }
     }
 }

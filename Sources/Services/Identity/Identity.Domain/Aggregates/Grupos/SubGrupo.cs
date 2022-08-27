@@ -7,8 +7,10 @@ public class SubGrupo : AggregateComponent
 {
     public ObjectId SubGrupoId { get; set; }
     public string Nome { get; set; }
+    [BsonRepresentation(BsonType.String)]
     public HashSet<PermissoesDominio> PermissoesDominio { get; private set; }
     public List<SubGrupoPermissoesEstabelecimento> PermissoesEstabelecimentos { get; private set; }
+    public int NumUsuarios { get; set; }
 
     [BsonConstructor(nameof(SubGrupoId), nameof(Nome), nameof(PermissoesDominio), nameof(PermissoesEstabelecimentos))]
     public SubGrupo(ObjectId subGrupoId, string nome, IEnumerable<PermissoesDominio>? permissoesDominio = null, IEnumerable<SubGrupoPermissoesEstabelecimento>? permissoesEstabelecimentos = null)
@@ -22,6 +24,7 @@ public class SubGrupo : AggregateComponent
     public void Editar(string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCommand.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
     {
         nome = nome.Trim();
+        this.Nome = nome;
         this.PermissoesDominio.Clear();
         this.PermissoesDominio.UnionWith(permissoesDominios);
         this.PermissoesEstabelecimentos.Clear();

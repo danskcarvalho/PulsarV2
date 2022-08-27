@@ -5,6 +5,21 @@ public interface IUpdateSpecification<TModel>
     UpdateSpecification<TModel> GetSpec();
 }
 
+public class UpdateSpecificationWrapper<TModel> : IUpdateSpecification<TModel>
+{
+    public UpdateSpecification<TModel> Spec { get; }
+
+    public UpdateSpecificationWrapper(UpdateSpecification<TModel> spec)
+    {
+        Spec = spec;
+    }
+
+    public UpdateSpecification<TModel> GetSpec()
+    {
+        return Spec;
+    }
+}
+
 public class UpdateSpecification<TModel>
 {
     public Expression<Func<TModel, bool>> Predicate { get; }

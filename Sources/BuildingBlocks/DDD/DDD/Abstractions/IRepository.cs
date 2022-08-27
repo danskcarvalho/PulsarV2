@@ -21,8 +21,8 @@ public interface IRepositoryBase<TModel> : IIsRepository where TModel : class, I
     Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default);
     Task<long> UpdateOneAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default);
     Task<long> UpdateManyAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default);
-    Task<bool> OneExistsAsync(ObjectId id, CancellationToken ct = default);
-    Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default);
+    Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default);
+    Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default);
     Task<TModel?> FindOneByIdAsync(ObjectId id, CancellationToken ct = default);
     Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, bool noTracking = false, CancellationToken ct = default);
     Task<TModel?> FindOneAsync(IFindSpecification<TModel> spec, CancellationToken ct = default);

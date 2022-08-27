@@ -3,6 +3,7 @@
 public class SubGrupoPermissoesEstabelecimento : AggregateComponent
 {
     public Seletor Seletor { get; private set; }
+    [BsonRepresentation(BsonType.String)]
     public HashSet<PermissoesEstabelecimento> Permissoes { get; private set; }
 
     [BsonConstructor(nameof(Seletor), nameof(Permissoes))]

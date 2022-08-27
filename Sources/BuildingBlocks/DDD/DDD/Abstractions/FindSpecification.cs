@@ -4,10 +4,42 @@ public interface IFindSpecification<TModel>
 {
     FindSpecification<TModel> GetSpec();
 }
+
+public class FindSpecificationWrapper<TModel> : IFindSpecification<TModel>
+{
+    public FindSpecification<TModel> Spec { get; }
+
+    public FindSpecificationWrapper(FindSpecification<TModel> spec)
+    {
+        Spec = spec;
+    }
+
+    public FindSpecification<TModel> GetSpec()
+    {
+        return Spec;
+    }
+}
+
 public interface IFindSpecification<TModel, TProjection>
 {
     FindSpecification<TModel, TProjection> GetSpec();
 }
+
+public class FindSpecificationWrapper<TModel, TProjection> : IFindSpecification<TModel, TProjection>
+{
+    public FindSpecification<TModel, TProjection> Spec { get; }
+
+    public FindSpecificationWrapper(FindSpecification<TModel, TProjection> spec)
+    {
+        Spec = spec;
+    }
+
+    public FindSpecification<TModel, TProjection> GetSpec()
+    {
+        return Spec;
+    }
+}
+
 public class FindSpecification<TModel> 
 {
     public Expression<Func<TModel, bool>> Predicate { get; }

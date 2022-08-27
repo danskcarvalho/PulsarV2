@@ -3,7 +3,7 @@
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/esqueci_minha_senha")]
+[Route("v2/esqueci_minha_senha")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class EsqueciMinhaSenhaController : IdentityController
 {

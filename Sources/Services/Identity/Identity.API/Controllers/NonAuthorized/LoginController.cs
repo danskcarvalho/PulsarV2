@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/login")]
+[Route("v2/login")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class LoginController : IdentityController
 {

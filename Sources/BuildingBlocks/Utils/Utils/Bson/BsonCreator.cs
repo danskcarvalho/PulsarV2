@@ -17,12 +17,26 @@ public static class BSON
             return obj;
         else if (obj is BsonValue)
             return obj;
+        else if (obj is ObjectId oi)
+            return new BsonObjectId(oi);
         else if (obj is null)
             return BsonNull.Value;
         else if (obj is string s)
             return new BsonString(s);
+        else if (obj is DateTime dt)
+            return new BsonDateTime(dt);
+        else if (obj is IDictionary dicInput)
+        {
+            Dictionary<string, object?> dic = new Dictionary<string, object?>();
+            foreach (var prop in dicInput.Keys)
+            {
+                var propName = prop.ToString()!;
+                dic[propName] = Serialize(dicInput[prop]);
+            }
+            return new BsonDocument(dic);
+        }
         else if (obj is IEnumerable en)
-            return new BsonArray(en);
+            return new BsonArray(en.Cast<object>().Select(x => Serialize(x)));
         else if (obj is bool b)
             return new BsonBoolean(b);
         else if (obj is int i32)
@@ -106,12 +120,26 @@ public class BSONCreatorHelper
             return obj;
         else if (obj is BsonValue)
             return obj;
+        else if (obj is ObjectId oi)
+            return new BsonObjectId(oi);
         else if (obj is null)
             return BsonNull.Value;
         else if (obj is string s)
             return new BsonString(s);
+        else if (obj is DateTime dt)
+            return new BsonDateTime(dt);
+        else if (obj is IDictionary dicInput)
+        {
+            Dictionary<string, object?> dic = new Dictionary<string, object?>();
+            foreach (var prop in dicInput.Keys)
+            {
+                var propName = prop.ToString()!;
+                dic[propName] = Serialize(dicInput[prop]);
+            }
+            return new BsonDocument(dic);
+        }
         else if (obj is IEnumerable en)
-            return new BsonArray(en);
+            return new BsonArray(en.Cast<object>().Select(x => Serialize(x)));
         else if (obj is bool b)
             return new BsonBoolean(b);
         else if (obj is int i32)

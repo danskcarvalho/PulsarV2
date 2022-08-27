@@ -52,7 +52,7 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
             return grupos.Select(g =>
             {
                 var dto = new GrupoDetalhesDTO(g.Id.ToString(), g.Nome, g.NumSubGrupos, g.NumUsuarios,
-                    g.SubGrupos.Select(sg => new GrupoDetalhesDTO.SubGrupoDetalhes(sg.SubGrupoId.ToString(), sg.Nome, sg.PermissoesDominio.ToList(),
+                    g.SubGrupos.Select(sg => new GrupoDetalhesDTO.SubGrupoDetalhes(sg.SubGrupoId.ToString(), sg.Nome, sg.PermissoesDominio.ToList(), sg.NumUsuarios,
                         sg.PermissoesEstabelecimentos
                         .Where(pe =>
                         {

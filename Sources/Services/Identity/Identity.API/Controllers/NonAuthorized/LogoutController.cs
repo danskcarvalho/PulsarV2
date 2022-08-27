@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/logout")]
+[Route("v2/logout")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class LogoutController : IdentityController
 { 

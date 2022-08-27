@@ -12,7 +12,7 @@ public partial class GrupoQueries
         var textSearch = cursor.Filtro.ToTextSearch();
         var filter = BSON.Create(b => b.And(
             textSearch,
-            new { DominioId = b.Eq(dominioId) },
+            new { DominioId = b.Eq(dominioId.ToObjectId()) },
             new Dictionary<string, object> { ["AuditInfo.RemovidoEm"] = b.Eq(null) },
             b.Or(new { Nome = b.Gt(cursor.LastNome) }, b.And(new { Nome = b.Eq(cursor.LastNome) }, new { Id = b.Gt(cursor.LastGrupoId.ToObjectId()) }))));
 
@@ -33,7 +33,7 @@ public partial class GrupoQueries
         var filter = BSON.Create(b => b.And(
             filtro.ToTextSearch(),
             new Dictionary<string, object> { ["AuditInfo.RemovidoEm"] = b.Eq(null) },
-            new { DominioId = b.Eq(dominioId) }));
+            new { DominioId = b.Eq(dominioId.ToObjectId()) }));
 
         var findOptions = new FindOptions<Grupo, Grupo>()
         {

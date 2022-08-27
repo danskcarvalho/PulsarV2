@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("v1/usuarios")]
+[Route("v2/usuarios")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 public class UsuarioController : IdentityController
 {

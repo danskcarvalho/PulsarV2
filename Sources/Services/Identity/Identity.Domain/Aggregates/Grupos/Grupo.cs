@@ -47,14 +47,14 @@ public class Grupo : AggregateRoot
 
     public void Criar()
     {
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(this.AuditInfo.CriadoPorUsuarioId!.Value, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Created, Version));
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(this.AuditInfo.CriadoPorUsuarioId!.Value, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Created, Version));
     }
 
     public void Remover(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.RemovidoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Deleted, Version));
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Deleted, Version));
     }
 
     public void Editar(ObjectId usuarioLogadoId, string nome)
@@ -62,12 +62,12 @@ public class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Nome = nome;
         this.Version++;
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Deleted, Version));
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
     }
 
-    public void AtualizarNumUsuarios(ObjectId usuarioLogadoId, int deltaNumUsuarios)
+    public void AtualizarNumUsuarios(ObjectId usuarioLogadoId, List<ObjectId>? subgrupoIds)
     {
-        this.AddDomainEvent(new NumUsuariosEmGrupoModificadoDomainEvent(usuarioLogadoId, this.Id, deltaNumUsuarios));
+        this.AddDomainEvent(new NumUsuariosEmGrupoModificadoDomainEvent(usuarioLogadoId, this.Id, subgrupoIds));
     }
 
     public ObjectId CriarSubGrupo(ObjectId usuarioLogadoId, string nome, List<PermissoesDominio> permissoesDominio, List<CriarSubGrupoCommand.PermissoesEstabelecimentoOuRede> permissoesEstabelecimento)
@@ -79,7 +79,9 @@ public class Grupo : AggregateRoot
         this.Version++;
         var subgrupo = new SubGrupo(ObjectId.GenerateNewId(), nome, permissoesDominio, 
             permissoesEstabelecimento.Select(pe => new SubGrupoPermissoesEstabelecimento(new Seletor(pe.EstabelecimentoId?.ToObjectId(), pe.RedeEstabelecimentosId?.ToObjectId()), pe.Permissoes!)));
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        this.SubGrupos.Add(subgrupo);
+        this.NumSubGrupos = this.SubGrupos.Count;
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
         return subgrupo.SubGrupoId;
     }
 
@@ -91,7 +93,7 @@ public class Grupo : AggregateRoot
         if (subgrupo == null)
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
         subgrupo.Editar(nome, permissoesDominios, permissoesEstabelecimentoOuRedes);
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
     }
 
     public void RemoverSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId)
@@ -102,7 +104,8 @@ public class Grupo : AggregateRoot
         if (subgrupo == null)
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
         SubGrupos.Remove(subgrupo);
-        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
+        this.NumSubGrupos = this.SubGrupos.Count;
+        this.AddDomainEvent(new GrupoModificadoDomainEvent(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
     }
 
     public void AdicionarUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)

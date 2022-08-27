@@ -20,10 +20,10 @@ public class AceitarConviteClient
 
     public async Task Aceitar(AceitarConviteCommand cmd, CancellationToken ct = default)
     {
-        using var r = await _httpClient.PostAsJsonAsync("v1/aceitar_convite", cmd, ct);
+        using var r = await _httpClient.PostAsJsonAsync("v2/aceitar_convite", cmd, cancellationToken: ct, options: SerializationOptions.Default);
         if (r.StatusCode != System.Net.HttpStatusCode.OK)
         {
-            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
+            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
             await _jsRuntime.InvokeVoidAsync("console.error", exception);
             throw new BackendException(exception);
         }

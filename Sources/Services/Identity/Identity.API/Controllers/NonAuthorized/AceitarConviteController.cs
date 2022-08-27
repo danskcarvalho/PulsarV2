@@ -2,7 +2,7 @@
 
 namespace Pulsar.Services.Identity.API.Controllers;
 [ApiController]
-[Route("v1/aceitar_convite")]
+[Route("v2/aceitar_convite")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class AceitarConviteController : IdentityController
 {

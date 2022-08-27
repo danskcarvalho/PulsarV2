@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using Pulsar.BuildingBlocks.Utils;
 using System.Linq.Expressions;
 
 namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
@@ -22,6 +23,14 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             Collection = Collection.WithWriteConcern(WriteConcern.WMajority).WithReadConcern(ReadConcern.Majority).WithReadPreference(ReadPreference.Primary);
     }
 
+    protected IMongoCollection<T> GetCollection<T>(string collectionName)
+    {
+        var collection = SessionFactory.Database.GetCollection<T>(collectionName);
+        if (!ApplyIsolationLevelFromSession(ref collection))
+            collection = collection.WithWriteConcern(WriteConcern.WMajority).WithReadConcern(ReadConcern.Majority).WithReadPreference(ReadPreference.Primary);
+        return collection;
+    }
+
     private IsolationLevel? lastSeenIsolationLevelFromSession = null;
     private bool ApplyIsolationLevelFromSession()
     {
@@ -39,6 +48,22 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         return false;
     }
 
+    private bool ApplyIsolationLevelFromSession<T>(ref IMongoCollection<T> collection)
+    {
+        if (IsolationLevel == null)
+        {
+            if (Session is not null && Session.DefaultIsolationLevel != null)
+            {
+                if (lastSeenIsolationLevelFromSession != null && lastSeenIsolationLevelFromSession != Session.DefaultIsolationLevel && !Session.IsInTransaction)
+                {
+                    collection = ApplyIsolationLevel(collection, Session.DefaultIsolationLevel.Value);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     protected abstract string CollectionName { get; }
     public void Track(TModel? model)
     {
@@ -49,23 +74,27 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
     }
     protected abstract TSelf Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory);
 
-    public async Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default)
+    public async Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var idList = ids.ToList();
-        var filter = Builders<TModel>.Filter.In("_id", idList);
-        var projectionDef = Builders<TModel>.Projection.Include("_id");
-        List<TModel> r;
+        Expression<Func<TModel, bool>> predicateExpression = x => idList.Contains(x.Id);
+        if (predicate != null)
+        {
+            var spec = predicate.GetSpec();
+            predicateExpression = predicateExpression.AndAlso(spec.Predicate);
+        }
+        var projectionDef = Builders<TModel>.Projection.Expression(x => new ExistIdModel { Id = x.Id });
+        List<ExistIdModel> r;
 
         if (Session is null || Session.CurrentHandle is null)
-            r = await (await Collection.FindAsync(filter, new FindOptions<TModel> { Projection = projectionDef },
+            r = await (await Collection.FindAsync(predicateExpression, new FindOptions<TModel, ExistIdModel> { Projection = projectionDef },
                 cancellationToken: ct)).ToListAsync();
         else
-            r = await (await Collection.FindAsync(Session.CurrentHandle, filter, new FindOptions<TModel> { Projection = projectionDef },
+            r = await (await Collection.FindAsync(Session.CurrentHandle, predicateExpression, new FindOptions<TModel, ExistIdModel> { Projection = projectionDef },
                 cancellationToken: ct)).ToListAsync();
 
-        HashSet<ObjectId> found = new HashSet<ObjectId>();
-        found.UnionWith(r.Select(x => (ObjectId)x.GetType().GetProperty("Id")!.GetValue(x)!));
+        HashSet<ObjectId> found = new HashSet<ObjectId>(r.Select(x => x.Id));
         return idList.All(x => found.Contains(x));
     }
 
@@ -325,19 +354,24 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         Track(item);
     }
 
-    public async Task<bool> OneExistsAsync(ObjectId id, CancellationToken ct = default)
+    public async Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
-        var filter = Builders<TModel>.Filter.Eq("_id", id);
-        var projectionDef = Builders<TModel>.Projection.Include("_id");
-        TModel? r;
+        Expression<Func<TModel, bool>> predicateExpression = x => x.Id == id;
+        if (predicate != null)
+        {
+            var spec = predicate.GetSpec();
+            predicateExpression = predicateExpression.AndAlso(spec.Predicate);
+        }
+        var projectionDef = Builders<TModel>.Projection.Expression(x => new ExistIdModel { Id = x.Id });
+        ExistIdModel? r;
         if (Session is null || Session.CurrentHandle is null)
-            r = await (await Collection.FindAsync(filter, new FindOptions<TModel> { Limit = 1, Projection = projectionDef },
+            r = await (await Collection.FindAsync(predicateExpression, new FindOptions<TModel, ExistIdModel> { Limit = 1, Projection = projectionDef },
                 cancellationToken: ct)).FirstOrDefaultAsync();
         else
-            r = await (await Collection.FindAsync(Session.CurrentHandle, filter, new FindOptions<TModel> { Limit = 1, Projection = projectionDef },
+            r = await (await Collection.FindAsync(Session.CurrentHandle, predicateExpression, new FindOptions<TModel, ExistIdModel> { Limit = 1, Projection = projectionDef },
                 cancellationToken: ct)).FirstOrDefaultAsync();
-        return r != default(TModel);
+        return r != default(ExistIdModel);
     }
 
     public async Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default)
@@ -400,6 +434,40 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         ((MongoRepository<TSelf, TModel>)(object)cloned).IsolationLevel = level;
         ((MongoRepository<TSelf, TModel>)(object)cloned).ApplyIsolationLevel(level);
         return cloned;
+    }
+
+    private IMongoCollection<T> ApplyIsolationLevel<T>(IMongoCollection<T> collection, IsolationLevel level)
+    {
+        switch (level)
+        {
+            case Abstractions.IsolationLevel.Uncommitted:
+                collection = collection.WithReadConcern(ReadConcern.Local).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Primary);
+                break;
+            case Abstractions.IsolationLevel.UncommittedStale:
+                collection = collection.WithReadConcern(ReadConcern.Local).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.PrimaryPreferred);
+                break;
+            case Abstractions.IsolationLevel.UncommittedNearest:
+                collection = collection.WithReadConcern(ReadConcern.Local).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Nearest);
+                break;
+            case Abstractions.IsolationLevel.Committed:
+                collection = collection.WithReadConcern(ReadConcern.Majority).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Primary);
+                break;
+            case Abstractions.IsolationLevel.CommittedStale:
+                collection = collection.WithReadConcern(ReadConcern.Majority).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.PrimaryPreferred);
+                break;
+            case Abstractions.IsolationLevel.CommittedNearest:
+                collection = collection.WithReadConcern(ReadConcern.Majority).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Nearest);
+                break;
+            case Abstractions.IsolationLevel.Linearizable:
+                collection = collection.WithReadConcern(ReadConcern.Linearizable).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Primary);
+                break;
+            case Abstractions.IsolationLevel.Snapshot:
+                collection = collection.WithReadConcern(ReadConcern.Snapshot).WithWriteConcern(WriteConcern.WMajority).WithReadPreference(ReadPreference.Primary);
+                break;
+            default:
+                break;
+        }
+        return collection;
     }
 
     private void ApplyIsolationLevel(IsolationLevel level)
@@ -870,4 +938,9 @@ class UpdateInjector<T> : IUpdateInjectField<T>
             }
         }
     }
+}
+
+class ExistIdModel
+{
+    public ObjectId Id { get; set; }
 }

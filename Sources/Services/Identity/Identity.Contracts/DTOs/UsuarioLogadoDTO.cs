@@ -38,13 +38,13 @@ public class UsuarioLogadoDTO
         public List<EstabelecimentoDTO> Estabelecimentos { get; set; }
 
         [JsonConstructor]
-        public DominioDTO(string id, string nome, bool isAdministrador, bool podeLogarDominio, List<PermissoesDominio> permissoesDominio, List<EstabelecimentoDTO> estabelecimentos)
+        public DominioDTO(string id, string nome, bool isAdministrador, bool podeLogarDominio, List<PermissoesDominio> permissoes, List<EstabelecimentoDTO> estabelecimentos)
         {
             Id = id;
             Nome = nome;
             IsAdministrador = isAdministrador;
             PodeLogarDominio = podeLogarDominio;
-            Permissoes = permissoesDominio;
+            Permissoes = permissoes;
             Estabelecimentos = estabelecimentos;
         }
     }

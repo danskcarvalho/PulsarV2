@@ -30,6 +30,7 @@ public class Dominio : AggregateRoot
         _termosBusca = GetTermosBusca();
         AuditInfo = auditInfo;
         UsuarioAdministradorId = usuarioAdministradorId;
+        IsAtivo = true;
     }
     private string GetTermosBusca()
     {

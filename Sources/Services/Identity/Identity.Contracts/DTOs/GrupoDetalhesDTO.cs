@@ -24,14 +24,16 @@ public class GrupoDetalhesDTO
         public string SubGrupoId { get; set; }
         public string Nome { get; set; }
         public List<PermissoesDominio> PermissoesDominio { get; set; }
+        public int NumUsuarios { get; set; }
         public List<SubGrupoPermissoesEstabelecimentoDetalhes> PermissoesEstabelecimentos { get; private set; }
 
-        public SubGrupoDetalhes(string subGrupoId, string nome, List<PermissoesDominio> permissoesDominio, List<SubGrupoPermissoesEstabelecimentoDetalhes> permissoesEstabelecimentos)
+        public SubGrupoDetalhes(string subGrupoId, string nome, List<PermissoesDominio> permissoesDominio, int numUsuarios, List<SubGrupoPermissoesEstabelecimentoDetalhes> permissoesEstabelecimentos)
         {
             SubGrupoId = subGrupoId;
             Nome = nome;
             PermissoesDominio = permissoesDominio;
             PermissoesEstabelecimentos = permissoesEstabelecimentos;
+            NumUsuarios = numUsuarios;
         }
     }
 

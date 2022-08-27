@@ -15,6 +15,7 @@ public class EditarGrupoCommandHandler : IdentityCommandHandler<EditarGrupoComma
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
             throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado);
         grupo.Editar(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!);
+        await GrupoRepository.ReplaceOneAsync(grupo, ct: ct);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

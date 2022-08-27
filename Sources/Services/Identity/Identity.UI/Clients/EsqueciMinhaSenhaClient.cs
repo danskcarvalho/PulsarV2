@@ -19,10 +19,10 @@ public class EsqueciMinhaSenhaClient
 
     public async Task EsqueciMinhaSenha(EsqueciMinhaSenhaCommand cmd, CancellationToken ct = default)
     {
-        using var r = await _httpClient.PostAsJsonAsync("v1/esqueci_minha_senha", cmd, ct);
+        using var r = await _httpClient.PostAsJsonAsync("v2/esqueci_minha_senha", cmd, cancellationToken: ct, options: SerializationOptions.Default);
         if (r.StatusCode != System.Net.HttpStatusCode.OK)
         {
-            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
+            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
             await _jsRuntime.InvokeVoidAsync("console.error", exception);
             throw new BackendException(exception);
         }
@@ -30,10 +30,10 @@ public class EsqueciMinhaSenhaClient
 
     public async Task RecuperarSenha(RecuperarSenhaCommand cmd, CancellationToken ct = default)
     {
-        using var r = await _httpClient.PostAsJsonAsync("v1/esqueci_minha_senha/recuperar", cmd, ct);
+        using var r = await _httpClient.PostAsJsonAsync("v2/esqueci_minha_senha/recuperar", cmd, cancellationToken: ct, options: SerializationOptions.Default);
         if (r.StatusCode != System.Net.HttpStatusCode.OK)
         {
-            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct))!;
+            var exception = (await r.Content.ReadFromJsonAsync<ExceptionDTO>(cancellationToken: ct, options: SerializationOptions.Default))!;
             await _jsRuntime.InvokeVoidAsync("console.error", exception);
             throw new BackendException(exception);
         }

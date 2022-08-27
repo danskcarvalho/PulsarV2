@@ -17,14 +17,14 @@ public class UsuariosAdicionadosOuRemovidosEmGrupoDomainEventHandler : IdentityD
         if (evt.Remocao)
         {
             var spec = new RemoverUsuariosEmGrupoSpec(evt.UsuarioLogadoId, evt.DominioId, evt.GrupoId, evt.SubGrupoId, evt.UsuarioIds);
-            var modified = await UsuarioRepository.UpdateManyAsync(spec, ct);
-            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, (int)-modified);
+            await UsuarioRepository.UpdateManyAsync(spec, ct);
+            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, new List<ObjectId> { evt.SubGrupoId });
         }
         else
         {
             var spec = new AdicionarUsuariosEmGruposSpec(evt.UsuarioLogadoId, evt.DominioId, evt.GrupoId, evt.SubGrupoId, evt.UsuarioIds);
-            var modified = await UsuarioRepository.UpdateManyAsync(spec, ct);
-            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, (int)modified);
+            await UsuarioRepository.UpdateManyAsync(spec, ct);
+            grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, new List<ObjectId> { evt.SubGrupoId });
         }
     }
 }
