@@ -21,8 +21,8 @@ public partial class GrupoQueries
         var textSearch = !IsEmail(cursor.Filtro) ? cursor.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(cursor.Filtro) });
         var filter = BSON.Create(b => b.And(
             textSearch, 
-            new Dictionary<string, object> { ["Grupos.GrupoId"] = b.Eq(cursor.GrupoId.ToObjectId()) },
-            new Dictionary<string, object> { ["Grupos.SubGrupoId"] = b.Eq(cursor.SubGrupoId.ToObjectId()) },
+            new BsonDocument { ["Grupos.GrupoId"] = b.Eq(cursor.GrupoId.ToObjectId()) },
+            new BsonDocument { ["Grupos.SubGrupoId"] = b.Eq(cursor.SubGrupoId.ToObjectId()) },
             new { Email = b.Ne(null) }, 
             new { Email = b.Gt(cursor.LastEmail) }));
 
@@ -56,8 +56,8 @@ public partial class GrupoQueries
         var textSearch = !IsEmail(filtro) ? filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(filtro) });
         var filter = BSON.Create(b => b.And(
             textSearch, 
-            new Dictionary<string, object> { ["Grupos.GrupoId"] = b.Eq(grupoId.ToObjectId()) },
-            new Dictionary<string, object> { ["Grupos.SubGrupoId"] = b.Eq(subgrupoId.ToObjectId()) },
+            new BsonDocument { ["Grupos.GrupoId"] = b.Eq(grupoId.ToObjectId()) },
+            new BsonDocument { ["Grupos.SubGrupoId"] = b.Eq(subgrupoId.ToObjectId()) },
             new { Email = b.Ne(null) }));
 
         var findOptions = new FindOptions<Usuario, UsuarioListadoDTO>()

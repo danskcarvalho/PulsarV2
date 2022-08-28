@@ -41,7 +41,7 @@ namespace Pulsar.Services.Identity.Infrastructure.Repositories
                     numUsuariosSubGrupos[subgrupoId] = nu;
                 }
 
-                var setDocument = new Dictionary<string, object>
+                var setDocument = new BsonDocument
                 {
                     ["NumUsuarios"] = numUsuarios,
                     ["AuditInfo.EditadoPorUsuarioId"] = usuarioLogadoId,
@@ -55,7 +55,7 @@ namespace Pulsar.Services.Identity.Infrastructure.Repositories
 
                 var updateDocument = BSON.Create(b =>
                 {
-                    return new Dictionary<string, object>
+                    return new BsonDocument
                     {
                         ["$set"] = setDocument
                     };
@@ -63,7 +63,7 @@ namespace Pulsar.Services.Identity.Infrastructure.Repositories
                 var arrayFilters = new List<ArrayFilterDefinition>();
                 foreach (var sg in numUsuariosSubGrupos)
                 {
-                    ArrayFilterDefinition<SubGrupo> optionsFilter = BSON.Create(b => new Dictionary<string, object>
+                    ArrayFilterDefinition<SubGrupo> optionsFilter = BSON.Create(b => new BsonDocument
                     {
                         [$"elem{sg.Key}.SubGrupoId"] = b.Eq(sg.Key)
                     });
