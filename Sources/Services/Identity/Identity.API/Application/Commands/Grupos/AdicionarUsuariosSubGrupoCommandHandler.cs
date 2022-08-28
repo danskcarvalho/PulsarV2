@@ -20,6 +20,7 @@ public class AdicionarUsuariosSubGrupoCommandHandler : IdentityCommandHandler<Ad
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         grupo.AdicionarUsuariosEmSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.UsuarioIds!.Select(x => x.ToObjectId()).ToList());
+        await GrupoRepository.ReplaceOneAsync(grupo, ct: ct);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

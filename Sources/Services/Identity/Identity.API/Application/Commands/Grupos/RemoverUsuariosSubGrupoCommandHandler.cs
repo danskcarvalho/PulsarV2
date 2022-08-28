@@ -20,6 +20,7 @@ public class RemoverUsuariosSubGrupoCommandHandler : IdentityCommandHandler<Remo
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         grupo.RemoverUsuariosEmSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.UsuarioIds!.Select(x => x.ToObjectId()).ToList());
+        await GrupoRepository.ReplaceOneAsync(grupo, ct: ct);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

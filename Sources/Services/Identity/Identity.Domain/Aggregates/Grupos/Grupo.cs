@@ -115,6 +115,8 @@ public class Grupo : AggregateRoot
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
+        this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
+        this.Version++;
         this.AddDomainEvent(new UsuariosAdicionadosOuRemovidosEmGrupoDomainEvent(usuarioLogadoId, this.Id, subgrupoId, this.DominioId, false, usuarioIds));
     }
 
@@ -125,6 +127,8 @@ public class Grupo : AggregateRoot
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
+        this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
+        this.Version++;
         this.AddDomainEvent(new UsuariosAdicionadosOuRemovidosEmGrupoDomainEvent(usuarioLogadoId, this.Id, subgrupoId, this.DominioId, true, usuarioIds));
     }
 }
