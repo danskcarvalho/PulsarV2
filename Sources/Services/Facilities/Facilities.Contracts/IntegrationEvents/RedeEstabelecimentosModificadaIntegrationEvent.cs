@@ -1,8 +1,8 @@
 ﻿using Pulsar.Services.Shared.DTOs;
 
-namespace Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
+namespace Pulsar.Services.Facilities.Contracts.IntegrationEvents;
 
-[EventName("Estabelecimentos:RedeEstabelecimentosModificado")]
+[EventName("Facilities:RedeEstabelecimentosModificado")]
 public class RedeEstabelecimentosModificadaIntegrationEvent : IntegrationEvent
 {
     public string RedeEstabelecimentosId { get; private set; }

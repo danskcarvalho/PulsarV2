@@ -81,17 +81,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain+Contracts", "Domain+
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{6AF049B0-397D-4E58-AD27-5A497CD24E9E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Estabelecimentos", "Estabelecimentos", "{138E9D78-4073-4CE1-B5A0-AC4E46454C15}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Facilities", "Facilities", "{138E9D78-4073-4CE1-B5A0-AC4E46454C15}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain+Contracts", "Domain+Contracts", "{79E63503-3E56-43E5-AF5E-D150FB3D5CFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estabelecimentos.Contracts", "Services\Estabelecimentos\Estabelecimentos.Contracts\Estabelecimentos.Contracts.csproj", "{1F8B29EB-FABF-4DCC-90A0-E650DDA48571}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facilities.Contracts", "Services\Facilities\Facilities.Contracts\Facilities.Contracts.csproj", "{1F8B29EB-FABF-4DCC-90A0-E650DDA48571}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Services\Shared\Shared\Shared.csproj", "{4A6E40EC-7B13-467C-B727-05A39C018ED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisCaching", "BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj", "{C16540C1-43B4-4F12-918C-4804922791EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisCaching", "BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj", "{C16540C1-43B4-4F12-918C-4804922791EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
