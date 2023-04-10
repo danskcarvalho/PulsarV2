@@ -10,17 +10,13 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
 
     public async Task<PaginatedListDTO<GrupoListadoDTO>> FindGrupos(string dominioId, string? filtro, string? cursor, int? limit, string? consistencyToken)
     {
-        var key = new { Limit = limit, Cursor = cursor, Filtro = filtro, DominioId = dominioId };
-        return await Cache.Category(CacheCategories.FindGrupos).Get(key.ToCacheKey(), async () =>
+        return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            return await this.StartCausallyConsistentSectionAsync(async ct =>
-            {
-                if (cursor is null)
-                    return await FindGruposWithoutCursor(dominioId, filtro, limit ?? 50);
-                else
-                    return await FindGruposByCursor(dominioId, cursor, limit ?? 50);
-            }, consistencyToken);
-        });
+            if (cursor is null)
+                return await FindGruposWithoutCursor(dominioId, filtro, limit ?? 50);
+            else
+                return await FindGruposByCursor(dominioId, cursor, limit ?? 50);
+        }, consistencyToken);
     }
 
     public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursor, int? limit, string? consistencyToken)

@@ -25,7 +25,6 @@ builder.Services.AddTransient<IdentityQueriesContext>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
     return new IdentityQueriesContext(
         sp.GetRequiredService<MongoDbSessionFactory>(),
-        sp.GetRequiredService<ICacheServer>(),
         configuration["MongoDB:ClusterName"]);
 });
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();

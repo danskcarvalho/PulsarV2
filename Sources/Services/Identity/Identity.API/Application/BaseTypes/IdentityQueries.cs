@@ -10,7 +10,6 @@ public class IdentityQueries : QueryHandler
         GruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
         EstabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
         RedesEstabelecimentosCollection = GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
-        Cache = ctx.Cache;
     }
 
     protected IMongoCollection<Usuario> UsuariosCollection { get; private set; }
@@ -19,19 +18,16 @@ public class IdentityQueries : QueryHandler
     protected IMongoCollection<Grupo> GruposCollection { get; private set; }
     protected IMongoCollection<Estabelecimento> EstabelecimentosCollection { get; private set; }
     protected IMongoCollection<RedeEstabelecimentos> RedesEstabelecimentosCollection { get; private set; }
-    protected ICacheServer Cache { get; private set; }
 }
 
 public class IdentityQueriesContext
 {
     public MongoDbSessionFactory Factory { get; }
-    public ICacheServer Cache { get; }
     public string ClusterName { get; }
 
-    public IdentityQueriesContext(MongoDbSessionFactory factory, ICacheServer cache, string clusterName)
+    public IdentityQueriesContext(MongoDbSessionFactory factory, string clusterName)
     {
         Factory = factory;
-        Cache = cache;
         ClusterName = clusterName;
     }
 }

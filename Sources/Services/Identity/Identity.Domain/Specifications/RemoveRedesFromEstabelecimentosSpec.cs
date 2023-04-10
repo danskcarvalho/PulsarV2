@@ -4,20 +4,20 @@ namespace Pulsar.Services.Identity.Domain.Specifications;
 
 public class RemoveRedesFromEstabelecimentosSpec : IUpdateSpecification<Estabelecimento>
 {
-    public RemoveRedesFromEstabelecimentosSpec(ObjectId redeEstabelecimentoIds, DateTime timeStamp)
+    public RemoveRedesFromEstabelecimentosSpec(ObjectId redeEstabelecimentosIds, DateTime timeStamp)
     {
-        RedeEstabelecimentoIds = redeEstabelecimentoIds;
+        RedeEstabelecimentosIds = redeEstabelecimentosIds;
         TimeStamp = timeStamp;
     }
 
-    public ObjectId RedeEstabelecimentoIds { get; }
+    public ObjectId RedeEstabelecimentosIds { get; }
     public DateTime TimeStamp { get; }  
 
     public UpdateSpecification<Estabelecimento> GetSpec()
     {
         return Update
-            .Where<Estabelecimento>(x => x.Redes.Contains(RedeEstabelecimentoIds) && x.TimeStamp <= TimeStamp)
-            .Pull(x => x.Redes, RedeEstabelecimentoIds)
+            .Where<Estabelecimento>(x => x.Redes.Contains(RedeEstabelecimentosIds) && x.TimeStamp <= TimeStamp)
+            .Pull(x => x.Redes, RedeEstabelecimentosIds)
             .Set(x => x.TimeStamp, TimeStamp)
             .Build();
     }

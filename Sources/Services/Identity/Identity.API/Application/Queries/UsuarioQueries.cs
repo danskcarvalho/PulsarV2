@@ -12,52 +12,39 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
     public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(UsuarioFiltroDTO filtro)
     {
-        var key = new { filtro.Limit, filtro.Cursor, filtro.Filtro };
-        return await Cache.Category(CacheCategories.FindUsuarios).Get(key.ToCacheKey(), async () =>
+        return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            return await this.StartCausallyConsistentSectionAsync(async ct =>
-            {
-                if (filtro.Cursor is null)
-                    return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
-                else
-                    return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
-            }, filtro.ConsistencyToken);
-        });
+            if (filtro.Cursor is null)
+                return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
+            else
+                return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
+        }, filtro.ConsistencyToken);
     }
 
     public async Task<BasicUserInfoDTO?> GetBasicUserInfo(string usuarioId, string? consistencyToken)
     {
-        var key = CacheCategories.GetBasicUserInfoKey(usuarioId);
-        return await Cache.Get(key.ToCacheKey(), async () =>
+        return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            return await this.StartCausallyConsistentSectionAsync(async ct =>
-            {
-                var id = ObjectId.Parse(usuarioId);
-                var usuario = await (await UsuariosCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
-                if (usuario == null)
-                    return null;
-                return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
-            }, consistencyToken);
-        });
+            var id = ObjectId.Parse(usuarioId);
+            var usuario = await (await UsuariosCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+            if (usuario == null)
+                return null;
+            return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
+        }, consistencyToken);
     }
 
     public async Task<List<BasicUserInfoDTO>> GetBasicUsersInfo(IEnumerable<string> usuarioIds, string? consistencyToken)
     {
         if (usuarioIds.Count() == 0)
             return new List<BasicUserInfoDTO>();
-        var keys = usuarioIds.Select(u => CacheCategories.GetBasicUserInfoKey(u));
-        var r = await Cache.GetMultipleBatches(keys, async (k) =>
+        var r = await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            return await this.StartCausallyConsistentSectionAsync(async ct =>
-            {
-                var allIds = k.Select(x => x.UsuarioId.ToObjectId()).ToList();
-                var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
+            var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
+            var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
 
-                return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.Avatar?.PublicUrl, u.IsSuperUsuario))
-                    .MapByUnique(u => CacheCategories.GetBasicUserInfoKey(u.UsuarioId));
-            }, consistencyToken);
-        });
-        return r.Select(x => x.Value).ToList();
+            return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.Avatar?.PublicUrl, u.IsSuperUsuario));
+        }, consistencyToken);
+        return r.ToList();
     }
 
     public async Task<List<UsuarioDetalhesDTO>> GetUsuarioDetalhes(IEnumerable<string> usuarioIds, string? consistencyToken)
@@ -203,12 +190,6 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                     new UsuarioLogadoDTO.EstabelecimentoDTO(e.Estabelecimento.Id.ToString(), e.Estabelecimento.Nome, e.Permissoes)).ToList())).ToList());
 
         return result;
-    }
-
-    public static class CacheCategories
-    {
-        public const string FindUsuarios = "UsuarioQueries.FindUsuarios";
-        public static (string Action, string UsuarioId) GetBasicUserInfoKey(string usuarioId) => (Action: "GetBasicUserInfo", UsuarioId: usuarioId);
     }
 
 }
