@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.DDD;
 
-public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where TCommand : IRequest<Unit>
+public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where TCommand : IRequest
 {
     private IDbSession _session;
     public IDbSession Session => _session;
@@ -12,14 +12,14 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
 
     protected abstract Task HandleAsync(TCommand cmd, CancellationToken ct);
 
-    async Task<Unit> IRequestHandler<TCommand, Unit>.Handle(TCommand request, CancellationToken cancellationToken)
+    async Task IRequestHandler<TCommand>.Handle(TCommand request, CancellationToken cancellationToken)
     {
         var requiresCC = this.GetType().GetCustomAttributes(typeof(RequiresCausalConsistencyAttribute), true).Cast<RequiresCausalConsistencyAttribute>().FirstOrDefault();
         var noTran = this.GetType().GetCustomAttributes(typeof(NoTransactionAttribute), true).Cast<NoTransactionAttribute>().FirstOrDefault();
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        return await _session.TrackAggregateRoots(async ct =>
+        await _session.TrackAggregateRoots(async ct =>
         {
             if (withIso != null && noTran != null)
             {

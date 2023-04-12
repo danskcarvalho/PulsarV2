@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Pulsar.BuildingBlocks.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="10.0.1" />
-    <PackageReference Include="MongoDB.Bson" Version="2.17.0" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
   </ItemGroup>
 
 </Project>

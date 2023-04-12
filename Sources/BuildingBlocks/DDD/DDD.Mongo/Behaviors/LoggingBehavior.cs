@@ -5,7 +5,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
     public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger) => _logger = logger;
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         _logger.LogInformation("----- Handling command {CommandName} ({@Command})", request.GetGenericTypeName(), request);
         try
@@ -15,7 +15,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
             return response;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "----- Command {CommandName} error", request.GetGenericTypeName());
             throw;
