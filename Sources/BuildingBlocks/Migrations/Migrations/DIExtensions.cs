@@ -4,15 +4,18 @@ public static class DIExtensions
 {
     public static void AddMigrations(this IServiceCollection col)
     {
-        col.AddMediatR(typeof(DIExtensions).GetTypeInfo().Assembly);
+        col.AddMediatR(c =>
+        {
+            c.RegisterServicesFromAssembly(typeof(DIExtensions).GetTypeInfo().Assembly);
+        });
 
         AutoMappingConventions.Register();
 
         col.AddSingleton<MongoDbSessionFactory>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var connStr = config["MongoDB:ConnectionString"];
-            var database = config["MongoDB:Database"];
+            var connStr = config["MongoDB:ConnectionString"]!;
+            var database = config["MongoDB:Database"]!;
 
             return new MongoDbSessionFactory(connStr, database, null, () => sp.GetRequiredService<IMediator>());
         });

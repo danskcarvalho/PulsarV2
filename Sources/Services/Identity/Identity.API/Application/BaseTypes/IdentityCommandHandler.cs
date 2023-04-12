@@ -3,7 +3,7 @@ using Pulsar.BuildingBlocks.EventBus.Abstractions;
 
 namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
-public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest<Unit>
+public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest
 {
     protected IConviteRepository ConviteRepository { get; }
     protected IDominioRepository DominioRepository { get; }
@@ -67,7 +67,7 @@ public class IdentityCommandHandlerContext<TRequest, TResponse> where TRequest :
     }
 }
 
-public class IdentityCommandHandlerContext<TEvent> where TEvent : IRequest<Unit>
+public class IdentityCommandHandlerContext<TEvent> where TEvent : IRequest
 {
     public ILogger<IdentityCommandHandler<TEvent>> Logger { get; }
     public IDbSession Session { get; }

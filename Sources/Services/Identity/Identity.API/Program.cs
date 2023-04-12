@@ -11,7 +11,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
 builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
-builder.Services.AddMediatR(typeof(Program).Assembly);
+builder.Services.AddMediatR(c =>
+{
+    c.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
 builder.Services.AddSESEmailSupport();
 builder.Services.AddRedisCache();
 builder.Services.AddMinio();
@@ -25,7 +28,7 @@ builder.Services.AddTransient<IdentityQueriesContext>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
     return new IdentityQueriesContext(
         sp.GetRequiredService<MongoDbSessionFactory>(),
-        configuration["MongoDB:ClusterName"]);
+        configuration["MongoDB:ClusterName"]!);
 });
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
@@ -53,8 +56,8 @@ builder.Services.AddSwaggerGen(options =>
         {
             AuthorizationCode = new OpenApiOAuthFlow()
             {
-                AuthorizationUrl = new Uri(builder.Configuration["IdentityServer:AuthorizationUrl"]),
-                TokenUrl = new Uri(builder.Configuration["IdentityServer:TokenUrl"]),
+                AuthorizationUrl = new Uri(builder.Configuration["IdentityServer:AuthorizationUrl"]!),
+                TokenUrl = new Uri(builder.Configuration["IdentityServer:TokenUrl"]!),
                 Scopes = AllApiScopes.Resources.Where(s => s.Name == "identity.*").ToDictionary(s => (s.Name, s.Description))
             }
         }
