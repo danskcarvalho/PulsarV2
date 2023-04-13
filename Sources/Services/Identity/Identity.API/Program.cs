@@ -10,7 +10,7 @@ builder.Services.AddControllersWithViews().AddJsonOptions(j =>
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
-builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCommand).Assembly);
+builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCmd).Assembly);
 builder.Services.AddMediatR(c =>
 {
     c.RegisterServicesFromAssembly(typeof(Program).Assembly);

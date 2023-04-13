@@ -7,7 +7,7 @@ namespace Pulsar.Services.Identity.UI.Pages;
 
 public partial class AceitarConvite
 {
-    AceitarConviteCommand _model = new AceitarConviteCommand();
+    AceitarConviteCmd _model = new AceitarConviteCmd();
     AceitarConviteStage _stage = AceitarConviteStage.InformarDados;
     string? _errorMessage = null;
     bool _loading = false;

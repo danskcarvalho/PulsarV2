@@ -65,7 +65,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <param name="cmd">Dados.</param>
         /// <returns>Id do grupo criado.</returns>
         [HttpPut, ScopeAuthorize("grupos.criar"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CreatedCommandResult>> Criar([FromBody] CriarGrupoCommand cmd)
+        public async Task<ActionResult<CreatedCommandResult>> Criar([FromBody] CriarGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
@@ -80,7 +80,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <returns>Id do subgrupo criado.</returns>
 
         [HttpPut("{grupoId}/subgrupos"), ScopeAuthorize("grupos.criar_subgrupo"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CreatedCommandResult>> CriarSubgrupo(string grupoId, [FromBody] CriarSubGrupoCommand cmd)
+        public async Task<ActionResult<CreatedCommandResult>> CriarSubgrupo(string grupoId, [FromBody] CriarSubGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
@@ -96,7 +96,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <param name="cmd">Dados.</param>
         /// <returns>Ok.</returns>
         [HttpPost("{grupoId}"), ScopeAuthorize("grupos.editar"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CommandResult>> Editar(string grupoId, [FromBody] EditarGrupoCommand cmd)
+        public async Task<ActionResult<CommandResult>> Editar(string grupoId, [FromBody] EditarGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
@@ -113,7 +113,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <param name="cmd">Dados.</param>
         /// <returns>Ok.</returns>
         [HttpPost("{grupoId}/subgrupos/{subgrupoId}"), ScopeAuthorize("grupos.editar_subgrupo"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CommandResult>> EditarSubgrupo(string grupoId, string subgrupoId, [FromBody] EditarSubGrupoCommand cmd)
+        public async Task<ActionResult<CommandResult>> EditarSubgrupo(string grupoId, string subgrupoId, [FromBody] EditarSubGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
@@ -131,7 +131,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         [HttpDelete("{grupoId}"), ScopeAuthorize("grupos.remover"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
         public async Task<ActionResult<CommandResult>> Remover(string grupoId)
         {
-            var cmd = new RemoverGrupoCommand();
+            var cmd = new RemoverGrupoCmd();
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
             cmd.GrupoId = grupoId ?? throw new ArgumentNullException(nameof(grupoId));
@@ -148,7 +148,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         [HttpDelete("{grupoId}/subgrupos/{subgrupoId}"), ScopeAuthorize("grupos.remover_subgrupo"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
         public async Task<ActionResult<CommandResult>> RemoverSubgrupo(string grupoId, string subgrupoId)
         {
-            var cmd = new RemoverSubGrupoCommand();
+            var cmd = new RemoverSubGrupoCmd();
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
             cmd.GrupoId = grupoId ?? throw new ArgumentNullException(nameof(grupoId));
@@ -165,7 +165,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <param name="cmd">Dados.</param>
         /// <returns>Ok.</returns>
         [HttpPut("{grupoId}/subgrupos/{subgrupoId}/usuarios"), ScopeAuthorize("grupos.adicionar_usuarios"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CreatedCommandResult>> AdicionarUsuarios(string grupoId, string subgrupoId, [FromBody] AdicionarUsuariosSubGrupoCommand cmd)
+        public async Task<ActionResult<CreatedCommandResult>> AdicionarUsuarios(string grupoId, string subgrupoId, [FromBody] AdicionarUsuariosSubGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();
@@ -183,7 +183,7 @@ namespace Pulsar.Services.Identity.API.Controllers
         /// <param name="cmd">Dados.</param>
         /// <returns>Ok.</returns>
         [HttpDelete("{grupoId}/subgrupos/{subgrupoId}/usuarios"), ScopeAuthorize("grupos.remover_usuarios"), DominioAuthorize(PermissoesDominio.EditarGrupos)]
-        public async Task<ActionResult<CreatedCommandResult>> RemoverUsuarios(string grupoId, string subgrupoId, [FromBody] RemoverUsuariosSubGrupoCommand cmd)
+        public async Task<ActionResult<CreatedCommandResult>> RemoverUsuarios(string grupoId, string subgrupoId, [FromBody] RemoverUsuariosSubGrupoCmd cmd)
         {
             cmd.UsuarioLogadoId = User.Id();
             cmd.DominioId = User.DominioId();

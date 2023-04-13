@@ -18,7 +18,7 @@ public class AceitarConviteClient
         _jsRuntime = jsRuntime;
     }
 
-    public async Task Aceitar(AceitarConviteCommand cmd, CancellationToken ct = default)
+    public async Task Aceitar(AceitarConviteCmd cmd, CancellationToken ct = default)
     {
         using var r = await _httpClient.PostAsJsonAsync("v2/aceitar_convite", cmd, cancellationToken: ct, options: SerializationOptions.Default);
         if (r.StatusCode != System.Net.HttpStatusCode.OK)

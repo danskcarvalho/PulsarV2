@@ -1,11 +1,14 @@
-﻿namespace Pulsar.Services.Identity.Contracts.DTOs;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Pulsar.Services.Identity.Contracts.DTOs;
 public class CursorUsuarioGrupoListadoDTO
 {
-    public string LastEmail { get; set; }
-    public string GrupoId { get; set; }
-    public string SubGrupoId { get; set; }
+    public required string LastEmail { get; set; }
+    public required string GrupoId { get; set; }
+    public required string SubGrupoId { get; set; }
     public string? Filtro { get; set; }
 
+    [SetsRequiredMembers]
     public CursorUsuarioGrupoListadoDTO(string lastEmail, string grupoId, string subGrupoId, string? filtro)
     {
         LastEmail = lastEmail;
@@ -13,6 +16,8 @@ public class CursorUsuarioGrupoListadoDTO
         SubGrupoId = subGrupoId;
         Filtro = filtro;
     }
+
+    private CursorUsuarioGrupoListadoDTO() { }
 
     public CursorUsuarioGrupoListadoDTO? Next(List<UsuarioListadoDTO> usuarios)
     {

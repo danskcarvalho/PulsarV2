@@ -20,7 +20,7 @@ public class ConviteController : IdentityController
     /// <returns>Ok.</returns>
 
     [HttpPut, ScopeAuthorize("convites.criar"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ConvidarUsuario)]
-    public async Task<ActionResult> Criar([FromBody]CriarConviteCommand cmd)
+    public async Task<ActionResult> Criar([FromBody]CriarConviteCmd cmd)
     {
         cmd.UsuarioLogadoId = User.Id();
         await Mediator.Send(cmd);

@@ -12,14 +12,14 @@ public class EsqueciMinhaSenhaController : IdentityController
     }
 
     [HttpPost]
-    public async Task<ActionResult> EsqueciMinhaSenha([FromBody] EsqueciMinhaSenhaCommand cmd)
+    public async Task<ActionResult> EsqueciMinhaSenha([FromBody] EsqueciMinhaSenhaCmd cmd)
     {
         await Mediator.Send(cmd);
         return Ok();
     }
 
     [HttpPost("recuperar")]
-    public async Task<ActionResult> RecuperarSenha([FromBody] RecuperarSenhaCommand cmd)
+    public async Task<ActionResult> RecuperarSenha([FromBody] RecuperarSenhaCmd cmd)
     {
         await Mediator.Send(cmd);
         return Ok();

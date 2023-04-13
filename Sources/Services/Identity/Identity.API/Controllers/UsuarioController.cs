@@ -83,7 +83,7 @@ public class UsuarioController : IdentityController
     [HttpPost("{usuarioId}/bloquear"), ScopeAuthorize("usuarios.bloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Bloquear(string usuarioId)
     {
-        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCommand(User.Id(), usuarioId, true));
+        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCmd(User.Id(), usuarioId, true));
         return Ok(r);
     }
 
@@ -95,7 +95,7 @@ public class UsuarioController : IdentityController
     [HttpPost("{usuarioId}/desbloquear"), ScopeAuthorize("usuarios.desbloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Desbloquear(string usuarioId)
     {
-        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCommand(User.Id(), usuarioId, false));
+        var r = await Mediator.Send(new BloquearOuDesbloquearUsuarioCmd(User.Id(), usuarioId, false));
         return Ok(r);
     }
 
@@ -105,7 +105,7 @@ public class UsuarioController : IdentityController
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
     [HttpPost("meus_dados"), ScopeAuthorize("usuarios.editar_meus_dados")]
-    public async Task<ActionResult<CommandResult>> EditarMeusDados([FromBody] EditarMeusDadosCommand cmd)
+    public async Task<ActionResult<CommandResult>> EditarMeusDados([FromBody] EditarMeusDadosCmd cmd)
     {
         cmd.UsuarioId = User.Id();
         var r = await Mediator.Send(cmd);
@@ -118,7 +118,7 @@ public class UsuarioController : IdentityController
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
     [HttpPost("minha_senha"), ScopeAuthorize("usuarios.mudar_minha_senha")]
-    public async Task<ActionResult<CommandResult>> MudarMinhaSenha([FromBody] MudarMinhaSenhaCommand cmd)
+    public async Task<ActionResult<CommandResult>> MudarMinhaSenha([FromBody] MudarMinhaSenhaCmd cmd)
     {
         cmd.UsuarioId = User.Id();
         var r = await Mediator.Send(cmd);
@@ -136,6 +136,6 @@ public class UsuarioController : IdentityController
         if (viewModel.Validate() is UnsupportedMediaTypeResult um)
             return um;
 
-        return Ok(await Mediator.Send(new MudarMeuAvatarCommand(User.Id(), viewModel.Imagem!.OpenReadStream(), viewModel.Imagem.FileName)));
+        return Ok(await Mediator.Send(new MudarMeuAvatarCmd(User.Id(), viewModel.Imagem!.OpenReadStream(), viewModel.Imagem.FileName)));
     }
 }

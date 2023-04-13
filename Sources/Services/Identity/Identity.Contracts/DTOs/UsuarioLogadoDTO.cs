@@ -1,19 +1,21 @@
-﻿namespace Pulsar.Services.Identity.Contracts.DTOs;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class UsuarioLogadoDTO
 {
-    public string Id { get; set; }
-    public string PrimeiroNome { get; set; }
+    public required string Id { get; set; }
+    public required string PrimeiroNome { get; set; }
     public string? UltimoNome { get; set; }
-    public string NomeCompleto { get; set; }
+    public required string NomeCompleto { get; set; }
     public string? Email { get; set; }
-    public string NomeUsuario { get; set; }
+    public required string NomeUsuario { get; set; }
     public bool IsAtivo { get; set; }
     public bool IsSuperUsuario { get; set; }  
     public string? AvatarUrl { get; set; }
-    public List<DominioDTO> Dominios{ get; set; }
+    public required List<DominioDTO> Dominios { get; set; }
 
-    [JsonConstructor]
+    [SetsRequiredMembers]
     public UsuarioLogadoDTO(string id, string primeiroNome, string? ultimoNome, string nomeCompleto, string? email, string nomeUsuario, bool isAtivo, bool isSuperUsuario, string? avatarUrl, List<DominioDTO> dominios)
     {
         Id = id;
@@ -27,17 +29,20 @@ public class UsuarioLogadoDTO
         AvatarUrl = avatarUrl;
         Dominios = dominios;
     }
+    private UsuarioLogadoDTO()
+    {
+    }
 
     public class DominioDTO
     {
-        public string Id { get; set; }
-        public string Nome { get; set; }
+        public required string Id { get; set; }
+        public required string Nome { get; set; }
         public bool IsAdministrador { get; set; }
         public bool PodeLogarDominio { get; set; }
-        public List<PermissoesDominio> Permissoes { get; set; }
-        public List<EstabelecimentoDTO> Estabelecimentos { get; set; }
+        public required List<PermissoesDominio> Permissoes { get; set; }
+        public required List<EstabelecimentoDTO> Estabelecimentos { get; set; }
 
-        [JsonConstructor]
+        [SetsRequiredMembers]
         public DominioDTO(string id, string nome, bool isAdministrador, bool podeLogarDominio, List<PermissoesDominio> permissoes, List<EstabelecimentoDTO> estabelecimentos)
         {
             Id = id;
@@ -47,20 +52,28 @@ public class UsuarioLogadoDTO
             Permissoes = permissoes;
             Estabelecimentos = estabelecimentos;
         }
+
+        private DominioDTO()
+        {
+        }
     }
 
     public class EstabelecimentoDTO
     {
-        public string Id { get; set; }
-        public string Nome { get; set; }
-        public List<PermissoesEstabelecimento> Permissoes { get; set; }
+        public required string Id { get; set; }
+        public required string Nome { get; set; }
+        public required List<PermissoesEstabelecimento> Permissoes { get; set; }
 
-        [JsonConstructor]
+        [SetsRequiredMembers]
         public EstabelecimentoDTO(string id, string nome, List<PermissoesEstabelecimento> permissoes)
         {
             Id = id;
             Nome = nome;
             Permissoes = permissoes;
+        }
+
+        private EstabelecimentoDTO()
+        {
         }
     }
 

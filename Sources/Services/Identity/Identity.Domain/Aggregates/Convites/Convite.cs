@@ -33,12 +33,12 @@ public class Convite : AggregateRoot
 
         IsAceito = true;
         Version++;
-        this.AddDomainEvent(new ConviteAceitoDomainEvent(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
+        this.AddDomainEvent(new ConviteAceitoDE(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
 
     }
 
     public void ConvidarUsuario()
     {
-        AddDomainEvent(new UsuarioConvidadoDomainEvent(this.Id, this.UsuarioId, this.Email, this.TokenAceitacao, this.AuditInfo.CriadoPorUsuarioId!.Value));
+        AddDomainEvent(new UsuarioConvidadoDE(this.Id, this.UsuarioId, this.Email, this.TokenAceitacao, this.AuditInfo.CriadoPorUsuarioId!.Value));
     }
 }

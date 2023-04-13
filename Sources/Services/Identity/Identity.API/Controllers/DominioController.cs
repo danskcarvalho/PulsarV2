@@ -96,7 +96,7 @@ public class DominioController : IdentityController
     [HttpPost("{dominioId}/bloquear"), ScopeAuthorize("dominios.bloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Bloquear(string dominioId)
     {
-        var r = await Mediator.Send(new BloquearOuDesbloquearDominioCommand(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), true));
+        var r = await Mediator.Send(new BloquearOuDesbloquearDominioCmd(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), true));
         return Ok(r);
     }
 
@@ -109,7 +109,7 @@ public class DominioController : IdentityController
     [HttpPost("{dominioId}/desbloquear"), ScopeAuthorize("dominios.desbloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Desbloquear(string dominioId)
     {
-        var r = await Mediator.Send(new BloquearOuDesbloquearDominioCommand(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), false));
+        var r = await Mediator.Send(new BloquearOuDesbloquearDominioCmd(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), false));
         return Ok(r);
     }
 
@@ -121,7 +121,7 @@ public class DominioController : IdentityController
     /// <returns>Ok.</returns>
     /// <exception cref="ArgumentNullException">dominioId is null</exception>
     [HttpPost("{dominioId}/bloquear_usuarios"), ScopeAuthorize("dominios.bloquear_usuarios"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<CommandResult>> BloquearUsuarios(string dominioId, [FromBody]BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    public async Task<ActionResult<CommandResult>> BloquearUsuarios(string dominioId, [FromBody]BloquearOuDesbloquearUsuariosNoDominioCmd cmd)
     {
         cmd.Bloquear = true;
         cmd.UsuarioLogadoId = User.Id();
@@ -138,7 +138,7 @@ public class DominioController : IdentityController
     /// <returns>Ok.</returns>
     /// <exception cref="ArgumentNullException">dominioId is null</exception>
     [HttpPost("{dominioId}/desbloquear_usuarios"), ScopeAuthorize("dominios.desbloquear_usuarios"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<CommandResult>> DesbloquearUsuarios(string dominioId, [FromBody] BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    public async Task<ActionResult<CommandResult>> DesbloquearUsuarios(string dominioId, [FromBody] BloquearOuDesbloquearUsuariosNoDominioCmd cmd)
     {
         cmd.Bloquear = false;
         cmd.UsuarioLogadoId = User.Id();
@@ -155,7 +155,7 @@ public class DominioController : IdentityController
     /// <returns>Ok.</returns>
     /// <exception cref="ArgumentNullException">dominioId is null</exception>
     [HttpPost("{dominioId}"), ScopeAuthorize("dominios.editar"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<CommandResult>> Editar(string dominioId, [FromBody] EditarDominioCommand cmd)
+    public async Task<ActionResult<CommandResult>> Editar(string dominioId, [FromBody] EditarDominioCmd cmd)
     {
         cmd.UsuarioLogadoId = User.Id();
         cmd.DominioId = dominioId ?? throw new ArgumentNullException(nameof(dominioId));
@@ -170,7 +170,7 @@ public class DominioController : IdentityController
     /// <returns>Id do domínio criado.</returns>
 
     [HttpPut, ScopeAuthorize("dominios.criar"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<CreatedCommandResult>> Criar([FromBody] CriarDominioCommand cmd)
+    public async Task<ActionResult<CreatedCommandResult>> Criar([FromBody] CriarDominioCmd cmd)
     {
         cmd.UsuarioLogadoId = User.Id();
         var r = await Mediator.Send(cmd);
@@ -183,7 +183,7 @@ public class DominioController : IdentityController
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
     [HttpPost("bloquear_usuarios"), ScopeAuthorize("dominios.bloquear_usuarios"), DominioAuthorize(PermissoesDominio.BloquearUsuarios)]
-    public async Task<ActionResult<CommandResult>> BloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    public async Task<ActionResult<CommandResult>> BloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCmd cmd)
     {
         cmd.Bloquear = true;
         cmd.UsuarioLogadoId = User.Id();
@@ -198,7 +198,7 @@ public class DominioController : IdentityController
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
     [HttpPost("desbloquear_usuarios"), ScopeAuthorize("dominios.desbloquear_usuarios"), DominioAuthorize(PermissoesDominio.BloquearUsuarios)]
-    public async Task<ActionResult<CommandResult>> DesbloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCommand cmd)
+    public async Task<ActionResult<CommandResult>> DesbloquearUsuarios([FromBody] BloquearOuDesbloquearUsuariosNoDominioCmd cmd)
     {
         cmd.Bloquear = false;
         cmd.UsuarioLogadoId = User.Id();

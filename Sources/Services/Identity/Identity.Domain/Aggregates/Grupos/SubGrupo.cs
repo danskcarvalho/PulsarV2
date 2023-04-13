@@ -21,7 +21,7 @@ public class SubGrupo : AggregateComponent
         PermissoesEstabelecimentos = permissoesEstabelecimentos != null ? new List<SubGrupoPermissoesEstabelecimento>(permissoesEstabelecimentos) : new List<SubGrupoPermissoesEstabelecimento>();
     }
 
-    public void Editar(string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCommand.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
+    public void Editar(string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
     {
         nome = nome.Trim();
         this.Nome = nome;

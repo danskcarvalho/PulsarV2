@@ -10,7 +10,7 @@ public partial class EsqueciMinhaSenha
 {
     EsqueciMinhaSenhaStage _stage = EsqueciMinhaSenhaStage.DigitarEmail;
     string? _errorMessage = null;
-    EsqueciMinhaSenhaCommand _model = new EsqueciMinhaSenhaCommand();
+    EsqueciMinhaSenhaCmd _model = new EsqueciMinhaSenhaCmd();
     bool _loading = false;
 
     [Parameter, SupplyParameterFromQuery]

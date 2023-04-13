@@ -10,7 +10,7 @@ public class EstabelecimentoModificadoIEH : IdentityIntegrationEventHandler<Esta
 
     protected override async Task Handle(EstabelecimentoModificadoIE evt)
     {
-        var cmd = new EstabelecimentoModificadoCommand(evt.EstabelecimentoId, evt.DominioId, evt.Nome, evt.Cnes, evt.Redes, evt.IsAtivo, evt.CreationDate);
+        var cmd = new EstabelecimentoModificadoCmd(evt.EstabelecimentoId, evt.DominioId, evt.Nome, evt.Cnes, evt.Redes, evt.IsAtivo, evt.CreationDate);
         await Mediator.Send(cmd);
     }
 }

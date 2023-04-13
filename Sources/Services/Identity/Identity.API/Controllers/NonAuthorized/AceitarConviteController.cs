@@ -11,7 +11,7 @@ public class AceitarConviteController : IdentityController
     }
 
     [HttpPost]
-    public async Task<ActionResult> Aceitar([FromBody] AceitarConviteCommand cmd)
+    public async Task<ActionResult> Aceitar([FromBody] AceitarConviteCmd cmd)
     {
         await Mediator.Send(cmd);
         return Ok();

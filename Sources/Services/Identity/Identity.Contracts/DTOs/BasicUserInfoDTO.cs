@@ -1,4 +1,5 @@
-﻿using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioLogadoDTO;
+﻿using System.Diagnostics.CodeAnalysis;
+using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioLogadoDTO;
 
 namespace Pulsar.Services.Identity.Contracts.DTOs;
 
@@ -7,11 +8,11 @@ public class BasicUserInfoDTO
     /// <summary>
     /// Id do usuário.
     /// </summary>
-    public string UsuarioId { get; set; }
+    public required string UsuarioId { get; set; }
     /// <summary>
     /// Primeiro nome.
     /// </summary>
-    public string PrimeiroNome { get; set; }
+    public required string PrimeiroNome { get; set; }
     /// <summary>
     /// Sobrenome.
     /// </summary>
@@ -19,7 +20,7 @@ public class BasicUserInfoDTO
     /// <summary>
     /// Nome completo. Junção do primeiro nome + sobrenome.
     /// </summary>
-    public string NomeCompleto { get; set; }
+    public required string NomeCompleto { get; set; }
     /// <summary>
     /// E-mail do usuário. Único.
     /// </summary>
@@ -27,7 +28,7 @@ public class BasicUserInfoDTO
     /// <summary>
     /// Nome de usuário. Único.
     /// </summary>
-    public string NomeUsuario { get; set; }
+    public required string NomeUsuario { get; set; }
     /// <summary>
     /// Apenas o usuário administrador é um super usuário.
     /// </summary>
@@ -37,6 +38,7 @@ public class BasicUserInfoDTO
     /// </summary>
     public string? AvatarUrl { get; set; }
 
+    [SetsRequiredMembers]
     public BasicUserInfoDTO(string usuarioId, string primeiroNome, string? ultimoNome, string nomeCompleto, string? email, string nomeUsuario, string? avatarUrl, bool isSuperUsuario)
     {
         UsuarioId = usuarioId;
@@ -47,5 +49,9 @@ public class BasicUserInfoDTO
         NomeUsuario = nomeUsuario;
         IsSuperUsuario = isSuperUsuario;
         AvatarUrl = avatarUrl;
+    }
+    private BasicUserInfoDTO()
+    {
+
     }
 }

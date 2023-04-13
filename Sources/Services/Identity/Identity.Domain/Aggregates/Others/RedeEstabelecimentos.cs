@@ -30,7 +30,7 @@ public class RedeEstabelecimentos : AggregateRoot
         this.AuditInfo = auditInfo;
         this.Version++;
         if (this.AuditInfo.RemovidoEm != null)
-            this.AddDomainEvent(new RedeEstabelecimentosRemovidaDomainEvent(this.Id, timeStamp));
+            this.AddDomainEvent(new RedeEstabelecimentosRemovidaDE(this.Id, timeStamp));
         return true;
     }
 }

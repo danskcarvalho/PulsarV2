@@ -9,7 +9,7 @@ public partial class RecuperarSenha
 {
     MudarSenhaStage _stage = MudarSenhaStage.InformarSenha;
     string? _errorMessage = null;
-    RecuperarSenhaCommand _model = new RecuperarSenhaCommand();
+    RecuperarSenhaCmd _model = new RecuperarSenhaCmd();
     bool _loading = false;
 
     [Parameter, SupplyParameterFromQuery]

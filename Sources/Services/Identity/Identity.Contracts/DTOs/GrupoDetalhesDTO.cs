@@ -1,9 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class GrupoDetalhesDTO
 {
+    [SetsRequiredMembers]
     public GrupoDetalhesDTO(string grupoId, string nome, int numSubGrupos, int numUsuarios, List<SubGrupoDetalhes> subGrupos)
     {
         GrupoId = grupoId;
@@ -12,21 +14,23 @@ public class GrupoDetalhesDTO
         NumUsuarios = numUsuarios;
         SubGrupos = subGrupos;
     }
+    private GrupoDetalhesDTO() { }
 
-    public string GrupoId { get; set; }
-    public string Nome { get; set; }
+    public required string GrupoId { get; set; }
+    public required string Nome { get; set; }
     public int NumSubGrupos { get; set; }
     public int NumUsuarios { get; set; }
-    public List<SubGrupoDetalhes> SubGrupos { get; set; }
+    public required List<SubGrupoDetalhes> SubGrupos { get; set; }
 
     public class SubGrupoDetalhes
     {
-        public string SubGrupoId { get; set; }
-        public string Nome { get; set; }
-        public List<PermissoesDominio> PermissoesDominio { get; set; }
+        public required string SubGrupoId { get; set; }
+        public required string Nome { get; set; }
+        public required List<PermissoesDominio> PermissoesDominio { get; set; }
         public int NumUsuarios { get; set; }
-        public List<SubGrupoPermissoesEstabelecimentoDetalhes> PermissoesEstabelecimentos { get; private set; }
+        public required List<SubGrupoPermissoesEstabelecimentoDetalhes> PermissoesEstabelecimentos { get; set; }
 
+        [SetsRequiredMembers]
         public SubGrupoDetalhes(string subGrupoId, string nome, List<PermissoesDominio> permissoesDominio, int numUsuarios, List<SubGrupoPermissoesEstabelecimentoDetalhes> permissoesEstabelecimentos)
         {
             SubGrupoId = subGrupoId;
@@ -35,6 +39,7 @@ public class GrupoDetalhesDTO
             PermissoesEstabelecimentos = permissoesEstabelecimentos;
             NumUsuarios = numUsuarios;
         }
+        private SubGrupoDetalhes() { }
     }
 
     public class SubGrupoPermissoesEstabelecimentoDetalhes
@@ -44,8 +49,9 @@ public class GrupoDetalhesDTO
         public string? EstabelecimentoCnes { get; set; }
         public string? RedeEstabelecimentosId { get; set; }
         public string? RedeEstabelecimentosNome { get; set; }
-        public List<PermissoesEstabelecimento> Permissoes { get; private set; }
+        public required List<PermissoesEstabelecimento> Permissoes { get; set; }
 
+        [SetsRequiredMembers]
         public SubGrupoPermissoesEstabelecimentoDetalhes(string? estabelecimentoId, string? estabelecimentoNome, string? estabelecimentoCnes, string? redeEstabelecimentosId, string? redeEstabelecimentosNome, List<PermissoesEstabelecimento> permissoes)
         {
             EstabelecimentoId = estabelecimentoId;
@@ -55,5 +61,6 @@ public class GrupoDetalhesDTO
             RedeEstabelecimentosNome = redeEstabelecimentosNome;
             Permissoes = permissoes;
         }
+        private SubGrupoPermissoesEstabelecimentoDetalhes() { }
     }
 }

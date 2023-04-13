@@ -1,8 +1,10 @@
-﻿namespace Pulsar.Services.Identity.Contracts.DTOs;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class UsuarioListadoDTO
 {
-    [JsonConstructor]
+    [SetsRequiredMembers]
     public UsuarioListadoDTO(string usuarioId, string email, string primeiroNome, string nomeCompleto, string nomeUsuario)
     {
         PrimeiroNome = primeiroNome;
@@ -11,11 +13,12 @@ public class UsuarioListadoDTO
         Email = email;
         UsuarioId = usuarioId;
     }
+    private UsuarioListadoDTO() { }
 
     /// <summary>
     /// Id do usuário.
     /// </summary>
-    public string UsuarioId { get; set; }
+    public required string UsuarioId { get; set; }
     /// <summary>
     /// Url do avatar do usuário.
     /// </summary>
@@ -23,7 +26,7 @@ public class UsuarioListadoDTO
     /// <summary>
     /// Primeiro nome.
     /// </summary>
-    public string PrimeiroNome { get; set; }
+    public required string PrimeiroNome { get; set; }
     /// <summary>
     /// Sobrenome.
     /// </summary>
@@ -31,7 +34,7 @@ public class UsuarioListadoDTO
     /// <summary>
     /// Nome completo.
     /// </summary>
-    public string NomeCompleto { get; set; }
+    public required string NomeCompleto { get; set; }
     /// <summary>
     /// Flag global indicando se o usuário está ativo.
     /// </summary>
@@ -39,11 +42,11 @@ public class UsuarioListadoDTO
     /// <summary>
     /// E-mail do usuário.
     /// </summary>
-    public string Email { get; set; }
+    public required string Email { get; set; }
     /// <summary>
     /// Nome de usuário.
     /// </summary>
-    public string NomeUsuario { get; set; }
+    public required string NomeUsuario { get; set; }
     /// <summary>
     /// Está aguardando o usuário aceitar o convite.
     /// </summary>
@@ -52,14 +55,16 @@ public class UsuarioListadoDTO
 
 public class CursorUsuarioListadoDTO
 {
-    public string LastEmail { get; set; }
+    public required string LastEmail { get; set; }
     public string? Filtro { get; set; }
 
+    [SetsRequiredMembers]
     public CursorUsuarioListadoDTO(string lastEmail, string? filtro)
     {
         LastEmail = lastEmail;
         Filtro = filtro;
     }
+    private CursorUsuarioListadoDTO() { }
 
     public CursorUsuarioListadoDTO? Next(List<UsuarioListadoDTO> usuarios)
     {
@@ -80,16 +85,18 @@ public class CursorUsuarioListadoDTO
 
 public class CursorUsuariosBloqueadosDTO
 {
-    public string LastEmail { get; set; }
-    public string DominioId { get; set; }
+    public required string LastEmail { get; set; }
+    public required string DominioId { get; set; }
     public string? Filtro { get; set; }
 
+    [SetsRequiredMembers]
     public CursorUsuariosBloqueadosDTO(string lastEmail, string dominioId, string? filtro)
     {
         LastEmail = lastEmail;
         DominioId = dominioId;
         Filtro = filtro;
     }
+    private CursorUsuariosBloqueadosDTO() { }
 
     public CursorUsuariosBloqueadosDTO? Next(List<UsuarioListadoDTO> usuarios)
     {

@@ -8,10 +8,10 @@ public static class DIExtensions
         col.AddTransient<IEmailService, SESEmailService>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var fromName = config["AmazonSES:FromName"];
-            var fromEmail = config["AmazonSES:FromEmail"];
-            var awsProfile = config["AmazonSES:AwsProfile"];
-            var region = config["AmazonSES:Region"];
+            var fromName = config["AmazonSES:FromName"]!;
+            var fromEmail = config["AmazonSES:FromEmail"]!;
+            var awsProfile = config["AmazonSES:AwsProfile"]!;
+            var region = config["AmazonSES:Region"]!;
 
             var options = new SESConfigurationSection(fromName, fromEmail, awsProfile, region);
             var renderer = sp.GetRequiredService<IViewRenderService>();

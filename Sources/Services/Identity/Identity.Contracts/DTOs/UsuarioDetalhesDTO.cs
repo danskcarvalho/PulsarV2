@@ -1,12 +1,13 @@
 ﻿using Pulsar.Services.Shared.DTOs;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pulsar.Services.Identity.Contracts.DTOs;
 
 public class UsuarioDetalhesDTO
 {
-    [JsonConstructor]
-    public UsuarioDetalhesDTO(string usuarioId, string? avatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, List<UsuarioGrupo> grupos, bool isAtivo, bool isSuperUsuario, 
+    [SetsRequiredMembers]
+    public UsuarioDetalhesDTO(string usuarioId, string? avatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, List<UsuarioGrupo> grupos, bool isAtivo, bool isSuperUsuario,
         List<Dominio> dominiosBloqueados, List<Dominio> dominiosAdministrados, string? email, string nomeUsuario, bool isConvitePendente, AuditInfoDTO auditInfo)
     {
         UsuarioId = usuarioId;
@@ -25,10 +26,17 @@ public class UsuarioDetalhesDTO
         AuditInfo = auditInfo;
     }
 
+    public UsuarioDetalhesDTO()
+    {
+        Grupos = new List<UsuarioGrupo>();
+        DominiosBloqueados = new List<Dominio>();
+        DominiosAdministrados = new List<Dominio>();
+    }
+
     /// <summary>
     /// Id do usuário.
     /// </summary>
-    public string UsuarioId { get; set; }
+    public required string UsuarioId { get; set; }
     /// <summary>
     /// Url da imagem utilizada como avatar do usuário.
     /// </summary>
@@ -36,7 +44,7 @@ public class UsuarioDetalhesDTO
     /// <summary>
     /// Primeiro nome.
     /// </summary>
-    public string PrimeiroNome { get; set; }
+    public required string PrimeiroNome { get; set; }
     /// <summary>
     /// Sobrenome.
     /// </summary>
@@ -44,7 +52,7 @@ public class UsuarioDetalhesDTO
     /// <summary>
     /// Nome completo. Junção do primeiro nome + sobrenome.
     /// </summary>
-    public string NomeCompleto { get; set; }
+    public required string NomeCompleto { get; set; }
     /// <summary>
     /// Grupos aos quais o usuário pertence.
     /// </summary>
@@ -72,7 +80,7 @@ public class UsuarioDetalhesDTO
     /// <summary>
     /// Nome de usuário. Único.
     /// </summary>
-    public string NomeUsuario { get; set; }
+    public required string NomeUsuario { get; set; }
     /// <summary>
     /// Se o usuário já aceito o convite para entrar no Pulsar.
     /// </summary>
@@ -80,24 +88,29 @@ public class UsuarioDetalhesDTO
     /// <summary>
     /// Dados de auditoria.
     /// </summary>
-    public AuditInfoDTO AuditInfo { get; set; }
+    public required AuditInfoDTO AuditInfo { get; set; }
 
     public class Dominio
     {
         /// <summary>
         /// Id do domínio.
         /// </summary>
-        public string DominioId { get; set; }
+        public required string DominioId { get; set; }
         /// <summary>
         /// Nome do domínio.
         /// </summary>
-        public string Nome { get; set; }
+        public required string Nome { get; set; }
 
-        [JsonConstructor]
+        [SetsRequiredMembers]
         public Dominio(string dominioId, string nome)
         {
             DominioId = dominioId;
             Nome = nome;
+        }
+
+        public Dominio()
+        {
+
         }
     }
 
@@ -106,29 +119,29 @@ public class UsuarioDetalhesDTO
         /// <summary>
         /// Id do domínio.
         /// </summary>
-        public string DominioId { get; set; }
+        public required string DominioId { get; set; }
         /// <summary>
         /// Nome do domínio.
         /// </summary>
-        public string Nome { get; set; }
+        public required string Nome { get; set; }
         /// <summary>
         /// Id do grupo.
         /// </summary>
-        public string GrupoId { get; set; }
+        public required string GrupoId { get; set; }
         /// <summary>
         /// Nome do grupo.
         /// </summary>
-        public string GrupoNome { get; set; }
+        public required string GrupoNome { get; set; }
         /// <summary>
         /// Id do subgrupo.
         /// </summary>
-        public string SubGrupoId { get; set; }
+        public required string SubGrupoId { get; set; }
         /// <summary>
         /// Nome do subgrupo.
         /// </summary>
-        public string SubGrupoNome { get; set; }
+        public required string SubGrupoNome { get; set; }
 
-        [JsonConstructor]
+        [SetsRequiredMembers]
         public UsuarioGrupo(string dominioId, string nome, string grupoId, string grupoNome, string subGrupoId, string subGrupoNome)
         {
             DominioId = dominioId;
@@ -137,6 +150,11 @@ public class UsuarioDetalhesDTO
             GrupoNome = grupoNome;
             SubGrupoId = subGrupoId;
             SubGrupoNome = subGrupoNome;
+        }
+
+        public UsuarioGrupo()
+        {
+
         }
     }
 }
