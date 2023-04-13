@@ -25,7 +25,7 @@ public partial class DominioQueries
             Sort = Builders<Usuario>.Sort.Ascending(x => x.Email),
             Limit = limit
         };
-        var usuarios = await (await UsuariosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var usuarios = await UsuariosCollection.FindAsync(filter, findOptions).ToListAsync();
         return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, cursor.Next(usuarios)?.ToBase64Json());
     }
 
@@ -48,7 +48,7 @@ public partial class DominioQueries
             Sort = Builders<Usuario>.Sort.Ascending(x => x.Email),
             Limit = limit
         };
-        var usuarios = await (await UsuariosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var usuarios = await UsuariosCollection.FindAsync(filter, findOptions).ToListAsync();
         return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, CursorUsuariosBloqueadosDTO.Next(usuarios, dominioId, filtro)?.ToBase64Json());
     }
 

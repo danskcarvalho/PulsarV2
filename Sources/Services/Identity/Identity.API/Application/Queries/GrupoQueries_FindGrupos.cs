@@ -21,7 +21,7 @@ public partial class GrupoQueries
             Sort = Builders<Grupo>.Sort.Ascending(x => x.Nome).Ascending(x => x.Id),
             Limit = limit
         };
-        var grupos = await (await GruposCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var grupos = await GruposCollection.FindAsync(filter, findOptions).ToListAsync();
         var gruposListados = grupos.Select(x => new GrupoListadoDTO(x.Id.ToString(), x.Nome, x.NumSubGrupos, x.NumUsuarios)).ToList();
 
         return new PaginatedListDTO<GrupoListadoDTO>(gruposListados, cursor.Next(gruposListados)?.ToBase64Json());
@@ -40,7 +40,7 @@ public partial class GrupoQueries
             Sort = Builders<Grupo>.Sort.Ascending(x => x.Nome).Ascending(x => x.Id),
             Limit = limit
         };
-        var grupos = await (await GruposCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var grupos = await GruposCollection.FindAsync(filter, findOptions).ToListAsync();
         var gruposListados = grupos.Select(x => new GrupoListadoDTO(x.Id.ToString(), x.Nome, x.NumSubGrupos, x.NumUsuarios)).ToList();
 
         return new PaginatedListDTO<GrupoListadoDTO>(gruposListados, CursorGrupoListadoDTO.Next(gruposListados, filtro)?.ToBase64Json());

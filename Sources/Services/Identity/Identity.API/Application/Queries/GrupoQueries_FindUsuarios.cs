@@ -11,7 +11,7 @@ public partial class GrupoQueries
         limit = limit.Limit();
         var cursor = strCursor.FromBase64Json<CursorUsuarioGrupoListadoDTO>()!;
         var grupoId = cursor.GrupoId.ToObjectId();
-        var grupo = await (await GruposCollection.FindAsync(g => g.Id == grupoId)).FirstOrDefaultAsync();
+        var grupo = await GruposCollection.FindAsync(g => g.Id == grupoId).FirstOrDefaultAsync();
         if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == cursor.SubGrupoId.ToObjectId()))
             return new PaginatedListDTO<UsuarioListadoDTO>(new List<UsuarioListadoDTO>(), null);
         var subgrupos = new Dictionary<ObjectId, SubGrupo>();
@@ -39,14 +39,14 @@ public partial class GrupoQueries
             Sort = Builders<Usuario>.Sort.Ascending(x => x.Email),
             Limit = limit
         };
-        var usuarios = await (await UsuariosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var usuarios = await UsuariosCollection.FindAsync(filter, findOptions).ToListAsync();
         return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, cursor.Next(usuarios)?.ToBase64Json());
     }
 
     private async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuariosWithoutCursor(string dominioId, string? filtro, string grupoId, string subgrupoId, int limit)
     {
         limit = limit.Limit();
-        var grupo = await (await GruposCollection.FindAsync(g => g.Id == grupoId.ToObjectId())).FirstOrDefaultAsync();
+        var grupo = await GruposCollection.FindAsync(g => g.Id == grupoId.ToObjectId()).FirstOrDefaultAsync();
         if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId.ToObjectId()))
             return new PaginatedListDTO<UsuarioListadoDTO>(new List<UsuarioListadoDTO>(), null);
         var subgrupos = new Dictionary<ObjectId, SubGrupo>();
@@ -73,7 +73,7 @@ public partial class GrupoQueries
             Sort = Builders<Usuario>.Sort.Ascending(x => x.Email),
             Limit = limit
         };
-        var usuarios = await (await UsuariosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var usuarios = await UsuariosCollection.FindAsync(filter, findOptions).ToListAsync();
         return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, CursorUsuarioGrupoListadoDTO.Next(usuarios, grupoId, subgrupoId, filtro)?.ToBase64Json());
     }
 

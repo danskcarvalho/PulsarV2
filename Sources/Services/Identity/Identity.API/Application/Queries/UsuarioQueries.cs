@@ -26,7 +26,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var id = ObjectId.Parse(usuarioId);
-            var usuario = await (await UsuariosCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+            var usuario = await UsuariosCollection.FindAsync(u => u.Id == id).FirstOrDefaultAsync();
             if (usuario == null)
                 return null;
             return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.AvatarUrl, usuario.IsSuperUsuario);
@@ -40,7 +40,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var r = await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
-            var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
+            var usuarios = await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id)).ToListAsync();
 
             return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.AvatarUrl, u.IsSuperUsuario));
         }, consistencyToken);
@@ -54,12 +54,12 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
-            var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
+            var usuarios = await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id)).ToListAsync();
             var allDominioIds = usuarios.SelectMany(u => u.DominiosAdministrados).Union(usuarios.SelectMany(u => u.DominiosBloqueados))
                 .Union(usuarios.SelectMany(u => u.Grupos.Select(g => g.DominioId))).ToList();
             var allGruposIds = usuarios.SelectMany(u => u.Grupos.Select(g => g.GrupoId)).ToList();
-            var dominios = (await (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
-            var grupos = await (await GruposCollection.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
+            var dominios = (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id)).ToListAsync()).MapByUnique(d => d.Id);
+            var grupos = await GruposCollection.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null).ToListAsync();
             var subgruposPorIds = grupos.SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg))).MapByUnique(x => (GrupoId: x.Grupo.Id, SubGrupoId: x.SubGrupo.SubGrupoId));
 
             return usuarios.Select(u => new UsuarioDetalhesDTO(
@@ -91,7 +91,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var usuarioCollection = GetCollection<Usuario>(Constants.CollectionNames.USUARIOS, ReadPref.Primary);
 
         var id = ObjectId.Parse(usuarioId);
-        var usuario = await (await usuarioCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
+        var usuario = await usuarioCollection.FindAsync(u => u.Id == id).FirstOrDefaultAsync();
         if (usuario == null)
             return null;
         return await GetUsuarioLogado(usuario);
@@ -105,7 +105,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             return null;
         usernameOrEmail = usernameOrEmail.Trim().ToLowerInvariant();
 
-        var usuario = await (await usuarioCollection.FindAsync(u => u.Email == usernameOrEmail || u.NomeUsuario == usernameOrEmail)).FirstOrDefaultAsync();
+        var usuario = await usuarioCollection.FindAsync(u => u.Email == usernameOrEmail || u.NomeUsuario == usernameOrEmail).FirstOrDefaultAsync();
         if (usuario == null)
             return null;
         if (!usuario.TestarSenha(password))
@@ -120,11 +120,11 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var estabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS, ReadPref.Primary);
 
         var gruposIds = usuario.Grupos.Select(g => g.GrupoId).ToList();
-        var grupos = await (await gruposCollection.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null)).ToListAsync();
+        var grupos = await gruposCollection.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null).ToListAsync();
         var dominioIds = grupos.Select(g => g.DominioId).Distinct().ToList();
         var dominiosBloqueados = new HashSet<ObjectId>(usuario.DominiosBloqueados);
         var todosDominiosIds = dominioIds.Union(usuario.DominiosAdministrados).Union(usuario.DominiosBloqueados).ToList();
-        var dominios = (await (await dominiosCollection.FindAsync(d => todosDominiosIds.Contains(d.Id))).ToListAsync()).MapByUnique(d => d.Id);
+        var dominios = (await dominiosCollection.FindAsync(d => todosDominiosIds.Contains(d.Id)).ToListAsync()).MapByUnique(d => d.Id);
         var redesIds = grupos
                 .SelectMany(g => g.SubGrupos)
                 .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.SubGrupoId))
@@ -141,8 +141,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .Select(pe => pe.Seletor.EstabelecimentoId!.Value)
                 .Distinct()
                 .ToList();
-        var allEstabelecimentos = await (await estabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id) ||
-            e.Redes.Any(rid => redesIds.Contains(rid)))).ToListAsync();
+        var allEstabelecimentos = await estabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id) || e.Redes.Any(rid => redesIds.Contains(rid))).ToListAsync();
         var subgrupos = new HashSet<ObjectId>(usuario.Grupos.Select(ug => ug.SubGrupoId));
 
         var permissions = dominioIds.Union(usuario.DominiosAdministrados).Where(d => !dominiosBloqueados.Contains(d) && dominios[d].IsAtivo).Select(d => new

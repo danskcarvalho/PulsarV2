@@ -38,9 +38,9 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
         var r = await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var allIds = dominioIds.Select(x => x.ToObjectId()).ToList();
-            var dominios = await (await DominiosCollection.FindAsync(d => allIds.Contains(d.Id))).ToListAsync();
+            var dominios = await DominiosCollection.FindAsync(d => allIds.Contains(d.Id)).ToListAsync();
             var allUsuarioIds = dominios.Where(d => d.UsuarioAdministradorId.HasValue).Select(d => d.UsuarioAdministradorId!.Value);
-            var usuarios = (await (await UsuariosCollection.FindAsync(u => allUsuarioIds.Contains(u.Id))).ToListAsync()).MapByUnique(u => u.Id);
+            var usuarios = (await UsuariosCollection.FindAsync(u => allUsuarioIds.Contains(u.Id)).ToListAsync()).MapByUnique(u => u.Id);
             return dominios.Select(d =>
             {
                 var usuario = d.UsuarioAdministradorId.HasValue ? usuarios[d.UsuarioAdministradorId.Value] : null;

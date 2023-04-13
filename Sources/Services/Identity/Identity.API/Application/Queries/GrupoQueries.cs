@@ -37,13 +37,13 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var allIds = grupoIds.Select(x => x.ToObjectId()).ToList();
-            var grupos = await (await GruposCollection.FindAsync(g => allIds.Contains(g.Id) && g.DominioId == dominioId.ToObjectId())).ToListAsync();
+            var grupos = await GruposCollection.FindAsync(g => allIds.Contains(g.Id) && g.DominioId == dominioId.ToObjectId()).ToListAsync();
             var estabelecimentosIds = grupos.SelectMany(g => g.SubGrupos).SelectMany(sg => sg.PermissoesEstabelecimentos).Where(pe => pe.Seletor.EstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.EstabelecimentoId!.Value).ToList();
             var redeEstabelecimentosIds = grupos.SelectMany(g => g.SubGrupos).SelectMany(sg => sg.PermissoesEstabelecimentos).Where(pe => pe.Seletor.RedeEstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.RedeEstabelecimentoId!.Value).ToList();
-            var estabelecimentos = (await (await EstabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id))).ToListAsync()).MapByUnique(e => e.Id);
-            var redeEstabelecimentos = (await (await RedesEstabelecimentosCollection.FindAsync(re => redeEstabelecimentosIds.Contains(re.Id))).ToListAsync()).MapByUnique(e => e.Id);
+            var estabelecimentos = (await EstabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id)).ToListAsync()).MapByUnique(e => e.Id);
+            var redeEstabelecimentos = (await RedesEstabelecimentosCollection.FindAsync(re => redeEstabelecimentosIds.Contains(re.Id)).ToListAsync()).MapByUnique(e => e.Id);
 
             return grupos.Select(g =>
             {

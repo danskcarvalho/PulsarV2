@@ -20,9 +20,9 @@ public partial class DominioQueries
             Sort = Builders<Dominio>.Sort.Ascending(x => x.Nome).Ascending(x => x.Id),
             Limit = limit
         };
-        var dominios = await (await DominiosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var dominios = await DominiosCollection.FindAsync(filter, findOptions).ToListAsync();
         var usuarioIds = dominios.Where(x => x.UsuarioAdministradorId.HasValue).Select(x => x.UsuarioAdministradorId!.Value).ToList();
-        var usuarios = (await (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id))).ToListAsync()).MapByUnique(x => x.Id);
+        var usuarios = (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id)).ToListAsync()).MapByUnique(x => x.Id);
         var dominiosListados = dominios.Select(x =>
         {
             var usuario = x.UsuarioAdministradorId.HasValue ? usuarios[x.UsuarioAdministradorId.Value] : null;
@@ -42,9 +42,9 @@ public partial class DominioQueries
             Sort = Builders<Dominio>.Sort.Ascending(x => x.Nome).Ascending(x => x.Id),
             Limit = limit
         };
-        var dominios = await (await DominiosCollection.FindAsync(filter, findOptions)).ToListAsync();
+        var dominios = await DominiosCollection.FindAsync(filter, findOptions).ToListAsync();
         var usuarioIds = dominios.Where(x => x.UsuarioAdministradorId.HasValue).Select(x => x.UsuarioAdministradorId!.Value).ToList();
-        var usuarios = (await (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id))).ToListAsync()).MapByUnique(x => x.Id);
+        var usuarios = (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id)).ToListAsync()).MapByUnique(x => x.Id);
         var dominiosListados = dominios.Select(x =>
         {
             var usuario = x.UsuarioAdministradorId.HasValue ? usuarios[x.UsuarioAdministradorId.Value] : null;
