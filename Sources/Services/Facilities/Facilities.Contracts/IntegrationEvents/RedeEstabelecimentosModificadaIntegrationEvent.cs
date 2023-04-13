@@ -3,21 +3,11 @@
 namespace Pulsar.Services.Facilities.Contracts.IntegrationEvents;
 
 [EventName("Facilities:RedeEstabelecimentosModificado")]
-public class RedeEstabelecimentosModificadaIntegrationEvent : IntegrationEvent
+public record RedeEstabelecimentosModificadaIntegrationEvent : IntegrationEvent
 {
-    public string RedeEstabelecimentosId { get; private set; }
-    public string DominioId { get; private set; }
-    public string Nome { get; private set; }
-    public AuditInfoDTO AuditInfo { get; private set; }
-    public ChangeEvent Modificacao { get; private set; }
-
-    [JsonConstructor]
-    public RedeEstabelecimentosModificadaIntegrationEvent(Guid id, DateTime creationDate, string redeEstabelecimentosId, string dominioId, string nome, AuditInfoDTO auditInfo, ChangeEvent modificacao) : base(id, creationDate, false)
-    {
-        RedeEstabelecimentosId = redeEstabelecimentosId;
-        Nome = nome;
-        DominioId = dominioId;
-        AuditInfo = auditInfo;
-        Modificacao = modificacao;
-    }
+    public required string RedeEstabelecimentosId { get; init; }
+    public required string DominioId { get; init; }
+    public required string Nome { get; init; }
+    public required AuditInfoDTO AuditInfo { get; init; }
+    public required ChangeEvent Modificacao { get; init; }
 }

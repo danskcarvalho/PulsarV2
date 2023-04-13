@@ -11,16 +11,14 @@ public class EnviarDominioModificadoEventoIntegracaoDomainEventHandler : Identit
 
     protected override async Task HandleAsync(DominioModificadoDomainEvent evt, CancellationToken ct)
     {
-        await EventLog.SaveEventAsync(new DominioModificadoIntegrationEvent(
-                Guid.NewGuid(),
-                DateTime.UtcNow,
-                evt.DominioId.ToString(),
-                evt.Nome,
-                evt.IsAtivo,
-                evt.AuditInfo.ToDTO(),
-                evt.UsuarioAdministradorId.ToString(),
-                evt.UsuarioAdministradorAnteriorId.ToString(),
-                evt.Modificacao
-            ));
+        await EventLog.SaveEventAsync(new DominioModificadoIntegrationEvent {
+                DominioId = evt.DominioId.ToString(),
+                Nome = evt.Nome,
+                IsAtivo = evt.IsAtivo,
+                AuditInfo = evt.AuditInfo.ToDTO(),
+                UsuarioAdministradorId = evt.UsuarioAdministradorId.ToString(),
+                UsuarioAdministradorAnteriorId = evt.UsuarioAdministradorAnteriorId.ToString(),
+                Modificacao = evt.Modificacao
+            });
     }
 }

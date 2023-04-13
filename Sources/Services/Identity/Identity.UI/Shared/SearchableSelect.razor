@@ -11,6 +11,7 @@
     ElementReference? _innerSelect;
     private string _value = string.Empty;
 
+#pragma warning disable BL0007
     [Parameter]
     public string Value
     {
@@ -24,6 +25,8 @@
             }
         }
     }
+#pragma warning restore BL0007
+
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
     [Parameter]

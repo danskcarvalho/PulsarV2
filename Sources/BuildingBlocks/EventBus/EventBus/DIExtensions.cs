@@ -16,8 +16,8 @@ public static class DIExtensions
                 sp.GetRequiredService<IEventBus>(),
                 new GenericIntegrationEventDispatcherServiceOptions()
                 {
-                    MaxConsumers = IsPositive(int.Parse(config["EventBusDispatcher:MaxConsumers"]), "MaxConsumers"),
-                    PollingTimeout = IsPositive(int.Parse(config["EventBusDispatcher:PollingTimeout"]), "PollingTimeout")
+                    MaxConsumers = IsPositive(int.Parse(config["EventBusDispatcher:MaxConsumers"]!), "MaxConsumers"),
+                    PollingTimeout = IsPositive(int.Parse(config["EventBusDispatcher:PollingTimeout"]!), "PollingTimeout")
                 });
 
         });

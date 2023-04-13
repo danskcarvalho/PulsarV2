@@ -1,18 +1,11 @@
 ﻿namespace Pulsar.BuildingBlocks.EventBus.Events;
 
-public class IntegrationEvent
+public record IntegrationEvent
 {
-    public IntegrationEvent(Guid id, DateTime creationDate)
+    public IntegrationEvent()
     {
-        Id = id;
-        CreationDate = creationDate;
-    }
-
-    public IntegrationEvent(Guid id, DateTime creationDate, bool noRetryOnFailure)
-    {
-        Id = id;
-        CreationDate = creationDate;
-        NoRetrySendOnFailure = noRetryOnFailure;
+        Id = Guid.NewGuid();
+        CreationDate = DateTime.UtcNow;
     }
 
     [JsonInclude]
@@ -21,5 +14,5 @@ public class IntegrationEvent
     [JsonInclude]
     public DateTime CreationDate { get; private init; }
     [JsonIgnore]
-    public bool NoRetrySendOnFailure { get; private init; }
+    public virtual bool NoRetrySendOnFailure => false;
 }

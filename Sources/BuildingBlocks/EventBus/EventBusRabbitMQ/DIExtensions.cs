@@ -16,18 +16,18 @@
 
                 if (!string.IsNullOrEmpty(config["RabbitMQ:UserName"]))
                 {
-                    factory.UserName = config["RabbitMQ:UserName"];
+                    factory.UserName = config["RabbitMQ:UserName"]!;
                 }
 
                 if (!string.IsNullOrEmpty(config["RabbitMQ:Password"]))
                 {
-                    factory.Password = config["RabbitMQ:Password"];
+                    factory.Password = config["RabbitMQ:Password"]!;
                 }
 
                 var retryCount = 5;
                 if (!string.IsNullOrEmpty(config["RabbitMQ:RetryCount"]))
                 {
-                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]);
+                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]!);
                 }
 
                 return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
@@ -45,7 +45,7 @@
                 var retryCount = 5;
                 if (!string.IsNullOrEmpty(config["RabbitMQ:RetryCount"]))
                 {
-                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]);
+                    retryCount = int.Parse(config["RabbitMQ:RetryCount"]!);
                 }
 
                 return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);

@@ -13,7 +13,7 @@ public static class DIExtensions
             var secretKey = config["MinIO:SecretKey"];
             var bucketName = config["MinIO:BucketName"];
 
-            var options = new MinioConfigurationSection(endpoint, publicEndpoint, accessKey, secretKey, bucketName);
+            var options = new MinioConfigurationSection(endpoint!, publicEndpoint!, accessKey!, secretKey!, bucketName!);
             var logger = sp.GetRequiredService<ILogger<MinioFileSystem>>();
             return new MinioFileSystem(logger, options);
         });

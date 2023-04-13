@@ -7,25 +7,13 @@ using System;
 namespace Pulsar.Services.Identity.Contracts.IntegrationEvents;
 
 [EventName("Identity:DominioModificado")]
-public class DominioModificadoIntegrationEvent : IntegrationEvent
+public record DominioModificadoIntegrationEvent : IntegrationEvent
 {
-    public string DominioId { get; set; }
-    public string Nome { get; set; }
-    public bool IsAtivo { get; set; }
-    public AuditInfoDTO AuditInfo { get; set; }
-    public string? UsuarioAdministradorId { get; set; }
-    public string? UsuarioAdministradorAnteriorId { get; set; }
-    public ChangeEvent Modificacao { get; set; }
-
-    public DominioModificadoIntegrationEvent(Guid id, DateTime creationDate, string dominioId, string nome, bool isAtivo, AuditInfoDTO auditInfo, string? usuarioAdministradorId, string? usuarioAdministradorAnteriorId, 
-        ChangeEvent modificacao) : base(id, creationDate)
-    {
-        DominioId = dominioId;
-        Nome = nome;
-        IsAtivo = isAtivo;
-        AuditInfo = auditInfo;
-        UsuarioAdministradorId = usuarioAdministradorId;
-        UsuarioAdministradorAnteriorId = usuarioAdministradorAnteriorId;
-        Modificacao = modificacao;
-    }
+    public required string DominioId { get; init; }
+    public required string Nome { get; init; }
+    public required bool IsAtivo { get; init; }
+    public required AuditInfoDTO AuditInfo { get; init; }
+    public required string? UsuarioAdministradorId { get; init; }
+    public required string? UsuarioAdministradorAnteriorId { get; init; }
+    public required ChangeEvent Modificacao { get; init; }
 }
