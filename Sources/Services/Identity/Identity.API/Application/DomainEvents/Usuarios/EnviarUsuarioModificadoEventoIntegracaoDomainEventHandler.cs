@@ -12,7 +12,7 @@ public class EnviarUsuarioModificadoEventoIntegracaoDomainEventHandler : Identit
 
     protected override async Task HandleAsync(UsuarioModificadoDomainEvent evt, CancellationToken ct)
     {
-        await EventLog.SaveEventAsync(new UsuarioModificadoIntegrationEvent {
+        await EventLog.SaveEventAsync(new UsuarioModificadoIE {
 
             UsuarioId = evt.UsuarioId.ToString(),
             PublicAvatarUrl = evt.PublicAvatarUrl,

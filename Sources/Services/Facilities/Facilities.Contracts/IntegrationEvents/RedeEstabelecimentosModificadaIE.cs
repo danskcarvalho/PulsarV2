@@ -3,7 +3,7 @@
 namespace Pulsar.Services.Facilities.Contracts.IntegrationEvents;
 
 [EventName("Facilities:RedeEstabelecimentosModificado")]
-public record RedeEstabelecimentosModificadaIntegrationEvent : IntegrationEvent
+public record RedeEstabelecimentosModificadaIE : IntegrationEvent
 {
     public required string RedeEstabelecimentosId { get; init; }
     public required string DominioId { get; init; }

@@ -7,7 +7,7 @@ using System;
 namespace Pulsar.Services.Identity.Contracts.IntegrationEvents;
 
 [EventName("Identity:DominioModificado")]
-public record DominioModificadoIntegrationEvent : IntegrationEvent
+public record DominioModificadoIE : IntegrationEvent
 {
     public required string DominioId { get; init; }
     public required string Nome { get; init; }

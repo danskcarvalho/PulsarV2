@@ -7,7 +7,7 @@ using System;
 namespace Pulsar.Services.Identity.Contracts.IntegrationEvents;
 
 [EventName("Identity:UsuarioModificado")]
-public record UsuarioModificadoIntegrationEvent : IntegrationEvent
+public record UsuarioModificadoIE : IntegrationEvent
 {
     public required string UsuarioId { get; init; }
     public required string? PublicAvatarUrl { get; init; }
