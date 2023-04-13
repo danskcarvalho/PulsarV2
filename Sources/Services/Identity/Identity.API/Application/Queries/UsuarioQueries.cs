@@ -29,7 +29,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             var usuario = await (await UsuariosCollection.FindAsync(u => u.Id == id)).FirstOrDefaultAsync();
             if (usuario == null)
                 return null;
-            return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.Avatar?.PublicUrl, usuario.IsSuperUsuario);
+            return new BasicUserInfoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, usuario.AvatarUrl, usuario.IsSuperUsuario);
         }, consistencyToken);
     }
 
@@ -42,7 +42,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
             var usuarios = await (await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id))).ToListAsync();
 
-            return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.Avatar?.PublicUrl, u.IsSuperUsuario));
+            return usuarios.Select(u => new BasicUserInfoDTO(u.Id.ToString(), u.PrimeiroNome, u.UltimoNome, u.NomeUsuario, u.Email, u.NomeUsuario, u.AvatarUrl, u.IsSuperUsuario));
         }, consistencyToken);
         return r.ToList();
     }
@@ -64,7 +64,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 
             return usuarios.Select(u => new UsuarioDetalhesDTO(
                     u.Id.ToString(),
-                    u.Avatar?.PublicUrl,
+                    u.AvatarUrl,
                     u.PrimeiroNome,
                     u.UltimoNome,
                     u.NomeCompleto,
@@ -183,7 +183,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         if (usuario.IsConvitePendente)
             isAtivo = false;
 
-        var result = new UsuarioLogadoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, isAtivo, usuario.IsSuperUsuario, usuario.Avatar?.PublicUrl,
+        var result = new UsuarioLogadoDTO(usuario.Id.ToString(), usuario.PrimeiroNome, usuario.UltimoNome, usuario.NomeUsuario, usuario.Email, usuario.NomeUsuario, isAtivo, usuario.IsSuperUsuario, usuario.AvatarUrl,
             permissions.Select(p => new UsuarioLogadoDTO.DominioDTO(p.DominioId.ToString(), p.DominioName, p.IsAdministrador, p.IsAdministrador || p.PermissoesGerais.Any(),
                 p.PermissoesGerais,
                 p.PermissoesEstabelecimentos.Where(e => e.Permissoes.Any()).Select(e =>

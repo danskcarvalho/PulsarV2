@@ -15,8 +15,7 @@ public class EnviarUsuarioModificadoEventoIntegracaoDEH : IdentityDomainEventHan
         await EventLog.SaveEventAsync(new UsuarioModificadoIE {
 
             UsuarioId = evt.UsuarioId.ToString(),
-            PublicAvatarUrl = evt.PublicAvatarUrl,
-            PrivateAvatarUrl = evt.PrivateAvatarUrl,
+            AvatarUrl = evt.AvatarUrl,
             PrimeiroNome = evt.PrimeiroNome,
             UltimoNome = evt.UltimoNome,
             NomeCompleto = evt.NomeCompleto,

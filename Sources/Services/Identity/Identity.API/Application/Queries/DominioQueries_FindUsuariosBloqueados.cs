@@ -16,7 +16,7 @@ public partial class DominioQueries
         {
             Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
             {
-                AvatarUrl = x.Avatar == null ? null : x.Avatar.PublicUrl,
+                AvatarUrl = x.AvatarUrl,
                 IsAtivo = x.IsAtivo,
                 Email = x.Email!,
                 IsConvitePendente = x.IsConvitePendente,
@@ -39,7 +39,7 @@ public partial class DominioQueries
         {
             Projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
             {
-                AvatarUrl = x.Avatar == null ? null : x.Avatar.PublicUrl,
+                AvatarUrl = x.AvatarUrl,
                 IsAtivo = x.IsAtivo,
                 Email = x.Email!,
                 IsConvitePendente = x.IsConvitePendente,

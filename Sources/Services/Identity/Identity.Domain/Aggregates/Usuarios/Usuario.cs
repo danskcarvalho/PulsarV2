@@ -31,7 +31,7 @@ public class Usuario : AggregateRoot
             this.IsSuperUsuario = true;
     }
 
-    public UsuarioAvatar? Avatar { get; set; }
+    public string? AvatarUrl { get; set; }
     public string TermosBusca
     {
         get => _termosBusca;
@@ -158,7 +158,7 @@ public class Usuario : AggregateRoot
 
     public void Criar()
     {
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created));
     }
 
@@ -186,7 +186,7 @@ public class Usuario : AggregateRoot
         this.UltimoNome = sobrenome;
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
@@ -197,16 +197,16 @@ public class Usuario : AggregateRoot
         this.IsAtivo = !bloquear;
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
-    public void AlterarAvatar(string publiclUrl, string internalUrl)
+    public void AlterarAvatar(string url)
     {
-        this.Avatar = new UsuarioAvatar(publiclUrl, internalUrl);
+        this.AvatarUrl = url;
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.Avatar?.PublicUrl, this.Avatar?.PrivateUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 

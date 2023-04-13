@@ -5,8 +5,7 @@ namespace Pulsar.Services.Identity.Domain.Events.Usuarios;
 public class UsuarioModificadoDE : INotification
 {
     public ObjectId UsuarioId { get; set; }
-    public string? PublicAvatarUrl { get; set; }
-    public string? PrivateAvatarUrl { get; set; }
+    public string? AvatarUrl { get; set; }
     public string PrimeiroNome { get; set; }
     public string? UltimoNome { get; set; }
     public string NomeCompleto { get; set; }
@@ -16,12 +15,11 @@ public class UsuarioModificadoDE : INotification
     public AuditInfo AuditInfo { get; set; }
     public ChangeEvent Modificacao { get; set; }
 
-    public UsuarioModificadoDE(ObjectId usuarioId, string? publicAvatarUrl, string? privateAvatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, bool isAtivo, string nomeUsuario, 
+    public UsuarioModificadoDE(ObjectId usuarioId, string? avatarUrl, string primeiroNome, string? ultimoNome, string nomeCompleto, bool isAtivo, string nomeUsuario, 
         bool isConvitePendente, AuditInfo auditInfo, ChangeEvent modificacao)
     {
         UsuarioId = usuarioId;
-        PublicAvatarUrl = publicAvatarUrl;
-        PrivateAvatarUrl = privateAvatarUrl;
+        AvatarUrl = avatarUrl;
         PrimeiroNome = primeiroNome;
         UltimoNome = ultimoNome;
         NomeCompleto = nomeCompleto;

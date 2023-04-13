@@ -10,8 +10,7 @@ namespace Pulsar.Services.Identity.Contracts.IntegrationEvents;
 public record UsuarioModificadoIE : IntegrationEvent
 {
     public required string UsuarioId { get; init; }
-    public required string? PublicAvatarUrl { get; init; }
-    public required string? PrivateAvatarUrl { get; init; }
+    public required string? AvatarUrl { get; init; }
     public required string PrimeiroNome { get; init; }
     public required string? UltimoNome { get; init; }
     public required string NomeCompleto { get; init; }
