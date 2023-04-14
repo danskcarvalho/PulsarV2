@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -6,6 +7,14 @@ namespace Pulsar.BuildingBlocks.Utils;
 
 public static class GeneralExtensions
 {
+    public static string GetOrThrow(this IConfiguration configuration, string key)
+    {
+        var v = configuration[key];
+        if (v is null)
+            throw new InvalidOperationException($"configuration key {key} not found");
+        else
+            return v;
+    }
     public static string? Truncate(this string? text, int length)
     {
         if (text is null)

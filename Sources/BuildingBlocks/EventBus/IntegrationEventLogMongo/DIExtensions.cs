@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;
+﻿using Pulsar.BuildingBlocks.Utils;
+
+namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;
 
 public static class DIExtensions
 {
@@ -7,7 +9,7 @@ public static class DIExtensions
         col.AddSingleton<IIntegrationEventLogStorage, MongoIntegrationEventLogStorage>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var settings = MongoClientSettings.FromConnectionString(config["EventBusDispatcher:MongoDB:ConnectionString"]) ?? throw new InvalidOperationException("invalid connection string");
+            var settings = MongoClientSettings.FromConnectionString(config.GetOrThrow("EventBusDispatcher:MongoDB:ConnectionString")) ?? throw new InvalidOperationException("invalid connection string");
 
             settings.RetryReads = true;
             settings.RetryWrites = true;
@@ -18,7 +20,7 @@ public static class DIExtensions
 
             var client = new MongoClient(settings);
             return new MongoIntegrationEventLogStorage(
-                client.GetDatabase(config["EventBusDispatcher:MongoDB:Database"]),
+                client.GetDatabase(config.GetOrThrow("EventBusDispatcher:MongoDB:Database")),
                 sp.GetRequiredService<ILogger<MongoIntegrationEventLogStorage>>());
         });
     }

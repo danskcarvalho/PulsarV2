@@ -27,3 +27,4 @@ global using FluentValidation;
 global using Microsoft.Extensions.Logging;
 global using Pulsar.BuildingBlocks.EventBus.Extensions;
 global using Pulsar.BuildingBlocks.DDD.Mongo.Behaviors;
+global using Pulsar.BuildingBlocks.Utils;

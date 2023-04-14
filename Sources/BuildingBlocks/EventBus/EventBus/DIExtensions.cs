@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using System.Reflection;
+using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.EventBus;
 
@@ -16,8 +17,8 @@ public static class DIExtensions
                 sp.GetRequiredService<IEventBus>(),
                 new GenericIntegrationEventDispatcherServiceOptions()
                 {
-                    MaxConsumers = IsPositive(int.Parse(config["EventBusDispatcher:MaxConsumers"]!), "MaxConsumers"),
-                    PollingTimeout = IsPositive(int.Parse(config["EventBusDispatcher:PollingTimeout"]!), "PollingTimeout")
+                    MaxConsumers = IsPositive(int.Parse(config.GetOrThrow("EventBusDispatcher:MaxConsumers")), "MaxConsumers"),
+                    PollingTimeout = IsPositive(int.Parse(config.GetOrThrow("EventBusDispatcher:PollingTimeout")), "PollingTimeout")
                 });
 
         });

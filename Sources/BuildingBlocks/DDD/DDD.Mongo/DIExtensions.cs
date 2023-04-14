@@ -30,9 +30,9 @@ public static class DIExtensions
         col.AddSingleton<MongoDbSessionFactory>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var connStr = config["MongoDB:ConnectionString"]!;
-            var database = config["MongoDB:Database"]!;
-            var clusterName = config["MongoDB:ClusterName"]!;
+            var connStr = config.GetOrThrow("MongoDB:ConnectionString");
+            var database = config.GetOrThrow("MongoDB:Database");
+            var clusterName = config.GetOrThrow("MongoDB:ClusterName");
 
             return new MongoDbSessionFactory(connStr, database, clusterName, () => sp.GetRequiredService<IMediator>());
         });

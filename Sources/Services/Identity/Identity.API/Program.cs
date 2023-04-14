@@ -28,12 +28,12 @@ builder.Services.AddTransient<IdentityQueriesContext>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
     return new IdentityQueriesContext(
         sp.GetRequiredService<MongoDbSessionFactory>(),
-        configuration["MongoDB:ClusterName"]!);
+        configuration.GetOrThrow("MongoDB:ClusterName"));
 });
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
 builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
 {
-    options.Authority = builder.Configuration["IdentityServer:Authority"];
+    options.Authority = builder.Configuration.GetOrThrow("IdentityServer:Authority");
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateAudience = false
@@ -56,8 +56,8 @@ builder.Services.AddSwaggerGen(options =>
         {
             AuthorizationCode = new OpenApiOAuthFlow()
             {
-                AuthorizationUrl = new Uri(builder.Configuration["IdentityServer:AuthorizationUrl"]!),
-                TokenUrl = new Uri(builder.Configuration["IdentityServer:TokenUrl"]!),
+                AuthorizationUrl = new Uri(builder.Configuration.GetOrThrow("IdentityServer:AuthorizationUrl")),
+                TokenUrl = new Uri(builder.Configuration.GetOrThrow("IdentityServer:TokenUrl")),
                 Scopes = AllApiScopes.Resources.Where(s => s.Name == "identity.*").ToDictionary(s => (s.Name, s.Description))
             }
         }

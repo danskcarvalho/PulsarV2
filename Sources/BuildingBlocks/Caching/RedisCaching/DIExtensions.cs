@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pulsar.BuildingBlocks.Caching.Abstractions;
 using StackExchange.Redis;
+using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.RedisCaching;
 
@@ -13,7 +14,7 @@ public static class DIExtensions
         col.AddSingleton(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            return ConnectionMultiplexer.Connect(config["Redis:ConnectionString"]);
+            return ConnectionMultiplexer.Connect(config.GetOrThrow("Redis:ConnectionString"));
         });
         col.AddSingleton<ICacheServer>(sp =>
         {

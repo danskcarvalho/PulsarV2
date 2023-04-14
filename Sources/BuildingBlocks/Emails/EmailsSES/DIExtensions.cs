@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.EmailsSES;
+﻿using Pulsar.BuildingBlocks.Utils;
+
+namespace Pulsar.BuildingBlocks.EmailsSES;
 
 public static class DIExtensions
 {
@@ -8,10 +10,10 @@ public static class DIExtensions
         col.AddTransient<IEmailService, SESEmailService>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var fromName = config["AmazonSES:FromName"]!;
-            var fromEmail = config["AmazonSES:FromEmail"]!;
-            var awsProfile = config["AmazonSES:AwsProfile"]!;
-            var region = config["AmazonSES:Region"]!;
+            var fromName = config.GetOrThrow("AmazonSES:FromName");
+            var fromEmail = config.GetOrThrow("AmazonSES:FromEmail");
+            var awsProfile = config.GetOrThrow("AmazonSES:AwsProfile");
+            var region = config.GetOrThrow("AmazonSES:Region");
 
             var options = new SESConfigurationSection(fromName, fromEmail, awsProfile, region);
             var renderer = sp.GetRequiredService<IViewRenderService>();

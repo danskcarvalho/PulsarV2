@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.Migrations;
+﻿using Pulsar.BuildingBlocks.Utils;
+
+namespace Pulsar.BuildingBlocks.Migrations;
 
 public static class DIExtensions
 {
@@ -14,8 +16,8 @@ public static class DIExtensions
         col.AddSingleton<MongoDbSessionFactory>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var connStr = config["MongoDB:ConnectionString"]!;
-            var database = config["MongoDB:Database"]!;
+            var connStr = config.GetOrThrow("MongoDB:ConnectionString");
+            var database = config.GetOrThrow("MongoDB:Database");
 
             return new MongoDbSessionFactory(connStr, database, null, () => sp.GetRequiredService<IMediator>());
         });

@@ -23,7 +23,7 @@ public class EnviarEmailUsuarioConvidadoDEH : IdentityDomainEventHandler<Usuario
 
     private async void EnviarEmail(UsuarioConvidadoDE evt)
     {
-        var url = _configuration["AceitarConviteUrl"]!.Replace("{TOKEN}", evt.TokenAceitacao).Replace("{CONVITEID}", evt.ConviteId.ToString());
+        var url = _configuration.GetOrThrow("AceitarConviteUrl").Replace("{TOKEN}", evt.TokenAceitacao).Replace("{CONVITEID}", evt.ConviteId.ToString());
         await _emailService.Send(new ConvidarUsuarioViewModel(evt.Email, evt.Email, url));
     }
 }
