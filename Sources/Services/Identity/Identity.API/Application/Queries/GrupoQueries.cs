@@ -1,4 +1,7 @@
-﻿using Pulsar.Services.Shared.DTOs;
+﻿using Pipelines.Sockets.Unofficial.Arenas;
+using Pulsar.BuildingBlocks.Utils.Bson;
+using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;
 
@@ -12,10 +15,18 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            if (cursor is null)
-                return await FindGruposWithoutCursor(dominioId, filtro, limit ?? 50);
-            else
-                return await FindGruposByCursor(dominioId, cursor, limit ?? 50);
+            var (grupos, next) = await GruposCollection.Paginated(limit ?? 50, cursor, new { Filtro = filtro }).FindAsync<CursorGrupoListado>(
+                 c =>
+                 {
+                     var textSearch = c.Filtro.ToTextSearch();
+                     return BSON.Create(b => b.And(
+                         textSearch,
+                         new { DominioId = b.Eq(dominioId.ToObjectId()) },
+                         new BsonDocument { ["AuditInfo.RemovidoEm"] = b.Eq(null) }));
+                 });
+
+            var gruposListados = grupos.Select(x => new GrupoListadoDTO(x.Id.ToString(), x.Nome, x.NumSubGrupos, x.NumUsuarios)).ToList();
+            return new PaginatedListDTO<GrupoListadoDTO>(gruposListados, next);
         }, consistencyToken);
     }
 
@@ -23,11 +34,36 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            if (cursor is null)
-                return await FindUsuariosWithoutCursor(dominioId, filtro, grupoId, subgrupoId, limit ?? 50);
-            else
-                return await FindUsuariosByCursor(dominioId, cursor, limit ?? 50);
+            var projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
+            {
+                AvatarUrl = x.AvatarUrl,
+                IsAtivo = x.IsAtivo,
+                IsConvitePendente = x.IsConvitePendente,
+                UltimoNome = x.UltimoNome
+            });
+
+            var (usuarios, next) = await UsuariosCollection.Paginated(limit ?? 50, cursor, new { GrupoId = grupoId, SubGrupoId = subgrupoId, Filtro = filtro }).FindAsyncWithAsyncFilter<CursorUsuarioGrupoListado, UsuarioListadoDTO>(projection,
+                 async c =>
+                 {
+                     var grupoId = c.GrupoId.ToObjectId();
+                     var grupo = await GruposCollection.FindAsync(g => g.Id == grupoId).FirstOrDefaultAsync();
+                     if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == c.SubGrupoId.ToObjectId()))
+                         return null; // return nothing
+
+                     var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(c.Filtro) });
+                     return BSON.Create(b => b.And(
+                         textSearch,
+                         new BsonDocument { ["Grupos.GrupoId"] = b.Eq(c.GrupoId.ToObjectId()) },
+                         new BsonDocument { ["Grupos.SubGrupoId"] = b.Eq(c.SubGrupoId.ToObjectId()) },
+                         new { Email = b.Ne(null) }));
+                 });
+            return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
         }, consistencyToken);
+
+        bool IsEmail(string? filtro)
+        {
+            return filtro?.Contains('@') == true;
+        }
     }
 
     public async Task<List<GrupoDetalhesDTO>> GetGrupoDetalhes(string dominioId, IEnumerable<string> grupoIds, string? consistencyToken)

@@ -62,35 +62,3 @@ public class DominioListadoDTO
         private UsuarioAdmin() { }
     }
 }
-
-public class CursorDominioListadoDTO
-{
-    public required string LastNome { get; set; }
-    public required string LastDominioId { get; set; }
-    public string? Filtro { get; set; }
-
-    [SetsRequiredMembers]
-    public CursorDominioListadoDTO(string lastNome, string lastDominioId, string? filtro)
-    {
-        LastNome = lastNome;
-        LastDominioId = lastDominioId;
-        Filtro = filtro;
-    }
-    private CursorDominioListadoDTO() { }
-
-    public CursorDominioListadoDTO? Next(List<DominioListadoDTO> dominios)
-    {
-        if (dominios == null || dominios.Count == 0)
-            return null;
-
-        return new CursorDominioListadoDTO(dominios.Last().Nome, dominios.Last().DominioId, this.Filtro);
-    }
-
-    public static CursorDominioListadoDTO? Next(List<DominioListadoDTO> dominios, string? filtro)
-    {
-        if (dominios == null || dominios.Count == 0)
-            return null;
-
-        return new CursorDominioListadoDTO(dominios.Last().Nome, dominios.Last().DominioId, filtro);
-    }
-}

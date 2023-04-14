@@ -63,7 +63,7 @@ public class BSONCreatorHelper
     {
         return new BsonDocument
         {
-            { "$and", new BsonArray(conds.Select(x => Serialize(x))) }
+            { "$and", new BsonArray(conds.Select(Serialize)) }
         };
     }
 
@@ -71,7 +71,7 @@ public class BSONCreatorHelper
     {
         return new BsonDocument
         {
-            { "$or", new BsonArray(conds.Select(x => Serialize(x))) }
+            { "$or", new BsonArray(conds.Select(Serialize)) }
         };
     }
 
@@ -110,7 +110,7 @@ public class BSONCreatorHelper
     {
         return new BsonDocument
         {
-            { "$in", new BsonArray(values.Select(x => Serialize(x))) }
+            { "$in", new BsonArray(values.Select(Serialize)) }
         };
     }
 
@@ -139,7 +139,7 @@ public class BSONCreatorHelper
             return new BsonDocument(dic);
         }
         else if (obj is IEnumerable en)
-            return new BsonArray(en.Cast<object>().Select(x => Serialize(x)));
+            return new BsonArray(en.Cast<object>().Select(Serialize));
         else if (obj is bool b)
             return new BsonBoolean(b);
         else if (obj is int i32)

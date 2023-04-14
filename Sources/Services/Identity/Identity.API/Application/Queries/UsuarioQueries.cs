@@ -1,6 +1,9 @@
-﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
+﻿using Pulsar.BuildingBlocks.Utils.Bson;
+using Pulsar.Services.Identity.API.Application.BaseTypes;
+using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Shared.DTOs;
+using System.Collections.Generic;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;
 
@@ -14,11 +17,26 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            if (filtro.Cursor is null)
-                return await FindUsuariosWithoutCursor(filtro.Filtro, filtro.Limit ?? 50);
-            else
-                return await FindUsuariosByCursor(filtro.Cursor, filtro.Limit ?? 50);
+            var projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
+            {
+                AvatarUrl = x.AvatarUrl,
+                IsAtivo = x.IsAtivo,
+                IsConvitePendente = x.IsConvitePendente,
+                UltimoNome = x.UltimoNome
+            });
+            var (usuarios, next) = await UsuariosCollection.Paginated(filtro.Limit ?? 50, filtro.Cursor, new { filtro.Filtro }).FindAsync<CursorUsuarioListado, UsuarioListadoDTO>(projection,
+            c =>
+            {
+                var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(c.Filtro) });
+                return BSON.Create(b => b.And(textSearch, new { Email = b.Ne(null) }, new { Email = b.Gt(c.LastEmail) }));
+            });
+            return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
         }, filtro.ConsistencyToken);
+
+        bool IsEmail(string? filtro)
+        {
+            return filtro?.Contains('@') == true;
+        }
     }
 
     public async Task<BasicUserInfoDTO?> GetBasicUserInfo(string usuarioId, string? consistencyToken)
