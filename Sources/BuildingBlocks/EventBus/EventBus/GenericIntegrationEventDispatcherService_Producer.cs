@@ -178,21 +178,30 @@ public partial class GenericIntegrationEventDispatcherService
                     try
                     {
                         var pollingTimeout = RandomPollingTimeout();
-                        _Logger.LogInformation($"about to sleep for 1000 milliseconds");
+                        _Logger.LogInformation($"about to sleep for {pollingTimeout} milliseconds");
                         await Task.Delay(pollingTimeout, ct);
 
-                        var cancelIfQueueIsMaxedSource = new CancellationTokenSource();
-                        var cancelIfQueueIsMaxedToken = cancelIfQueueIsMaxedSource.Token;
-                        var compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, cancelIfQueueIsMaxedToken);
+                        var cancelIfIsMaxedSource = new CancellationTokenSource();
+                        var cancelIfIsMaxedToken = cancelIfIsMaxedSource.Token;
+                        var compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, cancelIfIsMaxedToken);
                         var compositeToken = compositeTokenSource.Token;
+                        var docsBatched = 0;
+                        var checkAfterNDocs = Constants.MAX_EVENTS_ON_QUEUE / 50;
 
                         await _Storage.WatchRelevantEventLogsAsync((evt, ct2) =>
                         {
                             timeout = 1000;
-                            if (_Queue.Count >= Constants.MAX_EVENTS_ON_QUEUE)
+                            if (docsBatched >= checkAfterNDocs)
                             {
-                                cancelIfQueueIsMaxedSource.Cancel();
-                                return Task.CompletedTask;
+                                lock (_BatchedEvents)
+                                {
+                                    if (_BatchedEvents.Count >= Constants.MAX_EVENTS_ON_QUEUE)
+                                    {
+                                        cancelIfIsMaxedSource.Cancel();
+                                        return Task.CompletedTask;
+                                    }
+                                }
+                                docsBatched = 0;
                             }
 
                             if (ct2.IsCancellationRequested)
@@ -200,7 +209,10 @@ public partial class GenericIntegrationEventDispatcherService
                             if (evt.MayNeedProcessing())
                             {
                                 // we batch up to 1 second of watched events so we can process them in random order.
-                                BatchEvent(evt);
+                                var batched = BatchEvent(evt);
+                                if (batched)
+                                    docsBatched++;
+
                                 _Logger.LogInformation($"event {evt.Id} batched");
                             }
                             else
@@ -245,6 +257,12 @@ public partial class GenericIntegrationEventDispatcherService
 
                         if (ct.IsCancellationRequested)
                             break;
+
+                        lock (_Queue)
+                        {
+                            if (_Queue.Count >= Constants.MAX_EVENTS_ON_QUEUE)
+                                continue;
+                        }
 
                         var events = new List<IntegrationEventLogEntry>();
                         UnbatchEvents(events);
@@ -291,14 +309,19 @@ public partial class GenericIntegrationEventDispatcherService
             }
         }
 
-        private void BatchEvent(IntegrationEventLogEntry evt)
+        private bool BatchEvent(IntegrationEventLogEntry evt)
         {
             lock (_Queue)
             {
                 lock (_BatchedEvents)
                 {
                     if (!_EventsInQueue.Contains(evt.Id))
+                    {
                         _BatchedEvents.Add(evt);
+                        return true;
+                    }
+                    else
+                        return false;
                 }
             }
         }
