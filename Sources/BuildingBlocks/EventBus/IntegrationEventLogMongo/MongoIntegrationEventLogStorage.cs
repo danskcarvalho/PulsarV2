@@ -4,6 +4,7 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
 {
     private readonly IMongoDatabase _Database;
     private readonly IMongoCollection<IntegrationEventLogEntry> _Collection;
+    private readonly IMongoCollection<EventProducer> _Producers;
     private readonly ILogger<MongoIntegrationEventLogStorage> _Logger;
 
     public MongoIntegrationEventLogStorage(IMongoDatabase database, ILogger<MongoIntegrationEventLogStorage> logger)
@@ -13,7 +14,57 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
             .WithWriteConcern(WriteConcern.WMajority)
             .WithReadConcern(ReadConcern.Majority)
             .WithReadPreference(ReadPreference.PrimaryPreferred);
+        _Producers = _Database.GetCollection<EventProducer>(Constants.EVENT_PRODUCERS_COLLECTION_NAME)
+            .WithWriteConcern(WriteConcern.WMajority)
+            .WithReadConcern(ReadConcern.Majority)
+            .WithReadPreference(ReadPreference.PrimaryPreferred);
         _Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    public async Task<(Guid? ProducerId, int ProducerSeq, int ProducerCount)> CheckInProducer(Guid? producerId, TimeSpan producerTimeout, CancellationToken ct = default)
+    {
+        while (true)
+        {
+            using var session = await _Producers.Database.Client.StartSessionAsync(new ClientSessionOptions()
+            {
+                CausalConsistency = true
+            }, ct);
+            if (producerId == null)
+            {
+                producerId = Guid.NewGuid();
+                await _Producers.InsertOneAsync(session, new EventProducer()
+                {
+                    Id = producerId.Value,
+                    CheckedOn = DateTime.UtcNow,
+                    CreatedOn = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                var upd = Builders<EventProducer>.Update.Set(x => x.CheckedOn, DateTime.UtcNow);
+                // -- check myself
+                await _Producers.UpdateOneAsync(session, x => x.Id == producerId.Value, upd);
+            }
+
+            // -- delete unhealthy producers 
+            var timeoutLimit = DateTime.UtcNow.Add(-producerTimeout);
+            await _Producers.DeleteManyAsync(session, x => x.CheckedOn <= timeoutLimit);
+
+            // -- read producers
+            var allProducers = await (await _Producers.FindAsync(session, x => true)).ToListAsync();
+            allProducers = allProducers.OrderBy(x => x.CreatedOn).ToList();
+
+            for (int i = 0; i < allProducers.Count; i++)
+            {
+                var prod = allProducers[i];
+                if (prod.Id == producerId.Value)
+                {
+                    return (producerId.Value, i, allProducers.Count);
+                }
+            }
+
+            producerId = null;
+        }
     }
 
     public async Task MarkEventAsFailedAsync(Guid eventId, long version, CancellationToken ct)
@@ -82,12 +133,15 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
         await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
     }
 
-    public async Task<IEnumerable<IntegrationEventLogEntry>> RetrieveRelevantEventLogsAsync(int maxEvents, CancellationToken ct)
+    public async Task<IEnumerable<IntegrationEventLogEntry>> RetrieveRelevantEventLogsAsync(int maxEvents, int producerSeq, int producersCount, CancellationToken ct)
     {
         var list = await (await _Collection.FindAsync(
-            e => (e.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > e.ScheduledOn) ||
+            e => 
+                 e.TimeStamp % producersCount == producerSeq &&
+                 ((e.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > e.ScheduledOn) ||
+                 (e.Status == IntegrationEventStatus.Pending && e.ScheduledOn == null) ||
                  (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressExpirationDate) || 
-                 (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressRestore),
+                 (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressRestore)),
             new FindOptions<IntegrationEventLogEntry, IntegrationEventLogEntry>()
             {
                 Limit = maxEvents,
@@ -97,7 +151,7 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
         return list;
     }
 
-    public async Task WatchRelevantEventLogsAsync(Func<IntegrationEventLogEntry, CancellationToken, Task> onNewEvent, CancellationToken ct)
+    public async Task WatchRelevantEventLogsAsync(Func<IntegrationEventLogEntry, CancellationToken, Task> onNewEvent, int producerSeq, int producersCount, CancellationToken ct)
     {
         int timeout = 1000;
         while (true)
@@ -108,7 +162,13 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
             {
                 var pipeline =
                     new EmptyPipelineDefinition<ChangeStreamDocument<IntegrationEventLogEntry>>()
-                    .Match(x => x.OperationType == ChangeStreamOperationType.Insert);
+                    .Match(x => 
+                        x.OperationType == ChangeStreamOperationType.Insert &&
+                        x.FullDocument.TimeStamp % producersCount == producerSeq &&
+                        ((x.FullDocument.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > x.FullDocument.ScheduledOn) ||
+                         (x.FullDocument.Status == IntegrationEventStatus.Pending && x.FullDocument.ScheduledOn == null) ||
+                         (x.FullDocument.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > x.FullDocument.InProgressExpirationDate) ||
+                         (x.FullDocument.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > x.FullDocument.InProgressRestore)));
                 using (var cursor = await _Collection.WatchAsync(pipeline))
                 {
                     await cursor.ForEachAsync(async change =>

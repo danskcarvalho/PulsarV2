@@ -18,6 +18,7 @@ public class IntegrationEventLogEntry
     public bool NoRetryOnFailure { get; set; }
     public DateTime CreatedOn { get; private set; }
     public long Version { get; private set; }
+    public long TimeStamp { get; private set; }
     public List<IntegrationEventLogEntrySendAttempt> Attempts { get; private set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -52,6 +53,7 @@ public class IntegrationEventLogEntry
         NoRetryOnFailure = @event.NoRetrySendOnFailure;
         ScheduledOn = DateTime.UtcNow;
         Version = 1;
+        TimeStamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
     }
 
     public bool MayNeedProcessing()
