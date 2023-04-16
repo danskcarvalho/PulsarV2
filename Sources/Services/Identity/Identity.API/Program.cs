@@ -15,9 +15,9 @@ builder.Services.AddMediatR(c =>
 {
     c.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
-builder.Services.AddSESEmailSupport();
+builder.Services.AddAzureEmails();
 builder.Services.AddRedisCache();
-builder.Services.AddMinio();
+builder.Services.AddAzureBlobStorage();
 builder.Services.AddTransient<IdentityControllerContext>();
 builder.Services.AddSingleton<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
 builder.Services.AddTransient(typeof(IdentityCommandHandlerContext<>));

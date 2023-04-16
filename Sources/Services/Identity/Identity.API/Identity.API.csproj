@@ -28,9 +28,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsSES\EmailsSES.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsAzure\EmailsAzure.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\Emails\Emails.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\FileSystem\FileSystemMinio\FileSystemMinio.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\FileSystem\FileSystemAzure\FileSystemAzure.csproj" />
     <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />

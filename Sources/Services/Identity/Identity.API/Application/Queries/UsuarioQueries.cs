@@ -28,7 +28,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             c =>
             {
                 var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(c.Filtro) });
-                return BSON.Create(b => b.And(textSearch, new { Email = b.Ne(null) }, new { Email = b.Gt(c.LastEmail) }));
+                return BSON.Create(b => b.And(textSearch, new { Email = b.Ne(null) }));
             });
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
         }, filtro.ConsistencyToken);

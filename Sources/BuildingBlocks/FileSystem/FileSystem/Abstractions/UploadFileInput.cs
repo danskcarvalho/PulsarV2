@@ -6,6 +6,7 @@ public class UploadFileInput
     public Stream Content { get; }
     public int? ContentLength { get; set; }
     public string? ContentType { get; set; }
+    public bool IsPublic { get; set; }
 
     public UploadFileInput(string fileName, Stream content)
     {

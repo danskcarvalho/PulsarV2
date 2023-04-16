@@ -2,12 +2,12 @@
 
 public class UploadFileOutput
 {
-    public string InternalUrl { get; }
-    public string PubliclUrl { get; }
+    public string Url { get; }
+    public string Key { get; }
 
-    public UploadFileOutput(string internalUrl, string publiclUrl)
+    public UploadFileOutput(string url, string key)
     {
-        InternalUrl = internalUrl;
-        PubliclUrl = publiclUrl;
+        Url = url;
+        Key = key;
     }
 }

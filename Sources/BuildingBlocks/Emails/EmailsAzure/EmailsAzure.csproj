@@ -8,17 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.103.47" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Azure.Communication.Email" Version="1.0.0" />
+    <PackageReference Include="Azure.Identity" Version="1.8.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Minio" Version="4.0.7" />
     <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Utils\Utils\Utils.csproj" />
-    <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+    <ProjectReference Include="..\Emails\Emails.csproj" />
   </ItemGroup>
 
 </Project>

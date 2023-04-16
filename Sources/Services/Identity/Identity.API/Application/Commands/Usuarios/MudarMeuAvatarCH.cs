@@ -20,14 +20,18 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
     {
         var img = _imageManipulationProvider.Resize(cmd.Stream, MaxImageWidth);
         using var ms = new MemoryStream(img.FileContents);
-        var url = await _fileSystem.UploadFileAsync(new UploadFileInput("avatars/" + Guid.NewGuid().ToString() + ".jpg", ms), ct);
+        var url = await _fileSystem.UploadFileAsync(new UploadFileInput(Guid.NewGuid().ToString() + ".jpg", ms)
+        {
+            IsPublic = true,
+            ContentType = "image/jpeg"
+        }, ct);
 
         return await Session.OpenTransactionAsync(async ct2 =>
         {
             var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioLogadoId.ToObjectId(), ct2);
             if (usuario == null)
                 throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-            usuario.AlterarAvatar(url.PubliclUrl);
+            usuario.AlterarAvatar(url.Url);
             await UsuarioRepository.ReplaceOneAsync(usuario, ct: ct2);
             return new CommandResult(Session.ConsistencyToken);
         }, ct: ct);
