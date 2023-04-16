@@ -111,11 +111,11 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
                     .Match(x => x.OperationType == ChangeStreamOperationType.Insert);
                 using (var cursor = await _Collection.WatchAsync(pipeline))
                 {
-                    await cursor.ForEachAsync(change =>
+                    await cursor.ForEachAsync(async change =>
                     {
                         timeout = 1000;
                         if (change.FullDocument.MayNeedProcessing())
-                            onNewEvent(change.FullDocument, ct);
+                            await onNewEvent(change.FullDocument, ct);
                     }, ct);
                 }
             }

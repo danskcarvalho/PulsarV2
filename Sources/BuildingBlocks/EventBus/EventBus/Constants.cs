@@ -12,6 +12,6 @@ namespace Pulsar.BuildingBlocks.EventBus
         public const int MAX_ATTEMPTS = 5;
         public const int IN_PROGRESS_TIMEOUT_IN_HOURS = 48;
         public const int IN_PROGRESS_RESTORE_IN_HOURS = 3;
-        public const int MAX_EVENTS_ON_QUEUE = 500000;
+        public const int MAX_EVENTS_ON_QUEUE = 10000;
     }
 }
