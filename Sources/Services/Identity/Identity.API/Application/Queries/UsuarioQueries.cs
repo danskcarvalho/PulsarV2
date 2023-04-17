@@ -180,14 +180,15 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .Select(sg => sg.Seletor.EstabelecimentoId != null ?
                     (Estabelecimentos: new[] { allEstabelecimentos.First(e => e.Id == sg.Seletor.EstabelecimentoId) }, Permissoes: sg) :
                     (Estabelecimentos: allEstabelecimentos.Where(e => e.Redes.Contains(sg.Seletor.RedeEstabelecimentoId!.Value)).ToArray(), Permissoes: sg))
-                .SelectMany(sg => sg.Estabelecimentos.Select(e => (Estabelecimento: e, Permissoes: sg.Item2)))
+                .SelectMany(sg => sg.Estabelecimentos.Select(e => (Estabelecimento: e, Permissoes: sg.Permissoes)))
                 .Where(sg => sg.Estabelecimento.IsAtivo)
                 .GroupBy(sg => sg.Estabelecimento.Id)
                 .Select(sg => new
                 {
                     Estabelecimento = sg.First().Estabelecimento,
                     Permissoes = sg.SelectMany(sg2 => sg2.Permissoes.Permissoes).Distinct().ToList()
-                }).ToList()
+                })
+                .ToList()
         }).ToList();
 
         var isAtivo = usuario.IsAtivo;
