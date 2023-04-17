@@ -1,6 +1,4 @@
-﻿using Pulsar.Services.Shared.DTOs;
-
-namespace Pulsar.Services.Facilities.Contracts.IntegrationEvents;
+﻿namespace Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
 
 [EventName("Facilities:RedeEstabelecimentosModificado")]
 public record RedeEstabelecimentosModificadaIE : IntegrationEvent

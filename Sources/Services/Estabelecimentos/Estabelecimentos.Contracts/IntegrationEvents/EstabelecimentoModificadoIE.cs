@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Facilities.Contracts.IntegrationEvents;
+﻿namespace Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
 
 [EventName("Facilities:EstabelecimentoModificado")]
 public record EstabelecimentoModificadoIE : IntegrationEvent
