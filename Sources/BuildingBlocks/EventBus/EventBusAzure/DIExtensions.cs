@@ -4,7 +4,7 @@ public static class DIExtensions
 {
     public static void AddAzureEventBus(this IServiceCollection col)
     {
-        col.AddScoped<IEventBus>(sp =>
+        col.AddSingleton<IEventBus>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var logger = sp.GetRequiredService<ILogger<AzureEventBusService>>();
