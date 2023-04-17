@@ -61,15 +61,18 @@ public partial class GenericIntegrationEventDispatcherService
 
         private async Task PopAndRunEvent(CancellationToken ct)
         {
-            var evt = await _Producer.Pop(ct);
+            var evts = await _Producer.Pop(ct);
 
-            if (evt.Status == IntegrationEventStatus.Pending)
-                await RunPendingEvent(evt, ct);
-            else if (evt.Status == IntegrationEventStatus.InProgress)
-                await RunInProgressEvent(evt, ct);
+            var pending = evts.Where(e => e.Status == IntegrationEventStatus.Pending).ToList();
+            var inProgress = evts.Where(e => e.Status == IntegrationEventStatus.InProgress).ToList();
+
+            if (pending.Count != 0)
+                await RunPendingEvents(pending, ct);
+            if (inProgress.Count != 0)
+                await RunInProgressEvents(inProgress, ct);
         }
 
-        private async Task RunInProgressEvent(IntegrationEventLogEntry evt, CancellationToken ct)
+        private async Task RunInProgressEvents(List<IntegrationEventLogEntry> evts, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 return;
@@ -81,34 +84,37 @@ public partial class GenericIntegrationEventDispatcherService
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt) * 0.5 + Math.Pow(2, retryAttempt) * Random.Shared.NextDouble()),
                         (e, ts) =>
                         {
-                            _Logger.LogError(e, "error while restoring event");
+                            _Logger.LogError(e, "error while restoring events");
                             _Logger.LogInformation($"will retry in {(int)ts.TotalSeconds} seconds");
                         });
 
-                if (DateTime.UtcNow > evt.InProgressExpirationDate)
+                var inProgressExpirationDate = evts.Where(e => DateTime.UtcNow > e.InProgressExpirationDate).ToList();
+                var inProgressRestore = evts.Where(e => DateTime.UtcNow > e.InProgressRestore).ToList();
+
+                if (inProgressExpirationDate.Count != 0)
                 {
                     await retryPolicy.ExecuteAsync(async () =>
                     {
                         // -- no cancelation possible to not corrupt data
-                        await _Storage.MarkEventAsFailedAsync(evt.Id, evt.Version);
+                        await _Storage.MarkEventsAsFailedAsync(inProgressExpirationDate.Select(e => (e.Id, e.Version)).ToList());
                     });
                 }
-                else if (DateTime.UtcNow > evt.InProgressRestore)
+                if (inProgressRestore.Count != 0)
                 {
                     await retryPolicy.ExecuteAsync(async () =>
                     {
                         // -- no cancelation possible to not corrupt data
-                        await _Storage.RestoreEventAsync(evt.Id, evt.Version);
+                        await _Storage.RestoreEventsAsync(inProgressRestore.Select(e => (e.Id, e.Version)).ToList());
                     });
                 }
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, "error while restoring event");
+                _Logger.LogError(e, "error while restoring events");
             }
         }
 
-        private async Task RunPendingEvent(IntegrationEventLogEntry evt, CancellationToken ct)
+        private async Task RunPendingEvents(List<IntegrationEventLogEntry> evts, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 return;
@@ -116,12 +122,15 @@ public partial class GenericIntegrationEventDispatcherService
             {
                 // -- only initializes the job if its pending
                 // -- no cancelation possible from this point forward to not corrupt data
-                bool bInitialized = await _Storage.MarkEventAsInProgressAsync(evt.Id,
+                var hInitialized = await _Storage.MarkEventsAsInProgressAsync(evts.Select(e => e.Id).ToList(),
                     DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_RESTORE_IN_HOURS),
                     DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_TIMEOUT_IN_HOURS));
 
-                if (bInitialized)
+                if (hInitialized.Count != 0)
                 {
+                    // -- only the initialized ones
+                    evts = evts.Where(e => hInitialized.Contains(e.Id)).ToList();
+
                     var retryPolicy = Policy
                         .Handle<Exception>(e => true)
                         .WaitAndRetryAsync(3,
@@ -132,78 +141,90 @@ public partial class GenericIntegrationEventDispatcherService
                                 _Logger.LogInformation($"will retry in {(int)ts.TotalSeconds} seconds");
                             });
 
-                    var wasPublished = false;
-                    try
+                    foreach (var pubResult in await PublishEvents(evts))
                     {
-                        // -- PublishEvent should have its own retry logic
-                        await PublishEvent(evt);
-                        wasPublished = true;
-                    }
-                    catch (Exception e)
-                    {
-                        _Logger.LogError(e, "error while publish event");
-
-                        evt.Attempts.Add(new IntegrationEventLogEntrySendAttempt(DateTime.UtcNow, SerializeException(e), e.GetType().FullName));
-
-                        var putFailedState = false;
-                        if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
+                        if (pubResult.Exception == null)
                         {
-                            if (evt.ScheduledOn is not null)
-                                evt.ScheduledOn = evt.ScheduledOn?.AddMinutes(2 * evt.Attempts.Count);
-                            else
-                                evt.ScheduledOn = DateTime.UtcNow.AddMinutes(2 * evt.Attempts.Count);
+                            var events = evts.Where(e => pubResult.Ids.Contains(e.Id)).ToList();
+                            foreach (var evt in events)
+                            {
+                                evt.Attempts.Add(new IntegrationEventLogEntrySendAttempt(DateTime.UtcNow));
+                            }
 
                             try
                             {
                                 await retryPolicy.ExecuteAsync(async () =>
                                 {
-                                    await _Storage.RescheduleEventAsync(evt.Id, evt.Attempts, evt.ScheduledOn!.Value);
+                                    await _Storage.MarkEventsAsPublishedAsync(events.Select(e => (e.Id, e.Attempts)).ToList());
                                 });
                             }
-                            catch (Exception e2)
+                            catch (Exception e)
                             {
-                                _Logger.LogError(e2, "error while managing event table [RescheduleEventAsync]");
+                                _Logger.LogError(e, "error while managing event table [MarkEventAsPublishedAsync]");
                             }
                         }
                         else
-                            putFailedState = true;
-
-                        if (putFailedState)
                         {
-                            try
+                            _Logger.LogError(pubResult.Exception, "error while publish event");
+
+                            var events = evts.Where(e => pubResult.Ids.Contains(e.Id)).ToList();
+                            var rescheduledEvents = new List<IntegrationEventLogEntry>();
+                            var failedEvents = new List<IntegrationEventLogEntry>();
+
+                            foreach (var evt in events)
                             {
-                                await retryPolicy.ExecuteAsync(async () =>
+                                evt.Attempts.Add(new IntegrationEventLogEntrySendAttempt(DateTime.UtcNow, SerializeException(pubResult.Exception), pubResult.Exception.GetType().FullName));
+                                if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
                                 {
-                                    await _Storage.MarkEventAsFailedAsync(evt.Id, evt.Attempts);
-                                });
-                            }
-                            catch (Exception e2)
-                            {
-                                _Logger.LogError(e2, "error while managing event table [MarkEventAsFailedAsync]");
-                            }
-                        }
-                    }
+                                    if (evt.ScheduledOn is not null)
+                                        evt.ScheduledOn = evt.ScheduledOn?.AddMinutes(2 * evt.Attempts.Count);
+                                    else
+                                        evt.ScheduledOn = DateTime.UtcNow.AddMinutes(2 * evt.Attempts.Count);
 
-                    if (wasPublished)
-                    {
-                        evt.Attempts.Add(new IntegrationEventLogEntrySendAttempt(DateTime.UtcNow));
-                        try
-                        {
-                            await retryPolicy.ExecuteAsync(async () =>
+                                    rescheduledEvents.Add(evt);
+                                }
+                                else
+                                {
+                                    failedEvents.Add(evt);
+                                }
+                            }
+
+                            if (rescheduledEvents.Count != 0)
                             {
-                                await _Storage.MarkEventAsPublishedAsync(evt.Id, evt.Attempts);
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            _Logger.LogError(e, "error while managing event table [MarkEventAsPublishedAsync]");
+                                try
+                                {
+                                    await retryPolicy.ExecuteAsync(async () =>
+                                    {
+                                        await _Storage.RescheduleEventsAsync(rescheduledEvents.Select(e => (e.Id, e.Attempts, e.ScheduledOn!.Value)).ToList());
+                                    });
+                                }
+                                catch (Exception e2)
+                                {
+                                    _Logger.LogError(e2, "error while managing event table [RescheduleEventAsync]");
+                                }
+                            }
+
+                            if (failedEvents.Count != 0)
+                            {
+                                try
+                                {
+                                    await retryPolicy.ExecuteAsync(async () =>
+                                    {
+                                        await _Storage.MarkEventsAsFailedAsync(failedEvents.Select(e => (e.Id, e.Attempts)).ToList());
+                                    });
+                                }
+                                catch (Exception e2)
+                                {
+                                    _Logger.LogError(e2, "error while managing event table [MarkEventAsFailedAsync]");
+                                }
+                            }
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, "error while publishing event");
+                _Logger.LogError(e, "error while publishing events");
             }
         }
 
@@ -226,10 +247,9 @@ public partial class GenericIntegrationEventDispatcherService
             }
         }
 
-        private Task PublishEvent(IntegrationEventLogEntry evt)
+        private async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> PublishEvents(List<IntegrationEventLogEntry> evts)
         {
-            _EventBus.Publish(evt.IntegrationEvent);
-            return Task.CompletedTask;
+            return await _EventBus.Publish(evts.Select(e => e.IntegrationEvent));
         }
     }
 }

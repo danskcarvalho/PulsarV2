@@ -1,4 +1,7 @@
-﻿namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;
+﻿using Microsoft.Extensions.Logging;
+using System;
+
+namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;
 
 public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
 {
@@ -67,80 +70,126 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
         }
     }
 
-    public async Task MarkEventAsFailedAsync(Guid eventId, long version, CancellationToken ct)
+    public async Task CheckOutProducer(Guid producerId, CancellationToken ct = default)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId && evt.Version == version);
-        var update = Builders<IntegrationEventLogEntry>.Update
-            .Inc(evt => evt.Version, 1)
-            .Set(evt => evt.Status, IntegrationEventStatus.Failed);
-        await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        await _Producers.DeleteOneAsync(x => x.Id == producerId, ct);
     }
 
-    public async Task MarkEventAsFailedAsync(Guid eventId, List<IntegrationEventLogEntrySendAttempt> attempts, CancellationToken ct)
+    public async Task MarkEventsAsFailedAsync(List<(Guid EventId, long Version)> events, CancellationToken ct)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
-        var update = Builders<IntegrationEventLogEntry>.Update
-            .Inc(evt => evt.Version, 1)
-            .Set(evt => evt.Status, IntegrationEventStatus.Failed)
-            .Set(evt => evt.Attempts, attempts);
-        await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        var listWrites = new List<WriteModel<IntegrationEventLogEntry>>();
+        foreach (var (eventId, version) in events)
+        {
+            var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId && evt.Version == version);
+            var update = Builders<IntegrationEventLogEntry>.Update
+                .Inc(evt => evt.Version, 1)
+                .Set(evt => evt.Status, IntegrationEventStatus.Failed);
+
+            listWrites.Add(new UpdateOneModel<IntegrationEventLogEntry>(filter, update));
+        }
+        
+        await _Collection.BulkWriteAsync(listWrites, cancellationToken: ct);
     }
 
-    public async Task<bool> MarkEventAsInProgressAsync(Guid eventId, DateTime restorationDate, DateTime expirationDate, CancellationToken ct)
+    public async Task MarkEventsAsFailedAsync(List<(Guid EventId, List<IntegrationEventLogEntrySendAttempt> Attempts)> events, CancellationToken ct)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId && evt.Status == IntegrationEventStatus.Pending);
+        var listWrites = new List<WriteModel<IntegrationEventLogEntry>>();
+        foreach (var (eventId, attempts) in events)
+        {
+            var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
+            var update = Builders<IntegrationEventLogEntry>.Update
+                .Inc(evt => evt.Version, 1)
+                .Set(evt => evt.Status, IntegrationEventStatus.Failed)
+                .Set(evt => evt.Attempts, attempts);
+
+            listWrites.Add(new UpdateOneModel<IntegrationEventLogEntry>(filter, update));
+        }
+
+        await _Collection.BulkWriteAsync(listWrites, cancellationToken: ct);
+    }
+
+    public async Task<HashSet<Guid>> MarkEventsAsInProgressAsync(List<Guid> eventIds, DateTime restorationDate, DateTime expirationDate, CancellationToken ct)
+    {
+        using var session = await _Producers.Database.Client.StartSessionAsync(new ClientSessionOptions()
+        {
+            CausalConsistency = true
+        }, ct);
+
+        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => eventIds.Contains(evt.Id) && evt.Status == IntegrationEventStatus.Pending);
         var update = Builders<IntegrationEventLogEntry>.Update
             .Inc(evt => evt.Version, 1)
             .Set(evt => evt.Status, IntegrationEventStatus.InProgress)
             .Set(evt => evt.InProgressRestore, restorationDate)
             .Set(evt => evt.InProgressExpirationDate, expirationDate);
-        var r = await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
-        return r.IsAcknowledged && r.ModifiedCount > 0;
+        await _Collection.UpdateManyAsync(session, filter, update, cancellationToken: ct);
+        var entries = await (await _Collection.FindAsync<IntegrationEventLogEntry>(session, evt => eventIds.Contains(evt.Id) && evt.Status == IntegrationEventStatus.InProgress)).ToListAsync();
+        return new HashSet<Guid>(entries.Select(e => e.Id));
     }
 
-    public async Task MarkEventAsPublishedAsync(Guid eventId, List<IntegrationEventLogEntrySendAttempt> attempts, CancellationToken ct)
+    public async Task MarkEventsAsPublishedAsync(List<(Guid EventId, List<IntegrationEventLogEntrySendAttempt> Attempts)> events, CancellationToken ct)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
-        var update = Builders<IntegrationEventLogEntry>.Update
-            .Inc(evt => evt.Version, 1)
-            .Set(evt => evt.Status, IntegrationEventStatus.Published)
-            .Set(evt => evt.Attempts, attempts);
-        await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        var listWrites = new List<WriteModel<IntegrationEventLogEntry>>();
+        foreach (var (eventId, attempts) in events)
+        {
+            var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
+            var update = Builders<IntegrationEventLogEntry>.Update
+                .Inc(evt => evt.Version, 1)
+                .Set(evt => evt.Status, IntegrationEventStatus.Published)
+                .Set(evt => evt.Attempts, attempts);
+
+            listWrites.Add(new UpdateOneModel<IntegrationEventLogEntry>(filter, update));
+        }
+
+        await _Collection.BulkWriteAsync(listWrites, cancellationToken: ct);
     }
 
-    public async Task RescheduleEventAsync(Guid eventId, List<IntegrationEventLogEntrySendAttempt> attempts, DateTime scheduledOn, CancellationToken ct)
+    public async Task RescheduleEventsAsync(List<(Guid EventId, List<IntegrationEventLogEntrySendAttempt> Attempts, DateTime ScheduledOn)> events, CancellationToken ct)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
-        var update = Builders<IntegrationEventLogEntry>.Update
-            .Inc(evt => evt.Version, 1)
-            .Set(evt => evt.Status, IntegrationEventStatus.Pending)
-            .Set(evt => evt.InProgressExpirationDate, null)
-            .Set(evt => evt.InProgressRestore, null)
-            .Set(evt => evt.ScheduledOn, scheduledOn)
-            .Set(evt => evt.Attempts, attempts);
-        await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        var listWrites = new List<WriteModel<IntegrationEventLogEntry>>();
+        foreach (var (eventId, attempts, scheduledOn) in events)
+        {
+            var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId);
+            var update = Builders<IntegrationEventLogEntry>.Update
+                .Inc(evt => evt.Version, 1)
+                .Set(evt => evt.Status, IntegrationEventStatus.Pending)
+                .Set(evt => evt.InProgressExpirationDate, null)
+                .Set(evt => evt.InProgressRestore, null)
+                .Set(evt => evt.ScheduledOn, scheduledOn)
+                .Set(evt => evt.Attempts, attempts);
+
+            listWrites.Add(new UpdateOneModel<IntegrationEventLogEntry>(filter, update));
+        }
+
+        await _Collection.BulkWriteAsync(listWrites, cancellationToken: ct);
     }
 
-    public async Task RestoreEventAsync(Guid eventId, long version, CancellationToken ct)
+    public async Task RestoreEventsAsync(List<(Guid EventId, long Version)> events, CancellationToken ct)
     {
-        var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId && evt.Version == version);
-        var update = Builders<IntegrationEventLogEntry>.Update
-            .Inc(evt => evt.Version, 1)
-            .Set(evt => evt.Status, IntegrationEventStatus.Pending)
-            .Set(evt => evt.InProgressExpirationDate, null)
-            .Set(evt => evt.InProgressRestore, null)
-            .Set(evt => evt.ScheduledOn, DateTime.UtcNow);
-        await _Collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        var listWrites = new List<WriteModel<IntegrationEventLogEntry>>();
+        foreach (var (eventId, version) in events)
+        {
+            var filter = Builders<IntegrationEventLogEntry>.Filter.Where(evt => evt.Id == eventId && evt.Version == version);
+            var update = Builders<IntegrationEventLogEntry>.Update
+                .Inc(evt => evt.Version, 1)
+                .Set(evt => evt.Status, IntegrationEventStatus.Pending)
+                .Set(evt => evt.InProgressExpirationDate, null)
+                .Set(evt => evt.InProgressRestore, null)
+                .Set(evt => evt.ScheduledOn, DateTime.UtcNow);
+
+            listWrites.Add(new UpdateOneModel<IntegrationEventLogEntry>(filter, update));
+        }
+
+        await _Collection.BulkWriteAsync(listWrites, cancellationToken: ct);
     }
 
     public async Task<IEnumerable<IntegrationEventLogEntry>> RetrieveRelevantEventLogsAsync(int maxEvents, int producerSeq, int producersCount, CancellationToken ct)
     {
         var list = await (await _Collection.FindAsync(
-            e => 
+            e =>
                  e.TimeStamp % producersCount == producerSeq &&
                  ((e.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > e.ScheduledOn) ||
                  (e.Status == IntegrationEventStatus.Pending && e.ScheduledOn == null) ||
-                 (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressExpirationDate) || 
+                 (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressExpirationDate) ||
                  (e.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > e.InProgressRestore)),
             new FindOptions<IntegrationEventLogEntry, IntegrationEventLogEntry>()
             {
@@ -162,7 +211,7 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
             {
                 var pipeline =
                     new EmptyPipelineDefinition<ChangeStreamDocument<IntegrationEventLogEntry>>()
-                    .Match(x => 
+                    .Match(x =>
                         x.OperationType == ChangeStreamOperationType.Insert &&
                         x.FullDocument.TimeStamp % producersCount == producerSeq &&
                         ((x.FullDocument.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > x.FullDocument.ScheduledOn) ||
@@ -184,7 +233,7 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
                 if (ct.IsCancellationRequested)
                     break;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _Logger.LogError(ex, "error while trying to watch over collection");
                 await Task.Delay(timeout);

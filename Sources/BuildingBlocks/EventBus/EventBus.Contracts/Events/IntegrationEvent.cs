@@ -13,6 +13,4 @@ public record IntegrationEvent
 
     [JsonInclude]
     public DateTime CreationDate { get; private init; }
-    [JsonIgnore]
-    public virtual bool NoRetrySendOnFailure => false;
 }

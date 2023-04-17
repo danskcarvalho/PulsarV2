@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pulsar.BuildingBlocks.Utils;
 using System.Collections.Generic;
 
 namespace Pulsar.BuildingBlocks.EventBus;
@@ -7,7 +8,7 @@ public partial class GenericIntegrationEventDispatcherService
 {
     private class Producer
     {
-        private Queue<IntegrationEventLogEntry> _Queue = new Queue<IntegrationEventLogEntry>();
+        private Queue<IntegrationEventLogEntry[]> _Queue = new Queue<IntegrationEventLogEntry[]>();
         private List<IntegrationEventLogEntry> _BatchedEvents = new List<IntegrationEventLogEntry>();
         private HashSet<Guid> _EventsInQueue = new HashSet<Guid>();
         private IIntegrationEventLogStorage _Storage;
@@ -35,7 +36,7 @@ public partial class GenericIntegrationEventDispatcherService
             var c = CheckInProducer(ct);
             await Task.WhenAll(w, p, b, c);
         }
-        public async Task<IntegrationEventLogEntry> Pop(CancellationToken ct)
+        public async Task<IntegrationEventLogEntry[]> Pop(CancellationToken ct)
         {
             bool delay = false;
             while (true)
@@ -55,10 +56,10 @@ public partial class GenericIntegrationEventDispatcherService
                         continue;
                     }
 
-                    var evt = _Queue.Dequeue();
-                    _EventsInQueue.Remove(evt.Id);
-                    _Logger.LogInformation($"popped event {evt.Id}");
-                    return evt;
+                    var evts = _Queue.Dequeue();
+                    _EventsInQueue.ExceptWith(evts.Select(e => e.Id));
+                    _Logger.LogInformation($"popped event batch");
+                    return evts;
                 }
             }
         }
@@ -97,21 +98,24 @@ public partial class GenericIntegrationEventDispatcherService
                             Shuffle(events);
 
                             _Logger.LogInformation($"polled {events.Count} events");
-                            foreach (var evt in events)
+                            HashSet<Guid> enqueuedEventIds = new HashSet<Guid>();
+                            foreach (var evt in events.Where(e => e.MayNeedProcessing()).Partition(Constants.EVENT_BATCH_SIZE))
                             {
                                 if (ct.IsCancellationRequested)
                                     break;
-                                if (evt.MayNeedProcessing())
+                                var enq = Enqueue(evt.ToArray());
+                                for (int i = 0; i < evt.Count; i++)
                                 {
-                                    Enqueue(evt);
-                                    _Logger.LogInformation($"event {evt.Id} in queue");
+                                    if (enq[i])
+                                    {
+                                        enqueuedEventIds.Add(evt[i].Id);
+                                        _Logger.LogInformation($"event {evt[i].Id} in queue");
+                                    }
                                 }
-                                else
-                                    _Logger.LogInformation($"event {evt.Id} can't be processed");
                             }
 
                             // -- we wait the queue to be empty
-                            await QueueToBeEmpty(ct);
+                            await QueueWasProcessed(enqueuedEventIds, ct);
                         }
                     }
                     catch (TaskCanceledException)
@@ -156,7 +160,7 @@ public partial class GenericIntegrationEventDispatcherService
             return _random.Next(_Options.PollingTimeout);
         }
 
-        private async Task QueueToBeEmpty(CancellationToken ct)
+        private async Task QueueWasProcessed(HashSet<Guid> enqueuedEventIds, CancellationToken ct)
         {
             bool delay = false;
             while (true)
@@ -170,13 +174,17 @@ public partial class GenericIntegrationEventDispatcherService
                 }
                 lock (_Queue)
                 {
-                    if (_Queue.Count != 0)
+                    var copy = new HashSet<Guid>(enqueuedEventIds);
+                    copy.IntersectWith(_EventsInQueue);
+
+                    if (copy.Count != 0)
                     {
                         delay = true;
                         continue;
                     }
 
-                    _Logger.LogInformation($"queue is empty");
+                    _Logger.LogInformation($"queue was processed");
+                    return;
                 }
             }
         }
@@ -279,7 +287,7 @@ public partial class GenericIntegrationEventDispatcherService
 
                         lock (_Queue)
                         {
-                            if (_Queue.Count >= Constants.MAX_EVENTS_ON_QUEUE)
+                            if (_Queue.Sum(x => x.Length) >= Constants.MAX_EVENTS_ON_QUEUE)
                                 continue;
                         }
 
@@ -292,17 +300,11 @@ public partial class GenericIntegrationEventDispatcherService
                         Shuffle(events);
 
                         _Logger.LogInformation($"batched {events.Count} events");
-                        foreach (var evt in events)
+                        foreach (var evt in events.Where(e => e.MayNeedProcessing()).Partition(Constants.EVENT_BATCH_SIZE))
                         {
                             if (ct.IsCancellationRequested)
                                 break;
-                            if (evt.MayNeedProcessing())
-                            {
-                                Enqueue(evt);
-                                _Logger.LogInformation($"event {evt.Id} in queue");
-                            }
-                            else
-                                _Logger.LogInformation($"event {evt.Id} can't be processed");
+                            Enqueue(evt.ToArray());
                         }
                     }
                     catch (TaskCanceledException)
@@ -345,16 +347,28 @@ public partial class GenericIntegrationEventDispatcherService
             }
         }
 
-        private bool Enqueue(IntegrationEventLogEntry evt)
+        private bool[] Enqueue(IntegrationEventLogEntry[] evts)
         {
             lock (_Queue)
             {
-                if (_EventsInQueue.Contains(evt.Id))
-                    return false;
+                var enqueued = new bool[evts.Length];
+                List<IntegrationEventLogEntry> enqueuedEntries = new List<IntegrationEventLogEntry>();
+                for (int i = 0; i < evts.Length; i++)
+                {
+                    var evt = evts[i];
+                    if (_EventsInQueue.Contains(evt.Id))
+                    {
+                        enqueued[i] = false;
+                        continue;
+                    }
 
-                _Queue.Enqueue(evt);
-                _EventsInQueue.Add(evt.Id);
-                return true;
+                    enqueued[i] = true;
+                    enqueuedEntries.Add(evt);
+                    _EventsInQueue.Add(evt.Id);
+                }
+                if (enqueuedEntries.Count > 0)
+                    _Queue.Enqueue(enqueuedEntries.ToArray());
+                return enqueued;
             }
         }
 
@@ -399,6 +413,22 @@ public partial class GenericIntegrationEventDispatcherService
                     {
                         _Logger.LogError(ex, "error while checking-in producer");
                     }
+                }
+
+                try
+                {
+                    (Guid? ProducerId, int ProducerSeq, int ProducerCount)? lastProducerInfo = null;
+                    lock (_producerInfoLock)
+                    {
+                        lastProducerInfo = _producerInfo;
+                    }
+
+                    if (lastProducerInfo is not null && lastProducerInfo.Value.ProducerId != null)
+                        await _Storage.CheckOutProducer(lastProducerInfo.Value.ProducerId.Value);
+                }
+                catch (Exception ex)
+                {
+                    _Logger.LogError(ex, "error while checking-out producer");
                 }
             });
         }
