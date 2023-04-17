@@ -24,6 +24,6 @@ public class EnviarUsuarioModificadoEventoIntegracaoDEH : IdentityDomainEventHan
             IsConvitePendente = evt.IsConvitePendente,
             AuditInfo = evt.AuditInfo.ToDTO(),
             Modificacao = evt.Modificacao 
-        }, ct);
+        });
     }
 }

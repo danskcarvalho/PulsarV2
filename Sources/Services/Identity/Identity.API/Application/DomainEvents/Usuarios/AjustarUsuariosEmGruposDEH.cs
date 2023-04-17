@@ -20,7 +20,7 @@ public class AjustarUsuariosEmGruposDEH : IdentityDomainEventHandler<GrupoModifi
         if (evt.Modificacao == ChangeEvent.Deleted)
         {
             var removerSpec = new RemoverUsuariosEmGrupoRemovidoSpec(evt.GrupoId, null, evt.UsuarioLogadoId);
-            var modified = await UsuarioRepository.UpdateManyAsync(removerSpec, ct);
+            var modified = await UsuarioRepository.UpdateManyAsync(removerSpec);
             grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, grupo.SubGrupos.Select(sg => sg.SubGrupoId).ToList());
         }
         else if (evt.Modificacao == ChangeEvent.Edited)
@@ -28,7 +28,7 @@ public class AjustarUsuariosEmGruposDEH : IdentityDomainEventHandler<GrupoModifi
             if (evt.SubGruposRemovidos.Count != 0)
             {
                 var removerSpec = new RemoverUsuariosEmGrupoRemovidoSpec(evt.GrupoId, evt.SubGruposRemovidos.Select(sg => sg.SubGrupoId).ToList(), evt.UsuarioLogadoId);
-                var modified = await UsuarioRepository.UpdateManyAsync(removerSpec, ct);
+                var modified = await UsuarioRepository.UpdateManyAsync(removerSpec);
                 grupo.AtualizarNumUsuarios(evt.UsuarioLogadoId, evt.SubGruposRemovidos.Select(sg => sg.SubGrupoId).ToList());
             }
         }

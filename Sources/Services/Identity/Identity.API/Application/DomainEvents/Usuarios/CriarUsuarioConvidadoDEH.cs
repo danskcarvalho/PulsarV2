@@ -12,7 +12,7 @@ public class CriarUsuarioConvidadoDEH : IdentityDomainEventHandler<UsuarioConvid
 
     protected override async Task HandleAsync(UsuarioConvidadoDE evt, CancellationToken ct)
     {
-        var usuarioExistente = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioId, ct);
+        var usuarioExistente = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioId);
         if (usuarioExistente is not null)
             return;
 

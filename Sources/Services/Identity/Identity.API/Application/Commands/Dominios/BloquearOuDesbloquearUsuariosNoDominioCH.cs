@@ -11,13 +11,13 @@ public class BloquearOuDesbloquearUsuariosNoDominioCH : IdentityCommandHandler<B
 
     protected override async Task<CommandResult> HandleAsync(BloquearOuDesbloquearUsuariosNoDominioCmd cmd, CancellationToken ct)
     {
-        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId(), ct);
+        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId());
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
-        if (!await UsuarioRepository.AllExistsAsync(cmd.UsuarioIds!.Select(u => u.ToObjectId()), ct: ct))
+        if (!await UsuarioRepository.AllExistsAsync(cmd.UsuarioIds!.Select(u => u.ToObjectId())))
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
         dominio.BloquearOuDesbloquearUsuarios(cmd.UsuarioLogadoId!.ToObjectId(), cmd.UsuarioIds!.Select(uid => uid.ToObjectId()).ToList(), cmd.Bloquear);
-        await DominioRepository.ReplaceOneAsync(dominio, ct: ct);
+        await DominioRepository.ReplaceOneAsync(dominio);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

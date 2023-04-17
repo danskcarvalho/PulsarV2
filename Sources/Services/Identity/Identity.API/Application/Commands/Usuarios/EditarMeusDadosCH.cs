@@ -12,11 +12,11 @@ public class EditarMeusDadosCH : IdentityCommandHandler<EditarMeusDadosCmd, Comm
 
     protected override async Task<CommandResult> HandleAsync(EditarMeusDadosCmd cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId(), ct);
+        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
         usuario.EditarMeusDados(cmd.PrimeiroNome!, cmd.Sobrenome);
-        await UsuarioRepository.ReplaceOneAsync(usuario, ct: ct);
+        await UsuarioRepository.ReplaceOneAsync(usuario);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

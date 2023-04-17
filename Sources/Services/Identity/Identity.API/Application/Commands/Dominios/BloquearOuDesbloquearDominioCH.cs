@@ -11,11 +11,11 @@ public class BloquearOuDesbloquearDominioCH : IdentityCommandHandler<BloquearOuD
 
     protected override async Task<CommandResult> HandleAsync(BloquearOuDesbloquearDominioCmd cmd, CancellationToken ct)
     {
-        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId(), ct);
+        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId());
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
         dominio.BloquearOuDesbloquear(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Bloquear);
-        await DominioRepository.ReplaceOneAsync(dominio, ct: ct);
+        await DominioRepository.ReplaceOneAsync(dominio);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

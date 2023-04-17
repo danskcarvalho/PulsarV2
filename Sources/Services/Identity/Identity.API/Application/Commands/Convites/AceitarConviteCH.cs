@@ -13,11 +13,11 @@ public class AceitarConviteCH : IdentityCommandHandler<AceitarConviteCmd>
 
     protected override async Task HandleAsync(AceitarConviteCmd cmd, CancellationToken ct)
     {
-        var convite = await ConviteRepository.FindOneByIdAsync(cmd.ConviteId!.ToObjectId(), ct);
+        var convite = await ConviteRepository.FindOneByIdAsync(cmd.ConviteId!.ToObjectId());
         if (convite == null)
             throw new IdentityDomainException(ExceptionKey.ConviteNaoEncontrado);
 
         convite.Aceitar(cmd.PrimeiroNome, cmd.Sobrenome, cmd.NomeUsuario, cmd.Senha, cmd.Token);
-        await ConviteRepository.ReplaceOneAsync(convite, ct: ct);
+        await ConviteRepository.ReplaceOneAsync(convite);
     }
 }

@@ -13,11 +13,11 @@ public class RecuperarSenhaCH : IdentityCommandHandler<RecuperarSenhaCmd>
 
     protected override async Task HandleAsync(RecuperarSenhaCmd cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId(), ct);
+        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         usuario.RecuperarSenha(cmd.Token!, cmd.Senha!, out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion, ct).CheckModified();
+        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion).CheckModified();
     }
 }

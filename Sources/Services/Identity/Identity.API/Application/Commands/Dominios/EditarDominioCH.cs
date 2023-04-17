@@ -15,12 +15,12 @@ public class EditarDominioCH : IdentityCommandHandler<EditarDominioCmd, CommandR
         var usuarioAdministrador = cmd.UsuarioAdministradorId != null ? await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioAdministradorId.ToObjectId(), ct) : null;
         if (usuarioAdministrador == null && cmd.UsuarioAdministradorId != null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId(), ct);
+        var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId());
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
         var usuariosBloqueados = usuarioAdministrador != null ? await UsuarioRepository.FindManyAsync(new FindUsuariosBloqueadosDominioSpec(dominio.Id, usuarioAdministrador.Id)) : null;
         dominio.Editar(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!, usuarioAdministrador, usuariosBloqueados);
-        await DominioRepository.ReplaceOneAsync(dominio, ct: ct);
+        await DominioRepository.ReplaceOneAsync(dominio);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

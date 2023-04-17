@@ -12,17 +12,17 @@ public class ConfigurarUsuarioConvidadoDEH : IdentityDomainEventHandler<ConviteA
 
     protected override async Task HandleAsync(ConviteAceitoDE evt, CancellationToken ct)
     {
-        var usuarioExistente = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioId, ct);
+        var usuarioExistente = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioId);
         if (usuarioExistente == null)
             throw new IdentityDomainException(ExceptionKey.ConviteInvalido);
         if (!usuarioExistente.IsConvitePendente)
             throw new IdentityDomainException(ExceptionKey.UsuarioJaConvidado);
 
-        var usuarioComNomeInformado = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(evt.NomeUsuario, null), ct);
+        var usuarioComNomeInformado = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(evt.NomeUsuario, null));
         if (usuarioComNomeInformado != null)
             throw new IdentityDomainException(ExceptionKey.NomeUsuarioNaoUnico);
 
         usuarioExistente.AceitarConvite(evt.PrimeiroNome, evt.Sobrenome, evt.NomeUsuario, evt.Senha);
-        await UsuarioRepository.ReplaceOneAsync(usuarioExistente, ct: ct);
+        await UsuarioRepository.ReplaceOneAsync(usuarioExistente);
     }
 }

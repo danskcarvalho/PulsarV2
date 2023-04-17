@@ -11,10 +11,10 @@ public class BloquearOuDesbloquearUsuariosEmDominioDEH : IdentityDomainEventHand
 
     protected override async Task HandleAsync(UsuariosBloqueadosEmDominioDE evt, CancellationToken ct)
     {
-        var dominio = await DominioRepository.FindOneByIdAsync(evt.DominioId, ct);
+        var dominio = await DominioRepository.FindOneByIdAsync(evt.DominioId);
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
         var updateUsuarios = new BloquearOuDesbloquearUsuariosEmDominioSpec(evt.UsuarioLogadoId, evt.DominioId, evt.UsuariosIds, evt.Bloquear);
-        await UsuarioRepository.UpdateManyAsync(updateUsuarios, ct);
+        await UsuarioRepository.UpdateManyAsync(updateUsuarios);
     }
 }

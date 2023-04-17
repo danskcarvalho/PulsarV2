@@ -11,11 +11,11 @@ public class CriarSubGrupoCH : IdentityCommandHandler<CriarSubGrupoCmd, CreatedC
 
     protected override async Task<CreatedCommandResult> HandleAsync(CriarSubGrupoCmd cmd, CancellationToken ct)
     {
-        var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId(), ct);
+        var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
             throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado);
         var subgrupoId = grupo.CriarSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!, cmd.PermissoesDominio!, cmd.PermissoesEstabelecimento!);
-        await GrupoRepository.ReplaceOneAsync(grupo, ct: ct);
+        await GrupoRepository.ReplaceOneAsync(grupo);
         return new CreatedCommandResult(subgrupoId.ToString());
     }
 }

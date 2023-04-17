@@ -15,7 +15,7 @@ public class CriarGrupoCH : IdentityCommandHandler<CriarGrupoCmd, CreatedCommand
     {
         var grupo = new Grupo(ObjectId.GenerateNewId(), cmd.DominioId!.ToObjectId(), cmd.Nome!, new AuditInfo(cmd.UsuarioLogadoId!.ToObjectId()), new List<SubGrupo>());
         grupo.Criar();
-        await GrupoRepository.InsertOneAsync(grupo, ct);
+        await GrupoRepository.InsertOneAsync(grupo);
         return new CreatedCommandResult(grupo.Id.ToString(), Session.ConsistencyToken);
     }
 }

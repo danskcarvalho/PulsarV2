@@ -12,11 +12,11 @@ public class EditarSubGrupoCH : IdentityCommandHandler<EditarSubGrupoCmd, Comman
 
     protected override async Task<CommandResult> HandleAsync(EditarSubGrupoCmd cmd, CancellationToken ct)
     {
-        var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId(), ct);
+        var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
             throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado); 
         grupo.EditarSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.Nome!, cmd.PermissoesDominio!, cmd.PermissoesEstabelecimento!);
-        await GrupoRepository.ReplaceOneAsync(grupo, ct: ct);
+        await GrupoRepository.ReplaceOneAsync(grupo);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

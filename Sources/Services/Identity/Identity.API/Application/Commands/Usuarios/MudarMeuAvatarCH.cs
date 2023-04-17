@@ -26,6 +26,9 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
             ContentType = "image/jpeg"
         }, ct);
 
+        if (ct.IsCancellationRequested)
+            return new CommandResult();
+
         return await Session.OpenTransactionAsync(async ct2 =>
         {
             var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioLogadoId.ToObjectId(), ct2);
@@ -34,6 +37,6 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
             usuario.AlterarAvatar(url.Url);
             await UsuarioRepository.ReplaceOneAsync(usuario, ct: ct2);
             return new CommandResult(Session.ConsistencyToken);
-        }, ct: ct);
+        });
     }
 }

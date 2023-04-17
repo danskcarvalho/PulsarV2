@@ -15,11 +15,11 @@ public class EsqueciMinhaSenhaCH : IdentityCommandHandler<EsqueciMinhaSenhaCmd>
 
     protected override async Task HandleAsync(EsqueciMinhaSenhaCmd cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneAsync(new FindUsuarioByUsenameOrEmailSpec(cmd.UsernameOrEmail!), ct);
+        var usuario = await UsuarioRepository.FindOneAsync(new FindUsuarioByUsenameOrEmailSpec(cmd.UsernameOrEmail!));
         if (usuario is null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         usuario.GerarTokenMudancaSenha(out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion, ct).CheckModified();
+        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion).CheckModified();
     }
 }

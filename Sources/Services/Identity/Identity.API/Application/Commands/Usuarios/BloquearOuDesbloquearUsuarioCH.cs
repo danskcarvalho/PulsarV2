@@ -12,11 +12,11 @@ public class BloquearOuDesbloquearUsuarioCH : IdentityCommandHandler<BloquearOuD
 
     protected override async Task<CommandResult> HandleAsync(BloquearOuDesbloquearUsuarioCmd cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId(), ct);
+        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
         usuario.BloquearOuDesbloquear(cmd.UsuarioLogadoId.ToObjectId(), cmd.Bloquear);
-        await UsuarioRepository.ReplaceOneAsync(usuario, ct: ct);
+        await UsuarioRepository.ReplaceOneAsync(usuario);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

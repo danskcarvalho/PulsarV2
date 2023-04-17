@@ -15,13 +15,13 @@ public class CriarConviteCH : IdentityCommandHandler<CriarConviteCmd>
     protected override async Task HandleAsync(CriarConviteCmd cmd, CancellationToken ct)
     {
         cmd.Email = cmd.Email?.ToLowerInvariant().Trim();
-        var usuarioExistente = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(null, cmd.Email), ct);
+        var usuarioExistente = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(null, cmd.Email));
         if (usuarioExistente != null && !usuarioExistente.IsConvitePendente)
             throw new IdentityDomainException(ExceptionKey.UsuarioJaConvidado);
 
         var convite = new Convite(ObjectId.GenerateNewId(), cmd.Email!, DateTime.UtcNow.AddDays(1), GeneralExtensions.GetSalt(), usuarioExistente?.Id ?? ObjectId.GenerateNewId(), new AuditInfo(cmd.UsuarioLogadoId!.ToObjectId()));
         convite.ConvidarUsuario();
 
-        await ConviteRepository.InsertOneAsync(convite, ct);
+        await ConviteRepository.InsertOneAsync(convite);
     }
 }

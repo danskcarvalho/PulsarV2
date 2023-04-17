@@ -14,11 +14,11 @@ public class MudarMinhaSenhaCH : IdentityCommandHandler<MudarMinhaSenhaCmd, Comm
 
     protected override async Task<CommandResult> HandleAsync(MudarMinhaSenhaCmd cmd, CancellationToken ct)
     {
-        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId(), ct);
+        var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
         usuario.MudarMinhaSenha(cmd.SenhaAtual!, cmd.Senha!, out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion, ct);
+        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

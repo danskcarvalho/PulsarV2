@@ -381,7 +381,8 @@ public partial class GenericIntegrationEventDispatcherService
                             oldProducerInfo = _producerInfo;
                         }
                         
-                        var newProducerInfo = await _Storage.CheckInProducer(_producerInfo?.ProducerId, TimeSpan.FromMilliseconds(_Options.PollingTimeout) * 3, ct);
+                        // -- no cancelation possible to not corrupt data
+                        var newProducerInfo = await _Storage.CheckInProducer(_producerInfo?.ProducerId, TimeSpan.FromMilliseconds(_Options.PollingTimeout) * 3);
 
                         lock (_producerInfoLock)
                         {

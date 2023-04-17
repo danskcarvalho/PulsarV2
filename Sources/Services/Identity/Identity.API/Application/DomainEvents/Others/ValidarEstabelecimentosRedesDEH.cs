@@ -17,13 +17,13 @@ public class ValidarEstabelecimentosRedesDEH : IdentityDomainEventHandler<GrupoM
             var redes = evt.SubGruposAdicionados.SelectMany(sg => sg.PermissoesEstabelecimentos).Where(ep => ep.Seletor.RedeEstabelecimentoId.HasValue).Select(ep => ep.Seletor.RedeEstabelecimentoId!.Value).ToList();
             if (estabelecimentos.Count != 0)
             {
-                var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId), ct);
+                var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
                     throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoEncontrado);
             }
             if (redes.Count != 0)
             {
-                var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId), ct);
+                var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
                     throw new IdentityDomainException(ExceptionKey.RedeEstabelecimentosNaoEncontrado);
             }
@@ -34,13 +34,13 @@ public class ValidarEstabelecimentosRedesDEH : IdentityDomainEventHandler<GrupoM
             var redes = evt.SubGruposModificados.SelectMany(sg => sg.PermissoesEstabelecimentos).Where(ep => ep.Seletor.RedeEstabelecimentoId.HasValue).Select(ep => ep.Seletor.RedeEstabelecimentoId!.Value).ToList();
             if (estabelecimentos.Count != 0)
             {
-                var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId), ct);
+                var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
                     throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoEncontrado);
             }
             if (redes.Count != 0)
             {
-                var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId), ct);
+                var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
                     throw new IdentityDomainException(ExceptionKey.RedeEstabelecimentosNaoEncontrado);
             }
