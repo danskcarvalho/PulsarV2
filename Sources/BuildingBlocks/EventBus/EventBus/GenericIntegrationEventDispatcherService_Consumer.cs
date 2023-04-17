@@ -117,8 +117,8 @@ public partial class GenericIntegrationEventDispatcherService
                 // -- only initializes the job if its pending
                 // -- no cancelation possible from this point forward to not corrupt data
                 bool bInitialized = await _Storage.MarkEventAsInProgressAsync(evt.Id,
-                DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_RESTORE_IN_HOURS),
-                DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_TIMEOUT_IN_HOURS));
+                    DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_RESTORE_IN_HOURS),
+                    DateTime.UtcNow.AddHours(Constants.IN_PROGRESS_TIMEOUT_IN_HOURS));
 
                 if (bInitialized)
                 {
@@ -135,11 +135,8 @@ public partial class GenericIntegrationEventDispatcherService
                     var wasPublished = false;
                     try
                     {
-                        await retryPolicy.ExecuteAsync(async () =>
-                        {
-                            await PublishEvent(evt);
-                        });
-
+                        // -- PublishEvent should have its own retry logic
+                        await PublishEvent(evt);
                         wasPublished = true;
                     }
                     catch (Exception e)
@@ -152,9 +149,9 @@ public partial class GenericIntegrationEventDispatcherService
                         if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
                         {
                             if (evt.ScheduledOn is not null)
-                                evt.ScheduledOn = evt.ScheduledOn?.AddHours(evt.Attempts.Count);
+                                evt.ScheduledOn = evt.ScheduledOn?.AddMinutes(2 * evt.Attempts.Count);
                             else
-                                evt.ScheduledOn = DateTime.UtcNow.AddHours(evt.Attempts.Count);
+                                evt.ScheduledOn = DateTime.UtcNow.AddMinutes(2 * evt.Attempts.Count);
 
                             try
                             {
