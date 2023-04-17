@@ -91,14 +91,14 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                             if (pe.Seletor.EstabelecimentoId.HasValue)
                                 return estabelecimentos.ContainsKey(pe.Seletor.EstabelecimentoId.Value);
                             else
-                                return redeEstabelecimentos.ContainsKey(pe.Seletor.RedeEstabelecimentoId!.Value);
+                                return redeEstabelecimentos.ContainsKey(pe.Seletor.RedeEstabelecimentoId!.Value) && redeEstabelecimentos[pe.Seletor.RedeEstabelecimentoId!.Value].AuditInfo.RemovidoEm == null;
                         })
                         .Select(pe => new GrupoDetalhesDTO.SubGrupoPermissoesEstabelecimentoDetalhes(
                             pe.Seletor.EstabelecimentoId?.ToString(),
                             pe.Seletor.EstabelecimentoId != null ? estabelecimentos[pe.Seletor.EstabelecimentoId.Value].Nome : null,
                             pe.Seletor.EstabelecimentoId != null ? estabelecimentos[pe.Seletor.EstabelecimentoId.Value].Cnes : null,
                             pe.Seletor.RedeEstabelecimentoId?.ToString(),
-                            pe.Seletor.RedeEstabelecimentoId != null ? estabelecimentos[pe.Seletor.RedeEstabelecimentoId.Value].Nome : null,
+                            pe.Seletor.RedeEstabelecimentoId != null ? redeEstabelecimentos[pe.Seletor.RedeEstabelecimentoId.Value].Nome : null,
                             pe.Permissoes.ToList())).ToList())).ToList());
                 return dto;
             }).ToList();
