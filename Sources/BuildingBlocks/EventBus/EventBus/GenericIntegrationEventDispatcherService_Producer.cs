@@ -280,7 +280,7 @@ public partial class GenericIntegrationEventDispatcherService
                     try
                     {
                         _Logger.LogInformation($"about to sleep for 1000 milliseconds");
-                        await Task.Delay(1000, ct);
+                        await Task.Delay(Constants.MAX_DELAY_BATCHING, ct);
 
                         if (ct.IsCancellationRequested)
                             break;
