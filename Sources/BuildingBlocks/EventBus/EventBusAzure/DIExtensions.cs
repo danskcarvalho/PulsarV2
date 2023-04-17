@@ -12,7 +12,8 @@ public static class DIExtensions
             return new AzureEventBusService(
                 logger,
                 config.GetOrThrow("Azure:EventBus:Namespace"),
-                config.GetOrThrow("Azure:EventBus:TopicName"));
+                config.GetOrThrow("Azure:EventBus:TopicName"),
+                config.GetOrThrow("Azure:EventBus:DeveloperName"));
         });
     }
 }

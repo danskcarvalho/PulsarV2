@@ -4,14 +4,16 @@ public class AzureEventBusService : IEventBus
 {
     private readonly string _namespace;
     private readonly string _topicName;
+    private readonly string _developerName;
     private ILogger<AzureEventBusService> _logger;
     private ServiceBusClient? _client;
 
-    public AzureEventBusService(ILogger<AzureEventBusService> logger, string @namespace, string topicName)
+    public AzureEventBusService(ILogger<AzureEventBusService> logger, string @namespace, string topicName, string developerName)
     {
         _logger = logger;
         _namespace = @namespace;
         _topicName = topicName;
+        _developerName = developerName;
         _client = new ServiceBusClient(
             _namespace,
             new DefaultAzureCredential());
@@ -46,7 +48,7 @@ public class AzureEventBusService : IEventBus
         if (list.Count == 0)
             return new List<(HashSet<Guid> Ids, Exception? Exception)>();
 
-        await using var sender = _client!.CreateSender(_topicName);
+        await using var sender = _client!.CreateSender(GetTopicName());
 
         do
         {
@@ -101,5 +103,10 @@ public class AzureEventBusService : IEventBus
         } while (list.Count != 0);
 
         return result;
+    }
+
+    private string GetTopicName()
+    {
+        return _developerName != null ? $"{_developerName}.{_topicName}" : _topicName;
     }
 }

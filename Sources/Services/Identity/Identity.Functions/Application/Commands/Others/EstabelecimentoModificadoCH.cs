@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.BackgroundTasks.Application.Commands.Others;
+﻿namespace Pulsar.Services.Identity.Functions.Application.Commands.Others;
 
 [NoTransaction, RetryOnException(DuplicatedKey = true, VersionConcurrency = true, Retries = 2)]
 public class EstabelecimentoModificadoCH : IdentityCommandHandler<EstabelecimentoModificadoCmd>

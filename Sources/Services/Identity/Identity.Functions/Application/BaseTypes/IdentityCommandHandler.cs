@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
 
-namespace Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;
+namespace Pulsar.Services.Identity.Functions.Application.BaseTypes;
 
 public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest
 {

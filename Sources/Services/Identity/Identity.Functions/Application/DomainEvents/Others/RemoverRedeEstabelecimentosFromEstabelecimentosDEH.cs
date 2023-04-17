@@ -1,7 +1,7 @@
 ﻿using Pulsar.Services.Identity.Domain.Events.Others;
 using Pulsar.Services.Identity.Domain.Specifications;
 
-namespace Pulsar.Services.Identity.BackgroundTasks.Application.DomainEvents.Others;
+namespace Pulsar.Services.Identity.Functions.Application.DomainEvents.Others;
 
 public class RemoverRedeEstabelecimentosFromEstabelecimentosDEH : IdentityDomainEventHandler<RedeEstabelecimentosRemovidaDE>
 {
