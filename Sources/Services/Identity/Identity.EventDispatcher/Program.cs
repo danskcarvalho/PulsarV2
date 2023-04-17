@@ -1,5 +1,5 @@
 using Pulsar.BuildingBlocks.EventBus;
-//using Pulsar.BuildingBlocks.EventBusRabbitMQ;
+using Pulsar.BuildingBlocks.EventBusAzure;
 using Pulsar.BuildingBlocks.IntegrationEventLogMongo;
 using Pulsar.Services.Identity.EventDispatcher;
 
@@ -8,7 +8,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddEventBus();
         services.AddMongoEventBus();
-        //services.AddRabbitMQ();
+        services.AddAzureEventBus();
         services.AddHostedService<Worker>();
     })
     .Build();

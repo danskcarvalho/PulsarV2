@@ -24,6 +24,11 @@ public class AzureEmailService : IEmailService
         _senderAddress = senderAddress;
     }
 
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+
     public async Task Send<TModel>(TModel model, CancellationToken ct = default, bool throwOnError = false) where TModel : class
     {
         var retryPolicy = Policy

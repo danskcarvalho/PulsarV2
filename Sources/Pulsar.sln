@@ -85,6 +85,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystemAzure", "Building
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailsAzure", "BuildingBlocks\Emails\EmailsAzure\EmailsAzure.csproj", "{A18B9586-0975-428C-8FC6-69F7D59135F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBusAzure", "BuildingBlocks\EventBus\EventBusAzure\EventBusAzure.csproj", "{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,10 @@ Global
 		{A18B9586-0975-428C-8FC6-69F7D59135F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A18B9586-0975-428C-8FC6-69F7D59135F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A18B9586-0975-428C-8FC6-69F7D59135F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -232,6 +238,7 @@ Global
 		{C16540C1-43B4-4F12-918C-4804922791EE} = {A0C70962-4BDD-44A1-8A57-B3E0A163CB68}
 		{BD79931B-28E8-4DAE-AC63-B9917605601F} = {70E020D7-9D08-48D9-895A-F2CE02D5B747}
 		{A18B9586-0975-428C-8FC6-69F7D59135F7} = {DC1D5F23-0533-4BDE-A1D5-3545435020CD}
+		{8C1ECE7C-58C6-4CB0-A2F8-4DDD52D4A582} = {596DD23E-905A-406A-8FC6-C1456579697C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}

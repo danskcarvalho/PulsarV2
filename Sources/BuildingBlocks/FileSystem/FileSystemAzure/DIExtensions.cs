@@ -4,7 +4,7 @@ public static class DIExtensions
 {
     public static void AddAzureBlobStorage(this IServiceCollection col)
     {
-        col.AddSingleton<IFileSystem>(sp =>
+        col.AddScoped<IFileSystem>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var logger = sp.GetRequiredService<ILogger<AzureFileSystem>>();

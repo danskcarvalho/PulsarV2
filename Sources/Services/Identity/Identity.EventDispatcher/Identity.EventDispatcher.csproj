@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBusAzure\EventBusAzure.csproj" />
 	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
 	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\IntegrationEventLogMongo\IntegrationEventLogMongo.csproj" />
 	</ItemGroup>

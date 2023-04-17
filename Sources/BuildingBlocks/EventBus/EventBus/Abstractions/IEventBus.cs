@@ -2,7 +2,7 @@
 
 namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
 
-public interface IEventBus
+public interface IEventBus : IAsyncDisposable
 {
-    Task<List<(HashSet<Guid> Ids, Exception? Exception)>> Publish(IEnumerable<IntegrationEvent> eventBatch);
+    Task<List<(HashSet<Guid> Ids, Exception? Exception)>> Publish(IEnumerable<(string EventName, IntegrationEvent Event)> eventBatch);
 }

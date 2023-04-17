@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.FileSystem.Abstractions;
 
-public interface IFileSystem
+public interface IFileSystem : IAsyncDisposable
 {
     Task<UploadFileOutput> UploadFileAsync(UploadFileInput args, CancellationToken ct = default);
 

@@ -135,4 +135,9 @@ public class AzureFileSystem : IFileSystem
             throw;
         }
     }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }

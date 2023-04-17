@@ -249,7 +249,7 @@ public partial class GenericIntegrationEventDispatcherService
 
         private async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> PublishEvents(List<IntegrationEventLogEntry> evts)
         {
-            return await _EventBus.Publish(evts.Select(e => e.IntegrationEvent));
+            return await _EventBus.Publish(evts.Select(e => (e.EventName, e.IntegrationEvent)));
         }
     }
 }
