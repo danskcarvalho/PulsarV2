@@ -8,7 +8,6 @@ global using Pulsar.Services.Identity.Domain.Aggregates.Others;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 global using Pulsar.BuildingBlocks.DDD.Mongo;
 global using Pulsar.BuildingBlocks.EventBus;
-global using Pulsar.BuildingBlocks.EventBusRabbitMQ;
 global using Pulsar.Services.Identity.Infrastructure.Repositories;
 global using Pulsar.Services.Facilities.Contracts.IntegrationEvents;
 global using Pulsar.Services.Identity.BackgroundTasks.Application.BaseTypes;

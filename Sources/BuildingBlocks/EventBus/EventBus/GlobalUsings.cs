@@ -1,6 +1,5 @@
 ﻿global using Pulsar.BuildingBlocks.EventBus.Abstractions;
 global using Pulsar.BuildingBlocks.EventBus.Events;
-global using static Pulsar.BuildingBlocks.EventBus.InMemoryEventBusSubscriptionsManager;
 global using System.Collections.Generic;
 global using System.Linq;
 global using System.Text.Json.Serialization;

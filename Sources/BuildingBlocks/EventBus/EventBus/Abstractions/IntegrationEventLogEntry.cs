@@ -15,7 +15,6 @@ public class IntegrationEventLogEntry
     public DateTime? InProgressExpirationDate { get; set; }
     public DateTime? InProgressRestore { get; set; }
     public DateTime? ScheduledOn { get; set; }
-    public bool NoRetryOnFailure { get; set; }
     public DateTime CreatedOn { get; private set; }
     public long Version { get; private set; }
     public long TimeStamp { get; private set; }
@@ -32,7 +31,6 @@ public class IntegrationEventLogEntry
             throw new InvalidOperationException("invalid eventName");
         IntegrationEvent = (JsonSerializer.Deserialize(SerializedEvent, eventType, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }) as IntegrationEvent)!;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
-        NoRetryOnFailure = IntegrationEvent.NoRetrySendOnFailure;
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public IntegrationEventLogEntry(IntegrationEvent @event)
@@ -50,7 +48,6 @@ public class IntegrationEventLogEntry
         });
         Status = IntegrationEventStatus.Pending;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
-        NoRetryOnFailure = @event.NoRetrySendOnFailure;
         ScheduledOn = DateTime.UtcNow;
         Version = 1;
         TimeStamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;

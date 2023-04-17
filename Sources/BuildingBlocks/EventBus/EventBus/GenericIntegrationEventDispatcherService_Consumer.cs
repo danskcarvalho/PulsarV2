@@ -85,7 +85,7 @@ public partial class GenericIntegrationEventDispatcherService
                             _Logger.LogInformation($"will retry in {(int)ts.TotalSeconds} seconds");
                         });
 
-                if (DateTime.UtcNow > evt.InProgressExpirationDate || (evt.NoRetryOnFailure && DateTime.UtcNow > evt.InProgressRestore))
+                if (DateTime.UtcNow > evt.InProgressExpirationDate)
                 {
                     await retryPolicy.ExecuteAsync(async () =>
                     {
@@ -93,7 +93,7 @@ public partial class GenericIntegrationEventDispatcherService
                         await _Storage.MarkEventAsFailedAsync(evt.Id, evt.Version);
                     });
                 }
-                else if (!evt.NoRetryOnFailure && DateTime.UtcNow > evt.InProgressRestore)
+                else if (DateTime.UtcNow > evt.InProgressRestore)
                 {
                     await retryPolicy.ExecuteAsync(async () =>
                     {
@@ -135,15 +135,10 @@ public partial class GenericIntegrationEventDispatcherService
                     var wasPublished = false;
                     try
                     {
-                        if (!evt.NoRetryOnFailure)
+                        await retryPolicy.ExecuteAsync(async () =>
                         {
-                            await retryPolicy.ExecuteAsync(async () =>
-                            {
-                                await PublishEvent(evt);
-                            });
-                        }
-                        else
                             await PublishEvent(evt);
+                        });
 
                         wasPublished = true;
                     }
@@ -154,29 +149,24 @@ public partial class GenericIntegrationEventDispatcherService
                         evt.Attempts.Add(new IntegrationEventLogEntrySendAttempt(DateTime.UtcNow, SerializeException(e), e.GetType().FullName));
 
                         var putFailedState = false;
-                        if (!evt.NoRetryOnFailure)
+                        if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
                         {
-                            if (evt.Attempts.Count < Constants.MAX_ATTEMPTS)
-                            {
-                                if (evt.ScheduledOn is not null)
-                                    evt.ScheduledOn = evt.ScheduledOn?.AddHours(evt.Attempts.Count);
-                                else
-                                    evt.ScheduledOn = DateTime.UtcNow.AddHours(evt.Attempts.Count);
-
-                                try
-                                {
-                                    await retryPolicy.ExecuteAsync(async () =>
-                                    {
-                                        await _Storage.RescheduleEventAsync(evt.Id, evt.Attempts, evt.ScheduledOn!.Value);
-                                    });
-                                }
-                                catch (Exception e2)
-                                {
-                                    _Logger.LogError(e2, "error while managing event table [RescheduleEventAsync]");
-                                }
-                            }
+                            if (evt.ScheduledOn is not null)
+                                evt.ScheduledOn = evt.ScheduledOn?.AddHours(evt.Attempts.Count);
                             else
-                                putFailedState = true;
+                                evt.ScheduledOn = DateTime.UtcNow.AddHours(evt.Attempts.Count);
+
+                            try
+                            {
+                                await retryPolicy.ExecuteAsync(async () =>
+                                {
+                                    await _Storage.RescheduleEventAsync(evt.Id, evt.Attempts, evt.ScheduledOn!.Value);
+                                });
+                            }
+                            catch (Exception e2)
+                            {
+                                _Logger.LogError(e2, "error while managing event table [RescheduleEventAsync]");
+                            }
                         }
                         else
                             putFailedState = true;
