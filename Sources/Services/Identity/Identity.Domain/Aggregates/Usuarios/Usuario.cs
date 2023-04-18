@@ -158,7 +158,7 @@ public class Usuario : AggregateRoot
 
     public void Criar()
     {
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created));
     }
 
@@ -186,7 +186,7 @@ public class Usuario : AggregateRoot
         this.UltimoNome = sobrenome;
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
@@ -197,7 +197,7 @@ public class Usuario : AggregateRoot
         this.IsAtivo = !bloquear;
         Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 
@@ -206,7 +206,7 @@ public class Usuario : AggregateRoot
         this.AvatarUrl = url;
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario,
+        this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
     }
 

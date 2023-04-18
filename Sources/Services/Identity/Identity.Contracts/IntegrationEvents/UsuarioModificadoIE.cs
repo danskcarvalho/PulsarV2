@@ -14,6 +14,7 @@ public record UsuarioModificadoIE : IntegrationEvent
     public required string PrimeiroNome { get; init; }
     public required string? UltimoNome { get; init; }
     public required string NomeCompleto { get; init; }
+    public required string? Email { get; init; }
     public required bool IsAtivo { get; init; }
     public required string NomeUsuario { get; init; }
     public required bool IsConvitePendente { get; init; }

@@ -25,7 +25,7 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
             var dominiosListados = dominios.Select(x =>
             {
                 var usuario = x.UsuarioAdministradorId.HasValue ? usuarios[x.UsuarioAdministradorId.Value] : null;
-                return new DominioListadoDTO(x.Id.ToString(), x.Nome, x.IsAtivo, x.AuditInfo.EscondidoEm.HasValue, usuario != null ? new DominioListadoDTO.UsuarioAdmin(usuario.Id.ToString(), usuario.NomeCompleto, usuario.Email!, usuario.NomeUsuario) : null);
+                return new DominioListadoDTO(x.Id.ToString(), x.Nome, x.IsAtivo, x.AuditInfo.EscondidoEm.HasValue, usuario != null ? new DominioListadoDTO.UsuarioAdmin(usuario.Id.ToString(), usuario.NomeCompleto, usuario.Email!, usuario.NomeUsuario, usuario.AvatarUrl) : null);
             }).ToList();
 
             return new PaginatedListDTO<DominioListadoDTO>(dominiosListados, next);

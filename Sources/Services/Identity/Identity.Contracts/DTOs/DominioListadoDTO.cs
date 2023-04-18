@@ -55,14 +55,19 @@ public class DominioListadoDTO
         /// Nome de usuário.
         /// </summary>
         public required string NomeUsuario { get; set; }
+        /// <summary>
+        /// Avatar do usuário (imagem).
+        /// </summary>
+        public required string? AvatarUrl { get; set; }
 
         [SetsRequiredMembers]
-        public UsuarioAdmin(string id, string nome, string email, string nomeUsuario)
+        public UsuarioAdmin(string id, string nome, string email, string nomeUsuario, string? avatarUrl)
         {
             Id = id;
             Nome = nome;
             Email = email;
             NomeUsuario = nomeUsuario;
+            AvatarUrl = avatarUrl;
         }
         private UsuarioAdmin() { }
     }

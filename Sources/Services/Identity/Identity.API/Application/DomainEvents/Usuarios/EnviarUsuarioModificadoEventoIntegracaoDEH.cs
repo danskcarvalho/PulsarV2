@@ -21,6 +21,7 @@ public class EnviarUsuarioModificadoEventoIntegracaoDEH : IdentityDomainEventHan
             NomeCompleto = evt.NomeCompleto,
             IsAtivo = evt.IsAtivo,
             NomeUsuario = evt.NomeUsuario,
+            Email = evt.Email,
             IsConvitePendente = evt.IsConvitePendente,
             AuditInfo = evt.AuditInfo.ToDTO(),
             Modificacao = evt.Modificacao 
