@@ -17,3 +17,4 @@ global using Pulsar.Services.Shared;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Azure.Functions.Worker;
+global using Pulsar.Services.Identity.Functions.Utils;

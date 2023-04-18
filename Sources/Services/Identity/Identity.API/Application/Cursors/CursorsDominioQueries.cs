@@ -9,6 +9,7 @@ public class CursorDominioListado : IPageCursor<CursorDominioListado, Dominio>
     public required string? LastNome { get; set; }
     public required string? LastId { get; set; }
     public string? Filtro { get; set; }
+    public bool? ShowHidden { get; set; }
 
     public (string Name, object? Value) SortColumn1 => 
         ("Nome", LastNome);
@@ -19,22 +20,23 @@ public class CursorDominioListado : IPageCursor<CursorDominioListado, Dominio>
     public static bool HasSortColumn2 => true;
 
     [SetsRequiredMembers]
-    public CursorDominioListado(string? lastNome, string? lastId, string? filtro)
+    public CursorDominioListado(string? lastNome, string? lastId, string? filtro, bool? showHidden)
     {
         LastNome = lastNome;
         LastId = lastId;
         Filtro = filtro;
+        ShowHidden = showHidden;
     }
     private CursorDominioListado() { }
 
     public static CursorDominioListado FromFilter(dynamic filter)
     {
-        return new CursorDominioListado(null, null, filter.Filtro);
+        return new CursorDominioListado(null, null, filter.Filtro, filter.ShowHidden);
     }
 
     public CursorDominioListado Next(Dominio last)
     {
-        return new CursorDominioListado(last.Nome, last.Id.ToString(), this.Filtro);
+        return new CursorDominioListado(last.Nome, last.Id.ToString(), this.Filtro, this.ShowHidden);
     }
 }
 

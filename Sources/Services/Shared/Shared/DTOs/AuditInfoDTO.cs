@@ -3,7 +3,7 @@
 public class AuditInfoDTO
 {
     /// <summary>
-    /// Id do usuário criado.
+    /// Id do usuário criador.
     /// </summary>
     public string? CriadoPorUsuarioId { get; set; }
     /// <summary>
@@ -26,4 +26,12 @@ public class AuditInfoDTO
     /// Data da remoção.
     /// </summary>
     public DateTime? RemovidoEm { get; set; }
+    /// <summary>
+    /// Id do usuário que removeu.
+    /// </summary>
+    public string? EscondidoPorUsuarioId { get; set; }
+    /// <summary>
+    /// Data da remoção.
+    /// </summary>
+    public DateTime? EscondidoEm { get; set; }
 }

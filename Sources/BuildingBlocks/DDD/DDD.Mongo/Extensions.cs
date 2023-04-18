@@ -13,7 +13,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo
             return await (await cursor).ToListAsync();
         }
 
-        public async static Task<TDocument> FirstOrDefaultAsync<TDocument>(this Task<IAsyncCursor<TDocument>> cursor)
+        public async static Task<TDocument?> FirstOrDefaultAsync<TDocument>(this Task<IAsyncCursor<TDocument>> cursor) where TDocument : class
         {
             return await (await cursor).FirstOrDefaultAsync();
         }

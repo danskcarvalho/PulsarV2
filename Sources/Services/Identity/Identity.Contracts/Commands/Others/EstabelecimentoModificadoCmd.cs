@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Identity.Contracts.Commands.Others;
+﻿using Pulsar.Services.Shared.DTOs;
+
+namespace Pulsar.Services.Identity.Contracts.Commands.Others;
 
 public class EstabelecimentoModificadoCmd : IRequest
 {
@@ -9,8 +11,9 @@ public class EstabelecimentoModificadoCmd : IRequest
     public List<string> Redes { get; set; }
     public bool IsAtivo { get; set; }
     public DateTime TimeStamp { get; set; }
+    public AuditInfoDTO AuditInfo { get; set; }
 
-    public EstabelecimentoModificadoCmd(string estabelecimentoId, string dominioId, string nome, string cnes, List<string> redes, bool ativo, DateTime timeStamp)
+    public EstabelecimentoModificadoCmd(string estabelecimentoId, string dominioId, string nome, string cnes, List<string> redes, bool ativo, DateTime timeStamp, AuditInfoDTO auditInfo)
     {
         EstabelecimentoId = estabelecimentoId;
         Nome = nome;
@@ -19,5 +22,6 @@ public class EstabelecimentoModificadoCmd : IRequest
         IsAtivo = ativo;
         TimeStamp = timeStamp;
         DominioId = dominioId;
+        AuditInfo = auditInfo;
     }
 }

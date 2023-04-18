@@ -12,7 +12,7 @@ public class EstabelecimentoModificadoFN : IdentityFunction
     [Function("EstabelecimentoModificadoFN")]
     public async Task Run([ServiceBusTrigger("%ServiceBusDeveloper%.Estabelecimentos", "EstabelecimentoModificadoFN.Identity", Connection = "ServiceBus")] EstabelecimentoModificadoIE evt)
     {
-        var cmd = new EstabelecimentoModificadoCmd(evt.EstabelecimentoId, evt.DominioId, evt.Nome, evt.Cnes, evt.Redes, evt.IsAtivo, evt.CreationDate);
+        var cmd = new EstabelecimentoModificadoCmd(evt.EstabelecimentoId, evt.DominioId, evt.Nome, evt.Cnes, evt.Redes, evt.IsAtivo, evt.CreationDate, evt.AuditInfo);
         await Mediator.Send(cmd);
     }
 }

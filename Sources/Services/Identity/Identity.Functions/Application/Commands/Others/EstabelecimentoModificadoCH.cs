@@ -19,12 +19,13 @@ public class EstabelecimentoModificadoCH : IdentityCommandHandler<Estabeleciment
                 cmd.Cnes,
                 cmd.Redes.Select(r => r.ToObjectId()),
                 cmd.IsAtivo,
+                cmd.AuditInfo.ToDomainObject(),
                 cmd.TimeStamp);
             await EstabelecimentoRepository.InsertOneAsync(estabelecimento);
         }
         else
         {
-            bool editado = estabelecimento.Editar(cmd.Nome, cmd.Cnes, cmd.Redes.Select(r => r.ToObjectId()), cmd.IsAtivo, cmd.TimeStamp, out long previousVersion);
+            bool editado = estabelecimento.Editar(cmd.Nome, cmd.Cnes, cmd.Redes.Select(r => r.ToObjectId()), cmd.IsAtivo, cmd.AuditInfo.ToDomainObject(), cmd.TimeStamp, out long previousVersion);
             if (editado)
                 await EstabelecimentoRepository.ReplaceOneAsync(estabelecimento, previousVersion, ct).CheckModified();
         }

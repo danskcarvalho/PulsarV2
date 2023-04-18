@@ -1,5 +1,7 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Dominios;
+using Pulsar.Services.Identity.Domain.Events.Grupos;
 using Pulsar.Services.Identity.Domain.Events.Usuarios;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
@@ -35,6 +37,20 @@ public class Dominio : AggregateRoot
     private string GetTermosBusca()
     {
         return _nome.Tokenize()!;
+    }
+
+    public void Esconder(ObjectId usuarioLogadoId)
+    {
+        this.AuditInfo = this.AuditInfo.EscondidoPor(usuarioLogadoId);
+        this.Version++;
+        this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Hidden));
+    }
+
+    public void Mostrar(ObjectId usuarioLogadoId)
+    {
+        this.AuditInfo = this.AuditInfo.MostradoPor();
+        this.Version++;
+        this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Shown));
     }
 
     public void SetAdministradorDominio(ObjectId usuarioId, ObjectId? editadoPorUsuarioId)

@@ -9,5 +9,6 @@ public record EstabelecimentoModificadoIE : IntegrationEvent
     public required string Cnes { get; init; }
     public required List<string> Redes { get; init; }
     public required bool IsAtivo { get; init; }
+    public required AuditInfoDTO AuditInfo { get; init; }
     public required ChangeEvent Modificacao { get; init; }
 }

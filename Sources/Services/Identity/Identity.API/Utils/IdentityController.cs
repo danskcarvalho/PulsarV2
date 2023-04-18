@@ -8,6 +8,7 @@ public class IdentityController : ControllerBase
     public IUsuarioQueries UsuarioQueries => _context.UsuarioQueries;
     public IDominioQueries DominioQueries => _context.DominioQueries;
     public IGrupoQueries GrupoQueries => _context.GrupoQueries;
+    public IEstabelecimentoQueries EstabelecimentoQueries => _context.EstabelecimentoQueries;
     public IdentityController(IdentityControllerContext context)
     {
         _context = context;
@@ -19,15 +20,17 @@ public class IdentityControllerContext
     public IMediator Mediator { get; }
     public IUsuarioQueries UsuarioQueries { get; }
     public IDominioQueries DominioQueries { get; }
+    public IEstabelecimentoQueries EstabelecimentoQueries { get; }
     public IGrupoQueries GrupoQueries { get; }
     public IConfiguration Configuration { get; }
 
-    public IdentityControllerContext(IMediator mediator, IUsuarioQueries usuarioQueries, IDominioQueries dominioQueries, IGrupoQueries grupoQueries, IConfiguration configuration)
+    public IdentityControllerContext(IMediator mediator, IUsuarioQueries usuarioQueries, IDominioQueries dominioQueries, IEstabelecimentoQueries estabelecimentoQueries, IGrupoQueries grupoQueries, IConfiguration configuration)
     {
         Mediator = mediator;
         UsuarioQueries = usuarioQueries;
         DominioQueries = dominioQueries;
-        Configuration = configuration;
+        EstabelecimentoQueries = estabelecimentoQueries;
         GrupoQueries = grupoQueries;
+        Configuration = configuration;
     }
 }

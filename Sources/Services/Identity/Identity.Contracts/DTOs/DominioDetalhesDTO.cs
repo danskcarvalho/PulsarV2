@@ -5,11 +5,12 @@ namespace Pulsar.Services.Identity.Contracts.DTOs;
 public class DominioDetalhesDTO
 {
     [SetsRequiredMembers]
-    public DominioDetalhesDTO(string dominioId, string nome, bool isAtivo, UsuarioAdmin? usuarioAdministrador)
+    public DominioDetalhesDTO(string dominioId, string nome, bool isAtivo, bool isEscondido, UsuarioAdmin? usuarioAdministrador)
     {
         DominioId = dominioId;
         Nome = nome;
         IsAtivo = isAtivo;
+        IsEscondido = isEscondido;
         UsuarioAdministrador = usuarioAdministrador;
     }
     private DominioDetalhesDTO() { }
@@ -26,6 +27,10 @@ public class DominioDetalhesDTO
     /// true se o domínio estiver ativo.
     /// </summary>
     public bool IsAtivo { get; set; }
+    /// <summary>
+    /// true se o domínio estiver escondido.
+    /// </summary>
+    public bool IsEscondido { get; set; }
     /// <summary>
     /// Usuário que administra o domínio (se houve).
     /// </summary>

@@ -55,5 +55,7 @@ public enum ExceptionKey
     [Display(Description = "Estabelecimento não encontrado.")]
     EstabelecimentoNaoEncontrado = 26,
     [Display(Description = "Rede de Estabelecimentos não encontrado.")]
-    RedeEstabelecimentosNaoEncontrado = 27
+    RedeEstabelecimentosNaoEncontrado = 27,
+    [Display(Description = "Você não está logado em um estabelecimento.")]
+    EstabelecimentoNaoLogado = 28,
 }

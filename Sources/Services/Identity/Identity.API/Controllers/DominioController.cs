@@ -17,15 +17,16 @@ public class DominioController : IdentityController
     /// Lista todos os domínios.
     /// </summary>
     /// <param name="filtro">Filtro de texto. Opcional.</param>
+    /// <param name="showHidden">true para mostrar os domínios escondidos.</param>
     /// <param name="cursor">Cursor. Opcional.</param>
     /// <param name="limit">Limite de domínios retornados. Opcional.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>
     /// <returns>Domínios.</returns>
 
     [HttpGet, ScopeAuthorize("dominios.listar"), SuperUsuarioAuthorize]
-    public async Task<ActionResult<PaginatedListDTO<DominioListadoDTO>>> FindDominios([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
+    public async Task<ActionResult<PaginatedListDTO<DominioListadoDTO>>> FindDominios([FromQuery] string? filtro, [FromQuery]bool? showHidden, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
-        var r = await DominioQueries.FindDominios(filtro, cursor, limit, consistencyToken);
+        var r = await DominioQueries.FindDominios(filtro, showHidden, cursor, limit, consistencyToken);
         return Ok(r);
     }
 
@@ -38,7 +39,7 @@ public class DominioController : IdentityController
     [HttpGet("detalhes"), ScopeAuthorize("dominios.detalhes"), SuperUsuarioAuthorize]
     public async Task<ActionResult<List<DominioDetalhesDTO>>> Detalhes([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
     {
-        var r = await DominioQueries.GetDominioDetalhes(ids, consistencyToken);
+        var r = await DominioQueries.GetDominioDetalhes(ids, noUsuarioAdministrador: false, consistencyToken: consistencyToken);
         return Ok(r);
     }
 
@@ -46,14 +47,14 @@ public class DominioController : IdentityController
     /// Retorna os detalhes do domínio logado.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("logado")]
-    public async Task<ActionResult<List<DominioDetalhesDTO>>> Logado()
+    [HttpGet("logado"), ScopeAuthorize("dominios.logado")]
+    public async Task<ActionResult<IdNomeViewModel>> Logado()
     {
         var dominioId = User.DominioId();
         if (dominioId == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoLogado);
-        var r = await DominioQueries.GetDominioDetalhes(new string[] { dominioId }, null);
-        return Ok(r);
+        var r = (await DominioQueries.GetDominioDetalhes(new string[] { dominioId }, noUsuarioAdministrador: true, consistencyToken: null)).First();
+        return Ok(new IdNomeViewModel(r.DominioId, r.Nome));
     }
 
     /// <summary>
@@ -204,6 +205,32 @@ public class DominioController : IdentityController
         cmd.UsuarioLogadoId = User.Id();
         cmd.DominioId = User.DominioId();
         var r = await Mediator.Send(cmd);
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Esconde um domínio.
+    /// </summary>
+    /// <param name="dominioId">Id do domínio a ser escondido.</param>
+    /// <returns>Ok.</returns>
+    /// <exception cref="ArgumentNullException">dominioId is null</exception>
+    [HttpPost("{dominioId}/esconder"), ScopeAuthorize("dominios.esconder"), SuperUsuarioAuthorize]
+    public async Task<ActionResult<CommandResult>> Esconder(string dominioId)
+    {
+        var r = await Mediator.Send(new EsconderOuMostrarDominioCmd(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), true));
+        return Ok(r);
+    }
+
+    /// <summary>
+    /// Mostra um domínio.
+    /// </summary>
+    /// <param name="dominioId">Id do domínio a ser mostrado.</param>
+    /// <returns>Ok.</returns>
+    /// <exception cref="ArgumentNullException">dominioId is null</exception>
+    [HttpPost("{dominioId}/mostrar"), ScopeAuthorize("dominios.mostrar"), SuperUsuarioAuthorize]
+    public async Task<ActionResult<CommandResult>> Mostrar(string dominioId)
+    {
+        var r = await Mediator.Send(new EsconderOuMostrarDominioCmd(User.Id(), dominioId ?? throw new ArgumentNullException(nameof(dominioId)), false));
         return Ok(r);
     }
 }
