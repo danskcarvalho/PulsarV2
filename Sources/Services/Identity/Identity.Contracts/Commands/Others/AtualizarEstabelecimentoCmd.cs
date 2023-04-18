@@ -2,7 +2,7 @@
 
 namespace Pulsar.Services.Identity.Contracts.Commands.Others;
 
-public class EstabelecimentoModificadoCmd : IRequest
+public class AtualizarEstabelecimentoCmd : IRequest
 {
     public string EstabelecimentoId { get; set; }
     public string DominioId { get; set; }
@@ -13,7 +13,7 @@ public class EstabelecimentoModificadoCmd : IRequest
     public DateTime TimeStamp { get; set; }
     public AuditInfoDTO AuditInfo { get; set; }
 
-    public EstabelecimentoModificadoCmd(string estabelecimentoId, string dominioId, string nome, string cnes, List<string> redes, bool ativo, DateTime timeStamp, AuditInfoDTO auditInfo)
+    public AtualizarEstabelecimentoCmd(string estabelecimentoId, string dominioId, string nome, string cnes, List<string> redes, bool ativo, DateTime timeStamp, AuditInfoDTO auditInfo)
     {
         EstabelecimentoId = estabelecimentoId;
         Nome = nome;

@@ -2,7 +2,7 @@
 
 namespace Pulsar.Services.Identity.Contracts.Commands.Others;
 
-public class RedeEstabelecimentosEditadaOuCriadaCommand : IRequest
+public class AtualizarRedeEstabelecimentosCmd : IRequest
 {
     public string RedeEstabelecimentsoId { get; set; }
     public string DominioId { get; set; }
@@ -10,7 +10,7 @@ public class RedeEstabelecimentosEditadaOuCriadaCommand : IRequest
     public DateTime TimeStamp { get; set; }
     public AuditInfoDTO AuditInfo { get; set; }
 
-    public RedeEstabelecimentosEditadaOuCriadaCommand(string redeEstabelecimentsoId, string dominioId, string nome, DateTime timeStamp, AuditInfoDTO auditInfo)
+    public AtualizarRedeEstabelecimentosCmd(string redeEstabelecimentsoId, string dominioId, string nome, DateTime timeStamp, AuditInfoDTO auditInfo)
     {
         RedeEstabelecimentsoId = redeEstabelecimentsoId;
         DominioId = dominioId;

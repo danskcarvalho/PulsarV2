@@ -1,13 +1,13 @@
 ﻿namespace Pulsar.Services.Identity.Functions.Application.Commands.Others;
 
 [NoTransaction, RetryOnException(DuplicatedKey = true, VersionConcurrency = true, Retries = 2)]
-public class EstabelecimentoModificadoCH : IdentityCommandHandler<EstabelecimentoModificadoCmd>
+public class EstabelecimentoModificadoCH : IdentityCommandHandler<AtualizarEstabelecimentoCmd>
 {
-    public EstabelecimentoModificadoCH(IdentityCommandHandlerContext<EstabelecimentoModificadoCmd> ctx) : base(ctx)
+    public EstabelecimentoModificadoCH(IdentityCommandHandlerContext<AtualizarEstabelecimentoCmd> ctx) : base(ctx)
     {
     }
 
-    protected override async Task HandleAsync(EstabelecimentoModificadoCmd cmd, CancellationToken ct)
+    protected override async Task HandleAsync(AtualizarEstabelecimentoCmd cmd, CancellationToken ct)
     {
         var estabelecimento = await EstabelecimentoRepository.FindOneByIdAsync(cmd.EstabelecimentoId.ToObjectId(), ct);
         if (estabelecimento == null)
