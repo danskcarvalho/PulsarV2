@@ -1,12 +1,17 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.ConfigureDataProtection(builder.Configuration);
+}
 
 builder.Services.AddControllersWithViews().AddJsonOptions(j =>
 {
     j.JsonSerializerOptions.Converters.Add(new AssertDateTimeConverter());
     j.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+builder.Services.AddSingleton<MongoSigningKeyStoreConnection>();
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
@@ -85,7 +90,9 @@ var idserver = builder.Services.AddIdentityServer(options =>
     keypath += "Pulsar" + Path.DirectorySeparatorChar + "Keys";
     options.KeyManagement.KeyPath = keypath;
 });
-idserver.AddInMemoryClients(AllClients.Resources(builder.Configuration))
+idserver
+    .AddSigningKeyStore<MongoSigningKeyStore>()
+    .AddInMemoryClients(AllClients.Resources(builder.Configuration))
     .AddInMemoryApiResources(AllApiResources.Resources)
     .AddInMemoryIdentityResources(AllIdentityResources.Resources)
     .AddInMemoryApiScopes(AllApiScopes.Resources);
