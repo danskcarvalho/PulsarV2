@@ -11,7 +11,7 @@ builder.Services.AddControllersWithViews().AddJsonOptions(j =>
     j.JsonSerializerOptions.Converters.Add(new AssertDateTimeConverter());
     j.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-builder.Services.AddSingleton<MongoSigningKeyStoreConnection>();
+builder.Services.AddSingleton<MongoStoreConnection>();
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
@@ -91,6 +91,7 @@ var idserver = builder.Services.AddIdentityServer(options =>
     options.KeyManagement.KeyPath = keypath;
 });
 idserver
+    .AddPersistedGrantStore<MongoPersistedGrantStore>()
     .AddSigningKeyStore<MongoSigningKeyStore>()
     .AddInMemoryClients(AllClients.Resources(builder.Configuration))
     .AddInMemoryApiResources(AllApiResources.Resources)
