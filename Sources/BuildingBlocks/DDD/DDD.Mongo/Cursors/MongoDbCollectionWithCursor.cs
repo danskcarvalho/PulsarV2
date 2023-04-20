@@ -1,5 +1,4 @@
 ﻿using Pulsar.BuildingBlocks.Utils;
-using Pulsar.BuildingBlocks.Utils.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,58 +15,58 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
         public required string? Cursor { get; init; }
         public required dynamic Filter { get; init; }
 
-        public Task<DataAndNext<TElement>> FindAsync<TCursor>(Func<TCursor, BsonDocument?>? bsonFilter = null)
+        public Task<DataAndNext<TElement>> FindAsync<TCursor>(Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TCursor : class, IPageCursor<TCursor, TElement>
         {
             if (TCursor.HasSortColumn2)
-                return FindAsync2(bsonFilter);
+                return FindAsync2(filterFunction);
             else
-                return FindAsync1(bsonFilter);
+                return FindAsync1(filterFunction);
         }
 
-        public Task<DataAndNext<TProjection>> FindAsync<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, BsonDocument?>? bsonFilter = null)
-            where TProjection : class
-            where TCursor : class, IPageCursor<TCursor, TProjection>
-        {
-            if (TCursor.HasSortColumn2)
-                return FindAsync2(projection, bsonFilter);
-            else
-                return FindAsync1(projection, bsonFilter);
-        }
-        public Task<DataAndNext<TElement>> FindAsyncWithAsyncFilter<TCursor>(Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
-            where TCursor : class, IPageCursor<TCursor, TElement>
-        {
-            if (TCursor.HasSortColumn2)
-                return FindAsync2(bsonFilter);
-            else
-                return FindAsync1(bsonFilter);
-        }
-
-        public Task<DataAndNext<TProjection>> FindAsyncWithAsyncFilter<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
+        public Task<DataAndNext<TProjection>> FindAsync<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TProjection : class
             where TCursor : class, IPageCursor<TCursor, TProjection>
         {
             if (TCursor.HasSortColumn2)
-                return FindAsync2(projection, bsonFilter);
+                return FindAsync2(projection, filterFunction);
             else
-                return FindAsync1(projection, bsonFilter);
+                return FindAsync1(projection, filterFunction);
+        }
+        public Task<DataAndNext<TElement>> FindAsyncWithAsyncFilter<TCursor>(Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
+            where TCursor : class, IPageCursor<TCursor, TElement>
+        {
+            if (TCursor.HasSortColumn2)
+                return FindAsync2(filterFunction);
+            else
+                return FindAsync1(filterFunction);
         }
 
-        private async Task<DataAndNext<TElement>> FindAsync2<TCursor>(Func<TCursor, BsonDocument?>? bsonFilter = null)
+        public Task<DataAndNext<TProjection>> FindAsyncWithAsyncFilter<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
+            where TProjection : class
+            where TCursor : class, IPageCursor<TCursor, TProjection>
+        {
+            if (TCursor.HasSortColumn2)
+                return FindAsync2(projection, filterFunction);
+            else
+                return FindAsync1(projection, filterFunction);
+        }
+
+        private async Task<DataAndNext<TElement>> FindAsync2<TCursor>(Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TCursor : class, IPageCursor<TCursor, TElement>
         {
             if (this.Cursor is not null)
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
 
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    b.Or(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) }, 
-                        b.And(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Eq(cursorObj.SortColumn1.Value) }, new Dictionary<string, object> { [cursorObj.SortColumn2!.Value.Name] = b.Gt(cursorObj.SortColumn2!.Value.Value) }))));
+                    Builders<TElement>.Filter.Or(Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value),
+                        Builders<TElement>.Filter.And(Builders<TElement>.Filter.Eq(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value), Builders<TElement>.Filter.Gt(cursorObj.SortColumn2!.Value.Name, cursorObj.SortColumn2!.Value.Value))));
 
                 var findOptions = new FindOptions<TElement, TElement>()
                 {
@@ -81,7 +80,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
 
@@ -95,19 +94,19 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TElement>> FindAsync1<TCursor>(Func<TCursor, BsonDocument?>? bsonFilter = null)
+        private async Task<DataAndNext<TElement>> FindAsync1<TCursor>(Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TCursor : class, IPageCursor<TCursor, TElement>
         {
             if (this.Cursor is not null)
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) } ));
+                    Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value));
 
                 var findOptions = new FindOptions<TElement, TElement>()
                 {
@@ -121,7 +120,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
 
@@ -135,7 +134,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TProjection>> FindAsync2<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, BsonDocument?>? bsonFilter = null)
+        private async Task<DataAndNext<TProjection>> FindAsync2<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TProjection : class
             where TCursor : class, IPageCursor<TCursor, TProjection>
         {
@@ -143,13 +142,13 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    b.Or(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) },
-                        b.And(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Eq(cursorObj.SortColumn1.Value) }, new Dictionary<string, object> { [cursorObj.SortColumn2!.Value.Name] = b.Gt(cursorObj.SortColumn2!.Value.Value) }))));
+                    Builders<TElement>.Filter.Or(Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value),
+                        Builders<TElement>.Filter.And(Builders<TElement>.Filter.Eq(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value), Builders<TElement>.Filter.Gt(cursorObj.SortColumn2!.Value.Name, cursorObj.SortColumn2!.Value.Value))));
 
                 var findOptions = new FindOptions<TElement, TProjection>()
                 {
@@ -164,7 +163,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
 
@@ -179,7 +178,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TProjection>> FindAsync1<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, BsonDocument?>? bsonFilter = null)
+        private async Task<DataAndNext<TProjection>> FindAsync1<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, FilterDefinition<TElement>?>? filterFunction = null)
             where TProjection : class
             where TCursor : class, IPageCursor<TCursor, TProjection>
         {
@@ -187,12 +186,12 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) }));
+                    Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value));
 
                 var findOptions = new FindOptions<TElement, TProjection>()
                 {
@@ -207,7 +206,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
 
@@ -222,20 +221,21 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TElement>> FindAsync2<TCursor>(Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
+        private async Task<DataAndNext<TElement>> FindAsync2<TCursor>(Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
             where TCursor : class, IPageCursor<TCursor, TElement>
         {
             if (this.Cursor is not null)
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
-                var filter = BSON.Create(b => b.And(
+
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    b.Or(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) },
-                        b.And(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Eq(cursorObj.SortColumn1.Value) }, new Dictionary<string, object> { [cursorObj.SortColumn2!.Value.Name] = b.Gt(cursorObj.SortColumn2!.Value.Value) }))));
+                    Builders<TElement>.Filter.Or(Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value),
+                        Builders<TElement>.Filter.And(Builders<TElement>.Filter.Eq(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value), Builders<TElement>.Filter.Gt(cursorObj.SortColumn2!.Value.Name, cursorObj.SortColumn2!.Value.Value))));
 
                 var findOptions = new FindOptions<TElement, TElement>()
                 {
@@ -249,7 +249,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
 
@@ -263,19 +263,19 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TElement>> FindAsync1<TCursor>(Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
+        private async Task<DataAndNext<TElement>> FindAsync1<TCursor>(Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
             where TCursor : class, IPageCursor<TCursor, TElement>
         {
             if (this.Cursor is not null)
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) }));
+                    Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value));
 
                 var findOptions = new FindOptions<TElement, TElement>()
                 {
@@ -289,7 +289,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TElement>(new List<TElement>(), null);
 
@@ -303,7 +303,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TProjection>> FindAsync2<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
+        private async Task<DataAndNext<TProjection>> FindAsync2<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
             where TProjection : class
             where TCursor : class, IPageCursor<TCursor, TProjection>
         {
@@ -311,13 +311,13 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    b.Or(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) },
-                        b.And(new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Eq(cursorObj.SortColumn1.Value) }, new Dictionary<string, object> { [cursorObj.SortColumn2!.Value.Name] = b.Gt(cursorObj.SortColumn2!.Value.Value) }))));
+                    Builders<TElement>.Filter.Or(Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value),
+                        Builders<TElement>.Filter.And(Builders<TElement>.Filter.Eq(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value), Builders<TElement>.Filter.Gt(cursorObj.SortColumn2!.Value.Name, cursorObj.SortColumn2!.Value.Value))));
 
                 var findOptions = new FindOptions<TElement, TProjection>()
                 {
@@ -332,7 +332,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
 
@@ -347,7 +347,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             }
         }
 
-        private async Task<DataAndNext<TProjection>> FindAsync1<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<BsonDocument?>>? bsonFilter = null)
+        private async Task<DataAndNext<TProjection>> FindAsync1<TCursor, TProjection>(ProjectionDefinition<TElement, TProjection> projection, Func<TCursor, Task<FilterDefinition<TElement>?>>? filterFunction = null)
             where TProjection : class
             where TCursor : class, IPageCursor<TCursor, TProjection>
         {
@@ -355,12 +355,12 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = this.Cursor.FromBase64Json<TCursor>()!;
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
-                var filter = BSON.Create(b => b.And(
+                var filter = Builders<TElement>.Filter.And(
                     innerFilter,
-                    new Dictionary<string, object> { [cursorObj.SortColumn1.Name] = b.Gt(cursorObj.SortColumn1.Value) }));
+                    Builders<TElement>.Filter.Gt(cursorObj.SortColumn1.Name, cursorObj.SortColumn1.Value));
 
                 var findOptions = new FindOptions<TElement, TProjection>()
                 {
@@ -375,7 +375,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
             {
                 var limit = this.Limit.Limit();
                 var cursorObj = (TCursor)TCursor.FromFilter(this.Filter);
-                var innerFilter = bsonFilter is not null ? await bsonFilter(cursorObj) : new BsonDocument();
+                var innerFilter = filterFunction is not null ? await filterFunction(cursorObj) : FilterDefinition<TElement>.Empty;
                 if (innerFilter is null)
                     return new DataAndNext<TProjection>(new List<TProjection>(), null);
 

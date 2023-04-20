@@ -17,8 +17,8 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
                 await DominiosCollection.Paginated(limit ?? 50, cursor, new { Filtro = filtro, ShowHidden = showHidden })
                     .FindAsync<CursorDominioListado>(c => 
                         c.ShowHidden == true ? 
-                            c.Filtro.ToTextSearch() : 
-                            BSON.Create(b => b.And(c.Filtro.ToTextSearch(), new BsonDocument { ["AuditInfo.EscondidoEm"] = b.Eq(null) })));
+                            c.Filtro.ToTextSearch<Dominio>() : 
+                            Filters.Dominios.Create(f => f.And(c.Filtro.ToTextSearch<Dominio>(), f.Eq(d => d.AuditInfo.EscondidoEm, null))));
 
             var usuarioIds = dominios.Where(x => x.UsuarioAdministradorId.HasValue).Select(x => x.UsuarioAdministradorId!.Value).ToList();
             var usuarios = (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id)).ToListAsync()).MapByUnique(x => x.Id);
@@ -34,6 +34,7 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
 
     public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuariosBloqueados(string dominioId, string? filtro, string? cursor, int? limit, string? consistencyToken)
     {
+        filtro = filtro?.ToLowerInvariant().Trim();
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
@@ -47,8 +48,8 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
             var (usuarios, next) = await UsuariosCollection.Paginated(limit ?? 50, cursor, new { DominioId = dominioId, Filtro = filtro }).FindAsync<CursorUsuariosBloqueados, UsuarioListadoDTO>(projection,
                 c =>
                 {
-                    var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(c.Filtro) });
-                    return BSON.Create(b => b.And(textSearch, new { DominiosBloqueados = b.In(c.DominioId.ToObjectId()) }, new { Email = b.Ne(null) }));
+                    var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro) );
+                    return Filters.Usuarios.Create(f => f.And(textSearch, f.AnyEq(u => u.DominiosBloqueados, c.DominioId.ToObjectId()), f.Ne(f => f.Email, null)));
                 });
 
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);

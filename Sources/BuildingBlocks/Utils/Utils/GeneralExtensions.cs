@@ -136,28 +136,7 @@ public static class GeneralExtensions
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, new JsonSerializerOptions());
     }
-    public static BsonDocument ToTextSearch(this string? term)
-    {
-        if (term == null || term.IsEmpty())
-            return new BsonDocument();
-
-        var parts = term.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var searchTerms = new List<object>();
-        foreach (var p in parts)
-        {
-            if (p.Length < 3)
-                continue;
-
-            searchTerms.Add(new BsonDocument { { "$text", new BsonDocument { { "$search", p } } } });
-        }
-
-        return new BsonDocument
-        {
-            { "$and", new BsonArray(searchTerms.ToArray()) }
-        };
-    }
     public static int Limit(this int limit) => Math.Max(Math.Min(limit, 1000), 1);
-
     public static bool IsValidExtension(this string fn, params string[] validExtensions)
     {
         var ext = Path.GetExtension(fn).ToLowerInvariant();

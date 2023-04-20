@@ -18,11 +18,11 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
             var (grupos, next) = await GruposCollection.Paginated(limit ?? 50, cursor, new { Filtro = filtro }).FindAsync<CursorGrupoListado>(
                  c =>
                  {
-                     var textSearch = c.Filtro.ToTextSearch();
-                     return BSON.Create(b => b.And(
+                     var textSearch = c.Filtro.ToTextSearch<Grupo>();
+                     return Filters.Grupos.Create(f => f.And(
                          textSearch,
-                         new { DominioId = b.Eq(dominioId.ToObjectId()) },
-                         new BsonDocument { ["AuditInfo.RemovidoEm"] = b.Eq(null) }));
+                         f.Eq(g => g.DominioId, dominioId.ToObjectId()),
+                         f.Eq(g => g.AuditInfo.RemovidoEm, null)));
                  });
 
             var gruposListados = grupos.Select(x => new GrupoListadoDTO(x.Id.ToString(), x.Nome, x.NumSubGrupos, x.NumUsuarios)).ToList();
@@ -32,6 +32,8 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
 
     public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursor, int? limit, string? consistencyToken)
     {
+        filtro = filtro?.ToLowerInvariant().Trim();
+
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
             var projection = Builders<Usuario>.Projection.Expression(x => new UsuarioListadoDTO(x.Id.ToString(), x.Email!, x.PrimeiroNome, x.NomeCompleto, x.NomeUsuario)
@@ -50,12 +52,12 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                      if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == c.SubGrupoId.ToObjectId()))
                          return null; // return nothing
 
-                     var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch() : BSON.Create(b => new { Email = b.Eq(c.Filtro) });
-                     return BSON.Create(b => b.And(
+                     var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
+                     return Filters.Usuarios.Create(f => f.And(
                          textSearch,
-                         new BsonDocument { ["Grupos.GrupoId"] = b.Eq(c.GrupoId.ToObjectId()) },
-                         new BsonDocument { ["Grupos.SubGrupoId"] = b.Eq(c.SubGrupoId.ToObjectId()) },
-                         new { Email = b.Ne(null) }));
+                         f.ElemMatch(u => u.Grupos, g => g.GrupoId == c.GrupoId.ToObjectId()),
+                         f.ElemMatch(u => u.Grupos, g => g.SubGrupoId == c.SubGrupoId.ToObjectId()),
+                         f.Ne(u => u.Email, null)));
                  });
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
         }, consistencyToken);
