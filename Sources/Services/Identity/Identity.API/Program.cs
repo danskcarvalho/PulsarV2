@@ -6,6 +6,24 @@ if (!builder.Environment.IsDevelopment())
     builder.Services.ConfigureDataProtection(builder.Configuration);
 }
 
+builder.Services.AddCors(options =>
+{
+    // this defines a CORS policy called "default"
+    options.AddPolicy("CorsDefaultPolicy", policy =>
+    {
+        HashSet<string> origins = new HashSet<string>();
+        origins.UnionWith(builder.Configuration.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c != null).ToList()!);
+        foreach (var child in builder.Configuration.GetSection("IdentityServer:Clients").GetChildren())
+        {
+            origins.UnionWith(child.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c != null).ToList()!);
+        }
+
+        policy.WithOrigins(origins.ToArray())
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 builder.Services.AddControllersWithViews().AddJsonOptions(j =>
 {
     j.JsonSerializerOptions.Converters.Add(new AssertDateTimeConverter());
@@ -126,6 +144,7 @@ app.UseSwaggerUI(c =>
     c.InjectStylesheet("/css/swagger.css");
 });
 app.UseIdentityServer();
+app.UseCors("CorsDefaultPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
