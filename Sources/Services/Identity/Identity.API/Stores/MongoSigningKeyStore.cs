@@ -27,6 +27,9 @@ public class MongoSigningKeyStore : ISigningKeyStore
 
     public async Task StoreKeyAsync(SerializedKey key)
     {
-        await _connection.KeyStoreCollection.InsertOneAsync(key);
+        await _connection.KeyStoreCollection.ReplaceOneAsync(f => f.Id == key.Id, key, new ReplaceOptions
+        {
+            IsUpsert = true
+        });
     }
 }

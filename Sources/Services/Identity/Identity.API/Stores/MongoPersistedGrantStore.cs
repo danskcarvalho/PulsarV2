@@ -70,6 +70,6 @@ public class MongoPersistedGrantStore : IPersistedGrantStore
 
     public async Task StoreAsync(PersistedGrant grant)
     {
-        await _connection.GrantStoreCollection.InsertOneAsync(new MongoPersistedGrant(grant));
+        await _connection.GrantStoreCollection.ReplaceOneAsync(g => g.Key == grant.Key, new MongoPersistedGrant(grant), new ReplaceOptions { IsUpsert = true });
     }
 }

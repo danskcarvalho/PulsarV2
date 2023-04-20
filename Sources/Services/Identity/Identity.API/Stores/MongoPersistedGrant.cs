@@ -6,7 +6,7 @@ public class MongoPersistedGrant : PersistedGrant
 {
     public MongoPersistedGrant(PersistedGrant grant)
     {
-        this.Id = ObjectId.GenerateNewId();
+        this.Id = grant.Key is null ? "N-" + Guid.NewGuid().ToString("N") : grant.Key;
         this.Data = grant.Data;
         this.ClientId = grant.ClientId;
         this.SubjectId = grant.SubjectId;
@@ -22,5 +22,5 @@ public class MongoPersistedGrant : PersistedGrant
     {
     }
 
-    public ObjectId Id { get; set; }
+    public string? Id { get; set; }
 }
