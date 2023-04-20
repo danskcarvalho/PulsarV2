@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using System.Security.Claims;
@@ -36,13 +37,14 @@ public class LoginController : IdentityController
 
         if (user is not null && user.ValidateLogin(login.DominioId, login.EstabelecimentoId))
         {
-            var tokenLifetime = Configuration.GetValue("TokenLifetimeMinutes", 120);
+            var tokenLifetime = Configuration.GetValue("TokenLifetimeDays", 14);
 
             var props = new AuthenticationProperties
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(tokenLifetime),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(tokenLifetime),
                 AllowRefresh = true,
-                RedirectUri = login.ReturnUrl
+                RedirectUri = login.ReturnUrl,
+                IsPersistent = true
             };
 
             // make sure the returnUrl is still valid, and if yes - redirect back to authorize endpoint
@@ -80,7 +82,7 @@ public class LoginController : IdentityController
 
             var identity = new ClaimsIdentity(claims, "pwd");
             var user = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync(user, props);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, props);
 
             string GetEstabelecimentoPerms(UsuarioLogadoDTO userInfo, LoginDTO login)
             {

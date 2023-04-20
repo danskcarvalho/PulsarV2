@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -55,14 +57,23 @@ builder.Services.AddTransient<IdentityQueriesContext>(sp =>
         configuration.GetOrThrow("MongoDB:ClusterName"));
 });
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
-builder.Services.AddAuthentication().AddJwtBearer("Bearer", options =>
-{
-    options.Authority = builder.Configuration.GetOrThrow("IdentityServer:Authority");
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddJwtBearer("Bearer", options =>
     {
-        ValidateAudience = false
-    };
-});
+        options.Authority = builder.Configuration.GetOrThrow("IdentityServer:Authority");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            RequireAudience = true,
+            ValidAudience = "identity"
+        };
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromDays(15);
+        options.SlidingExpiration = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -100,8 +111,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddTransient<IProfileService, UserProfileService>();
 var idserver = builder.Services.AddIdentityServer(options =>
 {
-    options.Authentication.CookieLifetime = TimeSpan.FromDays(2);
-    options.Authentication.CookieSlidingExpiration = true;
+    options.Authentication.CookieAuthenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 });
 idserver
     .AddPersistedGrantStore<MongoPersistedGrantStore>()

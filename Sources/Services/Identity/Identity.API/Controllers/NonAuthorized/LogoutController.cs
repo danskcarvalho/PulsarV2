@@ -2,6 +2,7 @@
 using Duende.IdentityServer.Services;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
@@ -56,7 +57,7 @@ public class LogoutController : IdentityController
         if (User?.Identity?.IsAuthenticated == true)
         {
             // delete local authentication cookie
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
 
 
