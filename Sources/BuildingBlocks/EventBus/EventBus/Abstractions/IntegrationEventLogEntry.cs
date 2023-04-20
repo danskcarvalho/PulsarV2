@@ -5,11 +5,9 @@ namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
 public class IntegrationEventLogEntry
 {
     [BsonId]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; private set; }
     public string EventName { get; private set; }
-    [BsonIgnore]
-    public IntegrationEvent IntegrationEvent { get; private set; }
-
     public string SerializedEvent { get; private set; }
     public IntegrationEventStatus Status { get; set; }
     public DateTime? InProgressExpirationDate { get; set; }
@@ -26,10 +24,6 @@ public class IntegrationEventLogEntry
     {
         SerializedEvent = serializedEvent;
         EventName = eventName;
-        var eventType = EventNameAttribute.GetTypeByEventName(eventName);
-        if (eventType is null)
-            throw new InvalidOperationException("invalid eventName");
-        IntegrationEvent = (JsonSerializer.Deserialize(SerializedEvent, eventType, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }) as IntegrationEvent)!;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -41,7 +35,6 @@ public class IntegrationEventLogEntry
         if (en is null)
             throw new InvalidOperationException("invalid event: no EventNameAttribute");
         EventName = en;
-        IntegrationEvent = @event;
         SerializedEvent = JsonSerializer.Serialize(@event, @event.GetType(), new JsonSerializerOptions
         {
             WriteIndented = true

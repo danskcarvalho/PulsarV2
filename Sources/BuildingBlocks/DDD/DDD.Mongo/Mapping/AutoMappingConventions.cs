@@ -21,6 +21,11 @@ public static class AutoMappingConventions
            pack,
            t => true);
 
+#pragma warning disable CS0618
+        BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
+        BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
+#pragma warning restore CS0618
+
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
     }
 }

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
     <ProjectReference Include="..\EventBus\EventBus.csproj" />
   </ItemGroup>
 

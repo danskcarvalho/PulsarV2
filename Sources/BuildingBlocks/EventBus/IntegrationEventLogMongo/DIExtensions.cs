@@ -1,4 +1,8 @@
-﻿using Pulsar.BuildingBlocks.Utils;
+﻿//#define NO_COMMAND_OUTPUT
+using MongoDB.Driver.Core.Events;
+using Pulsar.BuildingBlocks.DDD.Mongo.Mapping;
+using Pulsar.BuildingBlocks.Utils;
+using System.Diagnostics;
 
 namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;
 
@@ -6,6 +10,7 @@ public static class DIExtensions
 {
     public static void AddMongoEventBus(this IServiceCollection col)
     {
+        AutoMappingConventions.Register();
         col.AddSingleton<IIntegrationEventLogStorage, MongoIntegrationEventLogStorage>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
@@ -17,6 +22,13 @@ public static class DIExtensions
             settings.WriteConcern = WriteConcern.WMajority;
             settings.ReadPreference = ReadPreference.Primary;
             settings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
+#if DEBUG && !NO_COMMAND_OUTPUT
+            settings.ClusterConfigurator = cb => {
+                cb.Subscribe<CommandStartedEvent>(e => {
+                    Debug.WriteLine($"{e.CommandName} - {e.Command.ToJson()}");
+                });
+            };
+#endif
 
             var client = new MongoClient(settings);
             return new MongoIntegrationEventLogStorage(

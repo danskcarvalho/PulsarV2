@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization;
 using System;
 
 namespace Pulsar.BuildingBlocks.IntegrationEventLogMongo;

@@ -62,14 +62,20 @@ public partial class GenericIntegrationEventDispatcherService
         private async Task PopAndRunEvent(CancellationToken ct)
         {
             var evts = await _Producer.Pop(ct);
+            try
+            {
+                var pending = evts.Where(e => e.Status == IntegrationEventStatus.Pending).ToList();
+                var inProgress = evts.Where(e => e.Status == IntegrationEventStatus.InProgress).ToList();
 
-            var pending = evts.Where(e => e.Status == IntegrationEventStatus.Pending).ToList();
-            var inProgress = evts.Where(e => e.Status == IntegrationEventStatus.InProgress).ToList();
-
-            if (pending.Count != 0)
-                await RunPendingEvents(pending, ct);
-            if (inProgress.Count != 0)
-                await RunInProgressEvents(inProgress, ct);
+                if (pending.Count != 0)
+                    await RunPendingEvents(pending, ct);
+                if (inProgress.Count != 0)
+                    await RunInProgressEvents(inProgress, ct);
+            }
+            finally
+            {
+                _Producer.ReleaseEvents(evts);
+            }
         }
 
         private async Task RunInProgressEvents(List<IntegrationEventLogEntry> evts, CancellationToken ct)
@@ -249,7 +255,7 @@ public partial class GenericIntegrationEventDispatcherService
 
         private async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> PublishEvents(List<IntegrationEventLogEntry> evts)
         {
-            return await _EventBus.Publish(evts.Select(e => (e.EventName, e.IntegrationEvent)));
+            return await _EventBus.Publish(evts.Select(e => (e.EventName, e.Id, e.SerializedEvent)));
         }
     }
 }

@@ -28,7 +28,7 @@ public class AzureEventBusService : IEventBus
         }
     }
 
-    public async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> Publish(IEnumerable<(string EventName, IntegrationEvent Event)> eventBatch)
+    public async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> Publish(IEnumerable<(string EventName, Guid EventId, string Event)> eventBatch)
     {
         var retryPolicy = Policy
                   .Handle<Exception>(e => true)
@@ -42,8 +42,8 @@ public class AzureEventBusService : IEventBus
 
         List<(HashSet<Guid> Ids, Exception? Exception)> result = new();
         var list = eventBatch.ToList();
-        var sent = new List<(string EventName, IntegrationEvent Event)>();
-        var next = new List<(string EventName, IntegrationEvent Event)>();
+        var sent = new List<(string EventName, Guid EventId, string Event)>();
+        var next = new List<(string EventName, Guid EventId, string Event)>();
 
         if (list.Count == 0)
             return new List<(HashSet<Guid> Ids, Exception? Exception)>();
@@ -55,13 +55,10 @@ public class AzureEventBusService : IEventBus
             // create a batch 
             using ServiceBusMessageBatch messageBatch = await sender.CreateMessageBatchAsync();
 
-            for (int i = 1; i <= list.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
                 // try adding a message to the batch
-                var body = JsonSerializer.Serialize(list[i].Event, new JsonSerializerOptions
-                {
-                    WriteIndented = false
-                });
+                var body = list[i].Event;
 
                 var msg = new ServiceBusMessage(body);
                 msg.ContentType = "application/json";
@@ -88,11 +85,11 @@ public class AzureEventBusService : IEventBus
                 {
                     await sender.SendMessagesAsync(messageBatch);
                 });
-                result.Add((new HashSet<Guid>(sent.Select(s => s.Event.Id)), null));
+                result.Add((new HashSet<Guid>(sent.Select(s => s.EventId)), null));
             }
             catch (Exception e)
             {
-                result.Add((new HashSet<Guid>(sent.Select(s => s.Event.Id)), e));
+                result.Add((new HashSet<Guid>(sent.Select(s => s.EventId)), e));
             }
 
             var temp = list;

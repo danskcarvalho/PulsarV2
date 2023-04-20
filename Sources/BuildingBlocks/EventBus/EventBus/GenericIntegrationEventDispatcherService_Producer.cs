@@ -31,10 +31,11 @@ public partial class GenericIntegrationEventDispatcherService
         public async Task Run(CancellationToken ct)
         {
             var w = WatchChanges(ct);
-            var p = PollChanges(ct);
-            var b = EnqueueBatchedEvents(ct);
+            //var p = PollChanges(ct);
+            var b = EnqueueWatchedEvents(ct);
             var c = CheckInProducer(ct);
-            await Task.WhenAll(w, p, b, c);
+            //await Task.WhenAll(w, p, b, c);
+            await Task.WhenAll(w, b, c);
         }
         public async Task<IntegrationEventLogEntry[]> Pop(CancellationToken ct)
         {
@@ -57,8 +58,6 @@ public partial class GenericIntegrationEventDispatcherService
                     }
 
                     var evts = _Queue.Dequeue();
-                    _EventsInQueue.ExceptWith(evts.Select(e => e.Id));
-                    _Logger.LogInformation($"popped event batch");
                     return evts;
                 }
             }
@@ -77,7 +76,6 @@ public partial class GenericIntegrationEventDispatcherService
                     try
                     {
                         var pollingTimeout = RandomPollingTimeout();
-                        _Logger.LogInformation($"about to sleep for {pollingTimeout} milliseconds");
                         await Task.Delay(pollingTimeout, ct);
 
                         while (true)
@@ -204,7 +202,6 @@ public partial class GenericIntegrationEventDispatcherService
                     try
                     {
                         var pollingTimeout = RandomPollingTimeout();
-                        _Logger.LogInformation($"about to sleep for {pollingTimeout} milliseconds");
                         await Task.Delay(pollingTimeout, ct);
 
                         var producerInfo = GetProducerInfo();
@@ -266,7 +263,7 @@ public partial class GenericIntegrationEventDispatcherService
             });
         }
 
-        private async Task EnqueueBatchedEvents(CancellationToken ct)
+        private async Task EnqueueWatchedEvents(CancellationToken ct)
         {
             await Task.Run(async () =>
             {
@@ -279,7 +276,6 @@ public partial class GenericIntegrationEventDispatcherService
                     }
                     try
                     {
-                        _Logger.LogInformation($"about to sleep for 1000 milliseconds");
                         await Task.Delay(Constants.MAX_DELAY_BATCHING, ct);
 
                         if (ct.IsCancellationRequested)
@@ -386,7 +382,6 @@ public partial class GenericIntegrationEventDispatcherService
                     try
                     {
                         var pollingTimeout = RandomPollingTimeout();
-                        _Logger.LogInformation($"about to sleep for {pollingTimeout} milliseconds");
                         await Task.Delay(pollingTimeout, ct);
 
                         (Guid? ProducerId, int ProducerSeq, int ProducerCount)? oldProducerInfo = null;
@@ -431,6 +426,14 @@ public partial class GenericIntegrationEventDispatcherService
                     _Logger.LogError(ex, "error while checking-out producer");
                 }
             });
+        }
+
+        public void ReleaseEvents(IntegrationEventLogEntry[] evts)
+        {
+            lock (_Queue)
+            {
+                _EventsInQueue.ExceptWith(evts.Select(e => e.Id));
+            }
         }
     }
 }
