@@ -20,6 +20,7 @@ builder.Services.AddMediatR(c =>
 {
     c.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+builder.Services.AddTransient<IRefreshTokenService, PulsarRefreshTokenService>();
 builder.Services.AddAzureEmails();
 builder.Services.AddRedisCache();
 builder.Services.AddAzureBlobStorage();
@@ -81,14 +82,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddTransient<IProfileService, UserProfileService>();
 var idserver = builder.Services.AddIdentityServer(options =>
 {
-    options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
+    options.Authentication.CookieLifetime = TimeSpan.FromDays(2);
     options.Authentication.CookieSlidingExpiration = true;
-
-    var keypath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-    if (!keypath.EndsWith(Path.DirectorySeparatorChar))
-        keypath += Path.DirectorySeparatorChar;
-    keypath += "Pulsar" + Path.DirectorySeparatorChar + "Keys";
-    options.KeyManagement.KeyPath = keypath;
 });
 idserver
     .AddPersistedGrantStore<MongoPersistedGrantStore>()

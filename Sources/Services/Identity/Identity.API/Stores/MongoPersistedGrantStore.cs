@@ -14,19 +14,19 @@ public class MongoPersistedGrantStore : IPersistedGrantStore
 
     public async Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
     {
-        return (await _connection.PersistedGrantStoreCollection.FindAsync(GetFilterDefinition(filter))).ToEnumerable();
+        return (await _connection.GrantStoreCollection.FindAsync(GetFilterDefinition(filter))).ToEnumerable();
     }
 
     public async Task<PersistedGrant> GetAsync(string key)
     {
-        var r = await _connection.PersistedGrantStoreCollection.FindAsync(g => g.Key == key, new FindOptions<MongoPersistedGrant, MongoPersistedGrant>() { Limit = 1 }).FirstOrDefaultAsync();
+        var r = await _connection.GrantStoreCollection.FindAsync(g => g.Key == key, new FindOptions<MongoPersistedGrant, MongoPersistedGrant>() { Limit = 1 }).FirstOrDefaultAsync();
         return r!;
     }
 
     public async Task RemoveAllAsync(PersistedGrantFilter filter)
     {
         var filterDefinition = GetFilterDefinition(filter);
-        await _connection.PersistedGrantStoreCollection.DeleteManyAsync(filterDefinition);
+        await _connection.GrantStoreCollection.DeleteManyAsync(filterDefinition);
     }
 
     private FilterDefinition<MongoPersistedGrant> GetFilterDefinition(PersistedGrantFilter filter)
@@ -65,11 +65,11 @@ public class MongoPersistedGrantStore : IPersistedGrantStore
 
     public async Task RemoveAsync(string key)
     {
-        await _connection.PersistedGrantStoreCollection.DeleteOneAsync(g => g.Key == key);
+        await _connection.GrantStoreCollection.DeleteOneAsync(g => g.Key == key);
     }
 
     public async Task StoreAsync(PersistedGrant grant)
     {
-        await _connection.PersistedGrantStoreCollection.InsertOneAsync(new MongoPersistedGrant(grant));
+        await _connection.GrantStoreCollection.InsertOneAsync(new MongoPersistedGrant(grant));
     }
 }

@@ -7,9 +7,9 @@ public class MongoStoreConnection
     private readonly IMongoClient _Client;
     private readonly IMongoDatabase _Database;
     private readonly IMongoCollection<SerializedKey> _KeyStoreCollection;
-    private readonly IMongoCollection<MongoPersistedGrant> _PersistedGrantStoreCollection;
+    private readonly IMongoCollection<MongoPersistedGrant> _GrantStoreCollection;
     private const string KEY_STORE_COLLECTION_NAME = "_KeyStore";
-    private const string PERSISTED_GRANT_STORE_COLLECTION_NAME = "_PersistedGrantStore";
+    private const string GRANT_STORE_COLLECTION_NAME = "_GrantStore";
     public MongoStoreConnection(IConfiguration configuration)
     {
         var connectionString = configuration.GetOrThrow("MongoDB:ConnectionString");
@@ -22,12 +22,12 @@ public class MongoStoreConnection
             .WithWriteConcern(WriteConcern.WMajority)
             .WithReadConcern(ReadConcern.Majority)
             .WithReadPreference(ReadPreference.PrimaryPreferred);
-        _PersistedGrantStoreCollection = _Database.GetCollection<MongoPersistedGrant>(PERSISTED_GRANT_STORE_COLLECTION_NAME)
+        _GrantStoreCollection = _Database.GetCollection<MongoPersistedGrant>(GRANT_STORE_COLLECTION_NAME)
             .WithWriteConcern(WriteConcern.WMajority)
             .WithReadConcern(ReadConcern.Majority)
             .WithReadPreference(ReadPreference.PrimaryPreferred);
     }
 
     public IMongoCollection<SerializedKey> KeyStoreCollection => _KeyStoreCollection;
-    public IMongoCollection<MongoPersistedGrant> PersistedGrantStoreCollection => _PersistedGrantStoreCollection;
+    public IMongoCollection<MongoPersistedGrant> GrantStoreCollection => _GrantStoreCollection;
 }

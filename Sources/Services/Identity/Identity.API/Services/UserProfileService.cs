@@ -30,7 +30,9 @@ public class UserProfileService : IProfileService
 
     private async Task<List<Claim>> GetRequestedClaims(ClaimsPrincipal user, IEnumerable<string> requestedClaimsTypes)
     {
-        var requestedNotPresent = requestedClaimsTypes.Where(c => !user.Claims.Any(uc => c == uc.Type)).ToList();
+        //var requestedNotPresent = requestedClaimsTypes.Where(c => !user.Claims.Any(uc => c == uc.Type)).ToList();
+        // -- for now, assume no claim is present...
+        var requestedNotPresent = requestedClaimsTypes.ToList();
         var allProfileClaims = new HashSet<string>(AllIdentityResources.Resources.First(r => r.Name == "profile").UserClaims);
         var allNonProfileClaims = new HashSet<string>(AllIdentityResources.Resources.Where(r => r.Name != "profile" && r.Name != IdentityServerConstants.StandardScopes.OpenId).SelectMany(r => r.UserClaims));
         var profileClaims = requestedNotPresent.Where(c => allProfileClaims.Contains(c)).ToList();
@@ -62,11 +64,12 @@ public class UserProfileService : IProfileService
         foreach (var c in requestedClaimsTypes.Where(c => allProfileClaims.Contains(c)))
         {
             var existing = user.Claims.FirstOrDefault(uc => c == uc.Type);
-            if (existing != null)
-            {
-                claims.Add(existing);
-                continue;
-            }
+            // -- don't reuse existing claims
+            //if (existing != null)
+            //{
+            //    claims.Add(existing);
+            //    continue;
+            //}
             if (c == "first_name")
                 claims.Add(new Claim("first_name", basicInfo!.PrimeiroNome));
             else if (c == "last_name")
@@ -84,11 +87,12 @@ public class UserProfileService : IProfileService
         foreach (var c in requestedClaimsTypes.Where(c => allNonProfileClaims.Contains(c)))
         {
             var existing = user.Claims.FirstOrDefault(uc => c == uc.Type);
-            if (existing != null)
-            {
-                claims.Add(existing);
-                continue;
-            }
+            // -- don't reuse existing claims
+            //if (existing != null)
+            //{
+            //    claims.Add(existing);
+            //    continue;
+            //}
 
             if (c == "uag")
                 claims.Add(new Claim("uag", userInfo!.IsSuperUsuario ? "true" : "false"));
