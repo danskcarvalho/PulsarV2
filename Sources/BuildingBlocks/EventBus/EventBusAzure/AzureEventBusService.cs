@@ -63,6 +63,7 @@ public class AzureEventBusService : IEventBus
                 var msg = new ServiceBusMessage(body);
                 msg.ContentType = "application/json";
                 msg.Subject = list[i].EventName;
+                msg.MessageId = list[i].EventId.ToString("N");
 
                 if (!messageBatch.TryAddMessage(msg))
                 {

@@ -215,12 +215,8 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
                     new EmptyPipelineDefinition<ChangeStreamDocument<IntegrationEventLogEntry>>()
                     .Match(x =>
                         x.OperationType == ChangeStreamOperationType.Insert &&
-                        x.FullDocument.TimeStamp % producersCount == producerSeq &&
-                        ((x.FullDocument.Status == IntegrationEventStatus.Pending && DateTime.UtcNow > x.FullDocument.ScheduledOn) ||
-                         (x.FullDocument.Status == IntegrationEventStatus.Pending && x.FullDocument.ScheduledOn == null) ||
-                         (x.FullDocument.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > x.FullDocument.InProgressExpirationDate) ||
-                         (x.FullDocument.Status == IntegrationEventStatus.InProgress && DateTime.UtcNow > x.FullDocument.InProgressRestore)));
-                using (var cursor = await _Collection.WatchAsync(pipeline))
+                        x.FullDocument.TimeStamp % producersCount == producerSeq);
+                using (var cursor = await _Collection.WatchAsync(pipeline, cancellationToken: ct))
                 {
                     await cursor.ForEachAsync(async change =>
                     {

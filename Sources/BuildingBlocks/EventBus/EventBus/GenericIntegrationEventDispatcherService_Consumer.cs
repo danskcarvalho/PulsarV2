@@ -95,7 +95,8 @@ public partial class GenericIntegrationEventDispatcherService
                         });
 
                 var inProgressExpirationDate = evts.Where(e => DateTime.UtcNow > e.InProgressExpirationDate).ToList();
-                var inProgressRestore = evts.Where(e => DateTime.UtcNow > e.InProgressRestore).ToList();
+                var inProgressExpirationDateIds = new HashSet<Guid>(inProgressExpirationDate.Select(e => e.Id));
+                var inProgressRestore = evts.Where(e => DateTime.UtcNow > e.InProgressRestore && !inProgressExpirationDateIds.Contains(e.Id)).ToList();
 
                 if (inProgressExpirationDate.Count != 0)
                 {

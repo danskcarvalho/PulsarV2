@@ -2,7 +2,7 @@
 
 public enum LogoutStage
 {
-    Confirmacao,
-    Deslogando,
-    Deslogado
+    Confirmacao = 0,
+    Deslogando = 1,
+    Deslogado = 2
 }

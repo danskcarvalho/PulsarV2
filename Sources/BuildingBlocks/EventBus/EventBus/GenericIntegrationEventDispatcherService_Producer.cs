@@ -14,9 +14,10 @@ public partial class GenericIntegrationEventDispatcherService
         private IIntegrationEventLogStorage _Storage;
         private GenericIntegrationEventDispatcherServiceOptions _Options;
         private ILogger<GenericIntegrationEventDispatcherService> _Logger;
-        private readonly Random _random = new Random();
-        private readonly object _producerInfoLock = new object();
-        private (Guid? ProducerId, int ProducerSeq, int ProducerCount)? _producerInfo = null;
+        private readonly Random _Random = new Random();
+        private readonly object _ProducerInfoLock = new object();
+        private (Guid? ProducerId, int ProducerSeq, int ProducerCount)? _ProducerInfo = null;
+        private CancellationTokenSource? _WatchChangesCancellationSourceToken = null;
 
         public Producer(
             ILogger<GenericIntegrationEventDispatcherService> logger,
@@ -31,12 +32,12 @@ public partial class GenericIntegrationEventDispatcherService
         public async Task Run(CancellationToken ct)
         {
             var w = WatchChanges(ct);
-            //var p = PollChanges(ct);
+            var p = PollChanges(ct);
             var b = EnqueueWatchedEvents(ct);
             var c = CheckInProducer(ct);
-            //await Task.WhenAll(w, p, b, c);
-            await Task.WhenAll(w, b, c);
+            await Task.WhenAll(w, p, b, c);
         }
+
         public async Task<IntegrationEventLogEntry[]> Pop(CancellationToken ct)
         {
             bool delay = false;
@@ -62,6 +63,16 @@ public partial class GenericIntegrationEventDispatcherService
                 }
             }
         }
+
+        public void ReleaseEvents(IntegrationEventLogEntry[] evts)
+        {
+            lock (_Queue)
+            {
+                _EventsInQueue.ExceptWith(evts.Select(e => e.Id));
+            }
+        }
+
+        #region [ Main Jobs ]
         private async Task PollChanges(CancellationToken ct)
         {
             await Task.Run(async () =>
@@ -130,63 +141,6 @@ public partial class GenericIntegrationEventDispatcherService
             });
         }
 
-        private (int ProducerSeq, int ProducerCount)? GetProducerInfo()
-        {
-            lock (_producerInfoLock)
-            {
-                if (_producerInfo == null)
-                    return null;
-                return (_producerInfo.Value.ProducerSeq, _producerInfo.Value.ProducerCount);
-            }
-        }
-
-        private void Shuffle(List<IntegrationEventLogEntry> events)
-        {
-            int n = events.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = _random.Next(n + 1);
-                var value = events[k];
-                events[k] = events[n];
-                events[n] = value;
-            }
-        }
-
-        private int RandomPollingTimeout()
-        {
-            return _random.Next(_Options.PollingTimeout);
-        }
-
-        private async Task QueueWasProcessed(HashSet<Guid> enqueuedEventIds, CancellationToken ct)
-        {
-            bool delay = false;
-            while (true)
-            {
-                if (ct.IsCancellationRequested)
-                    throw new TaskCanceledException();
-                if (delay)
-                {
-                    delay = false;
-                    await Task.Delay(20);
-                }
-                lock (_Queue)
-                {
-                    var copy = new HashSet<Guid>(enqueuedEventIds);
-                    copy.IntersectWith(_EventsInQueue);
-
-                    if (copy.Count != 0)
-                    {
-                        delay = true;
-                        continue;
-                    }
-
-                    _Logger.LogInformation($"queue was processed");
-                    return;
-                }
-            }
-        }
-
         private async Task WatchChanges(CancellationToken ct)
         {
             await Task.Run(async () =>
@@ -204,43 +158,27 @@ public partial class GenericIntegrationEventDispatcherService
                         var pollingTimeout = RandomPollingTimeout();
                         await Task.Delay(pollingTimeout, ct);
 
-                        var producerInfo = GetProducerInfo();
+                        var producerInfo = GetProducerInfo(out var cancelIfProducerChanged);
                         if (producerInfo == null)
                             continue;
 
-                        var cancelIfIsMaxedSource = new CancellationTokenSource();
-                        var cancelIfIsMaxedToken = cancelIfIsMaxedSource.Token;
-                        var compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, cancelIfIsMaxedToken);
-                        var compositeToken = compositeTokenSource.Token;
+                        CancellationTokenSource cancelIfIsMaxedSource;
+                        CancellationToken compositeToken;
+                        CreateWatchChangesCancellationToken(ct, cancelIfProducerChanged, out cancelIfIsMaxedSource, out compositeToken);
 
                         await _Storage.WatchRelevantEventLogsAsync((evt, ct2) =>
                         {
                             timeout = 1000;
-                            lock (_BatchedEvents)
-                            {
-                                if (_BatchedEvents.Count >= Constants.MAX_EVENTS_ON_QUEUE)
-                                {
-                                    cancelIfIsMaxedSource.Cancel();
-                                    return Task.CompletedTask;
-                                }
-                            }
-                            var newProducerInfo = GetProducerInfo();
-                            if (newProducerInfo == null || newProducerInfo.Value != producerInfo.Value)
-                            {
-                                cancelIfIsMaxedSource.Cancel();
-                                return Task.CompletedTask;
-                            }
-
+                            if (CancelIfIsMaxed(cancelIfIsMaxedSource) is Task cancelled)
+                                return cancelled;
                             if (ct2.IsCancellationRequested)
                                 return Task.CompletedTask;
+
                             if (evt.MayNeedProcessing())
                             {
                                 // we batch up to 1 second of watched events so we can process them in random order.
                                 BatchEvent(evt);
-                                _Logger.LogInformation($"event {evt.Id} batched");
                             }
-                            else
-                                _Logger.LogInformation($"event {evt.Id} can't be processed");
 
                             return Task.CompletedTask;
                         }, producerInfo.Value.ProducerSeq, producerInfo.Value.ProducerCount, compositeToken);
@@ -317,6 +255,176 @@ public partial class GenericIntegrationEventDispatcherService
             });
         }
 
+        private async Task CheckInProducer(CancellationToken ct)
+        {
+            await Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (ct.IsCancellationRequested)
+                    {
+                        _Logger.LogInformation("check-in cancelled");
+                        break;
+                    }
+                    try
+                    {
+                        var pollingTimeout = RandomPollingTimeout();
+                        await Task.Delay(pollingTimeout, ct);
+
+                        (Guid? ProducerId, int ProducerSeq, int ProducerCount)? oldProducerInfo = null;
+                        lock (_ProducerInfoLock)
+                        {
+                            oldProducerInfo = _ProducerInfo;
+                        }
+
+                        // -- no cancelation possible to not corrupt data
+                        var newProducerInfo = await _Storage.CheckInProducer(oldProducerInfo?.ProducerId, TimeSpan.FromMilliseconds(_Options.PollingTimeout) * 3);
+
+                        lock (_ProducerInfoLock)
+                        {
+                            _ProducerInfo = newProducerInfo;
+                            if (newProducerInfo != oldProducerInfo)
+                            {
+                                if (_WatchChangesCancellationSourceToken != null)
+                                    _WatchChangesCancellationSourceToken.Cancel(true);
+                                _WatchChangesCancellationSourceToken = new CancellationTokenSource();
+                            }
+                        }
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        _Logger.LogInformation("check-in cancelled through exception");
+                        if (ct.IsCancellationRequested)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _Logger.LogError(ex, "error while checking-in producer");
+                    }
+                }
+
+                try
+                {
+                    (Guid? ProducerId, int ProducerSeq, int ProducerCount)? lastProducerInfo = null;
+                    lock (_ProducerInfoLock)
+                    {
+                        lastProducerInfo = _ProducerInfo;
+                    }
+
+                    if (lastProducerInfo is not null && lastProducerInfo.Value.ProducerId != null)
+                        await _Storage.CheckOutProducer(lastProducerInfo.Value.ProducerId.Value);
+                }
+                catch (Exception ex)
+                {
+                    _Logger.LogError(ex, "error while checking-out producer");
+                }
+            });
+        }
+
+        #endregion
+
+        #region [ Helpers ]
+
+        private (int ProducerSeq, int ProducerCount)? GetProducerInfo()
+        {
+            lock (_ProducerInfoLock)
+            {
+                if (_ProducerInfo == null)
+                    return null;
+                if (_WatchChangesCancellationSourceToken == null)
+                    return null;
+                return (_ProducerInfo.Value.ProducerSeq, _ProducerInfo.Value.ProducerCount);
+            }
+        }
+
+        private (int ProducerSeq, int ProducerCount)? GetProducerInfo(out CancellationToken ct)
+        {
+            ct = default;
+            lock (_ProducerInfoLock)
+            {
+                if (_ProducerInfo == null)
+                    return null;
+                if (_WatchChangesCancellationSourceToken == null)
+                    return null;
+                ct = _WatchChangesCancellationSourceToken.Token;
+                return (_ProducerInfo.Value.ProducerSeq, _ProducerInfo.Value.ProducerCount);
+            }
+        }
+
+        private void Shuffle(List<IntegrationEventLogEntry> events)
+        {
+            lock (_Random)
+            {
+                int n = events.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = _Random.Next(n + 1);
+                    var value = events[k];
+                    events[k] = events[n];
+                    events[n] = value;
+                }
+            }
+        }
+
+        private int RandomPollingTimeout()
+        {
+            lock (_Random)
+            {
+                return _Random.Next(_Options.PollingTimeout);
+            }
+        }
+
+        private async Task QueueWasProcessed(HashSet<Guid> enqueuedEventIds, CancellationToken ct)
+        {
+            bool delay = false;
+            while (true)
+            {
+                if (ct.IsCancellationRequested)
+                    throw new TaskCanceledException();
+                if (delay)
+                {
+                    delay = false;
+                    await Task.Delay(20);
+                }
+                lock (_Queue)
+                {
+                    var copy = new HashSet<Guid>(enqueuedEventIds);
+                    copy.IntersectWith(_EventsInQueue);
+
+                    if (copy.Count != 0)
+                    {
+                        delay = true;
+                        continue;
+                    }
+
+                    return;
+                }
+            }
+        }
+
+        private Task? CancelIfIsMaxed(CancellationTokenSource cancelIfIsMaxedSource)
+        {
+            lock (_BatchedEvents)
+            {
+                if (_BatchedEvents.Count >= Constants.MAX_EVENTS_ON_QUEUE)
+                {
+                    cancelIfIsMaxedSource.Cancel();
+                    return Task.CompletedTask;
+                }
+            }
+
+            return null;
+        }
+
+        private static void CreateWatchChangesCancellationToken(CancellationToken ct, CancellationToken cancelIfProducerChanged, out CancellationTokenSource cancelIfIsMaxedSource, out CancellationToken compositeToken)
+        {
+            cancelIfIsMaxedSource = new CancellationTokenSource();
+            var cancelIfIsMaxedToken = cancelIfIsMaxedSource.Token;
+            var compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, cancelIfIsMaxedToken, cancelIfProducerChanged);
+            compositeToken = compositeTokenSource.Token;
+        }
+
         private void UnbatchEvents(List<IntegrationEventLogEntry> events)
         {
             lock (_BatchedEvents)
@@ -368,72 +476,6 @@ public partial class GenericIntegrationEventDispatcherService
             }
         }
 
-        private async Task CheckInProducer(CancellationToken ct)
-        {
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    if (ct.IsCancellationRequested)
-                    {
-                        _Logger.LogInformation("check-in cancelled");
-                        break;
-                    }
-                    try
-                    {
-                        var pollingTimeout = RandomPollingTimeout();
-                        await Task.Delay(pollingTimeout, ct);
-
-                        (Guid? ProducerId, int ProducerSeq, int ProducerCount)? oldProducerInfo = null;
-                        lock (_producerInfoLock)
-                        {
-                            oldProducerInfo = _producerInfo;
-                        }
-                        
-                        // -- no cancelation possible to not corrupt data
-                        var newProducerInfo = await _Storage.CheckInProducer(_producerInfo?.ProducerId, TimeSpan.FromMilliseconds(_Options.PollingTimeout) * 3);
-
-                        lock (_producerInfoLock)
-                        {
-                            _producerInfo = newProducerInfo;
-                        }
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        _Logger.LogInformation("check-in cancelled through exception");
-                        if (ct.IsCancellationRequested)
-                            break;
-                    }
-                    catch (Exception ex)
-                    {
-                        _Logger.LogError(ex, "error while checking-in producer");
-                    }
-                }
-
-                try
-                {
-                    (Guid? ProducerId, int ProducerSeq, int ProducerCount)? lastProducerInfo = null;
-                    lock (_producerInfoLock)
-                    {
-                        lastProducerInfo = _producerInfo;
-                    }
-
-                    if (lastProducerInfo is not null && lastProducerInfo.Value.ProducerId != null)
-                        await _Storage.CheckOutProducer(lastProducerInfo.Value.ProducerId.Value);
-                }
-                catch (Exception ex)
-                {
-                    _Logger.LogError(ex, "error while checking-out producer");
-                }
-            });
-        }
-
-        public void ReleaseEvents(IntegrationEventLogEntry[] evts)
-        {
-            lock (_Queue)
-            {
-                _EventsInQueue.ExceptWith(evts.Select(e => e.Id));
-            }
-        }
+        #endregion
     }
 }

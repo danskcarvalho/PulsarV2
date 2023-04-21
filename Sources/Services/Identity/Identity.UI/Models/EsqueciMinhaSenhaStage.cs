@@ -2,6 +2,6 @@
 
 public enum EsqueciMinhaSenhaStage
 {
-    DigitarEmail,
-    EmailEnviado
+    DigitarEmail = 0,
+    EmailEnviado = 1
 }

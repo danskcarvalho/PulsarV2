@@ -2,6 +2,6 @@
 
 public enum MudarSenhaStage
 {
-    InformarSenha,
-    SenhaAlterada
+    InformarSenha = 0,
+    SenhaAlterada = 1
 }

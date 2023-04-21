@@ -2,7 +2,7 @@
 
 public enum LoginStage
 {
-    UsuarioSenha,
-    Dominio,
-    Estabelecimento
+    UsuarioSenha = 0,
+    Dominio = 1,
+    Estabelecimento = 2
 }

@@ -35,10 +35,12 @@ public class IntegrationEventLogEntry
         if (en is null)
             throw new InvalidOperationException("invalid event: no EventNameAttribute");
         EventName = en;
-        SerializedEvent = JsonSerializer.Serialize(@event, @event.GetType(), new JsonSerializerOptions
+        var options = new JsonSerializerOptions()
         {
             WriteIndented = true
-        });
+        };
+
+        SerializedEvent = JsonSerializer.Serialize(@event, @event.GetType(), options);
         Status = IntegrationEventStatus.Pending;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
         ScheduledOn = DateTime.UtcNow;

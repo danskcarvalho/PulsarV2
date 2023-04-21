@@ -2,6 +2,6 @@
 
 public enum LoginOn
 {
-    Estabelecimento,
-    Dominio
+    Estabelecimento = 0,
+    Dominio = 1
 }

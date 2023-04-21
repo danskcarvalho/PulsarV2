@@ -2,6 +2,6 @@
 
 public enum AceitarConviteStage
 {
-    InformarDados,
-    ConviteAceito
+    InformarDados = 0,
+    ConviteAceito = 1
 }
