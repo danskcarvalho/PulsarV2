@@ -4,7 +4,6 @@ using Pulsar.Services.Identity.Contracts.Utils;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Grupos;
 
-[RequiresCausalConsistency]
 public class AdicionarUsuariosSubGrupoCH : IdentityCommandHandler<AdicionarUsuariosSubGrupoCmd, CommandResult>
 {
     public AdicionarUsuariosSubGrupoCH(IdentityCommandHandlerContext<AdicionarUsuariosSubGrupoCmd, CommandResult> ctx) : base(ctx)

@@ -4,7 +4,6 @@ using Pulsar.Services.Identity.Contracts.Utils;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Grupos;
 
-[RequiresCausalConsistency]
 public class RemoverSubGrupoCH : IdentityCommandHandler<RemoverSubGrupoCmd, CommandResult>
 {
     public RemoverSubGrupoCH(IdentityCommandHandlerContext<RemoverSubGrupoCmd, CommandResult> ctx) : base(ctx)
