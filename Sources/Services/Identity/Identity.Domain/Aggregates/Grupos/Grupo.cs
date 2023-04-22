@@ -8,7 +8,7 @@ public class Grupo : AggregateRoot
 {
     private string _termosBusca;
     private string _nome;
-    private const int MaxNumUsuarios = 10000; // -- 10.000 usuários
+    private const int MaxNumUsuarios = 5000; // -- 5000 usuários
     private const int MaxNumSubGrupos = 100; // -- 100 grupos
 
     public ObjectId DominioId { get; private set; }

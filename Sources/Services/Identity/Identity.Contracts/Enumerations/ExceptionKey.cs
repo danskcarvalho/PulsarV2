@@ -60,6 +60,6 @@ public enum ExceptionKey
     EstabelecimentoNaoLogado = 28,
     [Display(Description = "Um grupo pode ter no máximo 100 subgrupos.")]
     NumSubgruposExcedeMaximo = 29,
-    [Display(Description = "Um grupo pode ter no máximo 10.000 usuários membros.")]
+    [Display(Description = "Um grupo pode ter no máximo 5000 usuários membros.")]
     NumUsuariosGrupoExcedeMaximo = 30,
 }
