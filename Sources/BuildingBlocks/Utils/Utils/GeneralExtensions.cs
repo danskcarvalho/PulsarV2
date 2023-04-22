@@ -103,6 +103,29 @@ public static class GeneralExtensions
         }
         return dic;
     }
+    public static Dictionary<TKey, List<TValue>> MapBy<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> key, Func<T, TValue> value) where TKey : notnull
+    {
+        Dictionary<TKey, List<TValue>> dic = new Dictionary<TKey, List<TValue>>();
+        foreach (var item in items)
+        {
+            var k = key(item);
+            if (!dic.ContainsKey(k))
+                dic[k] = new List<TValue>();
+
+            dic[k].Add(value(item));
+        }
+        return dic;
+    }
+    public static Dictionary<TKey, TValue> MapByUnique<T, TKey, TValue>(this IEnumerable<T> items, Func<T, TKey> key, Func<T, TValue> value) where TKey : notnull
+    {
+        Dictionary<TKey, TValue> dic = new Dictionary<TKey, TValue>();
+        foreach (var item in items)
+        {
+            var k = key(item);
+            dic[k] = value(item);
+        }
+        return dic;
+    }
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue, T>(this IEnumerable<T> items, Func<T, (TKey, TValue)> keyValuePairs) where TKey : notnull
     {
         Dictionary<TKey, TValue> dic = new();

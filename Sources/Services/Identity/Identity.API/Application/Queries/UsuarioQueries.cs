@@ -4,6 +4,7 @@ using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Shared.DTOs;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Pulsar.Services.Identity.API.Application.Queries;
 
@@ -74,12 +75,13 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         {
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
             var usuarios = await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id)).ToListAsync();
+            var grupos = await GruposCollection.FindAsync(Filters.Grupos.Create(f => 
+                f.And(
+                    f.Eq(g => g.AuditInfo.RemovidoEm, null), 
+                    f.ElemMatch(g => g.SubGrupos, Builders<SubGrupo>.Filter.AnyIn(sg => sg.UsuarioIds, allIds))))).ToListAsync();
             var allDominioIds = usuarios.SelectMany(u => u.DominiosAdministrados).Union(usuarios.SelectMany(u => u.DominiosBloqueados))
-                .Union(usuarios.SelectMany(u => u.Grupos.Select(g => g.DominioId))).ToList();
-            var allGruposIds = usuarios.SelectMany(u => u.Grupos.Select(g => g.GrupoId)).ToList();
+                .Union(grupos.Select(g => g.DominioId)).ToList();
             var dominios = (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id)).ToListAsync()).MapByUnique(d => d.Id);
-            var grupos = await GruposCollection.FindAsync(g => allGruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null).ToListAsync();
-            var subgruposPorIds = grupos.SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg))).MapByUnique(x => (GrupoId: x.Grupo.Id, SubGrupoId: x.SubGrupo.SubGrupoId));
 
             return usuarios.Select(u => new UsuarioDetalhesDTO(
                     u.Id.ToString(),
@@ -87,12 +89,13 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                     u.PrimeiroNome,
                     u.UltimoNome,
                     u.NomeCompleto,
-                    u.Grupos
-                        .Where(g => subgruposPorIds.ContainsKey((g.GrupoId, g.SubGrupoId)))
+                    grupos
+                        .SelectMany(g => g.SubGrupos.Select(sg => (Grupo: g, SubGrupo: sg)))
+                        .Where(g => g.SubGrupo.UsuarioIds.Contains(u.Id))
                         .Select(g => new UsuarioDetalhesDTO.UsuarioGrupo(
-                            g.DominioId.ToString(), dominios[g.DominioId].Nome,
-                            g.GrupoId.ToString(), subgruposPorIds[(g.GrupoId, g.SubGrupoId)].Grupo.Nome,
-                            g.SubGrupoId.ToString(), subgruposPorIds[(g.GrupoId, g.SubGrupoId)].SubGrupo.Nome)).ToList(),
+                            g.Grupo.DominioId.ToString(), dominios[g.Grupo.DominioId].Nome,
+                            g.Grupo.Id.ToString(), g.Grupo.Nome,
+                            g.SubGrupo.SubGrupoId.ToString(), g.SubGrupo.Nome)).ToList(),
                     u.IsAtivo,
                     u.IsSuperUsuario,
                     u.DominiosBloqueados.Select(d => new UsuarioDetalhesDTO.Dominio(d.ToString(), dominios[d].Nome)).ToList(),
@@ -138,15 +141,19 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var dominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS, ReadPref.Primary);
         var estabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS, ReadPref.Primary);
 
-        var gruposIds = usuario.Grupos.Select(g => g.GrupoId).ToList();
-        var grupos = await gruposCollection.FindAsync(g => gruposIds.Contains(g.Id) && g.AuditInfo.RemovidoEm == null).ToListAsync();
-        var dominioIds = grupos.Select(g => g.DominioId).Distinct().ToList();
+        var allIds = new ObjectId[] { usuario.Id };
+        var grupos = await GruposCollection.FindAsync(Filters.Grupos.Create(f =>
+            f.And(
+                f.Eq(g => g.AuditInfo.RemovidoEm, null),
+                f.ElemMatch(g => g.SubGrupos, Builders<SubGrupo>.Filter.AnyIn(sg => sg.UsuarioIds, allIds))))).ToListAsync();
+        var allDominioIds = usuario.DominiosAdministrados.Union(usuario.DominiosBloqueados)
+            .Union(grupos.Select(g => g.DominioId)).ToList();
+        var dominios = (await DominiosCollection.FindAsync(d => allDominioIds.Contains(d.Id)).ToListAsync()).MapByUnique(d => d.Id);
+
         var dominiosBloqueados = new HashSet<ObjectId>(usuario.DominiosBloqueados);
-        var todosDominiosIds = dominioIds.Union(usuario.DominiosAdministrados).Union(usuario.DominiosBloqueados).ToList();
-        var dominios = (await dominiosCollection.FindAsync(d => todosDominiosIds.Contains(d.Id)).ToListAsync()).MapByUnique(d => d.Id);
         var redesIds = grupos
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.SubGrupoId))
+                .Where(sg => sg.UsuarioIds.Contains(usuario.Id))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Where(pe => pe.Seletor.RedeEstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.RedeEstabelecimentoId!.Value)
@@ -154,16 +161,16 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .ToList();
         var estabelecimentosIds = grupos
                 .SelectMany(g => g.SubGrupos)
-                .Where(sg => usuario.Grupos.Any(ug => ug.SubGrupoId == sg.SubGrupoId))
+                .Where(sg => sg.UsuarioIds.Contains(usuario.Id))
                 .SelectMany(sg => sg.PermissoesEstabelecimentos)
                 .Where(pe => pe.Seletor.EstabelecimentoId.HasValue)
                 .Select(pe => pe.Seletor.EstabelecimentoId!.Value)
                 .Distinct()
                 .ToList();
         var allEstabelecimentos = await estabelecimentosCollection.FindAsync(e => estabelecimentosIds.Contains(e.Id) || e.Redes.Any(rid => redesIds.Contains(rid))).ToListAsync();
-        var subgrupos = new HashSet<ObjectId>(usuario.Grupos.Select(ug => ug.SubGrupoId));
+        var subgrupos = new HashSet<ObjectId>(grupos.SelectMany(g => g.SubGrupos).Where(sg => sg.UsuarioIds.Contains(usuario.Id)).Select(sg => sg.SubGrupoId));
 
-        var permissions = dominioIds.Union(usuario.DominiosAdministrados).Where(d => !dominiosBloqueados.Contains(d) && dominios[d].IsAtivo).Select(d => new
+        var permissions = allDominioIds.Where(d => !dominiosBloqueados.Contains(d) && dominios[d].IsAtivo).Select(d => new
         {
             DominioId = d,
             IsAdministrador = usuario.DominiosAdministrados.Contains(d),
@@ -186,7 +193,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 .GroupBy(sg => sg.Estabelecimento.Id)
                 .Select(sg => new
                 {
-                    Estabelecimento = sg.First().Estabelecimento,
+                    sg.First().Estabelecimento,
                     Permissoes = sg.SelectMany(sg2 => sg2.Permissoes.Permissoes).Distinct().ToList()
                 })
                 .ToList()

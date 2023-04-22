@@ -21,7 +21,6 @@ public class Usuario : AggregateRoot
         _nomeUsuario = nomeUsuario;
         SenhaSalt = senhaSalt;
         SenhaHash = senhaHash;
-        Grupos = new HashSet<UsuarioGrupo>();
         DominiosBloqueados = new List<ObjectId>();
         DominiosAdministrados = new List<ObjectId>();
         _termosBusca = GetTermosBusca();
@@ -68,7 +67,6 @@ public class Usuario : AggregateRoot
         get => _nomeCompleto;
         private set => _nomeCompleto = value;
     }
-    public HashSet<UsuarioGrupo> Grupos { get; private set; }
     public bool IsAtivo { get; set; }
     public bool IsSuperUsuario { get; private set; }
     public List<ObjectId> DominiosBloqueados { get; private set; }

@@ -8,6 +8,7 @@ public class Grupo : AggregateRoot
 {
     private string _termosBusca;
     private string _nome;
+    private const int MaxNumUsuarios = 10000; // -- 10.000 usuários
 
     public ObjectId DominioId { get; private set; }
     public string Nome
@@ -26,9 +27,9 @@ public class Grupo : AggregateRoot
         get => _termosBusca;
         private set => _termosBusca = value;
     }
-
     public int NumSubGrupos { get; set; }
     public int NumUsuarios { get; set; }
+
 
     [BsonConstructor(nameof(Id), nameof(DominioId), nameof(Nome), nameof(AuditInfo), nameof(SubGrupos))]
     public Grupo(ObjectId id, ObjectId dominioId, string nome, AuditInfo auditInfo, IEnumerable<SubGrupo>? subGrupos = null) : base(id)
@@ -63,11 +64,6 @@ public class Grupo : AggregateRoot
         this.Nome = nome;
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
-    }
-
-    public void AtualizarNumUsuarios(ObjectId usuarioLogadoId, List<ObjectId>? subgrupoIds)
-    {
-        this.AddDomainEvent(new NumUsuariosEmGrupoModificadoDE(usuarioLogadoId, this.Id, subgrupoIds));
     }
 
     public ObjectId CriarSubGrupo(ObjectId usuarioLogadoId, string nome, List<PermissoesDominio> permissoesDominio, List<CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimento)
@@ -115,9 +111,13 @@ public class Grupo : AggregateRoot
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
+        var subgrupo = SubGrupos.First(sg => sg.SubGrupoId == subgrupoId);
+        subgrupo.UsuarioIds.UnionWith(usuarioIds);
+        subgrupo.NumUsuarios = subgrupo.UsuarioIds.Count;
+        this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
+
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new UsuariosAdicionadosOuRemovidosEmGrupoDE(usuarioLogadoId, this.Id, subgrupoId, this.DominioId, false, usuarioIds));
     }
 
     public void RemoverUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
@@ -127,8 +127,12 @@ public class Grupo : AggregateRoot
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
+        var subgrupo = SubGrupos.First(sg => sg.SubGrupoId == subgrupoId);
+        subgrupo.UsuarioIds.ExceptWith(usuarioIds);
+        subgrupo.NumUsuarios = subgrupo.UsuarioIds.Count;
+        this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
+
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
-        this.AddDomainEvent(new UsuariosAdicionadosOuRemovidosEmGrupoDE(usuarioLogadoId, this.Id, subgrupoId, this.DominioId, true, usuarioIds));
     }
 }

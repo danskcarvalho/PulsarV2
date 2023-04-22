@@ -9,9 +9,9 @@ var host = new HostBuilder()
             .AddJsonFile(Path.Combine(context.HostingEnvironment.ContentRootPath, "appsettings.json"), optional: true, reloadOnChange: false)
             .AddJsonFile(Path.Combine(context.HostingEnvironment.ContentRootPath, $"appsettings.{context.HostingEnvironment.EnvironmentName}.json"), optional: true, reloadOnChange: false);
     })
-.ConfigureServices(s =>
-{
-    s.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
+    .ConfigureServices(s =>
+    {
+        s.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
         s.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(Program).Assembly);

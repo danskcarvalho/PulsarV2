@@ -48,15 +48,18 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                  async c =>
                  {
                      var grupoId = c.GrupoId.ToObjectId();
+                     var subgrupoId = c.SubGrupoId.ToObjectId();
                      var grupo = await GruposCollection.FindAsync(g => g.Id == grupoId).FirstOrDefaultAsync();
-                     if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == c.SubGrupoId.ToObjectId()))
+                     if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))
                          return null; // return nothing
+                     var subgrupo = grupo.SubGrupos.FirstOrDefault(sg => sg.SubGrupoId == subgrupoId);
+                     if (subgrupo == null)
+                         return null;
 
                      var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
                      return Filters.Usuarios.Create(f => f.And(
                          textSearch,
-                         f.ElemMatch(u => u.Grupos, g => g.GrupoId == c.GrupoId.ToObjectId()),
-                         f.ElemMatch(u => u.Grupos, g => g.SubGrupoId == c.SubGrupoId.ToObjectId()),
+                         f.In(u => u.Id, subgrupo.UsuarioIds),
                          f.Ne(u => u.Email, null)));
                  });
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);

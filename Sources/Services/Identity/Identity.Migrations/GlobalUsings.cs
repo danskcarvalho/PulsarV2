@@ -12,3 +12,4 @@ global using Pulsar.BuildingBlocks.Utils;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 global using MongoDB.Driver;
 global using Pulsar.BuildingBlocks.EventBus.Abstractions;
+global using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
