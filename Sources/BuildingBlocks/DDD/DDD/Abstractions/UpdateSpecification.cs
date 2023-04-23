@@ -92,7 +92,7 @@ public class UpdateSpecificationBuilder<TModel>
         return this;
     }
 
-    public UpdateSpecificationBuilder<TModel> AddToSetEach<TField>(Expression<Func<TModel, IEnumerable<TField>>> Expression, IEnumerable<TField> Values)
+    public UpdateSpecificationBuilder<TModel> AddManyToSet<TField>(Expression<Func<TModel, IEnumerable<TField>>> Expression, IEnumerable<TField> Values)
     {
         _Commands.Add(new AddToSetEachUpdateCommand<TModel, TField>(Expression, Values));
         return this;
@@ -122,7 +122,7 @@ public class UpdateSpecificationBuilder<TModel>
         _Commands.Add(new PullAllUpdateCommand<TModel, TField>(Expression, Values));
         return this;
     }
-    public UpdateSpecificationBuilder<TModel> PullFilter<TField>(Expression<Func<TModel, IEnumerable<TField>>> Expression, Expression<Func<TField, bool>> Filter)
+    public UpdateSpecificationBuilder<TModel> PullWhere<TField>(Expression<Func<TModel, IEnumerable<TField>>> Expression, Expression<Func<TField, bool>> Filter)
     {
         _Commands.Add(new PullFilterUpdateCommand<TModel, TField>(Expression, Filter));
         return this;
@@ -130,6 +130,14 @@ public class UpdateSpecificationBuilder<TModel>
     public UpdateSpecificationBuilder<TModel> PushEach<TField>(Expression<Func<TModel, IEnumerable<TField>>> Expression, IEnumerable<TField> Values)
     {
         _Commands.Add(new PushEachUpdateCommand<TModel, TField>(Expression, Values));
+        return this;
+    }
+
+    public UpdateSpecificationBuilder<TModel> ForEach<TField>(
+        Expression<Func<TModel, IEnumerable<TField>>> Expression,
+        UpdateSpecification<TField> UpdateElement)
+    {
+        _Commands.Add(new ForEachUpdateCommand<TModel, TField>(Expression, UpdateElement));
         return this;
     }
 
@@ -156,6 +164,7 @@ public static class UpdateCommandNames
     public const string PULL_ALL = "PullAll";
     public const string PULL_FILTER = "PullFilter";
     public const string PUSH_EACH = "PushEach";
+    public const string FOR_EACH = "ForEach";
 }
 
 public abstract record UpdateCommand<T>()
@@ -268,6 +277,16 @@ public record PushEachUpdateCommand<T, TField>(Expression<Func<T, IEnumerable<TF
     }
 }
 
+public record ForEachUpdateCommand<T, TField>(
+        Expression<Func<T, IEnumerable<TField>>> Expression,
+        UpdateSpecification<TField> UpdateElement) : UpdateCommand<T>()
+{
+    public override void InjectField(IUpdateInjectField<T> updateInjectField)
+    {
+        updateInjectField.Inject(UpdateCommandNames.FOR_EACH, Expression, UpdateElement);
+    }
+}
+
 public interface IUpdateInjectField<T>
 {
     void Inject<TField>(string commandName, Expression<Func<T, TField>> expression, TField value);
@@ -275,4 +294,5 @@ public interface IUpdateInjectField<T>
     void Inject<TField>(string commandName, Expression<Func<T, IEnumerable<TField>>> expression, IEnumerable<TField> values);
     void Inject<TField>(string commandName, Expression<Func<T, IEnumerable<TField>>> expression, Expression<Func<TField, bool>> filter);
     void Inject(string commandName, Expression<Func<T, object>> expression);
+    void Inject<TField>(string commandName, Expression<Func<T, IEnumerable<TField>>> expression, UpdateSpecification<TField> updateElement);
 }
