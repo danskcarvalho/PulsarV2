@@ -18,7 +18,10 @@ public class SaveIntegrationEventLog : ISaveIntegrationEventLog
 
     public Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct = default)
     {
-        _events.Add(@event);
-        return Task.CompletedTask;
+        lock (this)
+        {
+            _events.Add(@event);
+            return Task.CompletedTask;
+        }
     }
 }

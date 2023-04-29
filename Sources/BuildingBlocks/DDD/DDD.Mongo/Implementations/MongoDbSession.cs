@@ -25,7 +25,6 @@ public class MongoDbSession : IDbSession
                 return _baseSession;
 
             _baseSession = Client.StartSession();
-            _trackedRoots.Push(new List<IAggregateRoot>());
             return _baseSession;
         }
     }
@@ -103,7 +102,6 @@ public class MongoDbSession : IDbSession
         if (_baseSession == null)
         {
             _baseSession = await Client.StartSessionAsync(cancellationToken: ct);
-            _trackedRoots.Push(new List<IAggregateRoot>());
         }
 
         _ccSession = await Client.StartSessionAsync(new ClientSessionOptions()
@@ -184,8 +182,10 @@ public class MongoDbSession : IDbSession
         if (_baseSession == null)
         {
             _baseSession = Client.StartSession();
-            _trackedRoots.Push(new List<IAggregateRoot>());
         }
+
+        if (_trackedRoots.Count == 0)
+            throw new InvalidOperationException("no tracking frame pushed into the stack");
 
         _trackedRoots.Peek().Add(root);
     }
@@ -209,7 +209,6 @@ public class MongoDbSession : IDbSession
         if (_baseSession == null)
         {
             _baseSession = await Client.StartSessionAsync(cancellationToken: ct);
-            _trackedRoots.Push(new List<IAggregateRoot>());
         }
 
         bool dispose = false;

@@ -10,11 +10,15 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+    <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
     <ProjectReference Include="..\..\DDD\DDD\DDD.csproj" />
+    <ProjectReference Include="..\..\Emails\Emails\Emails.csproj" />
     <ProjectReference Include="..\..\EventBus\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\..\FileSystem\FileSystem\FileSystem.csproj" />
   </ItemGroup>
 
 </Project>
