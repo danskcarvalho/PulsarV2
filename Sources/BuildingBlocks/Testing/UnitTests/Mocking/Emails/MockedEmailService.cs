@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.BuildingBlocks.UnitTests.Mocking.Emails;
 
-public class MockedEmailService : IEmailService
+public class MockedEmailService : IEmailService, IDisposable
 {
     private readonly List<object> _emails = new List<object>();
     private readonly ReadOnlyCollection<object> _roList;
@@ -11,6 +11,10 @@ public class MockedEmailService : IEmailService
     }
 
     public IReadOnlyList<object> EmailsSent => _roList;
+
+    public void Dispose()
+    {
+    }
 
     public ValueTask DisposeAsync()
     {

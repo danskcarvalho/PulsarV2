@@ -1,4 +1,7 @@
-﻿namespace Pulsar.BuildingBlocks.UnitTests;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+
+namespace Pulsar.BuildingBlocks.UnitTests;
 
 public static class DIExtensions
 {
@@ -8,7 +11,7 @@ public static class DIExtensions
 
         col.AddScoped<IMockedDbSessionFactory>(sp =>
         {
-            return Mock.SessionFactory(database.Clone(), () => sp.GetRequiredService<IMediator>());
+            return Mock.SessionFactory(database, () => sp.GetRequiredService<IMediator>());
         });
         col.AddScoped<IDbSessionFactory>(sp => sp.GetRequiredService<IMockedDbSessionFactory>());
         col.AddScoped<IMockedDbSession>(sp =>
@@ -42,13 +45,13 @@ public static class DIExtensions
     public static void AddMockedEmails(this IServiceCollection col)
     {
         col.AddScoped<MockedEmailService>();
-        col.AddScoped<IEmailService, MockedEmailService>();
+        col.AddScoped<IEmailService>(sp => sp.GetRequiredService<MockedEmailService>());
     }
 
     public static void AddMockedFileSystem(this IServiceCollection col)
     {
         col.AddScoped<MockedFileSystem>();
-        col.AddScoped<IFileSystem, MockedFileSystem>();
+        col.AddScoped<IFileSystem>(sp => sp.GetRequiredService<MockedFileSystem>());
     }
 
     private static IEnumerable<Type> EnumerateAllBaseTypes(Type t)
