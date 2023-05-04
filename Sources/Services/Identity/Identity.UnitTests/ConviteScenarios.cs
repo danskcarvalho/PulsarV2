@@ -3,7 +3,7 @@ namespace Identity.UnitTests;
 public class ConviteScenarios : IdentityScenarios
 {
     [Fact]
-    public async Task Invite_User()
+    public async Task Convidar_Usuario()
     {
         var controller = CreateController<ConviteController>(Users.Admin);
         var actionResult = await controller.Criar(new Pulsar.Services.Identity.Contracts.Commands.Convites.CriarConviteCmd()
@@ -13,9 +13,7 @@ public class ConviteScenarios : IdentityScenarios
         });
 
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
-
-        var conviteSpec = Find.Where<Convite>(x => x.Email == "someuser@domain.com").ToWrapper();
-        var createdInvite = (await Convites.FindAsync(conviteSpec).ToListAsync()).FirstOrDefault();
+        var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
 
         Assert.NotNull(createdInvite);
         Assert.NotNull(createdInvite.TokenAceitacao);
@@ -29,7 +27,7 @@ public class ConviteScenarios : IdentityScenarios
     }
 
     [Fact]
-    public async Task Invite_User_And_Accept()
+    public async Task Convidar_Usuario_e_Aceitar()
     {
         var controller = CreateController<ConviteController>(Users.Admin);
         var actionResult = await controller.Criar(new Pulsar.Services.Identity.Contracts.Commands.Convites.CriarConviteCmd()
@@ -39,8 +37,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        var conviteSpec = Find.Where<Convite>(x => x.Email == "someuser@domain.com").ToWrapper();
-        var createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite); 
         Assert.False(createdInvite.IsAceito);
 
@@ -58,7 +55,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.True(createdInvite.IsAceito);
 
@@ -71,7 +68,7 @@ public class ConviteScenarios : IdentityScenarios
     }
 
     [Fact]
-    public async Task Invite_User_And_Accept_Twice()
+    public async Task Convidar_Usuario_e_Aceitar_Duas_Vezes()
     {
         var controller = CreateController<ConviteController>(Users.Admin);
         var actionResult = await controller.Criar(new Pulsar.Services.Identity.Contracts.Commands.Convites.CriarConviteCmd()
@@ -81,8 +78,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        var conviteSpec = Find.Where<Convite>(x => x.Email == "someuser@domain.com").ToWrapper();
-        var createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.False(createdInvite.IsAceito);
 
@@ -100,7 +96,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.True(createdInvite.IsAceito);
 
@@ -120,7 +116,7 @@ public class ConviteScenarios : IdentityScenarios
     }
 
     [Fact]
-    public async Task Invite_User_Twice()
+    public async Task Convidar_Usuario_Duas_Vezes()
     {
         var controller = CreateController<ConviteController>(Users.Admin);
         var actionResult = await controller.Criar(new Pulsar.Services.Identity.Contracts.Commands.Convites.CriarConviteCmd()
@@ -130,8 +126,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        var conviteSpec = Find.Where<Convite>(x => x.Email == "someuser@domain.com").ToWrapper();
-        var createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.False(createdInvite.IsAceito);
 
@@ -141,13 +136,12 @@ public class ConviteScenarios : IdentityScenarios
             UsuarioLogadoId = IdentityDatabase.AdminUserId
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
-        conviteSpec = Find.Where<Convite>(x => true).ToWrapper();
-        var allConvites = await Convites.FindAsync(conviteSpec).ToListAsync();
+        var allConvites = await Convites.FindAsync(x => true).ToListAsync();
         Assert.Equal(2, allConvites.Count);
     }
 
     [Fact]
-    public async Task Invite_User_And_Accept_AndThen_Invite_Again()
+    public async Task Convidar_Usuario_e_Aceitar_eEntao_Convidar_deNovo()
     {
         var controller = CreateController<ConviteController>(Users.Admin);
         var actionResult = await controller.Criar(new Pulsar.Services.Identity.Contracts.Commands.Convites.CriarConviteCmd()
@@ -157,8 +151,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        var conviteSpec = Find.Where<Convite>(x => x.Email == "someuser@domain.com").ToWrapper();
-        var createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.False(createdInvite.IsAceito);
 
@@ -176,7 +169,7 @@ public class ConviteScenarios : IdentityScenarios
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
-        createdInvite = await Convites.FindAsync(conviteSpec).FirstOrDefaultAsync();
+        createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
         Assert.NotNull(createdInvite);
         Assert.True(createdInvite.IsAceito);
 

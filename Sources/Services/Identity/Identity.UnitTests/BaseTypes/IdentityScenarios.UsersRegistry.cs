@@ -21,6 +21,46 @@ public partial class IdentityScenarios
             }
         }
 
+        public ClaimsPrincipal Samantha
+        {
+            get
+            {
+                var usuarioLogado = new UsuarioLogadoDTO(IdentityDatabase.SamanthaUserId, "Samantha", null, "Samantha", "samantha.test@gmail.com", "samantha", true, false, null, 
+                    new List<UsuarioLogadoDTO.DominioDTO>()
+                    {
+                        new UsuarioLogadoDTO.DominioDTO(IdentityDatabase.DominioPadraoId, "PADRÃO", true, true, Enum.GetValues<PermissoesDominio>().ToList(), new List<UsuarioLogadoDTO.EstabelecimentoDTO>())
+                    });
+                var login = new LoginDTO()
+                {
+                    UsernameOrEmail = "samantha",
+                    DominioId = IdentityDatabase.DominioPadraoId
+                };
+                return BuildClaimsPrincipal(usuarioLogado, login);
+            }
+        }
+
+        public ClaimsPrincipal Alexia
+        {
+            get
+            {
+                var usuarioLogado = new UsuarioLogadoDTO(IdentityDatabase.AlexiaUserId, "Alexia", null, "Alexia", "alexia.test@gmail.com", "alexia", true, false, null,
+                    new List<UsuarioLogadoDTO.DominioDTO>()
+                    {
+                        new UsuarioLogadoDTO.DominioDTO(IdentityDatabase.DominioPadraoId, "PADRÃO", false, false, new List<PermissoesDominio>(), new List<UsuarioLogadoDTO.EstabelecimentoDTO>()
+                        {
+                            new UsuarioLogadoDTO.EstabelecimentoDTO(IdentityDatabase.EstabelecimentoPadraoId, "PADRÃO", Enum.GetValues<PermissoesEstabelecimento>().ToList())
+                        })
+                    });
+                var login = new LoginDTO()
+                {
+                    UsernameOrEmail = "samantha",
+                    EstabelecimentoId = IdentityDatabase.EstabelecimentoPadraoId,
+                    DominioId = IdentityDatabase.DominioPadraoId
+                };
+                return BuildClaimsPrincipal(usuarioLogado, login);
+            }
+        }
+
         private ClaimsPrincipal BuildClaimsPrincipal(UsuarioLogadoDTO userInfo, LoginDTO login)
         {
             var claims = new List<Claim> {

@@ -8,6 +8,9 @@ using Pulsar.Services.Identity.UI.Pages;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
+using Pulsar.Services.Identity.Domain.Aggregates.Others;
+using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
+using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
 namespace Identity.UnitTests.BaseTypes;
 
@@ -21,6 +24,10 @@ public partial class IdentityScenarios : IDisposable
 
     protected IMockedCollection<Convite> Convites => Database.GetCollection<Convite>(Constants.CollectionNames.CONVITES);
     protected IMockedCollection<Usuario> Usuarios => Database.GetCollection<Usuario>(Constants.CollectionNames.USUARIOS);
+    protected IMockedCollection<Dominio> Dominios => Database.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
+    protected IMockedCollection<Estabelecimento> Estabelecimentos => Database.GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
+    protected IMockedCollection<RedeEstabelecimentos> RedesEstabelecimentos => Database.GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
+    protected IMockedCollection<Grupo> Grupos => Database.GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
 
     public IdentityScenarios()
     {
