@@ -2,7 +2,7 @@
 using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
-namespace Identity.UnitTests;
+namespace Identity.UnitTests.Scenarios;
 
 public class DominioScenarios : IdentityScenarios
 {

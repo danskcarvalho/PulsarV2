@@ -2,7 +2,7 @@
 
 namespace Pulsar.BuildingBlocks.UnitTests.Mocking.FileSystem;
 
-internal class MockedFileSystem : IFileSystem, IDisposable
+public class MockedFileSystem : IFileSystem, IDisposable
 {
     private readonly List<(string Url, TimeSpan? Duration)> _signedUrls = new List<(string Url, TimeSpan? Duration)>();
     private readonly ReadOnlyCollection<(string Url, TimeSpan? Duration)> _roSignedUrls;
@@ -14,7 +14,7 @@ internal class MockedFileSystem : IFileSystem, IDisposable
         _roUploads = _uploads.AsReadOnly();
     }
     public IReadOnlyList<(string Url, TimeSpan? Duration)> SignedUrls => _signedUrls;
-    public IReadOnlyList<UploadFileInput> EmailsSent => _roUploads;
+    public IReadOnlyList<UploadFileInput> FilesUploaded => _roUploads;
 
     public void Dispose()
     {

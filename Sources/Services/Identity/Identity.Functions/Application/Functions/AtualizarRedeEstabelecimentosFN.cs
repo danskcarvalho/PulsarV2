@@ -2,11 +2,8 @@
 
 public class AtualizarRedeEstabelecimentosFN : IdentityFunction
 {
-    private readonly ILogger _logger;
-
-    public AtualizarRedeEstabelecimentosFN(ILoggerFactory loggerFactory, IMediator mediator) : base(mediator)
+    public AtualizarRedeEstabelecimentosFN(IMediator mediator) : base(mediator)
     {
-        _logger = loggerFactory.CreateLogger<AtualizarRedeEstabelecimentosFN>();
     }
 
     [Function("AtualizarRedeEstabelecimentosFN")]

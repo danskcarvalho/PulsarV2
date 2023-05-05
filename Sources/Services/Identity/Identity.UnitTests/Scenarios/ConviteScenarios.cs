@@ -1,4 +1,4 @@
-namespace Identity.UnitTests;
+namespace Identity.UnitTests.Scenarios;
 
 public class ConviteScenarios : IdentityScenarios
 {
@@ -38,7 +38,7 @@ public class ConviteScenarios : IdentityScenarios
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult as OkResult)?.StatusCode);
 
         var createdInvite = await Convites.FindAsync(x => x.Email == "someuser@domain.com").FirstOrDefaultAsync();
-        Assert.NotNull(createdInvite); 
+        Assert.NotNull(createdInvite);
         Assert.False(createdInvite.IsAceito);
 
         var acceptController = CreateController<AceitarConviteController>();
