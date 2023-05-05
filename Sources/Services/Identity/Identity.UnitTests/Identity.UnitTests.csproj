@@ -39,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Testing\UnitTests\UnitTests.csproj" />
     <ProjectReference Include="..\Identity.API\Identity.API.csproj" />
+    <ProjectReference Include="..\Identity.Functions\Identity.Functions.csproj" />
   </ItemGroup>
 
 </Project>

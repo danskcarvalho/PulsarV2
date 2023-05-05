@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using Pulsar.Services.Identity.Domain.Aggregates.Others;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+using Pulsar.Services.Identity.Functions.Application.Functions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.UnitTests.BaseTypes;
 
@@ -49,6 +51,11 @@ public partial class IdentityScenarios : IDisposable
         collection.AddTransient(typeof(IdentityCommandHandlerContext<>));
         collection.AddTransient(typeof(IdentityDomainEventHandlerContext<>));
         collection.AddTransient(typeof(IdentityCommandHandlerContext<,>));
+        // -- for functions
+        collection.AddTransient(typeof(Pulsar.Services.Identity.Functions.Application.BaseTypes.IdentityCommandHandlerContext<>));
+        collection.AddTransient(typeof(Pulsar.Services.Identity.Functions.Application.BaseTypes.IdentityDomainEventHandlerContext<>));
+        collection.AddTransient(typeof(Pulsar.Services.Identity.Functions.Application.BaseTypes.IdentityCommandHandlerContext<,>));
+
         collection.AddLogging(c =>
         {
             c.AddConsole();
@@ -56,9 +63,11 @@ public partial class IdentityScenarios : IDisposable
         collection.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(IdentityController).Assembly);
+            c.RegisterServicesFromAssembly(typeof(AtualizarEstabelecimentoFN).Assembly);
         });
         AddMockedQueries(collection);
         AddControllers(collection);
+        AddFunctions(collection);
 
         _root = collection.BuildServiceProvider(true);
         _scope = _root.CreateScope();
@@ -81,6 +90,11 @@ public partial class IdentityScenarios : IDisposable
         return controller;
     }
 
+    protected TFunction CreateFunction<TFunction>() where TFunction : notnull
+    {
+        return Services.GetRequiredService<TFunction>();
+    }
+
     private void AddMockedQueries(ServiceCollection collection)
     {
         collection.AddTransient<IUsuarioQueries, MockedUsuarioQueries>();
@@ -97,6 +111,12 @@ public partial class IdentityScenarios : IDisposable
         collection.AddTransient<GrupoController>();
         collection.AddTransient<UsuarioController>();
         collection.AddTransient<AceitarConviteController>();
+    }
+
+    private void AddFunctions(ServiceCollection collection)
+    {
+        collection.AddTransient<AtualizarRedeEstabelecimentosFN>();
+        collection.AddTransient<AtualizarEstabelecimentoFN>();
     }
 
     public void Dispose()

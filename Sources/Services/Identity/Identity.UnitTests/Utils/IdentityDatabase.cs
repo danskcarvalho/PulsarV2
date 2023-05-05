@@ -17,6 +17,7 @@ public static class IdentityDatabase
     public static string DominioPadraoId => "64531aa3aae47f456897b819";
     public static string EstabelecimentoPadraoId => "64531bb6d384e644752aa391";
     public static string RedeEstabelecimentosPadraoId => "64531bb94fed54407f4fac1a";
+    public static string RedeEstabelecimentosNaoPadraoId => "64545f296e11d6e38efd291d";
 
     public static void Seed(IMockedDatabase db)
     {
@@ -66,8 +67,9 @@ public static class IdentityDatabase
         estabelecimentoCollection.InsertManyAsync(new Estabelecimento[] { estabelecimentoPadrao }).Wait();
 
         var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
-        var redeEstabelecimentosPadrao = new RedeEstabelecimentos(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid), DateTime.UtcNow);
-        redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentos[] { redeEstabelecimentosPadrao }).Wait();
+        var redeEstabelecimentos01 = new RedeEstabelecimentos(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid), DateTime.UtcNow);
+        var redeEstabelecimentos02 = new RedeEstabelecimentos(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid), DateTime.UtcNow);
+        redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentos[] { redeEstabelecimentos01, redeEstabelecimentos02 }).Wait();
 
         var dominioCollection = db.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
         var dominioPadrao = new Dominio(ObjectId.Parse(DominioPadraoId), "PADRÃO", samanthaUser.Id, new AuditInfo(sid));
