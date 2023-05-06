@@ -2,12 +2,13 @@
 using Pulsar.Services.Identity.Contracts.Commands.Convites;
 using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.Contracts.DTOs;
+using Pulsar.Services.Identity.UI.Clients.Interfaces;
 using Pulsar.Services.Identity.UI.Models;
 using System.Net.Http.Json;
 
 namespace Pulsar.Services.Identity.UI.Clients;
 
-public class AceitarConviteClient
+public class AceitarConviteClient : IAceitarConviteClient
 {
     private readonly HttpClient _httpClient;
     private readonly IJSRuntime _jsRuntime;

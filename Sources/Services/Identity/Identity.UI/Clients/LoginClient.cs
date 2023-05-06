@@ -1,11 +1,12 @@
 ﻿using Microsoft.JSInterop;
 using Pulsar.Services.Identity.Contracts.DTOs;
+using Pulsar.Services.Identity.UI.Clients.Interfaces;
 using Pulsar.Services.Identity.UI.Models;
 using System.Net.Http.Json;
 
 namespace Pulsar.Services.Identity.UI.Clients
 {
-    public class LoginClient
+    public class LoginClient : ILoginClient
     {
         private readonly HttpClient _httpClient;
         private readonly IJSRuntime _jsRuntime;
