@@ -26,13 +26,13 @@
         </div>
         <div class="row mt-2 mb-3 justify-content-center">
             <div class="col-10">
-                <InputText type="password" placeholder="nova senha" class="form-control" @bind-Value="_model.Senha"></InputText>
+                <InputText type="password" placeholder="nova senha" class="form-control tc-senha" @bind-Value="_model.Senha"></InputText>
                 <ValidationMessage For="@(() => _model.Senha)"></ValidationMessage>
             </div>
         </div>
         <div class="row mb-3 justify-content-center">
             <div class="col-10">
-                <InputText type="password" placeholder="confirmar senha" class="form-control" @bind-Value="_model.ConfirmarSenha"></InputText>
+                <InputText type="password" placeholder="confirmar senha" class="form-control tc-confirmar-senha" @bind-Value="_model.ConfirmarSenha"></InputText>
                 <ValidationMessage For="@(() => _model.ConfirmarSenha)"></ValidationMessage>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 @if (!_loading)
                 {
 
-                    <button type="submit" class="btn btn-primary w-100 btn-lg">Continuar</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg tc-continuar">Continuar</button>
                 }
                 else
                 {
@@ -56,7 +56,7 @@
 }
 else
 {
-    <div class="row text-center mt-3 mb-3 justify-content-center">
+    <div class="row text-center mt-3 mb-3 justify-content-center tc-senha-alterada">
         <div class="col-10">
             <span class="fs-6">A senha do usuário <strong>danskcarvalho</strong> foi alterada.</span>
         </div>

@@ -93,7 +93,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "BuildingBlocks
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.UnitTests", "Services\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{673FFFA1-9704-4D0D-9E68-C425847A1F47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.UnitTests", "Services\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{673FFFA1-9704-4D0D-9E68-C425847A1F47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.UI.UnitTests", "Services\Identity\Identity.UI.UnitTests\Identity.UI.UnitTests.csproj", "{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -209,6 +211,10 @@ Global
 		{673FFFA1-9704-4D0D-9E68-C425847A1F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{673FFFA1-9704-4D0D-9E68-C425847A1F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{673FFFA1-9704-4D0D-9E68-C425847A1F47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -259,6 +265,7 @@ Global
 		{8E5E8D1E-079C-4340-80DD-DD9CAAD01E4A} = {1CEF0899-E080-422E-9582-E68246149CC2}
 		{43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A} = {90472E9F-5902-4438-AE21-2A46684CD273}
 		{673FFFA1-9704-4D0D-9E68-C425847A1F47} = {43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A}
+		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69} = {43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}
