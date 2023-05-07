@@ -29,12 +29,12 @@
                 <div class="row gy-3">
                     <div class="col-sm-6">
                         <label for="primeiroNome" class="form-label">Primeiro Nome</label>
-                        <InputText class="form-control" id="primeiroNome" @bind-Value="_model.PrimeiroNome"></InputText>
+                        <InputText class="form-control tc-primeiro-nome" id="primeiroNome" @bind-Value="_model.PrimeiroNome"></InputText>
                         <ValidationMessage For="@(() => _model.PrimeiroNome)" />
                     </div>
                     <div class="col-sm-6">
                         <label for="sobrenome" class="form-label">Sobrenome</label>
-                        <InputText class="form-control" id="sobrenome" @bind-Value="_model.Sobrenome"></InputText>
+                        <InputText class="form-control tc-sobrenome" id="sobrenome" @bind-Value="_model.Sobrenome"></InputText>
                         <ValidationMessage For="@(() => _model.Sobrenome)" />
                     </div>
                 </div>
@@ -43,7 +43,7 @@
         <div class="row mb-3 justify-content-center">
             <div class="col-11">
                 <label for="nomeUsuario" class="form-label">Nome de usuário</label>
-                <InputText class="form-control" id="nomeUsuario" @bind-Value="_model.NomeUsuario"></InputText>
+                <InputText class="form-control tc-nome-usuario" id="nomeUsuario" @bind-Value="_model.NomeUsuario"></InputText>
                 <ValidationMessage For="@(() => _model.NomeUsuario)" />
             </div>
         </div>
@@ -52,12 +52,12 @@
                 <div class="row gy-3">
                     <div class="col-sm-6">
                         <label for="senha" class="form-label">Senha</label>
-                        <InputText type="password" class="form-control" id="senha" @bind-Value="_model.Senha"></InputText>
+                        <InputText type="password" class="form-control tc-senha" id="senha" @bind-Value="_model.Senha"></InputText>
                         <ValidationMessage For="@(() => _model.Senha)" />
                     </div>
                     <div class="col-sm-6">
                         <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
-                        <InputText type="password" class="form-control" id="confirmarSenha" @bind-Value="_model.ConfirmarSenha"></InputText>
+                        <InputText type="password" class="form-control tc-confirmar-senha" id="confirmarSenha" @bind-Value="_model.ConfirmarSenha"></InputText>
                         <ValidationMessage For="@(() => _model.ConfirmarSenha)" />
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                 @if (!_loading)
                 {
 
-                    <button type="submit" class="btn btn-primary w-100 btn-lg">Continuar</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg tc-continuar">Continuar</button>
                 }
                 else
                 {
@@ -85,7 +85,7 @@ else
 {
     <div class="row text-center mt-3 mb-3 justify-content-center">
         <div class="col-10">
-            <span class="fs-6">O usuário <strong>@_model.NomeUsuario</strong> foi adicionado à base de dados do Pulsar.</span>
+            <span class="fs-6 tc-successo">O usuário <strong>@_model.NomeUsuario</strong> foi adicionado à base de dados do Pulsar.</span>
         </div>
     </div>
     <div class="row text-center mb-4 justify-content-center">

@@ -10,3 +10,4 @@ global using Pulsar.Services.Identity.UI.Pages;
 global using Moq;
 global using Pulsar.Services.Identity.UI.Clients.Interfaces;
 global using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
+global using Pulsar.Services.Identity.Contracts.DTOs;
