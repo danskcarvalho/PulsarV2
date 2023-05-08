@@ -32,7 +32,8 @@
     [Parameter]
     public SelectOption[] Options { get; set; } = new SelectOption[0];
 
-    public async void UpdateValueChanged(string newValue) {
+    public async void UpdateValueChanged(string newValue)
+    {
         if (ValueChanged.HasDelegate)
         {
             await ValueChanged.InvokeAsync(newValue);

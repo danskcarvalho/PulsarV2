@@ -20,25 +20,25 @@
             </div>
         </div>
         <div class="row text-center mt-2 mb-3 justify-content-center" hidden="@(_model.ErrorMessage == null)">
-            <div class="col-10 text-danger">
+            <div class="col-10 text-danger tc-errormessage">
                 @_model.ErrorMessage
             </div>
         </div>
         <div class="row text-center mt-2 mb-3 justify-content-center">
             <div class="col-10">
-                <input type="text" placeholder="e-mail ou nome de usuário" class="form-control" @bind="_model.UsernameOrEmail" />
+                <input type="text" placeholder="e-mail ou nome de usuário" class="form-control tc-username" @bind="_model.UsernameOrEmail" />
             </div>
         </div>
         <div class="row text-center justify-content-center mb-4">
             <div class="col-10">
-                <input type="password" placeholder="senha" class="form-control" @bind="_model.Password" />
+                <input type="password" placeholder="senha" class="form-control tc-password" @bind="_model.Password" />
             </div>
         </div>
         <div class="row text-center mb-2 justify-content-center">
             <div class="col-10">
                 @if (!_loading)
                 {
-                    <button type="submit" class="btn btn-primary btn-lg w-100" @onclick="ContinueFromUsuarioSenha">Continuar</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 tc-continue" @onclick="ContinueFromUsuarioSenha">Continuar</button>
                 }
                 else
                 {
@@ -60,7 +60,7 @@
         <!--Dominio-->
         <div class="row text-center mt-3 justify-content-center">
             <div class="col-10">
-                <span class="fw-bold fs-3">Selecione o domínio</span>
+                <span class="fw-bold fs-3 tc-select-dominio">Selecione o domínio</span>
             </div>
         </div>
         <div class="row text-center mt-2 mb-4 justify-content-center">
@@ -75,9 +75,9 @@
             <div class="col-5">
                 @if (!_loading)
                 {
-                    <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="ContinueFromDominio">Continuar</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg tc-login-dominio" @onclick="ContinueFromDominio">Continuar</button>
                 }
-                else 
+                else
                 {
                     <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -87,14 +87,14 @@
             </div>
         </div>
     }
-    else 
+    else
     {
         <!--Estabelecimento-->
         <InputRadioGroup @bind-Value="_model.LoginOn">
             <div class="row mt-4 justify-content-center">
                 <div class="col-10">
                     <div class="form-check">
-                        <InputRadio Value="LoginOn.Dominio" class="form-check-input" id="rAdmin" disabled="@(_dominioCorrente?.PodeLogarDominio != true)"></InputRadio>
+                        <InputRadio Value="LoginOn.Dominio" class="form-check-input tc-rad-dominio-admin" id="rAdmin" disabled="@(_dominioCorrente?.PodeLogarDominio != true)"></InputRadio>
                         <label class="form-check-label fw-bold" for="rAdmin">
                             Usuário do domínio
                         </label>
@@ -111,14 +111,14 @@
             <div class="row mb-2 justify-content-center">
                 <div class="col-10">
                     <div class="form-check">
-                        <InputRadio Value="LoginOn.Estabelecimento" class="form-check-input" id="rFacility" disabled="@(_dominioCorrente?.Estabelecimentos.Any(e => e.Permissoes.Any()) != true)"></InputRadio>
+                        <InputRadio Value="LoginOn.Estabelecimento" class="form-check-input tc-rad-estabelecimento" id="rFacility" disabled="@(_dominioCorrente?.Estabelecimentos.Any(e => e.Permissoes.Any()) != true)"></InputRadio>
                         <label class="form-check-label fw-bold" for="rFacility">
                             Usuário do Estabelecimento
                         </label>
                     </div>
                 </div>
             </div>
-        </InputRadioGroup>  
+        </InputRadioGroup>
         <div class="row text-center mt-2 mb-4 justify-content-center" hidden="@(_model.LoginOn != LoginOn.Estabelecimento)">
             <div class="col-10">
                 <SearchableSelect @bind-Value="_model.EstabelecimentoId" Options="_model.Estabelecimentos"></SearchableSelect>
@@ -131,9 +131,9 @@
             <div class="col-5">
                 @if (!_loading)
                 {
-                    <button type="submit" class="btn btn-primary w-100 btn-lg" @onclick="ContinueFromEstabelecimento">Continuar</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg tc-login-establecimento" @onclick="ContinueFromEstabelecimento">Continuar</button>
                 }
-                else 
+                else
                 {
                     <button class="btn btn-primary w-100 btn-lg" type="button" disabled>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

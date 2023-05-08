@@ -15,6 +15,9 @@ public partial class Login
     bool _pulouDominio = false;
     bool _loading = false;
 
+    public string? EstabelecimentoId => _model?.EstabelecimentoId;
+    public string? DominioId => _model?.DominioId;
+
     async Task ContinueFromUsuarioSenha()
     {
         _loading = true;
@@ -145,7 +148,7 @@ public partial class Login
 
     private bool PodePularDominio(UsuarioLogadoDTO usuarioLogado)
     {
-        return _model.Stage == LoginStage.UsuarioSenha && usuarioLogado.Dominios.Count == 1 && usuarioLogado.Dominios.First().PodeLogarDominio && usuarioLogado.Dominios.First().Estabelecimentos.Any();
+        return _model.Stage == LoginStage.UsuarioSenha && usuarioLogado.Dominios.Count == 1 && usuarioLogado.Dominios.First().Estabelecimentos.Any();
     }
 
     private (UsuarioLogadoDTO.DominioDTO? Dominio, UsuarioLogadoDTO.EstabelecimentoDTO? Estabelecimento) PodeLogarEstabelecimento(UsuarioLogadoDTO usuarioLogado)
