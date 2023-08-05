@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pulsar.BuildingBlocks.DDD.Contexts;
 using System.Diagnostics;
 
 namespace Pulsar.BuildingBlocks.UnitTests;
@@ -40,6 +41,7 @@ public static class DIExtensions
 
         col.AddScoped<SaveIntegrationEventLog>();
         col.AddScoped<ISaveIntegrationEventLog, SaveIntegrationEventLog>();
+        col.AddTransient<DbContextFactory>();
     }
 
     public static void AddMockedEmails(this IServiceCollection col)

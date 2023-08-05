@@ -5,11 +5,11 @@ namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class DomainEventHandler<TEvent> : INotificationHandler<TEvent> where TEvent : INotification
 {
-    private IDbContextFactory _contextFactory;
+    private DbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected DomainEventHandler(IDbSession session, IDbContextFactory contextFactory)
+    protected DomainEventHandler(IDbSession session, DbContextFactory contextFactory)
     {
         _session = session;
         _contextFactory = contextFactory;

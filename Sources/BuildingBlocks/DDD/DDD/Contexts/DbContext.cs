@@ -1,14 +1,16 @@
 ﻿namespace Pulsar.BuildingBlocks.DDD.Contexts;
 
-public static class DbContext
+public class DbContext
 {
-    private static AsyncLocal<Stack<IDbContext>?> _context = new AsyncLocal<Stack<IDbContext>?>();
-    public static IDbContext Current => (_context.Value?.Count != 0 ? _context.Value?.Peek() : null) ?? throw new InvalidOperationException("no db context");
+    private static AsyncLocal<Stack<DbContext>?> _context = new AsyncLocal<Stack<DbContext>?>();
+    public static DbContext Current => (_context.Value?.Count != 0 ? _context.Value?.Peek() : null) ?? throw new InvalidOperationException("no db context");
+    private List<IIsRepository> _repositories;
+    private Dictionary<Type, object> _repositoriesPerModel = new Dictionary<Type, object>();
 
-    internal static void SetContext(IDbContext context)
+    internal static void SetContext(DbContext context)
     {
         if (_context.Value == null)
-            _context.Value = new Stack<IDbContext>();
+            _context.Value = new Stack<DbContext>();
         _context.Value.Push(context);
 
     }
@@ -19,5 +21,22 @@ public static class DbContext
         _context.Value.Pop();
         if (_context.Value.Count == 0)
             _context.Value = null;
+    }
+
+
+    public DbContext(IEnumerable<IIsRepository> repositories)
+    {
+        _repositories = repositories.ToList();
+    }
+
+    DbContextCollection<TModel> GetCollection<TModel>() where TModel : class, IAggregateRoot
+    {
+        if (_repositoriesPerModel.ContainsKey(typeof(TModel)))
+            return (DbContextCollection<TModel>)_repositoriesPerModel[typeof(TModel)];
+
+        var repository = _repositories.First(r => r is IRepositoryBase<TModel>);
+        var collection = new DbContextCollection<TModel>((IRepositoryBase<TModel>)repository);
+        _repositoriesPerModel[typeof(TModel)] = collection;
+        return collection;
     }
 }

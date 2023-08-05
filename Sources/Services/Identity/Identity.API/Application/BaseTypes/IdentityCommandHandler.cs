@@ -56,11 +56,11 @@ public class IdentityCommandHandlerContext<TRequest, TResponse> where TRequest :
 {
     public ILogger<IdentityCommandHandler<TRequest, TResponse>> Logger { get; }
     public IDbSession Session { get; }
-    public IDbContextFactory DbContextFactory { get; }
+    public DbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TRequest, TResponse>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TRequest, TResponse>> logger, IDbSession session, DbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;
@@ -74,11 +74,11 @@ public class IdentityCommandHandlerContext<TEvent> where TEvent : IRequest
 {
     public ILogger<IdentityCommandHandler<TEvent>> Logger { get; }
     public IDbSession Session { get; }
-    public IDbContextFactory DbContextFactory { get; }
+    public DbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TEvent>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TEvent>> logger, IDbSession session, DbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;

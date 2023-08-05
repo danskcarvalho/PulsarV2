@@ -31,11 +31,11 @@ public class IdentityDomainEventHandlerContext<TEvent> where TEvent : INotificat
 {
     public ILogger<IdentityDomainEventHandler<TEvent>> Logger { get; }
     public IDbSession Session { get; }
-    public IDbContextFactory DbContextFactory { get; }
+    public DbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityDomainEventHandlerContext(ILogger<IdentityDomainEventHandler<TEvent>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityDomainEventHandlerContext(ILogger<IdentityDomainEventHandler<TEvent>> logger, IDbSession session, DbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;

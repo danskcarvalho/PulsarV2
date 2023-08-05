@@ -4,11 +4,11 @@ namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where TCommand : IRequest
 {
-    private IDbContextFactory _contextFactory;
+    private DbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected CommandHandler(IDbSession session, IDbContextFactory contextFactory)
+    protected CommandHandler(IDbSession session, DbContextFactory contextFactory)
     {
         _session = session;
         _contextFactory = contextFactory;
@@ -146,11 +146,11 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
 
 public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TCommand, TResult> where TCommand : IRequest<TResult>
 {
-    private IDbContextFactory _contextFactory;
+    private DbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected CommandHandler(IDbSession session, IDbContextFactory contextFactory)
+    protected CommandHandler(IDbSession session, DbContextFactory contextFactory)
     {
         _session = session;
         _contextFactory = contextFactory;

@@ -1,12 +1,10 @@
-﻿using Pulsar.BuildingBlocks.DDD.Contexts;
+﻿namespace Pulsar.BuildingBlocks.DDD.Contexts;
 
-namespace Pulsar.BuildingBlocks.DDD.Mongo.Contexts;
-
-public class MongoDbContextCollection<TModel> : IDbContextCollection<TModel> where TModel : class, IAggregateRoot
+public class DbContextCollection<TModel> where TModel : class, IAggregateRoot
 {
     private IRepositoryBase<TModel> _repository;
 
-    public MongoDbContextCollection(IRepositoryBase<TModel> repository)
+    public DbContextCollection(IRepositoryBase<TModel> repository)
     {
         this._repository = repository;
     }

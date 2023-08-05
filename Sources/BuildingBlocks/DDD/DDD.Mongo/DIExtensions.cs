@@ -1,5 +1,4 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Contexts;
-using Pulsar.BuildingBlocks.DDD.Mongo.Contexts;
 
 namespace Pulsar.BuildingBlocks.DDD.Mongo;
 
@@ -66,7 +65,7 @@ public static class DIExtensions
 
         col.AddTransient<MongoSaveIntegrationEventLog>();
         col.AddTransient<ISaveIntegrationEventLog, MongoSaveIntegrationEventLog>();
-        col.AddTransient<IDbContextFactory, MongoDbContextFactory>();
+        col.AddTransient<DbContextFactory>();
 
         foreach (var assembly in assemblies)
         {
