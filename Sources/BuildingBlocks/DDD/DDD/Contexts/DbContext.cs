@@ -29,7 +29,7 @@ public class DbContext
         _repositories = repositories.ToList();
     }
 
-    DbContextCollection<TModel> GetCollection<TModel>() where TModel : class, IAggregateRoot
+    public DbContextCollection<TModel> GetCollection<TModel>() where TModel : class, IAggregateRoot
     {
         if (_repositoriesPerModel.ContainsKey(typeof(TModel)))
             return (DbContextCollection<TModel>)_repositoriesPerModel[typeof(TModel)];

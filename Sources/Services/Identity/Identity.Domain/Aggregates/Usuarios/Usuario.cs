@@ -4,6 +4,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 public class Usuario : AggregateRoot
 {
+    public static DbContextCollection<Usuario> Collection => DbContext.Current.GetCollection<Usuario>();
+
     public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
 
     private string _primeiroNome;

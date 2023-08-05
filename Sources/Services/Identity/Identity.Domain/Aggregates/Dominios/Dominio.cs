@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Convites;
+using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Dominios;
 using Pulsar.Services.Identity.Domain.Events.Grupos;
@@ -8,6 +9,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
 public class Dominio : AggregateRoot
 {
+    public static DbContextCollection<Dominio> Collection => DbContext.Current.GetCollection<Dominio>();
+
     private string _nome;
     private string _termosBusca;
     public string Nome

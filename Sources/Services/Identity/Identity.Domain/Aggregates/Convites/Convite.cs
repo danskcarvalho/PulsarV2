@@ -4,6 +4,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
 
 public class Convite : AggregateRoot
 {
+    public static DbContextCollection<Convite> Collection => DbContext.Current.GetCollection<Convite>();
+
     [BsonConstructor(nameof(Id), nameof(Email), nameof(ConviteExpiraEm), nameof(TokenAceitacao), nameof(UsuarioId), nameof(AuditInfo))]
     public Convite(ObjectId id, string email, DateTime conviteExpiraEm, string tokenAceitacao, ObjectId usuarioId, AuditInfo auditInfo) : base(id)
     {

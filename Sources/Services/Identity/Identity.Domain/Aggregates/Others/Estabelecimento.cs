@@ -4,6 +4,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Others;
 
 public class Estabelecimento : AggregateRoot
 {
+    public static DbContextCollection<Estabelecimento> Collection => DbContext.Current.GetCollection<Estabelecimento>();
+
     [BsonConstructor(nameof(Id), nameof(DominioId), nameof(Nome), nameof(Cnes), nameof(Redes), nameof(IsAtivo), nameof(AuditInfo), nameof(TimeStamp))]
     public Estabelecimento(ObjectId id, ObjectId dominioId, string nome, string cnes, IEnumerable<ObjectId> redes, bool isAtivo, AuditInfo auditInfo, DateTime timeStamp) : base(id)
     {

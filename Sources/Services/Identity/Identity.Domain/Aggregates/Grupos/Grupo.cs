@@ -6,6 +6,8 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
 public class Grupo : AggregateRoot
 {
+    public static DbContextCollection<Grupo> Collection => DbContext.Current.GetCollection<Grupo>();
+
     private string _termosBusca;
     private string _nome;
     private const int MaxNumUsuarios = 5000; // -- 5000 usuários
