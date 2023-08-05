@@ -1,15 +1,18 @@
 ﻿using MediatR;
+using Pulsar.BuildingBlocks.DDD.Contexts;
 
 namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class DomainEventHandler<TEvent> : INotificationHandler<TEvent> where TEvent : INotification
 {
+    private IDbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected DomainEventHandler(IDbSession session)
+    protected DomainEventHandler(IDbSession session, IDbContextFactory contextFactory)
     {
         _session = session;
+        _contextFactory = contextFactory;
     }
 
     protected abstract Task HandleAsync(TEvent evt, CancellationToken ct);
@@ -22,12 +25,26 @@ public abstract class DomainEventHandler<TEvent> : INotificationHandler<TEvent> 
         {
             await _session.RetryOnExceptions(async ct2 =>
             {
-                await HandleAsync(notification, ct2);
+                await CallHandler(notification, ct2);
                 return 0;
             }, GetExceptionTypes(retryOnExc), retryOnExc.Retries <= 0 ? 1 : retryOnExc.Retries, cancellationToken);
         }
         else
+            await CallHandler(notification, cancellationToken);
+    }
+
+    private async Task CallHandler(TEvent notification, CancellationToken cancellationToken)
+    {
+        var ctx = _contextFactory.CreateContext();
+        DbContext.SetContext(ctx);
+        try
+        {
             await HandleAsync(notification, cancellationToken);
+        }
+        finally
+        {
+            DbContext.ClearContext();
+        }
     }
 
     private IEnumerable<Type> GetExceptionTypes(RetryOnExceptionAttribute retryOnExc)

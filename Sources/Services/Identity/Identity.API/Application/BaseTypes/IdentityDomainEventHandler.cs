@@ -1,4 +1,5 @@
-﻿using Pulsar.BuildingBlocks.EventBus.Abstractions;
+﻿using Pulsar.BuildingBlocks.DDD.Contexts;
+using Pulsar.BuildingBlocks.EventBus.Abstractions;
 
 namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
@@ -13,7 +14,7 @@ public abstract class IdentityDomainEventHandler<TEvent> : DomainEventHandler<TE
     protected ILogger Logger { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    protected IdentityDomainEventHandler(IdentityDomainEventHandlerContext<TEvent> ctx) : base(ctx.Session)
+    protected IdentityDomainEventHandler(IdentityDomainEventHandlerContext<TEvent> ctx) : base(ctx.Session, ctx.DbContextFactory)
     {
         ConviteRepository = (IConviteRepository)ctx.Repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)ctx.Repositories.First(r => r is IDominioRepository);
@@ -30,14 +31,16 @@ public class IdentityDomainEventHandlerContext<TEvent> where TEvent : INotificat
 {
     public ILogger<IdentityDomainEventHandler<TEvent>> Logger { get; }
     public IDbSession Session { get; }
+    public IDbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityDomainEventHandlerContext(ILogger<IdentityDomainEventHandler<TEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityDomainEventHandlerContext(ILogger<IdentityDomainEventHandler<TEvent>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;
         Repositories = repositories;
         EventLog = eventLog;
+        DbContextFactory = contextFactory;
     }
 }

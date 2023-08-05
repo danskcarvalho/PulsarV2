@@ -1,13 +1,17 @@
-﻿namespace Pulsar.BuildingBlocks.DDD;
+﻿using Pulsar.BuildingBlocks.DDD.Contexts;
+
+namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where TCommand : IRequest
 {
+    private IDbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected CommandHandler(IDbSession session)
+    protected CommandHandler(IDbSession session, IDbContextFactory contextFactory)
     {
         _session = session;
+        _contextFactory = contextFactory;
     }
 
     protected abstract Task HandleAsync(TCommand cmd, CancellationToken ct);
@@ -73,7 +77,7 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
             {
                 await _session.OpenCausallyConsistentTransactionAsync(async ct1 =>
                 {
-                    await HandleAsync(request, ct1);
+                    await CallHandler(request, ct1);
                     return 0;
                 },
                 token,
@@ -84,7 +88,7 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
             {
                 await _session.OpenTransactionAsync(async ct1 =>
                 {
-                    await HandleAsync(request, ct1);
+                    await CallHandler(request, ct1);
                     return 0;
                 },
                 withIso?.IsolationLevel ?? IsolationLevel.Committed,
@@ -96,7 +100,7 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
         {
             await _session.OpenTransactionAsync(async ct1 =>
             {
-                await HandleAsync(request, ct1);
+                await CallHandler(request, ct1);
                 return 0;
             },
             withIso?.IsolationLevel ?? IsolationLevel.Committed,
@@ -110,7 +114,7 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
             {
                 await _session.StartCausallyConsistentSectionAsync(async ct1 =>
                 {
-                    await HandleAsync(request, ct1);
+                    await CallHandler(request, ct1);
                     return 0;
                 },
                 token,
@@ -118,22 +122,38 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
             }
             else
             {
-                await HandleAsync(request, ct);
+                await CallHandler(request, ct);
             }
         }
         else
+            await CallHandler(request, ct);
+    }
+
+    private async Task CallHandler(TCommand request, CancellationToken ct)
+    {
+        var ctx = _contextFactory.CreateContext();
+        DbContext.SetContext(ctx);
+        try
+        {
             await HandleAsync(request, ct);
+        }
+        finally
+        {
+            DbContext.ClearContext();
+        }
     }
 }
 
 public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TCommand, TResult> where TCommand : IRequest<TResult>
 {
+    private IDbContextFactory _contextFactory;
     private IDbSession _session;
     public IDbSession Session => _session;
 
-    protected CommandHandler(IDbSession session)
+    protected CommandHandler(IDbSession session, IDbContextFactory contextFactory)
     {
         _session = session;
+        _contextFactory = contextFactory;
     }
 
     protected abstract Task<TResult> HandleAsync(TCommand cmd, CancellationToken ct);
@@ -195,7 +215,7 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
             {
                 return await _session.OpenCausallyConsistentTransactionAsync(async ct1 =>
                 {
-                    return await HandleAsync(request, ct1);
+                    return await CallHandler(request, ct1);
                 },
                 token,
                 withIso?.IsolationLevel ?? IsolationLevel.Committed,
@@ -205,7 +225,7 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
             {
                 return await _session.OpenTransactionAsync(async ct1 =>
                 {
-                    return await HandleAsync(request, ct1);
+                    return await CallHandler(request, ct1);
                 },
                 withIso?.IsolationLevel ?? IsolationLevel.Committed,
                 ct);
@@ -216,7 +236,7 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
         {
             return await _session.OpenTransactionAsync(async ct1 =>
             {
-                return await HandleAsync(request, ct1);
+                return await CallHandler(request, ct1);
             },
             withIso?.IsolationLevel ?? IsolationLevel.Committed,
             ct);
@@ -229,17 +249,30 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
             {
                 return await _session.StartCausallyConsistentSectionAsync(async ct1 =>
                 {
-                    return await HandleAsync(request, ct1);
+                    return await CallHandler(request, ct1);
                 },
                 token,
                 ct);
             }
             else
             {
-                return await HandleAsync(request, ct);
+                return await CallHandler(request, ct);
             }
         }
         else
+            return await CallHandler(request, ct);
+    }
+    private async Task<TResult> CallHandler(TCommand request, CancellationToken ct)
+    {
+        var ctx = _contextFactory.CreateContext();
+        DbContext.SetContext(ctx);
+        try
+        {
             return await HandleAsync(request, ct);
+        }
+        finally
+        {
+            DbContext.ClearContext();
+        }
     }
 }

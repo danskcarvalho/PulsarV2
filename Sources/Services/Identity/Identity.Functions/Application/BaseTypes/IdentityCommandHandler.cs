@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pulsar.BuildingBlocks.DDD.Contexts;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
 
 namespace Pulsar.Services.Identity.Functions.Application.BaseTypes;
@@ -14,7 +15,7 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
     protected ILogger Logger { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    protected IdentityCommandHandler(IdentityCommandHandlerContext<TRequest> ctx) : base(ctx.Session)
+    protected IdentityCommandHandler(IdentityCommandHandlerContext<TRequest> ctx) : base(ctx.Session, ctx.DbContextFactory)
     {
         ConviteRepository = (IConviteRepository)ctx.Repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)ctx.Repositories.First(r => r is IDominioRepository);
@@ -38,7 +39,7 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
     protected ILogger Logger { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    protected IdentityCommandHandler(IdentityCommandHandlerContext<TRequest, TResponse> ctx) : base(ctx.Session)
+    protected IdentityCommandHandler(IdentityCommandHandlerContext<TRequest, TResponse> ctx) : base(ctx.Session, ctx.DbContextFactory)
     {
         ConviteRepository = (IConviteRepository)ctx.Repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)ctx.Repositories.First(r => r is IDominioRepository);
@@ -55,13 +56,15 @@ public class IdentityCommandHandlerContext<TRequest, TResponse> where TRequest :
 {
     public ILogger<IdentityCommandHandler<TRequest, TResponse>> Logger { get; }
     public IDbSession Session { get; }
+    public IDbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TRequest, TResponse>> logger, IDbSession session, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TRequest, TResponse>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;
+        DbContextFactory = contextFactory;
         Repositories = repositories;
         EventLog = eventLog;
     }
@@ -71,13 +74,15 @@ public class IdentityCommandHandlerContext<TEvent> where TEvent : IRequest
 {
     public ILogger<IdentityCommandHandler<TEvent>> Logger { get; }
     public IDbSession Session { get; }
+    public IDbContextFactory DbContextFactory { get; }
     public IEnumerable<IIsRepository> Repositories { get; }
     public ISaveIntegrationEventLog EventLog { get; }
 
-    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TEvent>> logger, IDbSession session, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
+    public IdentityCommandHandlerContext(ILogger<IdentityCommandHandler<TEvent>> logger, IDbSession session, IDbContextFactory contextFactory, IEnumerable<IIsRepository> repositories, ISaveIntegrationEventLog eventLog)
     {
         Logger = logger;
         Session = session;
+        DbContextFactory = contextFactory;
         Repositories = repositories;
         EventLog = eventLog;
     }
