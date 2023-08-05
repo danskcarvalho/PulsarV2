@@ -19,8 +19,7 @@ public class EditarDominioCH : IdentityCommandHandler<EditarDominioCmd, CommandR
         if (dominio == null)
             throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
         var usuariosBloqueados = usuarioAdministrador != null ? await UsuarioRepository.FindManyAsync(new FindUsuariosBloqueadosDominioSpec(dominio.Id, usuarioAdministrador.Id)) : null;
-        dominio.Editar(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!, usuarioAdministrador, usuariosBloqueados);
-        await DominioRepository.ReplaceOneAsync(dominio);
+        await dominio.Editar(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!, usuarioAdministrador, usuariosBloqueados);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

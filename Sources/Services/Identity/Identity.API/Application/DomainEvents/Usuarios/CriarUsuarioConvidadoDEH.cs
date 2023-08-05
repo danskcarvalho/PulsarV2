@@ -28,8 +28,6 @@ public class CriarUsuarioConvidadoDEH : IdentityDomainEventHandler<UsuarioConvid
             IsAtivo = false,
             IsConvitePendente = true
         };
-        usuario.Criar();
-
-        await UsuarioRepository.InsertOneAsync(usuario);
+        await usuario.Criar();
     }
 }

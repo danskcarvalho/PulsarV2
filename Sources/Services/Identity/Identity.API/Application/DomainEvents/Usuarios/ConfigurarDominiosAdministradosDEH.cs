@@ -15,16 +15,14 @@ public class ConfigurarDominiosAdministradosDEH : IdentityDomainEventHandler<Dom
             var anterior = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioAdministradorAnteriorId.Value);
             if (anterior == null)
                 throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-            anterior.RemoverDominioAdministrado(evt.UsuarioLogadoId, evt.DominioId);
-            await UsuarioRepository.ReplaceOneAsync(anterior);
+            await anterior.RemoverDominioAdministrado(evt.UsuarioLogadoId, evt.DominioId);
         }
         if (evt.UsuarioAdministradorId != null && evt.UsuarioAdministradorAnteriorId != evt.UsuarioAdministradorId)
         {
             var atual = await UsuarioRepository.FindOneByIdAsync(evt.UsuarioAdministradorId.Value);
             if (atual == null)
                 throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-            atual.AdicionarDominioAdministrado(evt.UsuarioLogadoId, evt.DominioId);
-            await UsuarioRepository.ReplaceOneAsync(atual);
+            await atual.AdicionarDominioAdministrado(evt.UsuarioLogadoId, evt.DominioId);
         }
     }
 }

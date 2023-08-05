@@ -49,27 +49,30 @@ public class Grupo : AggregateRoot
         return Nome.Tokenize()!;
     }
 
-    public void Criar()
+    public async Task Criar()
     {
         this.AddDomainEvent(new GrupoModificadoDE(this.AuditInfo.CriadoPorUsuarioId!.Value, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Created, Version));
+        await Collection.Insert(this);
     }
 
-    public void Remover(ObjectId usuarioLogadoId)
+    public async Task Remover(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.RemovidoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Deleted, Version));
+        await Collection.Replace(this);
     }
 
-    public void Editar(ObjectId usuarioLogadoId, string nome)
+    public async Task Editar(ObjectId usuarioLogadoId, string nome)
     {
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Nome = nome;
         this.Version++;
-        this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version)); 
+        await Collection.Replace(this);
     }
 
-    public ObjectId CriarSubGrupo(ObjectId usuarioLogadoId, string nome, List<PermissoesDominio> permissoesDominio, List<CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimento)
+    public async Task<ObjectId> CriarSubGrupo(ObjectId usuarioLogadoId, string nome, List<PermissoesDominio> permissoesDominio, List<CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimento)
     {
         nome = nome.Trim();
         if (SubGrupos.Any(sg => string.Compare(sg.Nome, nome, true) == 0))
@@ -85,10 +88,11 @@ public class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        await Collection.Replace(this);
         return subgrupo.SubGrupoId;
     }
 
-    public void EditarSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
+    public async Task EditarSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, string nome, List<PermissoesDominio> permissoesDominios, List<EditarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimentoOuRedes)
     {
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
@@ -97,9 +101,10 @@ public class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
         subgrupo.Editar(nome, permissoesDominios, permissoesEstabelecimentoOuRedes);
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        await Collection.Replace(this);
     }
 
-    public void RemoverSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId)
+    public async Task RemoverSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId)
     {
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
@@ -113,9 +118,10 @@ public class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
+        await Collection.Replace(this);
     }
 
-    public void AdicionarUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
+    public async Task AdicionarUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
     {
         if (!SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
@@ -133,9 +139,10 @@ public class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        await Collection.Replace(this);
     }
 
-    public void RemoverUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
+    public async Task RemoverUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
     {
         if (!SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
@@ -153,5 +160,6 @@ public class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
+        await Collection.Replace(this);
     }
 }

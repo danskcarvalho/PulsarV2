@@ -24,7 +24,7 @@ public class Convite : AggregateRoot
     public ObjectId UsuarioId { get; private set; }
     public AuditInfo AuditInfo { get; set; }
 
-    public void Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
+    public async Task Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
     {
         if (IsAceito)
             throw new IdentityDomainException(ExceptionKey.ConviteJaAceito);
@@ -36,11 +36,12 @@ public class Convite : AggregateRoot
         IsAceito = true;
         Version++;
         this.AddDomainEvent(new ConviteAceitoDE(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
-
+        await Collection.Replace(this);
     }
 
-    public void ConvidarUsuario()
+    public async Task ConvidarUsuario()
     {
         AddDomainEvent(new UsuarioConvidadoDE(this.Id, this.UsuarioId, this.Email, this.TokenAceitacao, this.AuditInfo.CriadoPorUsuarioId!.Value));
+        await Collection.Insert(this);
     }
 }

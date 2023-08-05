@@ -16,8 +16,7 @@ public class CriarDominioCH : IdentityCommandHandler<CriarDominioCmd, CreatedCom
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
         var dominio = new Dominio(ObjectId.GenerateNewId(), cmd.Nome!, usuarioAdministrador?.Id, new AuditInfo(cmd.UsuarioLogadoId!.ToObjectId()));
-        dominio.Criar(cmd.UsuarioLogadoId!.ToObjectId(), usuarioAdministrador);
-        await DominioRepository.InsertOneAsync(dominio);
+        await dominio.Criar(cmd.UsuarioLogadoId!.ToObjectId(), usuarioAdministrador);
         return new CreatedCommandResult(dominio.Id.ToString(), Session.ConsistencyToken);
     }
 }

@@ -5,7 +5,6 @@ namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 public class Usuario : AggregateRoot
 {
     public static DbContextCollection<Usuario> Collection => DbContext.Current.GetCollection<Usuario>();
-
     public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
 
     private string _primeiroNome;
@@ -114,7 +113,7 @@ public class Usuario : AggregateRoot
         return (this.SenhaSalt + password).SHA256Hash() == this.SenhaHash;
     }
 
-    public void GerarTokenMudancaSenha(out long previousVersion)
+    public async Task GerarTokenMudancaSenha()
     {
         if (this.Email is null)
             throw new IdentityDomainException(ExceptionKey.UsuarioSemEmail);
@@ -125,10 +124,11 @@ public class Usuario : AggregateRoot
             this.TokenMudancaSenhaExpiraEm = DateTime.UtcNow.AddMinutes(30);
         }
         this.AddDomainEvent(new TokenMudancaSenhaGeradoDE(this.Id, this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
-        previousVersion = Version++;
+        var previousVersion = Version++;
+        await Collection.Replace(this, previousVersion).CheckModified();
     }
 
-    public void RecuperarSenha(string token, string senha, out long previousVersion)
+    public async Task RecuperarSenha(string token, string senha)
     {
         if (TokenMudancaSenhaExpiraEm == null)
             throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaExpirado);
@@ -141,10 +141,11 @@ public class Usuario : AggregateRoot
         this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
         this.TokenMudancaSenha = null;
         this.TokenMudancaSenhaExpiraEm = null;
-        previousVersion = Version++;
+        var previousVersion = Version++;
+        await Collection.Replace(this, previousVersion).CheckModified();
     }
 
-    public void AceitarConvite(string primeiroNome, string? sobrenome, string nomeUsuario, string senha)
+    public async Task AceitarConvite(string primeiroNome, string? sobrenome, string nomeUsuario, string senha)
     {
         this.PrimeiroNome = primeiroNome;
         this.UltimoNome = sobrenome;
@@ -154,17 +155,19 @@ public class Usuario : AggregateRoot
         this.IsConvitePendente = false;
         this.IsAtivo = true;
         this.Version++;
+        await Collection.Replace(this);
     }
 
-    public void Criar()
+    public async Task Criar()
     {
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created));
+        await Collection.Insert(this);
     }
 
-    public void MudarMinhaSenha(string senhaAtual, string novaSenha, out long previousVersion)
+    public async Task MudarMinhaSenha(string senhaAtual, string novaSenha)
     {
-        previousVersion = Version;
+        var previousVersion = Version;
         if (IsConvitePendente)
             throw new IdentityDomainException(ExceptionKey.ConviteNaoAceito);
         if (!TestarSenha(senhaAtual))
@@ -172,6 +175,7 @@ public class Usuario : AggregateRoot
         this.MudarMinhaSenha(novaSenha);
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         Version++;
+        await Collection.Replace(this, previousVersion).CheckModified();
     }
 
     private void MudarMinhaSenha(string novaSenha)
@@ -180,7 +184,7 @@ public class Usuario : AggregateRoot
         this.SenhaHash = (this.SenhaSalt + novaSenha).SHA256Hash();
     }
 
-    public void EditarMeusDados(string primeiroNome, string? sobrenome)
+    public async Task EditarMeusDados(string primeiroNome, string? sobrenome)
     {
         this.PrimeiroNome = primeiroNome;
         this.UltimoNome = sobrenome;
@@ -188,9 +192,10 @@ public class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
+        await Collection.Replace(this);
     }
 
-    public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
+    public async Task BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
     {
         if (IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueado);
@@ -199,29 +204,33 @@ public class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
+        await Collection.Replace(this);
     }
 
-    public void AlterarAvatar(string url)
+    public async Task AlterarAvatar(string url)
     {
         this.AvatarUrl = url;
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
+        await Collection.Replace(this);
     }
 
-    public void RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
+    public async Task RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
     {
         this.DominiosAdministrados.Remove(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        await Collection.Replace(this);
     }
 
-    public void AdicionarDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
+    public async Task AdicionarDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
     {
         if (!this.DominiosAdministrados.Contains(dominioId))
             this.DominiosAdministrados.Add(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
+        await Collection.Replace(this);
     }
 }

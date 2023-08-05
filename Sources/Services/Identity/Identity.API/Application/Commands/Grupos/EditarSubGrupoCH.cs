@@ -15,8 +15,7 @@ public class EditarSubGrupoCH : IdentityCommandHandler<EditarSubGrupoCmd, Comman
         var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
             throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado); 
-        grupo.EditarSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.Nome!, cmd.PermissoesDominio!, cmd.PermissoesEstabelecimento!);
-        await GrupoRepository.ReplaceOneAsync(grupo);
+        await grupo.EditarSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.Nome!, cmd.PermissoesDominio!, cmd.PermissoesEstabelecimento!);
         return new CommandResult(Session.ConsistencyToken);
     }
 }

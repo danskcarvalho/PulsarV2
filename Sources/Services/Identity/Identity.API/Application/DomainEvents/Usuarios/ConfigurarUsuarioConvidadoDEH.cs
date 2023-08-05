@@ -22,7 +22,6 @@ public class ConfigurarUsuarioConvidadoDEH : IdentityDomainEventHandler<ConviteA
         if (usuarioComNomeInformado != null)
             throw new IdentityDomainException(ExceptionKey.NomeUsuarioNaoUnico);
 
-        usuarioExistente.AceitarConvite(evt.PrimeiroNome, evt.Sobrenome, evt.NomeUsuario, evt.Senha);
-        await UsuarioRepository.ReplaceOneAsync(usuarioExistente);
+        await usuarioExistente.AceitarConvite(evt.PrimeiroNome, evt.Sobrenome, evt.NomeUsuario, evt.Senha);
     }
 }

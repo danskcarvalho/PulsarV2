@@ -4,6 +4,7 @@ using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Dominios;
 using Pulsar.Services.Identity.Domain.Events.Grupos;
 using Pulsar.Services.Identity.Domain.Events.Usuarios;
+using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioDetalhesDTO;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
@@ -42,18 +43,20 @@ public class Dominio : AggregateRoot
         return _nome.Tokenize()!;
     }
 
-    public void Esconder(ObjectId usuarioLogadoId)
+    public async Task Esconder(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.EscondidoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Hidden));
+        await Collection.Replace(this);
     }
 
-    public void Mostrar(ObjectId usuarioLogadoId)
+    public async Task Mostrar(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.MostradoPor();
         this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Shown));
+        await Collection.Replace(this);
     }
 
     public void SetAdministradorDominio(ObjectId usuarioId, ObjectId? editadoPorUsuarioId)
@@ -66,15 +69,16 @@ public class Dominio : AggregateRoot
         Version++;
     }
 
-    public void Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
+    public async Task Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
 
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, null, ChangeEvent.Created));
+        await Collection.Insert(this);
     }
 
-    public void Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
+    public async Task Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
@@ -87,17 +91,19 @@ public class Dominio : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, previousAdmin, ChangeEvent.Edited));
+        await Collection.Replace(this);
     }
 
-    public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
+    public async Task BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
     {
         this.IsAtivo = !bloquear;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited));
+        await Collection.Replace(this);
     }
 
-    public void BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
+    public async Task BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
     {
         if (usuarioIds.Any(u => u == UsuarioAdministradorId))
             throw new IdentityDomainException(ExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio);
@@ -106,5 +112,6 @@ public class Dominio : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new UsuariosBloqueadosEmDominioDE(usuarioLogadoId, this.Id, usuarioIds, bloquear));
+        await Collection.Replace(this);
     }
 }

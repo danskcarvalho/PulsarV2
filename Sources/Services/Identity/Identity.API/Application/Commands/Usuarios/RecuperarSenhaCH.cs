@@ -17,7 +17,6 @@ public class RecuperarSenhaCH : IdentityCommandHandler<RecuperarSenhaCmd>
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
-        usuario.RecuperarSenha(cmd.Token!, cmd.Senha!, out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion).CheckModified();
+        await usuario.RecuperarSenha(cmd.Token!, cmd.Senha!);
     }
 }

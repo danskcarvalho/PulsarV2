@@ -19,7 +19,6 @@ public class EsqueciMinhaSenhaCH : IdentityCommandHandler<EsqueciMinhaSenhaCmd>
         if (usuario is null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
 
-        usuario.GerarTokenMudancaSenha(out long previousVersion);
-        await UsuarioRepository.ReplaceOneAsync(usuario, previousVersion).CheckModified();
+        await usuario.GerarTokenMudancaSenha();
     }
 }
