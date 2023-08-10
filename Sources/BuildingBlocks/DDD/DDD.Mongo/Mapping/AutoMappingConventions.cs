@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.DDD.Mongo.Mapping;
+﻿using Pulsar.BuildingBlocks.DDD.Mongo.Serialization;
+
+namespace Pulsar.BuildingBlocks.DDD.Mongo.Mapping;
 
 public static class AutoMappingConventions
 {
@@ -34,6 +36,9 @@ public static class AutoMappingConventions
 #pragma warning restore CS0618
 
             BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            BsonSerializer.RegisterSerializer(new DateOnlySerializer());
+            BsonSerializer.RegisterSerializer(new TimeOnlySerializer());
+
             _alreadyCalled = true;
         }
     }
