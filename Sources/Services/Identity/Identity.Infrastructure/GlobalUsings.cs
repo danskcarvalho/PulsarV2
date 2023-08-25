@@ -9,3 +9,4 @@ global using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 global using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 global using Pulsar.Services.Identity.Domain.Aggregates.Others;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+global using Pulsar.Services.Identity.Domain;

@@ -14,7 +14,7 @@ global using MongoDB.Bson;
 global using Pulsar.Services.Identity.API.Application.Queries;
 global using Pulsar.BuildingBlocks.DDD.Mongo;
 global using Pulsar.Services.Identity.Infrastructure.Repositories;
-global using Constants = Pulsar.Services.Identity.Infrastructure.Constants;
+global using Constants = Pulsar.Services.Identity.Domain.Constants;
 global using MediatR;
 global using Pulsar.Services.Identity.API.Registry;
 global using Pulsar.Services.Identity.Contracts.Enumerations;

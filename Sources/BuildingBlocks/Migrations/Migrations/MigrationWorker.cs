@@ -22,6 +22,7 @@ class MigrationWorker
     public async Task Migrate()
     {
         var startTransaction = GetRequiresTransaction(MigrationType);
+        var isPersistent = GetIsPersistent(MigrationType);
         using var session = (MongoDbSession)Factory.CreateSession();
         using var migrationSession = !startTransaction ? (MongoDbSession)Factory.CreateSession() : session;
 
@@ -40,8 +41,11 @@ class MigrationWorker
             };
             PrintGreen($"[{MigrationNumber}/{TotalMigrations}] executing {model.Version}:{MigrationType.Name}");
             //insert into the collection _Migrations
-            var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
-            await collection.InsertOneAsync(session.CurrentHandle, model);
+            if (!isPersistent) // if it's not persistent, then store in _Migrations collection so we don't rerun the migration
+            {
+                var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
+                await collection.InsertOneAsync(session.CurrentHandle, model, cancellationToken: ct);
+            }
 
             try
             {
@@ -61,7 +65,7 @@ class MigrationWorker
         }, IsolationLevel.Committed);
     }
 
-    private string ToJson(Exception e)
+    private static string ToJson(Exception e)
     {
         try
         {
@@ -76,7 +80,7 @@ class MigrationWorker
             });
         }
     }
-    private void PrintRed(string msg)
+    private static void PrintRed(string msg)
     {
         var previousForegroundColor = Console.ForegroundColor;
         try
@@ -89,7 +93,7 @@ class MigrationWorker
             Console.ForegroundColor = previousForegroundColor;
         }
     }
-    private void PrintGreen(string msg)
+    private static void PrintGreen(string msg)
     {
         var previousForegroundColor = Console.ForegroundColor;
         try
@@ -102,18 +106,26 @@ class MigrationWorker
             Console.ForegroundColor = previousForegroundColor;
         }
     }
-    private long GetVersion(Type migrationType)
+    private static long GetVersion(Type migrationType)
     {
         var attr = migrationType
             .GetCustomAttributes(false)
             .Where(attr => attr is MigrationAttribute).Select(attr => attr as MigrationAttribute).First();
         return attr!.Version;
     }
-    private bool GetRequiresTransaction(Type migrationType)
+    private static bool GetRequiresTransaction(Type migrationType)
     {
         var attr = migrationType
             .GetCustomAttributes(false)
             .Where(attr => attr is MigrationAttribute).Select(attr => attr as MigrationAttribute).First();
         return attr!.RequiresTransaction;
+    }
+
+    private static bool GetIsPersistent(Type migrationType)
+    {
+        var attr = migrationType
+            .GetCustomAttributes(false)
+            .Where(attr => attr is MigrationAttribute).Select(attr => attr as MigrationAttribute).First();
+        return attr!.IsPersistent;
     }
 }

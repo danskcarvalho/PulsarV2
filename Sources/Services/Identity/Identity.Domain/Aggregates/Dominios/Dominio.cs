@@ -8,7 +8,7 @@ using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioDetalhesDTO;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
-public class Dominio : AggregateRoot
+public partial class Dominio : AggregateRoot
 {
     public static DbContextCollection<Dominio> Collection => DbContext.Current.GetCollection<Dominio>();
 

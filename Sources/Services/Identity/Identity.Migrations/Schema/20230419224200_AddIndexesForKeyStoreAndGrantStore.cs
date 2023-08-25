@@ -3,7 +3,7 @@
 namespace Pulsar.Services.Identity.Migrations.Schema;
 
 [Migration(20230419224200)]
-public class AddIndexes_3 : Migration
+public class AddIndexesForKeyStoreAndGrantStore : Migration
 {
     public override async Task Up()
     {

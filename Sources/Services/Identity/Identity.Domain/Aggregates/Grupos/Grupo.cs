@@ -4,7 +4,7 @@ using Pulsar.Services.Identity.Domain.Events.Grupos;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
-public class Grupo : AggregateRoot
+public partial class Grupo : AggregateRoot
 {
     public static DbContextCollection<Grupo> Collection => DbContext.Current.GetCollection<Grupo>();
 

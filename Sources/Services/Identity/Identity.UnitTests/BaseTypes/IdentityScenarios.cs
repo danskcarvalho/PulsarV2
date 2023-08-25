@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Polly;
-using Pulsar.Services.Identity.Domain.Aggregates.Convites;
-using Pulsar.Services.Identity.UI.Pages;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
@@ -12,7 +7,7 @@ using Pulsar.Services.Identity.Domain.Aggregates.Others;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Functions.Application.Functions;
-using Microsoft.AspNetCore.Mvc;
+using Pulsar.Services.Identity.Domain;
 
 namespace Identity.UnitTests.BaseTypes;
 

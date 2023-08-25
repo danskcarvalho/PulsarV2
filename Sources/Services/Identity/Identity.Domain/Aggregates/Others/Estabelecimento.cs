@@ -2,7 +2,7 @@
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Others;
 
-public class Estabelecimento : AggregateRoot
+public partial class Estabelecimento : AggregateRoot
 {
     public static DbContextCollection<Estabelecimento> Collection => DbContext.Current.GetCollection<Estabelecimento>();
 

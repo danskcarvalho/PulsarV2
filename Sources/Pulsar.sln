@@ -65,7 +65,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain+Contracts", "Domain+Contracts", "{7EC86F0A-76B3-45E1-B814-A6DE24F28526}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{6AF049B0-397D-4E58-AD27-5A497CD24E9E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{6AF049B0-397D-4E58-AD27-5A497CD24E9E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Estabelecimentos", "Estabelecimentos", "{138E9D78-4073-4CE1-B5A0-AC4E46454C15}"
 EndProject
@@ -95,7 +95,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{43334B59
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.UnitTests", "Services\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{673FFFA1-9704-4D0D-9E68-C425847A1F47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.UI.UnitTests", "Services\Identity\Identity.UI.UnitTests\Identity.UI.UnitTests.csproj", "{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.UI.UnitTests", "Services\Identity\Identity.UI.UnitTests\Identity.UI.UnitTests.csproj", "{0997C438-BEE8-4D81-ADA7-42F4B49C6F69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

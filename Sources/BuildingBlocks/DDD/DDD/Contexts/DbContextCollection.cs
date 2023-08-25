@@ -2,7 +2,7 @@
 
 public class DbContextCollection<TModel> where TModel : class, IAggregateRoot
 {
-    private IRepositoryBase<TModel> _repository;
+    private readonly IRepositoryBase<TModel> _repository;
 
     public DbContextCollection(IRepositoryBase<TModel> repository)
     {
