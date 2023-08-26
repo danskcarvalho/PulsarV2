@@ -9,7 +9,7 @@ namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
 [Route("v2/usuarios")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[Authorize(AuthenticationSchemes = "Bearer,MockedAuthScheme")]
 public class UsuarioController : IdentityController
 {
     public UsuarioController(IdentityControllerContext context) : base(context)

@@ -27,7 +27,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         if (policyName.StartsWith(DOMINIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
             var requiredPermissions = policyName.Substring(DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
-            var builder = new AuthorizationPolicyBuilder("Bearer");
+            var builder = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme");
             builder.RequireAuthenticatedUser();
             if (requiredPermissions.Length != 0)
             {
@@ -46,7 +46,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         else if (policyName.StartsWith(ESTABELECIMENTO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
             var requiredPermissions = policyName.Substring(ESTABELECIMENTO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
-            var builder = new AuthorizationPolicyBuilder("Bearer");
+            var builder = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme");
             builder.RequireAuthenticatedUser();
             if (requiredPermissions.Length != 0)
             {
@@ -62,7 +62,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         }
         else if (policyName.StartsWith(SUPERUSUARIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            var builder = new AuthorizationPolicyBuilder("Bearer");
+            var builder = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme");
             builder.RequireAuthenticatedUser();
             builder.RequireAssertion(ctx => ctx.User.HasClaim(c => c.Type == "uag" && c.Value == "true"));
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
@@ -70,7 +70,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         else if (policyName.StartsWith(SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
             var requiredPermissions = policyName.Substring(SUPERUSUARIO_OR_DOMINIO_POLICY_PREFIX.Length).Split('_', StringSplitOptions.RemoveEmptyEntries);
-            var builder = new AuthorizationPolicyBuilder("Bearer");
+            var builder = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme");
             builder.RequireAuthenticatedUser();
             if (requiredPermissions.Length != 0)
             {
@@ -90,7 +90,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         }
         else if (policyName.StartsWith(SCOPE_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            var builder = new AuthorizationPolicyBuilder("Bearer");
+            var builder = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme");
             builder.RequireAuthenticatedUser();
             var claim = policyName.Substring(SCOPE_PREFIX.Length);
             var api = claim.Substring(0, claim.IndexOf('.'));
@@ -101,7 +101,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
         }
         else
         {
-            var policy = new AuthorizationPolicyBuilder("Bearer").RequireAuthenticatedUser().Build();
+            var policy = new AuthorizationPolicyBuilder("Bearer", "MockedAuthScheme").RequireAuthenticatedUser().Build();
             return Task.FromResult((AuthorizationPolicy?)policy);
         }
     }

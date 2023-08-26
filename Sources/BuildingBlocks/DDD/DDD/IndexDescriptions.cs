@@ -50,9 +50,8 @@ public abstract class IndexDescriptions<TModel> : IndexDescriptions
             {
                 if (_ImplementationType == null)
                 {
-                    _ImplementationType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes())
-                        .Where(t => t.IsGenericTypeDefinition && t.GetGenericArguments().Length == 1 && t.BaseType != null && t.BaseType.IsConstructedGenericType 
-                                && t.BaseType.GetGenericTypeDefinition() == typeof(IndexDescriptionsImplementation<>))
+                    _ImplementationType = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetCustomAttribute<IndexDescriptionsImplementationAttribute>() is not null)
+                        .Select(a => a.GetCustomAttribute<IndexDescriptionsImplementationAttribute>()!.Type)
                         .First()
                         .MakeGenericType(typeof(TModel));
                 }
@@ -90,4 +89,15 @@ public abstract class IndexBuilder<TModel> : IX
     public abstract IndexBuilder<TModel> Hashed(string field);
     public abstract IndexBuilder<TModel> Unique();
 
+}
+
+[AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
+public sealed class IndexDescriptionsImplementationAttribute : Attribute
+{
+    public IndexDescriptionsImplementationAttribute(Type type)
+    {
+        this.Type = type;
+    }
+
+    public Type Type { get; }
 }

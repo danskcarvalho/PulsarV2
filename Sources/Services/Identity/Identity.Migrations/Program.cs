@@ -7,3 +7,4 @@
 
 var migrations = host.Services.GetRequiredService<MigrationRunner>();
 await migrations.Run(typeof(Program).Assembly);
+public partial class Program { }

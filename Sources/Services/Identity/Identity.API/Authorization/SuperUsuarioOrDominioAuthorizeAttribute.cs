@@ -7,7 +7,7 @@ public class SuperUsuarioOrDominioAuthorizeAttribute : AuthorizeAttribute
 {
     public SuperUsuarioOrDominioAuthorizeAttribute(params PermissoesDominio[] permissoes)
     {
-        AuthenticationSchemes = "Bearer";
+        AuthenticationSchemes = "Bearer,MockedAuthScheme";
         Permissoes = permissoes;
         Policy = "SuperUsuarioOrDominio_" + string.Join('_', permissoes.Select(x => (int)x).Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray());
     }

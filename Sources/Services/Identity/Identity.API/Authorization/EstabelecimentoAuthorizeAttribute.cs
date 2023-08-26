@@ -7,7 +7,7 @@ public class EstabelecimentoAuthorizeAttribute : AuthorizeAttribute
 {
     public EstabelecimentoAuthorizeAttribute(params PermissoesEstabelecimento[] permissoes)
     {
-        AuthenticationSchemes = "Bearer";
+        AuthenticationSchemes = "Bearer,MockedAuthScheme";
         Permissoes = permissoes;
         Policy = "Estabelecimento_" + string.Join('_', permissoes.Select(x => (int)x).Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray());
     }

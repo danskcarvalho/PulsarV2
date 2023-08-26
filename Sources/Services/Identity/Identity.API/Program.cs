@@ -162,3 +162,4 @@ app.MapDefaultControllerRoute();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+public partial class Program { }

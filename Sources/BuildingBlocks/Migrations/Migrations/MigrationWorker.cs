@@ -6,21 +6,30 @@ class MigrationWorker
     public int TotalMigrations { get; }
     public Type MigrationType { get; }
     public MongoDbSessionFactory Factory { get; }
+    public bool IsTestingEnvironment { get; }
 
     public MigrationWorker(
         int migrationNumber,
         int totalMigrations,
         Type migrationType,
-        MongoDbSessionFactory factory)
+        MongoDbSessionFactory factory,
+        bool isTestingEnvironment)
     {
         MigrationNumber = migrationNumber;
         TotalMigrations = totalMigrations;
         MigrationType = migrationType;
         Factory = factory;
+        IsTestingEnvironment = isTestingEnvironment;
     }
 
     public async Task Migrate()
     {
+        var isForTesting = GetIsForTesting(MigrationType);
+        if (isForTesting && !IsTestingEnvironment)
+        {
+            Print($"[{MigrationNumber}/{TotalMigrations}] skipped", ConsoleColor.Yellow);
+            return;
+        }
         var startTransaction = GetRequiresTransaction(MigrationType);
         var isPersistent = GetIsPersistent(MigrationType);
         using var session = (MongoDbSession)Factory.CreateSession();
@@ -39,7 +48,7 @@ class MigrationWorker
                 Name = MigrationType.Name,
                 Version = GetVersion(MigrationType)
             };
-            PrintGreen($"[{MigrationNumber}/{TotalMigrations}] executing {model.Version}:{MigrationType.Name}");
+            Print($"[{MigrationNumber}/{TotalMigrations}] executing {model.Version}:{MigrationType.Name}", ConsoleColor.Green);
             //insert into the collection _Migrations
             if (!isPersistent) // if it's not persistent, then store in _Migrations collection so we don't rerun the migration
             {
@@ -54,10 +63,10 @@ class MigrationWorker
             }
             catch (Exception e)
             {
-                PrintRed($"migration {model.Version}:{MigrationType.Name} failed with exception {e.GetType().FullName}");
+                Print($"migration {model.Version}:{MigrationType.Name} failed with exception {e.GetType().FullName}", ConsoleColor.Red);
                 if (!startTransaction)
-                    PrintRed($"migration {model.Version}:{MigrationType.Name} did not run under a transaction");
-                PrintRed(ToJson(e));
+                    Print($"migration {model.Version}:{MigrationType.Name} did not run under a transaction", ConsoleColor.Red);
+                Print(ToJson(e), ConsoleColor.Red);
                 throw;
             }
 
@@ -80,25 +89,12 @@ class MigrationWorker
             });
         }
     }
-    private static void PrintRed(string msg)
+    private static void Print(string msg, ConsoleColor color)
     {
         var previousForegroundColor = Console.ForegroundColor;
         try
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(msg);
-        }
-        finally
-        {
-            Console.ForegroundColor = previousForegroundColor;
-        }
-    }
-    private static void PrintGreen(string msg)
-    {
-        var previousForegroundColor = Console.ForegroundColor;
-        try
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = color;
             Console.WriteLine(msg);
         }
         finally
@@ -127,5 +123,12 @@ class MigrationWorker
             .GetCustomAttributes(false)
             .Where(attr => attr is MigrationAttribute).Select(attr => attr as MigrationAttribute).First();
         return attr!.IsPersistent;
+    }
+    private static bool GetIsForTesting(Type migrationType)
+    {
+        var attr = migrationType
+            .GetCustomAttributes(false)
+            .Where(attr => attr is MigrationAttribute).Select(attr => attr as MigrationAttribute).First();
+        return attr!.IsForTesting;
     }
 }

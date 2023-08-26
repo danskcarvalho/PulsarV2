@@ -1,26 +1,49 @@
-﻿namespace Pulsar.BuildingBlocks.Migrations;
+﻿using Pulsar.BuildingBlocks.DDD.Mongo;
+
+namespace Pulsar.BuildingBlocks.Migrations;
 
 class ScopedMigration
 {
     private readonly MongoDbSessionFactory _sessionFactory;
-
+    private const string TestCollection = "_TestsMarker";
     public ScopedMigration(MongoDbSessionFactory sessionFactory)
     {
         _sessionFactory = sessionFactory;
     }
 
-    public async Task Run(Assembly assembly)
+    public async Task Run(Assembly assembly, bool isTestingEnvironment)
     {
         using var gatheringSession = (MongoDbSession)_sessionFactory.CreateSession();
+        if (isTestingEnvironment)
+        {
+            await ResetDatabase(gatheringSession);
+        }
+
         var migrations = await GatherMigrations(assembly, gatheringSession);
 
         //run migrations
         int number = 1;
         foreach (var mig in migrations)
         {
-            var worker = new MigrationWorker(number, migrations.Count, mig, _sessionFactory);
+            var worker = new MigrationWorker(number, migrations.Count, mig, _sessionFactory, isTestingEnvironment);
             await worker.Migrate();
             number++;
+        }
+    }
+
+    private async Task ResetDatabase(MongoDbSession session)
+    {
+        var db = session.Database;
+        if (!await db.CollectionExists(TestCollection))
+            await db.CreateCollectionAsync(TestCollection);
+
+        var collectionNames = await db.ListCollectionNamesAsync().ToListAsync();
+        foreach (var name in collectionNames)
+        {
+            if (name == TestCollection)
+                continue;
+
+            await db.DropCollectionAsync(name);
         }
     }
 

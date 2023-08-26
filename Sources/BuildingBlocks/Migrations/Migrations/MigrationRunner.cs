@@ -9,12 +9,12 @@
             _scopeFactory = scopeFactory;
         }
 
-        public async Task Run(Assembly assembly)
+        public async Task Run(Assembly assembly, bool isTestingEnvironment = false)
         {
             await using (var scope = _scopeFactory.CreateAsyncScope())
             {
                 var mm = scope.ServiceProvider.GetRequiredService<ScopedMigration>();
-                await mm.Run(assembly);
+                await mm.Run(assembly, isTestingEnvironment);
             }
         }
     }

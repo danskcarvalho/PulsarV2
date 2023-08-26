@@ -6,6 +6,7 @@ public class MigrationAttribute : Attribute
     public long Version { get; }
     public bool RequiresTransaction { get; set; }
     public bool IsPersistent { get; set; }
+    public bool IsForTesting { get; set; }
     public MigrationAttribute(long version)
     {
         Version = version;

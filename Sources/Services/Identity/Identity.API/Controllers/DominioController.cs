@@ -6,7 +6,7 @@ namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
 [Route("v2/dominios")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[Authorize(AuthenticationSchemes = "Bearer,MockedAuthScheme")]
 public class DominioController : IdentityController
 {
     public DominioController(IdentityControllerContext context) : base(context)
