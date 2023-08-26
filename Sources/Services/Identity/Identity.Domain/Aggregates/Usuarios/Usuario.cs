@@ -1,10 +1,10 @@
-﻿using Pulsar.Services.Identity.Domain.Events.Usuarios;
+﻿using Pulsar.BuildingBlocks.DDD;
+using Pulsar.Services.Identity.Domain.Events.Usuarios;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
-public partial class Usuario : AggregateRoot
+public partial class Usuario : AggregateRootWithCrud<Usuario>
 {
-    public static DbContextCollection<Usuario> Collection => DbContext.Current.GetCollection<Usuario>();
     public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
 
     private string _primeiroNome;
@@ -125,7 +125,7 @@ public partial class Usuario : AggregateRoot
         }
         this.AddDomainEvent(new TokenMudancaSenhaGeradoDE(this.Id, this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
         var previousVersion = Version++;
-        await Collection.Replace(this, previousVersion).CheckModified();
+        await this.Replace(previousVersion).CheckModified();
     }
 
     public async Task RecuperarSenha(string token, string senha)
@@ -142,7 +142,7 @@ public partial class Usuario : AggregateRoot
         this.TokenMudancaSenha = null;
         this.TokenMudancaSenhaExpiraEm = null;
         var previousVersion = Version++;
-        await Collection.Replace(this, previousVersion).CheckModified();
+        await this.Replace(previousVersion).CheckModified();
     }
 
     public async Task AceitarConvite(string primeiroNome, string? sobrenome, string nomeUsuario, string senha)
@@ -155,14 +155,14 @@ public partial class Usuario : AggregateRoot
         this.IsConvitePendente = false;
         this.IsAtivo = true;
         this.Version++;
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task Criar()
     {
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Created));
-        await Collection.Insert(this);
+        await this.Insert();
     }
 
     public async Task MudarMinhaSenha(string senhaAtual, string novaSenha)
@@ -175,7 +175,7 @@ public partial class Usuario : AggregateRoot
         this.MudarMinhaSenha(novaSenha);
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         Version++;
-        await Collection.Replace(this, previousVersion).CheckModified();
+        await this.Replace(previousVersion).CheckModified();
     }
 
     private void MudarMinhaSenha(string novaSenha)
@@ -192,7 +192,7 @@ public partial class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
@@ -204,7 +204,7 @@ public partial class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task AlterarAvatar(string url)
@@ -214,7 +214,7 @@ public partial class Usuario : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
@@ -222,7 +222,7 @@ public partial class Usuario : AggregateRoot
         this.DominiosAdministrados.Remove(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task AdicionarDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
@@ -231,6 +231,6 @@ public partial class Usuario : AggregateRoot
             this.DominiosAdministrados.Add(dominioId);
         this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        await Collection.Replace(this);
+        await this.Replace();
     }
 }

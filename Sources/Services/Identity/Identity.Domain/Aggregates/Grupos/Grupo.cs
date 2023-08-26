@@ -1,13 +1,12 @@
-﻿using Pulsar.Services.Identity.Contracts.Commands.Grupos;
+﻿using Pulsar.BuildingBlocks.DDD;
+using Pulsar.Services.Identity.Contracts.Commands.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Grupos;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
-public partial class Grupo : AggregateRoot
+public partial class Grupo : AggregateRootWithCrud<Grupo>
 {
-    public static DbContextCollection<Grupo> Collection => DbContext.Current.GetCollection<Grupo>();
-
     private string _termosBusca;
     private string _nome;
     private const int MaxNumUsuarios = 5000; // -- 5000 usuários
@@ -52,7 +51,7 @@ public partial class Grupo : AggregateRoot
     public async Task Criar()
     {
         this.AddDomainEvent(new GrupoModificadoDE(this.AuditInfo.CriadoPorUsuarioId!.Value, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Created, Version));
-        await Collection.Insert(this);
+        await this.Insert();
     }
 
     public async Task Remover(ObjectId usuarioLogadoId)
@@ -60,7 +59,7 @@ public partial class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.RemovidoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Deleted, Version));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task Editar(ObjectId usuarioLogadoId, string nome)
@@ -69,7 +68,7 @@ public partial class Grupo : AggregateRoot
         this.Nome = nome;
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version)); 
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task<ObjectId> CriarSubGrupo(ObjectId usuarioLogadoId, string nome, List<PermissoesDominio> permissoesDominio, List<CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede> permissoesEstabelecimento)
@@ -88,7 +87,7 @@ public partial class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
-        await Collection.Replace(this);
+        await this.Replace();
         return subgrupo.SubGrupoId;
     }
 
@@ -101,7 +100,7 @@ public partial class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
         subgrupo.Editar(nome, permissoesDominios, permissoesEstabelecimentoOuRedes);
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task RemoverSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId)
@@ -118,7 +117,7 @@ public partial class Grupo : AggregateRoot
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task AdicionarUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
@@ -139,7 +138,7 @@ public partial class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task RemoverUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
@@ -160,6 +159,6 @@ public partial class Grupo : AggregateRoot
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.Version++;
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 }

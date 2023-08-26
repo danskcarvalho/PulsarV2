@@ -1,11 +1,10 @@
-﻿using Pulsar.Services.Identity.Domain.Events.Convites;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+using Pulsar.Services.Identity.Domain.Events.Convites;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
 
-public class Convite : AggregateRoot
+public class Convite : AggregateRootWithCrud<Convite>
 {
-    public static DbContextCollection<Convite> Collection => DbContext.Current.GetCollection<Convite>();
-
     [BsonConstructor(nameof(Id), nameof(Email), nameof(ConviteExpiraEm), nameof(TokenAceitacao), nameof(UsuarioId), nameof(AuditInfo))]
     public Convite(ObjectId id, string email, DateTime conviteExpiraEm, string tokenAceitacao, ObjectId usuarioId, AuditInfo auditInfo) : base(id)
     {
@@ -22,6 +21,7 @@ public class Convite : AggregateRoot
     public string TokenAceitacao { get; private set; }
     public bool IsAceito { get; set; }
     public ObjectId UsuarioId { get; private set; }
+    public Task<Usuario> GetUsuario() => Usuario.GetAndCache(this.UsuarioId, nameof(UsuarioId));
     public AuditInfo AuditInfo { get; set; }
 
     public async Task Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
@@ -36,12 +36,12 @@ public class Convite : AggregateRoot
         IsAceito = true;
         Version++;
         this.AddDomainEvent(new ConviteAceitoDE(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
-        await Collection.Replace(this);
+        await this.Replace();
     }
 
     public async Task ConvidarUsuario()
     {
         AddDomainEvent(new UsuarioConvidadoDE(this.Id, this.UsuarioId, this.Email, this.TokenAceitacao, this.AuditInfo.CriadoPorUsuarioId!.Value));
-        await Collection.Insert(this);
+        await this.Insert();
     }
 }
