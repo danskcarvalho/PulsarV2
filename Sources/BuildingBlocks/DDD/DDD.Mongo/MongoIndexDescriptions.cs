@@ -14,6 +14,10 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo
     public class MongoIndexBuilder<TModel> : IndexBuilder<TModel>
     {
         private IndexKeysDefinition<TModel>? _definition = null;
+
+        private bool? _unique = null;
+        public override bool? IsUnique => _unique;
+
         public MongoIndexBuilder() { }
         public IndexKeysDefinition<TModel> GetDefinition() => _definition ?? throw new InvalidOperationException("no index definition");
 
@@ -94,6 +98,12 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo
             else
                 _definition = _definition.Text(field);
 
+            return this;
+        }
+
+        public override IndexBuilder<TModel> Unique()
+        {
+            _unique = true;
             return this;
         }
     }

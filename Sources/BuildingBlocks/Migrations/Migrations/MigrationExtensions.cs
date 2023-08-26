@@ -49,6 +49,7 @@ namespace Pulsar.BuildingBlocks.Migrations
                 var b = (MongoIndexBuilder<T>)idx.Value;
                 await collection.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<T>(b.GetDefinition(), new CreateIndexOptions()
                 {
+                    Unique = b.IsUnique,
                     Name = $"ix_{idx.Key}"
                 }));
             }

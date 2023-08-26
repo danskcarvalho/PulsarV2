@@ -78,6 +78,8 @@ public abstract class IndexBuilder<TModel> : IX
 {
     public IndexBuilder() { }
 
+    public abstract bool? IsUnique { get; }
+
     public abstract IndexBuilder<TModel> Ascending(Expression<Func<TModel, object?>> field);
     public abstract IndexBuilder<TModel> Descending(Expression<Func<TModel, object?>> field);
     public abstract IndexBuilder<TModel> Text(Expression<Func<TModel, object?>> field);
@@ -86,5 +88,6 @@ public abstract class IndexBuilder<TModel> : IX
     public abstract IndexBuilder<TModel> Descending(string field);
     public abstract IndexBuilder<TModel> Text(string field);
     public abstract IndexBuilder<TModel> Hashed(string field);
+    public abstract IndexBuilder<TModel> Unique();
 
 }
