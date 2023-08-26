@@ -18,7 +18,7 @@ public class TestingWebApplicationFactory : WebApplicationFactory<API::Program>
     {
         builder.ConfigureServices(services =>
         {
-            services.AddMigrations();
+            services.AddMigrationsWithoutDatabaseMachinery();
         });
         builder.UseEnvironment("Testing");
     }
@@ -35,9 +35,9 @@ public class TestingWebApplicationFactory : WebApplicationFactory<API::Program>
         {
             builder.ConfigureTestServices(services =>
             {
-                services.AddAuthentication(defaultScheme: "MockedAuthScheme")
+                services.AddAuthentication(defaultScheme: "Testing")
                     .AddScheme<MockedAuthOptions, MockedAuthHandler>(
-                        "MockedAuthScheme", options =>
+                        "Testing", options =>
                         {
                             options.UsuarioId = user.Id;
                             options.DominioId = user.DominioId;
@@ -48,7 +48,7 @@ public class TestingWebApplicationFactory : WebApplicationFactory<API::Program>
         .CreateClient();
 
         client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(scheme: "MockedAuthScheme");
+            new AuthenticationHeaderValue(scheme: "Testing");
         return client;
     }
 }

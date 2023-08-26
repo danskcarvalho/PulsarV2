@@ -2,7 +2,7 @@
 
 [ApiController]
 [Route("v2/estabelecimentos")]
-[Authorize(AuthenticationSchemes = "Bearer,MockedAuthScheme")]
+[Authorize(Policy = "InferAuthenticationSchemes")]
 public class EstabelecimentoController : IdentityController
 {
     public EstabelecimentoController(IdentityControllerContext context) : base(context)

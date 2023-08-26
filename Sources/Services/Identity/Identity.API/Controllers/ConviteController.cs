@@ -6,7 +6,7 @@ namespace Pulsar.Services.Identity.API.Controllers;
 
 [ApiController]
 [Route("v2/convites")]
-[Authorize(AuthenticationSchemes = "Bearer,MockedAuthScheme")]
+[Authorize(Policy = "InferAuthenticationSchemes")]
 public class ConviteController : IdentityController
 {
     public ConviteController(IdentityControllerContext context) : base(context)

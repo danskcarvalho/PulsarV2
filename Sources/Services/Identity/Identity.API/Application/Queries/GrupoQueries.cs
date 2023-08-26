@@ -109,9 +109,4 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
             }).ToList();
         }, consistencyToken);
     }
-
-    public static class CacheCategories
-    {
-        public const string FindGrupos = "GrupoQueries.FindGrupos";
-    }
 }

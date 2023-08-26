@@ -32,4 +32,10 @@ public static class DIExtensions
         col.AddSingleton<MigrationRunner>();
         col.AddScoped<ScopedMigration>();
     }
+
+    public static void AddMigrationsWithoutDatabaseMachinery(this IServiceCollection col)
+    {
+        col.AddSingleton<MigrationRunner>();
+        col.AddScoped<ScopedMigration>();
+    }
 }

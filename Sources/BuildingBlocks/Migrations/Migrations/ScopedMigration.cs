@@ -5,7 +5,7 @@ namespace Pulsar.BuildingBlocks.Migrations;
 class ScopedMigration
 {
     private readonly MongoDbSessionFactory _sessionFactory;
-    private const string TestCollection = "_TestsMarker";
+    private const string TEST_COLLECTION = "_TestsMarker";
     public ScopedMigration(MongoDbSessionFactory sessionFactory)
     {
         _sessionFactory = sessionFactory;
@@ -34,13 +34,13 @@ class ScopedMigration
     private async Task ResetDatabase(MongoDbSession session)
     {
         var db = session.Database;
-        if (!await db.CollectionExists(TestCollection))
-            await db.CreateCollectionAsync(TestCollection);
+        if (!await db.CollectionExists(TEST_COLLECTION))
+            await db.CreateCollectionAsync(TEST_COLLECTION);
 
         var collectionNames = await db.ListCollectionNamesAsync().ToListAsync();
         foreach (var name in collectionNames)
         {
-            if (name == TestCollection)
+            if (name == TEST_COLLECTION)
                 continue;
 
             await db.DropCollectionAsync(name);

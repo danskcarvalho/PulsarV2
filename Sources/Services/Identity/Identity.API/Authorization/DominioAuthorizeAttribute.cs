@@ -7,7 +7,6 @@ public class DominioAuthorizeAttribute : AuthorizeAttribute
 {
     public DominioAuthorizeAttribute(params PermissoesDominio[] permissoes)
     {
-        AuthenticationSchemes = "Bearer,MockedAuthScheme";
         Permissoes = permissoes;
         Policy = "Dominio_" + string.Join('_', permissoes.Select(x => (int)x).Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray());
     }

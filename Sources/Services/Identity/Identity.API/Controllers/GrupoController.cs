@@ -7,7 +7,7 @@ namespace Pulsar.Services.Identity.API.Controllers
 {
     [ApiController]
     [Route("v2/grupos")]
-    [Authorize(AuthenticationSchemes = "Bearer,MockedAuthScheme")]
+    [Authorize(Policy = "InferAuthenticationSchemes")]
     public class GrupoController : IdentityController
     {
         public GrupoController(IdentityControllerContext context) : base(context)

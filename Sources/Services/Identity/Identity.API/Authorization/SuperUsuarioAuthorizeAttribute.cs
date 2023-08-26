@@ -7,7 +7,6 @@ public class SuperUsuarioAuthorizeAttribute : AuthorizeAttribute
 {
     public SuperUsuarioAuthorizeAttribute()
     {
-        AuthenticationSchemes = "Bearer,MockedAuthScheme";
         Policy = "SuperUsuario_";
     }
 }

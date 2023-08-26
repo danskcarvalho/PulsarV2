@@ -45,7 +45,7 @@ public class MockedAuthOptions : AuthenticationSchemeOptions
 
 public class MockedAuthHandler : AuthenticationHandler<MockedAuthOptions>
 {
-    private const string Scope = "identity.*";
+    private const string API_SCOPE = "identity.*";
 
     public MockedAuthHandler(
         IOptionsMonitor<MockedAuthOptions> options,
@@ -72,12 +72,12 @@ public class MockedAuthHandler : AuthenticationHandler<MockedAuthOptions>
                 new Claim("e", estabelecimentoId != null ? estabelecimentoId : string.Empty),
                 new Claim("dp", GetDominioPerms(dominioId, estabelecimentoId)),
                 new Claim("ep", GetEstabelecimentoPerms(dominioId, estabelecimentoId)),
-                new Claim("scope", Scope)
+                new Claim("scope", API_SCOPE)
             };
 
         var identity = new ClaimsIdentity(claims, "pwd");
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, "MockedAuthScheme");
+        var ticket = new AuthenticationTicket(principal, "Testing");
 
         return AuthenticateResult.Success(ticket);
 

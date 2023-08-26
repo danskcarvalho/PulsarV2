@@ -9,8 +9,8 @@ public partial class Grupo : AggregateRootWithCrud<Grupo>
 {
     private string _termosBusca;
     private string _nome;
-    private const int MaxNumUsuarios = 5000; // -- 5000 usuários
-    private const int MaxNumSubGrupos = 100; // -- 100 grupos
+    private const int MAX_NUM_USUARIOS = 5000; // -- 5000 usuários
+    private const int MAX_NUM_SUBGRUPOS = 100; // -- 100 grupos
 
     public ObjectId DominioId { get; private set; }
     public string Nome
@@ -83,7 +83,7 @@ public partial class Grupo : AggregateRootWithCrud<Grupo>
         this.SubGrupos.Add(subgrupo);
         this.NumSubGrupos = this.SubGrupos.Count;
 
-        if (this.NumSubGrupos > Grupo.MaxNumSubGrupos)
+        if (this.NumSubGrupos > Grupo.MAX_NUM_SUBGRUPOS)
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
@@ -113,7 +113,7 @@ public partial class Grupo : AggregateRootWithCrud<Grupo>
         SubGrupos.Remove(subgrupo);
         this.NumSubGrupos = this.SubGrupos.Count;
 
-        if (this.NumSubGrupos > Grupo.MaxNumSubGrupos)
+        if (this.NumSubGrupos > Grupo.MAX_NUM_SUBGRUPOS)
             throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
@@ -132,7 +132,7 @@ public partial class Grupo : AggregateRootWithCrud<Grupo>
         subgrupo.NumUsuarios = subgrupo.UsuarioIds.Count;
         this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
 
-        if (this.NumUsuarios > Grupo.MaxNumUsuarios)
+        if (this.NumUsuarios > Grupo.MAX_NUM_USUARIOS)
             throw new IdentityDomainException(ExceptionKey.NumUsuariosGrupoExcedeMaximo);
 
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
@@ -153,7 +153,7 @@ public partial class Grupo : AggregateRootWithCrud<Grupo>
         subgrupo.NumUsuarios = subgrupo.UsuarioIds.Count;
         this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
 
-        if (this.NumUsuarios > Grupo.MaxNumUsuarios)
+        if (this.NumUsuarios > Grupo.MAX_NUM_USUARIOS)
             throw new IdentityDomainException(ExceptionKey.NumUsuariosGrupoExcedeMaximo);
 
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);

@@ -7,7 +7,7 @@ namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 [NoTransaction]
 public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, CommandResult>
 {
-    public const int MaxImageWidth = 256;
+    public const int MAX_IMAGE_WIDTH = 256;
     private readonly IFileSystem _fileSystem;
     private readonly IImageManipulationProvider _imageManipulationProvider;
     public MudarMeuAvatarCH(IFileSystem fileSystem, IImageManipulationProvider imageManipulationProvider, IdentityCommandHandlerContext<MudarMeuAvatarCmd, CommandResult> ctx) : base(ctx)
@@ -18,7 +18,7 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
 
     protected override async Task<CommandResult> HandleAsync(MudarMeuAvatarCmd cmd, CancellationToken ct)
     {
-        var img = _imageManipulationProvider.Resize(cmd.Stream, MaxImageWidth);
+        var img = _imageManipulationProvider.Resize(cmd.Stream, MAX_IMAGE_WIDTH);
         using var ms = new MemoryStream(img.FileContents);
         var url = await _fileSystem.UploadFileAsync(new UploadFileInput(Guid.NewGuid().ToString() + ".jpg", ms)
         {
