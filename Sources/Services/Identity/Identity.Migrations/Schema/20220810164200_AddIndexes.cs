@@ -1,10 +1,12 @@
-﻿namespace Pulsar.Services.Identity.Migrations.Schema;
+﻿using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+
+namespace Pulsar.Services.Identity.Migrations.Schema;
 
 [Migration(20220810164200, IsPersistent = true)]
 public class AddIndexes : Migration
 {
     public override async Task Up()
     {
-        await this.UpIndexes();
+        await this.UpIndexes(typeof(Usuario).Assembly);
     }
 }

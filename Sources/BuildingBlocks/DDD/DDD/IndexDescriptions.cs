@@ -8,7 +8,7 @@ public abstract class IndexDescriptions
     public Dictionary<string, IX> AllIndexes()
     {
         Dictionary<string, IX> result = new Dictionary<string, IX>();
-        var keys = this.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(IX)).Select(f => (f.Name, IX: f.GetValue(this) as IX));
+        var keys = this.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(IX)).Select(f => (f.Name, IX: f.GetValue(null) as IX));
         foreach (var k in keys)
         {
             result[k.Name.ToLowerInvariant()] = k.IX ?? throw new InvalidOperationException("null index");
@@ -16,10 +16,10 @@ public abstract class IndexDescriptions
         return result;
     }
 
-    public static IEnumerable<IndexDescriptions> AllDescriptors()
+    public static IEnumerable<IndexDescriptions> AllDescriptors(Assembly assembly)
     {
-        return AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes())
-                        .Where(t => typeof(IndexDescriptions).IsAssignableFrom(t))
+        return assembly.GetTypes()
+                        .Where(t => typeof(IndexDescriptions).IsAssignableFrom(t) && !t.IsAbstract)
                         .Select(t => (IndexDescriptions?)Activator.CreateInstance(t))
                         .Cast<IndexDescriptions>();
     }
@@ -51,8 +51,10 @@ public abstract class IndexDescriptions<TModel> : IndexDescriptions
                 if (_ImplementationType == null)
                 {
                     _ImplementationType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes())
-                        .Where(t => typeof(IndexDescriptionsImplementation<TModel>).IsAssignableFrom(t))
-                        .First();
+                        .Where(t => t.IsGenericTypeDefinition && t.GetGenericArguments().Length == 1 && t.BaseType != null && t.BaseType.IsConstructedGenericType 
+                                && t.BaseType.GetGenericTypeDefinition() == typeof(IndexDescriptionsImplementation<>))
+                        .First()
+                        .MakeGenericType(typeof(TModel));
                 }
             }
         }

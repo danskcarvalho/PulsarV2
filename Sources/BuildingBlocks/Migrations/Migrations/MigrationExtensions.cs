@@ -5,12 +5,12 @@ namespace Pulsar.BuildingBlocks.Migrations
 {
     public static class MigrationsExtensions
     {
-        public static async Task UpIndexes(this Migration mig)
+        public static async Task UpIndexes(this Migration mig, Assembly assembly)
         {
             if (mig.Database == null)
                 return;
 
-            var descriptors = IndexDescriptions.AllDescriptors();
+            var descriptors = IndexDescriptions.AllDescriptors(assembly).ToList();
 
             foreach (var desc in descriptors)
             {
@@ -36,7 +36,7 @@ namespace Pulsar.BuildingBlocks.Migrations
             toBeDeleted.Remove("_id_");
             foreach (var idx in allIndexes)
             {
-                toBeDeleted.Remove(idx.Key);
+                toBeDeleted.Remove($"ix_{idx.Key}");
             }
 
             foreach (var d in toBeDeleted)
@@ -49,7 +49,7 @@ namespace Pulsar.BuildingBlocks.Migrations
                 var b = (MongoIndexBuilder<T>)idx.Value;
                 await collection.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<T>(b.GetDefinition(), new CreateIndexOptions()
                 {
-                    Name = idx.Key
+                    Name = $"ix_{idx.Key}"
                 }));
             }
         }
