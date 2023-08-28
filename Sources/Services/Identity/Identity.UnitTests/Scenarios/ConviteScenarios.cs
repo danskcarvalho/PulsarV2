@@ -18,7 +18,7 @@ public class ConviteScenarios : IdentityScenarios
         Assert.NotNull(createdInvite);
         Assert.NotNull(createdInvite.TokenAceitacao);
         Assert.NotNull(createdInvite.AuditInfo?.CriadoEm);
-        Assert.Equal(createdInvite.AuditInfo.CriadoPorUsuarioId.ToString(), IdentityDatabase.AdminUserId);
+        Assert.Equal(createdInvite.AuditInfo?.CriadoPorUsuarioId.ToString(), IdentityDatabase.AdminUserId);
         Assert.False(createdInvite.IsAceito);
         Assert.True(createdInvite.ConviteExpiraEm >= DateTime.UtcNow);
 
