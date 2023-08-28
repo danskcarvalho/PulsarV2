@@ -1,4 +1,5 @@
 ﻿using Identity.IntegrationTests.Utils;
+using System.Web;
 
 namespace Identity.IntegrationTests.BaseTypes
 {
@@ -20,5 +21,21 @@ namespace Identity.IntegrationTests.BaseTypes
         {
             _webApplicationFactory.Dispose();
         }
+
+        protected string BuildQueryString(object values)
+        {
+            var nameValueCollection = HttpUtility.ParseQueryString(string.Empty);
+            foreach (var prop in values.GetType().GetProperties())
+            {
+                var value = Convert.ToString(prop.GetValue(values));
+                if (value is not null)
+                    nameValueCollection[prop.Name] = value;
+            }
+            var queryString = nameValueCollection.ToString();
+            if (!string.IsNullOrWhiteSpace(queryString))
+                return $"?{queryString}";
+            else
+                return string.Empty;
+        } 
     }
 }

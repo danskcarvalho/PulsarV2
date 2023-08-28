@@ -27,7 +27,7 @@ class MigrationWorker
         var isForTesting = GetIsForTesting(MigrationType);
         if (isForTesting && !IsTestingEnvironment)
         {
-            Print($"[{MigrationNumber}/{TotalMigrations}] skipped", ConsoleColor.Yellow);
+            Print($"[{MigrationNumber}/{TotalMigrations}] skipping {GetVersion(MigrationType)}:{MigrationType.Name}", ConsoleColor.Yellow);
             return;
         }
         var startTransaction = GetRequiresTransaction(MigrationType);

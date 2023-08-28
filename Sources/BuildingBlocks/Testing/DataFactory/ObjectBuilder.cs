@@ -17,6 +17,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
         private Type[] _argTypes = new Type[0];
         private bool _autocomplete = false;
         private List<object?>? _autocompleteArgs = null;
+        private bool _autofill = true;
         private static readonly HashSet<PropertyInfo> _emptyProperties = new HashSet<PropertyInfo>();
         private static readonly HashSet<Type> _canBeGenerated = new HashSet<Type>
         {
@@ -77,7 +78,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
                 return _parent.UpOneLevel<T>(() =>
                 {
                     var obj = (T)(Activator.CreateInstance(typeof(T)) ?? throw new InvalidOperationException());
-                    SetUpPrimitiveProperties(obj, GetPropertiesFromExpression(include), GetPropertiesFromExpression(exclude));
+                    SetUpProperties(obj, GetPropertiesFromExpression(include), GetPropertiesFromExpression(exclude));
                     return obj;
                 });
             });
@@ -133,7 +134,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
                     var obj = compiled(_generator);
                     var ignoredProperties = GetIgnoredProperties(generator);
                     ignoredProperties.UnionWith(GetPropertiesFromExpression(exclude));
-                    SetUpPrimitiveProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
+                    SetUpProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
                     return obj;
                 });
             });
@@ -158,7 +159,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
                     var obj = compiled(_generator)(a1, a2, a3);
                     var ignoredProperties = GetIgnoredProperties(generator);
                     ignoredProperties.UnionWith(GetPropertiesFromExpression(exclude));
-                    SetUpPrimitiveProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
+                    SetUpProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
                     return obj;
                 });
             });
@@ -184,7 +185,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
                     var obj = compiled(_generator)(a1, a2);
                     var ignoredProperties = GetIgnoredProperties(generator);
                     ignoredProperties.UnionWith(GetPropertiesFromExpression(exclude));
-                    SetUpPrimitiveProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
+                    SetUpProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
                     return obj;
                 });
             });
@@ -208,7 +209,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
                     var obj = compiled(_generator)(a1);
                     var ignoredProperties = GetIgnoredProperties(generator);
                     ignoredProperties.UnionWith(GetPropertiesFromExpression(exclude));
-                    SetUpPrimitiveProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
+                    SetUpProperties(obj, GetPropertiesFromExpression(include), ignoredProperties);
                     return obj;
                 });
             });
@@ -218,8 +219,10 @@ namespace Pulsar.BuildingBlocks.DataFactory
             return result;
         }
 
-        private void SetUpPrimitiveProperties(T obj, HashSet<PropertyInfo> included, HashSet<PropertyInfo> excluded)
+        private void SetUpProperties(T obj, HashSet<PropertyInfo> included, HashSet<PropertyInfo> excluded)
         {
+            if (!_autofill)
+                return;
             var objType = obj.GetType();
             if(included == null || included.Count == 0)
                 included = new HashSet<PropertyInfo>(objType.GetProperties());
@@ -575,6 +578,12 @@ namespace Pulsar.BuildingBlocks.DataFactory
         public ObjectBuilder<T> ChangeLater(out ObjectBuilder<T> builder)
         {
             builder = this;
+            return this;
+        }
+
+        public ObjectBuilder<T> AutoFill(bool enable)
+        {
+            this._autofill = enable;
             return this;
         }
     }
