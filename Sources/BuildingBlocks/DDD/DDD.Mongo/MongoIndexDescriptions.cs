@@ -18,6 +18,9 @@ public class MongoIndexBuilder<TModel> : IndexBuilder<TModel>
     private bool? _unique = null;
     public override bool? IsUnique => _unique;
 
+    private bool _isText;
+    public bool IsText => _isText;
+
     public MongoIndexBuilder() { }
     public IndexKeysDefinition<TModel> GetDefinition() => _definition ?? throw new InvalidOperationException("no index definition");
 
@@ -88,6 +91,7 @@ public class MongoIndexBuilder<TModel> : IndexBuilder<TModel>
         else
             _definition = _definition.Text(field);
 
+        this._isText = true;
         return this;
     }
 

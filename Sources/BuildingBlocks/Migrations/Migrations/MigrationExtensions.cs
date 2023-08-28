@@ -50,7 +50,8 @@ namespace Pulsar.BuildingBlocks.Migrations
                 await collection.Indexes.CreateOneAsync(new MongoDB.Driver.CreateIndexModel<T>(b.GetDefinition(), new CreateIndexOptions()
                 {
                     Unique = b.IsUnique,
-                    Name = $"ix_{idx.Key}"
+                    Name = $"ix_{idx.Key}",
+                    Collation = b.IsText ? Collation.Simple : new Collation("pt", caseLevel: false)
                 }));
             }
         }
