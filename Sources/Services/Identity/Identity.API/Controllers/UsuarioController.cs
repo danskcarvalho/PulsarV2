@@ -17,13 +17,13 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Lista todos os usu·rios. Exceto o usu·rio administrador.
+    /// Lista todos os usu√°rios. Exceto o usu√°rio administrador.
     /// </summary>
     /// <param name="filtro">Filtro. Opcional.</param>
     /// <param name="cursor">Cursor.Opcional.</param>
     /// <param name="limit">Limite.Opcional.</param>
-    /// <param name="consistencyToken">Token de consistÍncia. Opcional.</param>
-    /// <returns>Lista de todos os usu·rios.</returns>
+    /// <param name="consistencyToken">Token de consist√™ncia. Opcional.</param>
+    /// <returns>Lista de todos os usu√°rios.</returns>
     [HttpGet, ScopeAuthorize("usuarios.listar"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
     public async Task<ActionResult<PaginatedListDTO<UsuarioListadoDTO>>> FindUsuarios([FromQuery] string? filtro, [FromQuery] string? cursor, [FromQuery] int? limit, [FromQuery] string? consistencyToken)
     {
@@ -38,10 +38,10 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Retorna o usu·rio logado.
+    /// Retorna o usu√°rio logado.
     /// </summary>
-    /// <param name="consistencyToken">Token de consistÍncia. Opcional.</param>
-    /// <returns>Usu·rio logado.</returns>
+    /// <param name="consistencyToken">Token de consist√™ncia. Opcional.</param>
+    /// <returns>Usu√°rio logado.</returns>
     [HttpGet("logado"), ScopeAuthorize("usuarios.logado")]
     public async Task<ActionResult<BasicUserInfoDTO>> Logado([FromQuery] string? consistencyToken)
     {
@@ -50,11 +50,11 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Retorna todos os usu·rios com os dados b·sicos informados.
+    /// Retorna todos os usu√°rios com os dados b√°sicos informados.
     /// </summary>
-    /// <param name="ids">Ids dos usu·rios.</param>
-    /// <param name="consistencyToken">Token de consistÍncia. Opcional.</param>
-    /// <returns>Dados b·sicos.</returns>
+    /// <param name="ids">Ids dos usu√°rios.</param>
+    /// <param name="consistencyToken">Token de consist√™ncia. Opcional.</param>
+    /// <returns>Dados b√°sicos.</returns>
     [HttpGet("dados_basicos"), ScopeAuthorize("usuarios.dados_basicos"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
     public async Task<ActionResult<List<BasicUserInfoDTO>>> DadosBasicos([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
     {
@@ -63,10 +63,10 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Retorna dados detalhados dos usu·rios com os ids informados.
+    /// Retorna dados detalhados dos usu√°rios com os ids informados.
     /// </summary>
-    /// <param name="ids">Ids dos usu·rios.</param>
-    /// <param name="consistencyToken">Token de consistÍncia. Opcional.</param>
+    /// <param name="ids">Ids dos usu√°rios.</param>
+    /// <param name="consistencyToken">Token de consist√™ncia. Opcional.</param>
     /// <returns>Dados detalhados.</returns>
     [HttpGet("detalhes"), ScopeAuthorize("usuarios.detalhes"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
     public async Task<ActionResult<List<UsuarioDetalhesDTO>>> Detalhes([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
@@ -76,9 +76,9 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Bloqueia o usu·rio globalmente. Apenas o superusu·rio pode realizar essa aÁ„o.
+    /// Bloqueia o usu√°rio globalmente. Apenas o superusu√°rio pode realizar essa a√ß√£o.
     /// </summary>
-    /// <param name="usuarioId">Id do usu·rio a ser bloqueado.</param>
+    /// <param name="usuarioId">Id do usu√°rio a ser bloqueado.</param>
     /// <returns>Ok.</returns>
     [HttpPost("{usuarioId}/bloquear"), ScopeAuthorize("usuarios.bloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Bloquear(string usuarioId)
@@ -88,9 +88,9 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Desbloqueia o usu·rio globalmente. Apenas o superusu·rio pode realizar essa aÁ„o.
+    /// Desbloqueia o usu√°rio globalmente. Apenas o superusu√°rio pode realizar essa a√ß√£o.
     /// </summary>
-    /// <param name="usuarioId">Id do usu·rio a ser desbloqueado.</param>
+    /// <param name="usuarioId">Id do usu√°rio a ser desbloqueado.</param>
     /// <returns></returns>
     [HttpPost("{usuarioId}/desbloquear"), ScopeAuthorize("usuarios.desbloquear"), SuperUsuarioAuthorize]
     public async Task<ActionResult<CommandResult>> Desbloquear(string usuarioId)
@@ -100,7 +100,7 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Edita os dados (primeiro nome, etc..) do usu·rio logado.
+    /// Edita os dados (primeiro nome, etc..) do usu√°rio logado.
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
@@ -113,7 +113,7 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Muda a senha do usu·rio logado. … necess·rio informar a senha atual.
+    /// Muda a senha do usu√°rio logado. √â necess√°rio informar a senha atual.
     /// </summary>
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
@@ -126,7 +126,7 @@ public class UsuarioController : IdentityController
     }
 
     /// <summary>
-    /// Muda o avatar do usu·rio. O avatar È uma imagem representando o usu·rio.
+    /// Muda o avatar do usu√°rio. O avatar √© uma imagem representando o usu√°rio.
     /// </summary>
     /// <param name="viewModel">Dados.</param>
     /// <returns>Ok.</returns>
