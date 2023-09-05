@@ -378,3 +378,6 @@ Temporary Items
 
 #idea
 .idea
+
+#ignore mongodb files
+Docker/MongoDB/Data/

@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Identity.Migrations",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Sources/Services/Identity/Identity.Migrations/bin/Debug/net7.0/Identity.Migrations.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Sources/Services/Identity/Identity.Migrations/",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             "name": "Identity.API",
             "type": "blazorwasm",
             "request": "launch",
