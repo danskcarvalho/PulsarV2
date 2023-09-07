@@ -21,9 +21,9 @@ namespace Pulsar.BuildingBlocks.DataFactory
         private static readonly HashSet<PropertyInfo> _emptyProperties = new HashSet<PropertyInfo>();
         private static readonly HashSet<Type> _canBeGenerated = new HashSet<Type>
         {
-            typeof(Guid), typeof(byte), typeof(short), typeof(int), typeof(long), typeof(char), typeof(string), typeof(bool), 
+            typeof(Guid), typeof(byte), typeof(short), typeof(int), typeof(long), typeof(char), typeof(string), typeof(bool),
             typeof(decimal), typeof(DateTime), typeof(DateOnly), typeof(TimeOnly), typeof(TimeSpan), typeof(char), typeof(ObjectId),
-            typeof(Guid?), typeof(byte?), typeof(short?), typeof(int?), typeof(long?), typeof(char?), typeof(bool?), typeof(decimal?), 
+            typeof(Guid?), typeof(byte?), typeof(short?), typeof(int?), typeof(long?), typeof(char?), typeof(bool?), typeof(decimal?),
             typeof(DateTime?), typeof(DateOnly?), typeof(TimeOnly?), typeof(TimeSpan?), typeof(char?), typeof(ObjectId?)
         };
 
@@ -68,13 +68,18 @@ namespace Pulsar.BuildingBlocks.DataFactory
 
         public BuildFunction<T> AutoRecipe(Expression<Func<T, object?>>? include = null, Expression<Func<T, object?>>? exclude = null)
         {
+            // Cannot create an auto recipe if this object is marked for autocompletion with 1 or more arguments.
             if (_autocomplete && _autocompleteArgs!.Count != 0)
-                throw new InvalidOperationException("cannot autocomplete with 0 arguments as options");
+                throw new InvalidOperationException("cannot create an auto recipe if this object is marked for autocompletion with 1 or more arguments");
+
+            // We can't set the recipe twice.
             if (_builder != null)
                 throw new InvalidOperationException("cannot set recipe twice");
 
+            // Create the result.
             var result = (BuildFunction<T>)(() =>
             {
+                // Build the object.
                 return _parent.UpOneLevel<T>(() =>
                 {
                     var obj = (T)(Activator.CreateInstance(typeof(T)) ?? throw new InvalidOperationException());
@@ -82,47 +87,85 @@ namespace Pulsar.BuildingBlocks.DataFactory
                     return obj;
                 });
             });
+
+            // Set the builder.
             _builder = (a1, a2, a3) => result();
+
+            // Set the generator.
             SetGenerator(result, _generator);
+
+            // Return the result.
             return result;
         }
 
-        private HashSet<PropertyInfo> GetPropertiesFromExpression(Expression<Func<T, object?>>? properties)
+        private static HashSet<PropertyInfo> GetPropertiesFromExpression(Expression<Func<T, object?>>? properties)
         {
+            // If the expression is null, return an empty set of properties
             if (properties == null)
+            {
                 return _emptyProperties;
-
-            var body = properties.Body;
-            if (body is UnaryExpression ue && ue.NodeType == ExpressionType.Convert)
-                body = ue.Operand;
-            var target = properties.Parameters[0];
-            var result = new HashSet<PropertyInfo>();
-            if (body is MemberExpression me && me.Member is PropertyInfo pi && me.Expression == target)
-            {
-                result.Add(pi);
             }
-            else if (body is NewExpression ne)
+
+            // Get the expression body
+            var body = properties.Body;
+
+            // If the expression is a unary expression, get the operand
+            if (body is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Convert)
             {
-                foreach (var arg in ne.Arguments)
+                body = unaryExpression.Operand;
+            }
+
+            // Get the target
+            var target = properties.Parameters[0];
+
+            // Create an empty set of properties
+            var result = new HashSet<PropertyInfo>();
+
+            // If the body is a member expression, add the property info to the result
+            if (body is MemberExpression memberExpression)
+            {
+                result.Add(GetPropertyInfoFromExpression(memberExpression, target));
+            }
+
+            // If the body is a new expression, add each property info from each argument to the result
+            else if (body is NewExpression newExpression)
+            {
+                // Get the properties by iterating through the arguments in the expression.
+                foreach (var argument in newExpression.Arguments)
                 {
-                    if (arg is MemberExpression me2 && me2.Member is PropertyInfo pi2 && me2.Expression == target)
+                    // If the argument is a member expression, add the property info to the result
+                    if (argument is MemberExpression memberExpression2)
                     {
-                        result.Add(pi2);
+                        result.Add(GetPropertyInfoFromExpression(memberExpression2, target));
                     }
                     else
+                    {
                         throw new InvalidOperationException($"unknown expression {properties}");
+                    }
                 }
             }
             else
+            {
                 throw new InvalidOperationException($"unknown expression {properties}");
+            }
 
             return result;
+        }
+
+        private static PropertyInfo GetPropertyInfoFromExpression(MemberExpression memberExpression, ParameterExpression target)
+        {
+            if (memberExpression.Member is PropertyInfo propertyInfo && memberExpression.Expression == target)
+            {
+                return propertyInfo;
+            }
+
+            throw new InvalidOperationException($"unknown expression {memberExpression}");
         }
 
         public BuildFunction<T> Recipe(Expression<Func<Generator<T>, T>> generator, Expression<Func<T, object?>>? include = null, Expression<Func<T, object?>>? exclude = null)
         {
             if (_autocomplete && _autocompleteArgs!.Count != 0)
-                throw new InvalidOperationException("cannot autocomplete with 0 arguments as options");
+                throw new InvalidOperationException("cannot create a recipe if this object is marked for autocompletion with 1 or more arguments");
             if (_builder != null)
                 throw new InvalidOperationException("cannot set recipe twice");
 
@@ -143,11 +186,11 @@ namespace Pulsar.BuildingBlocks.DataFactory
             return result;
         }
 
-        public BuildFunction<T, TArg1, TArg2, TArg3> Recipe<TArg1, TArg2, TArg3>(Expression<Func<Generator<T>, Func<TArg1, TArg2, TArg3, T>>> generator, 
+        public BuildFunction<T, TArg1, TArg2, TArg3> Recipe<TArg1, TArg2, TArg3>(Expression<Func<Generator<T>, Func<TArg1, TArg2, TArg3, T>>> generator,
             Expression<Func<T, object?>>? include = null, Expression<Func<T, object?>>? exclude = null)
         {
             if (_autocomplete && _autocompleteArgs!.Count != 3)
-                throw new InvalidOperationException("cannot autocomplete with 3 arguments as options");
+                throw new InvalidOperationException("cannot create a recipe if this object is marked for autocompletion with args != 3");
             if (_builder != null)
                 throw new InvalidOperationException("cannot set recipe twice");
 
@@ -169,11 +212,11 @@ namespace Pulsar.BuildingBlocks.DataFactory
             return result;
         }
 
-        public BuildFunction<T, TArg1, TArg2> Recipe<TArg1, TArg2>(Expression<Func<Generator<T>, Func<TArg1, TArg2, T>>> generator, 
+        public BuildFunction<T, TArg1, TArg2> Recipe<TArg1, TArg2>(Expression<Func<Generator<T>, Func<TArg1, TArg2, T>>> generator,
             Expression<Func<T, object?>>? include = null, Expression<Func<T, object?>>? exclude = null)
         {
             if (_autocomplete && _autocompleteArgs!.Count != 2)
-                throw new InvalidOperationException("cannot autocomplete with 2 arguments as options");
+                throw new InvalidOperationException("cannot create a recipe if this object is marked for autocompletion with args != 2");
             if (_builder != null)
                 throw new InvalidOperationException("cannot set recipe twice");
 
@@ -197,7 +240,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
         public BuildFunction<T, TArg1> Recipe<TArg1>(Expression<Func<Generator<T>, Func<TArg1, T>>> generator, Expression<Func<T, object?>>? include = null, Expression<Func<T, object?>>? exclude = null)
         {
             if (_autocomplete && _autocompleteArgs!.Count != 1)
-                throw new InvalidOperationException("cannot autocomplete with 1 argument as an option");
+                throw new InvalidOperationException("cannot create a recipe if this object is marked for autocompletion with args != 1");
             if (_builder != null)
                 throw new InvalidOperationException("cannot set recipe twice");
 
@@ -224,7 +267,7 @@ namespace Pulsar.BuildingBlocks.DataFactory
             if (!_autofill)
                 return;
             var objType = obj.GetType();
-            if(included == null || included.Count == 0)
+            if (included == null || included.Count == 0)
                 included = new HashSet<PropertyInfo>(objType.GetProperties());
             foreach (var prop in included)
             {
@@ -448,12 +491,12 @@ namespace Pulsar.BuildingBlocks.DataFactory
 
         private bool CanBeGenerated(Type propType)
         {
-            return 
-                _canBeGenerated.Contains(propType) || 
+            return
+                _canBeGenerated.Contains(propType) ||
                 _parent.CanBeAutoCompleted(propType) ||
-                propType.IsEnum || 
+                propType.IsEnum ||
                 (propType.IsConstructedGenericType && propType.GetGenericTypeDefinition() == typeof(Nullable<>) && propType.GenericTypeArguments[0].IsEnum) ||
-                (propType.IsConstructedGenericType && propType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) && 
+                (propType.IsConstructedGenericType && propType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) &&
                     CanBeGenerated(propType.GenericTypeArguments[0]) && CanBeGenerated(propType.GenericTypeArguments[1]));
         }
 
