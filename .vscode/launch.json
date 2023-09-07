@@ -3,6 +3,15 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Identity.API",
+            "configurations": [
+                "Prepare:Identity.API"
+            ],
+            "preLaunchTask": "build"
+        }
+    ],
     "configurations": [
         {
             "name": "Identity.Migrations",
@@ -16,7 +25,7 @@
             "console": "internalConsole"
         },
         {
-            "name": "Identity.API",
+            "name": "Prepare:Identity.API",
             "type": "blazorwasm",
             "request": "launch",
             "hosted": true,
