@@ -14,7 +14,7 @@ public class MongoPersistedGrant : PersistedGrant
         this.CreationTime = grant.CreationTime;
         this.Description = grant.Description;
         this.Expiration = grant.Expiration;
-        this.Key = grant.Key;
+        this.Key = grant.Key!;
         this.SessionId = grant.SessionId;
         this.Type = grant.Type;
     }

@@ -17,10 +17,9 @@ public class MongoPersistedGrantStore : IPersistedGrantStore
         return (await _connection.GrantStoreCollection.FindAsync(GetFilterDefinition(filter))).ToEnumerable();
     }
 
-    public async Task<PersistedGrant> GetAsync(string key)
+    public async Task<PersistedGrant?> GetAsync(string key)
     {
-        var r = await _connection.GrantStoreCollection.FindAsync(g => g.Key == key, new FindOptions<MongoPersistedGrant, MongoPersistedGrant>() { Limit = 1 }).FirstOrDefaultAsync();
-        return r!;
+        return await _connection.GrantStoreCollection.FindAsync(g => g.Key == key, new FindOptions<MongoPersistedGrant, MongoPersistedGrant>() { Limit = 1 }).FirstOrDefaultAsync();
     }
 
     public async Task RemoveAllAsync(PersistedGrantFilter filter)

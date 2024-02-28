@@ -16,7 +16,7 @@ public static class AllClients
                 RequireClientSecret = false,
                 AllowAccessTokensViaBrowser = true,
 
-                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:IdentitySwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value).ToList(),
+                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:IdentitySwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c is not null).ToList()!,
                 RedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:IdentitySwaggerUI:RedirectUri") },
                 PostLogoutRedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:IdentitySwaggerUI:PostLogoutRedirectUri") },
                 AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).Select(s => s.Name).Union(new string[]

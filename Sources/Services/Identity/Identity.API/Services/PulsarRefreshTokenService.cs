@@ -1,12 +1,18 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Stores.Serialization;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Pulsar.Services.Identity.API.Services;
 
 public class PulsarRefreshTokenService : DefaultRefreshTokenService
 {
-    public PulsarRefreshTokenService(IRefreshTokenStore refreshTokenStore, IProfileService profile, ISystemClock clock, ILogger<DefaultRefreshTokenService> logger) : base(refreshTokenStore, profile, clock, logger)
+    public PulsarRefreshTokenService(IRefreshTokenStore refreshTokenStore, 
+        IProfileService profile, 
+        IClock clock,
+        PersistentGrantOptions options,
+        ILogger<PulsarRefreshTokenService> logger) : base(refreshTokenStore, profile, clock, options, logger)
     {
     }
 
