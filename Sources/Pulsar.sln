@@ -99,7 +99,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.UI.UnitTests", "Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.IntegrationTests", "Services\Identity\Identity.IntegrationTests\Identity.IntegrationTests.csproj", "{86E82D25-9DBB-4638-89E2-85AE9C46623A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFactory", "BuildingBlocks\Testing\DataFactory\DataFactory.csproj", "{66120CCF-873A-47C2-B3A5-744210749646}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataFactory", "BuildingBlocks\Testing\DataFactory\DataFactory.csproj", "{66120CCF-873A-47C2-B3A5-744210749646}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
