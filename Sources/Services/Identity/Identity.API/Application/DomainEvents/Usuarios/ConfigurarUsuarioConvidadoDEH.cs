@@ -1,6 +1,6 @@
 ﻿using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.Domain.Events.Convites;
-using Pulsar.Services.Identity.Domain.Specifications;
+using Pulsar.Services.Identity.Domain.Specifications.Usuarios;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Usuarios;
 

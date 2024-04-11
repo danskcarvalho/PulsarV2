@@ -1,5 +1,5 @@
 ﻿using Pulsar.Services.Identity.Domain.Events.Grupos;
-using Pulsar.Services.Identity.Domain.Specifications;
+using Pulsar.Services.Identity.Domain.Specifications.Others;
 
 namespace Pulsar.Services.Identity.API.Application.DomainEvents.Others;
 

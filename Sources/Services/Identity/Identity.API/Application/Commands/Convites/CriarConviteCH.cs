@@ -1,7 +1,7 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Attributes;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.Contracts.Commands.Convites;
-using Pulsar.Services.Identity.Domain.Specifications;
+using Pulsar.Services.Identity.Domain.Specifications.Usuarios;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Convites;
 

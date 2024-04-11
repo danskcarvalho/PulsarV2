@@ -1,7 +1,7 @@
 ﻿using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
-namespace Pulsar.Services.Identity.Domain.Specifications;
+namespace Pulsar.Services.Identity.Domain.Specifications.Usuarios;
 
 public class FindUsuariosBloqueadosDominioSpec : IFindSpecification<Usuario, ObjectId>
 {

@@ -1,6 +1,6 @@
 ﻿using Pulsar.Services.Identity.Domain.Aggregates.Others;
 
-namespace Pulsar.Services.Identity.Domain.Specifications;
+namespace Pulsar.Services.Identity.Domain.Specifications.Others;
 
 public class FindRedesEstabelecimentosDominioSpec : IFindSpecification<RedeEstabelecimentos>
 {

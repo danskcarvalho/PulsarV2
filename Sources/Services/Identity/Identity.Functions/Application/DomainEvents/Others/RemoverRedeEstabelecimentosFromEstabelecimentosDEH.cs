@@ -1,5 +1,5 @@
 ﻿using Pulsar.Services.Identity.Domain.Events.Others;
-using Pulsar.Services.Identity.Domain.Specifications;
+using Pulsar.Services.Identity.Domain.Specifications.Others;
 
 namespace Pulsar.Services.Identity.Functions.Application.DomainEvents.Others;
 
