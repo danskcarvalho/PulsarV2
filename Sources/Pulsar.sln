@@ -101,6 +101,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.IntegrationTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataFactory", "BuildingBlocks\Testing\DataFactory\DataFactory.csproj", "{66120CCF-873A-47C2-B3A5-744210749646}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{74D87F54-2450-470D-9B75-A6750EFD4992}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBus.Migrations", "ServiceBus.Migrations\ServiceBus.Migrations.csproj", "{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +231,10 @@ Global
 		{66120CCF-873A-47C2-B3A5-744210749646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66120CCF-873A-47C2-B3A5-744210749646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66120CCF-873A-47C2-B3A5-744210749646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,6 +288,8 @@ Global
 		{0997C438-BEE8-4D81-ADA7-42F4B49C6F69} = {43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A}
 		{86E82D25-9DBB-4638-89E2-85AE9C46623A} = {43334B59-F3BD-4A00-BAF6-2DB31FCFAB3A}
 		{66120CCF-873A-47C2-B3A5-744210749646} = {1CEF0899-E080-422E-9582-E68246149CC2}
+		{74D87F54-2450-470D-9B75-A6750EFD4992} = {AEBF4778-AFF1-4C30-92D1-4D72E072D613}
+		{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751} = {74D87F54-2450-470D-9B75-A6750EFD4992}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}
