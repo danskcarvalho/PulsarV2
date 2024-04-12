@@ -10,6 +10,8 @@ namespace Pulsar.Services.Identity.API.Application.Queries;
 
 public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
 {
+    private static readonly Paginator<Usuario> _UsuarioPaginator = Paginator.Builder.For<Usuario, UsuarioListadoDTO>().SortBy(x => x.Email, x => x.Email);
+
     public UsuarioQueries(IdentityQueriesContext ctx) : base(ctx)
     {
     }
@@ -26,10 +28,12 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 IsConvitePendente = x.IsConvitePendente,
                 UltimoNome = x.UltimoNome
             });
-            var (usuarios, next) = await UsuariosCollection.Paginated(filtro.Limit ?? 50, filtro.Cursor, new { filtro.Filtro }).FindAsync<CursorUsuarioListado, UsuarioListadoDTO>(projection,
+
+            var cursor = _UsuarioPaginator.ForLimit(filtro.Limit ?? 50).ForToken(filtro.CursorToken).ForFilter(new { filtro.Filtro });
+            var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsync(projection,
             c =>
             {
-                var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
+                var textSearch = !IsEmail(c!.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
                 return Filters.Usuarios.Create(f => f.And(textSearch, f.Ne(u => u.Email, null)));
             });
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);

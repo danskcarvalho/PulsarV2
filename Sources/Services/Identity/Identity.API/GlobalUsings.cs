@@ -46,6 +46,5 @@ global using Pulsar.BuildingBlocks.FileSystemAzure;
 global using Pulsar.Services.Identity.API.Application.BaseTypes;
 global using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 global using System.Text.Json.Serialization;
-global using Pulsar.Services.Identity.API.Application.Cursors;
 global using Pulsar.BuildingBlocks.DDD.Mongo.Cursors;
 global using Pulsar.Services.Identity.API.Stores;

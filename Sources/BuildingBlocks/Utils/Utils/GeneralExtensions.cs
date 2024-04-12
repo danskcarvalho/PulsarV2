@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using System.Linq.Expressions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Pulsar.BuildingBlocks.Utils;
 
@@ -151,13 +152,17 @@ public static class GeneralExtensions
     }
     public static string ToBase64Json(this object obj)
     {
-        var json = JsonSerializer.Serialize(obj, obj.GetType(), new JsonSerializerOptions());
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        var json = JsonSerializer.Serialize(obj, obj.GetType(), options);
         return Encoding.UTF8.GetBytes(json).ToSafeBase64();
     }
     public static T? FromBase64Json<T>(this string json)
     {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
-        return JsonSerializer.Deserialize<T>(og, new JsonSerializerOptions());
+        return JsonSerializer.Deserialize<T>(og, options);
     }
     public static int Limit(this int limit) => Math.Max(Math.Min(limit, 1000), 1);
     public static bool IsValidExtension(this string fn, params string[] validExtensions)
@@ -199,6 +204,19 @@ public static class GeneralExtensions
             if (node == _oldValue)
                 return _newValue;
             return base.Visit(node);
+        }
+    }
+
+    public class ObjectIdConverter : JsonConverter<ObjectId>
+    {
+        public override ObjectId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return ObjectId.Parse(reader.GetString()!);
+        }
+
+        public override void Write(Utf8JsonWriter writer, ObjectId value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
         }
     }
 }

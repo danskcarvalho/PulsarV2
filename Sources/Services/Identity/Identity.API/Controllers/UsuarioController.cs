@@ -30,7 +30,7 @@ public class UsuarioController : IdentityController
         var r = await UsuarioQueries.FindUsuarios(new UsuarioFiltroDTO()
         {
             ConsistencyToken = consistencyToken,
-            Cursor = cursor,
+            CursorToken = cursor,
             Filtro = filtro,
             Limit = limit
         });

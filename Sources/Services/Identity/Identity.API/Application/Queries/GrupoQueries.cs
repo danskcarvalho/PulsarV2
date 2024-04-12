@@ -7,18 +7,21 @@ namespace Pulsar.Services.Identity.API.Application.Queries;
 
 public partial class GrupoQueries : IdentityQueries, IGrupoQueries
 {
+    private static readonly Paginator<Grupo> _GrupoPaginator = Paginator.Builder.For<Grupo>().SortBy(x => x.Nome).AndBy(x => x.Id);
+    private static readonly Paginator<Usuario> _UsuarioPaginator = Paginator.Builder.For<Usuario, UsuarioListadoDTO>().SortBy(x => x.Email, x => x.Email);
     public GrupoQueries(IdentityQueriesContext ctx) : base(ctx)
     {
     }
 
-    public async Task<PaginatedListDTO<GrupoListadoDTO>> FindGrupos(string dominioId, string? filtro, string? cursor, int? limit, string? consistencyToken)
+    public async Task<PaginatedListDTO<GrupoListadoDTO>> FindGrupos(string dominioId, string? filtro, string? cursorToken, int? limit, string? consistencyToken)
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            var (grupos, next) = await GruposCollection.Paginated(limit ?? 50, cursor, new { Filtro = filtro }).FindAsync<CursorGrupoListado>(
+            var cursor = _GrupoPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { Filtro = filtro });
+            var (grupos, next) = await GruposCollection.Paginated(cursor).FindAsync(
                  c =>
                  {
-                     var textSearch = c.Filtro.ToTextSearch<Grupo>();
+                     var textSearch = c!.Filtro.ToTextSearch<Grupo>();
                      return Filters.Grupos.Create(f => f.And(
                          textSearch,
                          f.Eq(g => g.DominioId, dominioId.ToObjectId()),
@@ -30,7 +33,7 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
         }, consistencyToken);
     }
 
-    public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursor, int? limit, string? consistencyToken)
+    public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(string dominioId, string grupoId, string subgrupoId, string? filtro, string? cursorToken, int? limit, string? consistencyToken)
     {
         filtro = filtro?.ToLowerInvariant().Trim();
 
@@ -44,10 +47,11 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                 UltimoNome = x.UltimoNome
             });
 
-            var (usuarios, next) = await UsuariosCollection.Paginated(limit ?? 50, cursor, new { GrupoId = grupoId, SubGrupoId = subgrupoId, Filtro = filtro }).FindAsyncWithAsyncFilter<CursorUsuarioGrupoListado, UsuarioListadoDTO>(projection,
+            var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { GrupoId = grupoId, SubGrupoId = subgrupoId, Filtro = filtro });
+            var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsyncWithAsyncFilter(projection,
                  async c =>
                  {
-                     var grupoId = c.GrupoId.ToObjectId();
+                     var grupoId = c!.GrupoId.ToObjectId();
                      var subgrupoId = c.SubGrupoId.ToObjectId();
                      var grupo = await GruposCollection.FindAsync(g => g.Id == grupoId).FirstOrDefaultAsync();
                      if (grupo == null || grupo.DominioId != dominioId.ToObjectId() || !grupo.SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))

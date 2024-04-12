@@ -9,7 +9,7 @@ public class UsuarioFiltroDTO
     /// <summary>
     /// Cursor anterior para listar os próximos N usuários. Opcional.
     /// </summary>
-    public string? Cursor { get; set; }
+    public string? CursorToken { get; set; }
     /// <summary>
     /// Quantos usuários devem ser retornados. Opcional. Valor padrão é 50.
     /// </summary>
