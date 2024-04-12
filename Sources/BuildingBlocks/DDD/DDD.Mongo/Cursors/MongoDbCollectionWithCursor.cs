@@ -11,7 +11,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
         where TElement : class
     {
         public required IMongoCollection<TElement> Collection { get; init; }
-        public required Paginator.PageCursor<TElement, TFilter> Cursor { get; init; }
+        public required IPageCursor<TElement, TFilter> Cursor { get; init; }
 
         public Task<DataAndNext<TElement>> FindAsync(Func<TFilter?, FilterDefinition<TElement>?>? filterFunction = null)
         {
@@ -147,7 +147,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(filter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
             else
             {
@@ -164,7 +164,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(innerFilter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
         }
 
@@ -189,7 +189,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(filter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
             else
             {
@@ -206,7 +206,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(innerFilter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
         }
 
@@ -312,7 +312,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(filter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
             else
             {
@@ -329,7 +329,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(innerFilter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
         }
 
@@ -354,7 +354,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(filter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
             else
             {
@@ -371,7 +371,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
                     Projection = projection
                 };
                 var items = await Collection.FindAsync(innerFilter, findOptions).ToListAsync();
-                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.Next(items.Last()) : null);
+                return new DataAndNext<TProjection>(items, items.Count != 0 ? cursorObj.NextFromProjection(items.Last()) : null);
             }
         }
     }

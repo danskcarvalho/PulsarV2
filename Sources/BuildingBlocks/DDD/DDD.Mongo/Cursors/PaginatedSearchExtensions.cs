@@ -9,7 +9,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo.Cursors
     public static class PaginatedSearchExtensions
     {
 
-        public static MongoDbCollectionWithCursor<TElement, TFilter> Paginated<TElement, TFilter>(this IMongoCollection<TElement> collection, Paginator.PageCursor<TElement, TFilter> cursor) 
+        public static MongoDbCollectionWithCursor<TElement, TFilter> Paginated<TElement, TFilter>(this IMongoCollection<TElement> collection, IPageCursor<TElement, TFilter> cursor) 
             where TElement : class
         {
             return new MongoDbCollectionWithCursor<TElement, TFilter> { Collection = collection, Cursor = cursor };

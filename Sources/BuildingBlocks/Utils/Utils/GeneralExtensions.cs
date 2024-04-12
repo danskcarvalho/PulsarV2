@@ -164,6 +164,13 @@ public static class GeneralExtensions
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, options);
     }
+    public static object? FromBase64Json(this string json, Type type)
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        var og = Encoding.UTF8.GetString(json.FromSafeBase64());
+        return JsonSerializer.Deserialize(og, type, options);
+    }
     public static int Limit(this int limit) => Math.Max(Math.Min(limit, 1000), 1);
     public static bool IsValidExtension(this string fn, params string[] validExtensions)
     {

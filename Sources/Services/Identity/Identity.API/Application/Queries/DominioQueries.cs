@@ -15,7 +15,7 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            var cursor = _DominioPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { filtro, showHidden });
+            var cursor = _DominioPaginator.ForLimit(limit ?? 50).ForFilter(new { filtro, showHidden }).ForToken(cursorToken);
 
             var (dominios, next) = await DominiosCollection.Paginated(cursor).FindAsync(
                 c => c!.showHidden == true ?
@@ -47,7 +47,7 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
                 UltimoNome = x.UltimoNome
             });
 
-            var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { filtro, dominioId });
+            var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForFilter(new { filtro, dominioId }).ForToken(cursorToken);
             var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsync(projection, c =>
             {
                 var textSearch = !IsEmail(c!.filtro) ? c.filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.filtro));

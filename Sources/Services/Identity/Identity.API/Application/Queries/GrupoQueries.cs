@@ -17,7 +17,7 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
     {
         return await this.StartCausallyConsistentSectionAsync(async ct =>
         {
-            var cursor = _GrupoPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { Filtro = filtro });
+            var cursor = _GrupoPaginator.ForLimit(limit ?? 50).ForFilter(new { Filtro = filtro }).ForToken(cursorToken);
             var (grupos, next) = await GruposCollection.Paginated(cursor).FindAsync(
                  c =>
                  {
@@ -47,7 +47,7 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                 UltimoNome = x.UltimoNome
             });
 
-            var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForToken(cursorToken).ForFilter(new { GrupoId = grupoId, SubGrupoId = subgrupoId, Filtro = filtro });
+            var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForFilter(new { GrupoId = grupoId, SubGrupoId = subgrupoId, Filtro = filtro }).ForToken(cursorToken);
             var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsyncWithAsyncFilter(projection,
                  async c =>
                  {

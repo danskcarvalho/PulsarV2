@@ -29,7 +29,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
                 UltimoNome = x.UltimoNome
             });
 
-            var cursor = _UsuarioPaginator.ForLimit(filtro.Limit ?? 50).ForToken(filtro.CursorToken).ForFilter(new { filtro.Filtro });
+            var cursor = _UsuarioPaginator.ForLimit(filtro.Limit ?? 50).ForFilter(new { filtro.Filtro }).ForToken(filtro.CursorToken);
             var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsync(projection,
             c =>
             {
