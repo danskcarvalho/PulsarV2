@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Catalog.Migrations": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
