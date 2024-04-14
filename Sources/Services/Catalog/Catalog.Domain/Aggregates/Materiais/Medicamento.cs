@@ -11,6 +11,7 @@ public class Medicamento : Material
     public string CodigoEsus { get; set; }
     public PrincipioAtivoResumido PrincipioAtivo { get; set; }
     public List<MedicamentoUnidadeFornecimento> UnidadesFornecimento { get; set; }
+    [BsonRepresentation(BsonType.String)]
     public List<TipoDose> Doses { get; set; }
 
     [BsonConstructor]

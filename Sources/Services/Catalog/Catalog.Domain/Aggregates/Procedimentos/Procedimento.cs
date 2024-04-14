@@ -16,6 +16,7 @@ namespace Pulsar.Services.Catalog.Domain.Aggregates.Procedimentos
         public bool PodeInformarResultadoNumerico { get; set; }
         public string TermosPesquisa { get; set; }
         public List<EspecialidadeResumida> Especialidades { get; set; }
+        [BsonRepresentation(BsonType.String)]
         public List<ResultadoEspecifico> ResultadosEspecificos { get; set; }
         public bool Ativo { get; set; }
 

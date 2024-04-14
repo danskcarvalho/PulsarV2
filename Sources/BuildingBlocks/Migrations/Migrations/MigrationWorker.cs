@@ -33,14 +33,68 @@ class MigrationWorker
         var startTransaction = GetRequiresTransaction(MigrationType);
         var isPersistent = GetIsPersistent(MigrationType);
         using var session = (MongoDbSession)Factory.CreateSession();
-        using var migrationSession = !startTransaction ? (MongoDbSession)Factory.CreateSession() : session;
 
+        if (startTransaction)
+        {
+            await RunMigrationInTransaction(isPersistent, session);
+        }
+        else
+        {
+            await RunMigrationOutsideOfTransaction(isPersistent, session);
+        }
+    }
+
+    private async Task RunMigrationOutsideOfTransaction(bool isPersistent, MongoDbSession session)
+    {
+        var migration = Activator.CreateInstance(MigrationType) as Migration;
+        if (migration == null)
+            throw new InvalidOperationException("invalid migration type");
+
+        var model = new MigrationModel()
+        {
+            CreatedOn = DateTime.UtcNow,
+            Name = MigrationType.Name,
+            Version = GetVersion(MigrationType)
+        };
+        Print($"[{MigrationNumber}/{TotalMigrations}] executing {model.Version}:{MigrationType.Name}", ConsoleColor.Green);
+        //insert into the collection _Migrations
+
+        try
+        {
+            migration.Set(Factory.Client, Factory.Database, session.CurrentHandle);
+            await migration.Up();
+        }
+        catch (Exception e)
+        {
+            Print($"migration {model.Version}:{MigrationType.Name} failed with exception {e.GetType().FullName}", ConsoleColor.Red);
+            Print($"migration {model.Version}:{MigrationType.Name} did not run under a transaction", ConsoleColor.Red);
+            Print(ToJson(e), ConsoleColor.Red);
+            throw;
+        }
+
+        if (!isPersistent) // if it's not persistent, then store in _Migrations collection so we don't rerun the migration
+        {
+            try
+            {
+                var collection = session.Database.GetCollection<MigrationModel>(MigrationConstants.COLLECTION_NAME);
+                await collection.InsertOneAsync(session.CurrentHandle, model);
+            }
+            catch (Exception e)
+            {
+                Print($"failed to register migration {model.Version}:{MigrationType.Name} due to exception {e.GetType().FullName}", ConsoleColor.Red);
+                Print(ToJson(e), ConsoleColor.Red);
+                throw;
+            }
+        }
+    }
+
+    private async Task RunMigrationInTransaction(bool isPersistent, MongoDbSession session)
+    {
         await session.OpenTransactionAsync(async ct =>
         {
             var migration = Activator.CreateInstance(MigrationType) as Migration;
             if (migration == null)
                 throw new InvalidOperationException("invalid migration type");
-
 
             var model = new MigrationModel()
             {
@@ -58,14 +112,12 @@ class MigrationWorker
 
             try
             {
-                migration.Set(Factory.Client, Factory.Database, migrationSession.CurrentHandle);
+                migration.Set(Factory.Client, Factory.Database, session.CurrentHandle);
                 await migration.Up();
             }
             catch (Exception e)
             {
                 Print($"migration {model.Version}:{MigrationType.Name} failed with exception {e.GetType().FullName}", ConsoleColor.Red);
-                if (!startTransaction)
-                    Print($"migration {model.Version}:{MigrationType.Name} did not run under a transaction", ConsoleColor.Red);
                 Print(ToJson(e), ConsoleColor.Red);
                 throw;
             }
