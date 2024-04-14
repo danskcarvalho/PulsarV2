@@ -67,7 +67,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain+Contracts", "Domain+
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{6AF049B0-397D-4E58-AD27-5A497CD24E9E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Estabelecimentos", "Estabelecimentos", "{138E9D78-4073-4CE1-B5A0-AC4E46454C15}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Facility", "Facility", "{138E9D78-4073-4CE1-B5A0-AC4E46454C15}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain+Contracts", "Domain+Contracts", "{79E63503-3E56-43E5-AF5E-D150FB3D5CFE}"
 EndProject
@@ -85,7 +85,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusAzure", "BuildingBl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Functions", "Services\Identity\Identity.Functions\Identity.Functions.csproj", "{39352D89-0765-4F72-8218-BCEEA1FEC6FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estabelecimentos.Contracts", "Services\Estabelecimentos\Estabelecimentos.Contracts\Estabelecimentos.Contracts.csproj", "{CDF228B6-7AD9-4F63-89D0-568862D5AD5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facility.Contracts", "Services\Facility\Facility.Contracts\Facility.Contracts.csproj", "{CDF228B6-7AD9-4F63-89D0-568862D5AD5E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{1CEF0899-E080-422E-9582-E68246149CC2}"
 EndProject

@@ -14,7 +14,7 @@ public class BackgroundScenarios : IdentityScenarios
         var sid = ObjectId.Parse(IdentityDatabase.AdminUserId);
         var fn = CreateFunction<AtualizarRedeEstabelecimentosFN>();
         var auditInfo = new AuditInfo(sid).EditadoPor(sid);
-        await fn.Run(new Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents.RedeEstabelecimentosModificadaIE()
+        await fn.Run(new Pulsar.Services.Facility.Contracts.IntegrationEvents.RedeEstabelecimentosModificadaIE()
         {
             RedeEstabelecimentosId = redeId.ToString(),
             AuditInfo = auditInfo.ToDTO(),
@@ -31,7 +31,7 @@ public class BackgroundScenarios : IdentityScenarios
         Assert.Null(rede.AuditInfo.RemovidoEm);
         Assert.Contains(redeId, estabelecimento.Redes);
 
-        await fn.Run(new Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents.RedeEstabelecimentosModificadaIE()
+        await fn.Run(new Pulsar.Services.Facility.Contracts.IntegrationEvents.RedeEstabelecimentosModificadaIE()
         {
             RedeEstabelecimentosId = redeId.ToString(),
             AuditInfo = auditInfo.RemovidoPor(sid).ToDTO(),
@@ -62,7 +62,7 @@ public class BackgroundScenarios : IdentityScenarios
         var sid = ObjectId.Parse(IdentityDatabase.AdminUserId);
         var fn = CreateFunction<AtualizarEstabelecimentoFN>();
         var auditInfo = new AuditInfo(sid).EditadoPor(sid);
-        await fn.Run(new Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents.EstabelecimentoModificadoIE()
+        await fn.Run(new Pulsar.Services.Facility.Contracts.IntegrationEvents.EstabelecimentoModificadoIE()
         {
             AuditInfo = auditInfo.ToDTO(),
             DominioId = IdentityDatabase.DominioPadraoId,

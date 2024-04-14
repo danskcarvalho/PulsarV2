@@ -9,7 +9,7 @@ global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 global using Pulsar.BuildingBlocks.DDD.Mongo;
 global using Pulsar.BuildingBlocks.EventBus;
 global using Pulsar.Services.Identity.Infrastructure.Repositories;
-global using Pulsar.Services.Estabelecimentos.Contracts.IntegrationEvents;
+global using Pulsar.Services.Facility.Contracts.IntegrationEvents;
 global using Pulsar.Services.Identity.Functions.Application.BaseTypes;
 global using Pulsar.BuildingBlocks.DDD.Attributes;
 global using Pulsar.Services.Identity.Contracts.Commands.Others;
