@@ -25,7 +25,7 @@ class SourceTypeMetadata
 
     public object ToShadow(object source)
     {
-        if(source == null) throw new ArgumentNullException(nameof(source));
+        if (source == null) throw new ArgumentNullException(nameof(source));
         if (!_sourceType.IsAssignableFrom(source.GetType()))
         {
             throw new ArgumentException($"source has invalid type {_sourceType.FullName}");
@@ -44,7 +44,19 @@ class SourceTypeMetadata
             propMetadata.ShadowProperty.SetValue(shadow, destValue);
         }
 
+        InterceptShadow(source, shadow);
+
         return shadow;
+    }
+
+    private void InterceptShadow(object source, object shadow)
+    {
+        var intercept = Activator.CreateInstance(typeof(ShadowInterception<,>).MakeGenericType(_sourceType, _shadowType)) as ShadowInterception;
+        if (intercept == null)
+        {
+            throw new InvalidOperationException();
+        }
+        intercept.Intercept(source, shadow);
     }
 
     public SourceTypeMetadata(Type sourceType)
@@ -232,5 +244,25 @@ class SourceTypeMetadata
     }
 
     record SourceTypeMetadataProperty(PropertyInfo SourceProperty, PropertyInfo ShadowProperty, Func<object?, object?> ConverterFromSourceToShadow);
+
+    abstract class ShadowInterception
+    {
+        abstract public void Intercept(object source, object shadow);
+    }
+    class ShadowInterception<TSource, TShadow> : ShadowInterception where TShadow : class where TSource : class
+    {
+        void Intercept(TSource source, TShadow shadow)
+        {
+            if (source is IInterceptShadow<TShadow> interceptShadow)
+            {
+                interceptShadow.Intercept(shadow);
+            }
+        }
+
+        public override void Intercept(object source, object shadow)
+        {
+            Intercept((TSource)source, (TShadow)shadow);
+        }
+    }
 
 }
