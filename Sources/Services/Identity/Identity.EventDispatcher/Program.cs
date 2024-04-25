@@ -10,6 +10,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddMongoEventBus();
         services.AddAzureEventBus();
         services.AddHostedService<Worker>();
+        services.AddSyncService();
     })
     .Build();
 

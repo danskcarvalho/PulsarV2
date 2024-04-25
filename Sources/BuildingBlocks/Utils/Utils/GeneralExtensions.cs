@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using MongoDB.Bson;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Pulsar.BuildingBlocks.Utils;
 
-public static class GeneralExtensions
+public static partial class GeneralExtensions
 {
     public static string GetOrThrow(this IConfiguration configuration, string key)
     {
@@ -211,19 +209,6 @@ public static class GeneralExtensions
             if (node == _oldValue)
                 return _newValue;
             return base.Visit(node);
-        }
-    }
-
-    public class ObjectIdConverter : JsonConverter<ObjectId>
-    {
-        public override ObjectId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return ObjectId.Parse(reader.GetString()!);
-        }
-
-        public override void Write(Utf8JsonWriter writer, ObjectId value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString());
         }
     }
 }
