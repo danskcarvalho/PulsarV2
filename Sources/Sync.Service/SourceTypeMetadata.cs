@@ -7,6 +7,7 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.BuildingBlocks.Syncing.DDD;
 using System.Collections;
 using Amazon.Auth.AccessControlPolicy;
+using AutoMapper;
 
 namespace Pulsar.BuildingBlocks.Sync.Service;
 
@@ -14,8 +15,7 @@ class SourceTypeMetadata
 {
     private static readonly HashSet<Type> PrimitiveTypes = [typeof(int), typeof(long), typeof(byte), typeof(string), typeof(bool), typeof(char), typeof(double), typeof(float), typeof(decimal), typeof(DateTime), typeof(TimeSpan), typeof(DateOnly),
             typeof(ObjectId), typeof(Guid)];
-    private readonly Dictionary<(Type SourceType, Type DestType), Func<object?, object?>> _converters = new Dictionary<(Type SourceType, Type DestType), Func<object?, object?>>();
-    private readonly List<SourceTypeMetadataProperty> _propertiesMetadata = new List<SourceTypeMetadataProperty>();
+    private readonly Dictionary<Type, Map> _mappers = new Dictionary<Type, Map>();
     private Type _shadowType, _sourceType;
     private string _shadowEntityName;
 
@@ -30,33 +30,29 @@ class SourceTypeMetadata
         {
             throw new ArgumentException($"source has invalid type {_sourceType.FullName}");
         }
-        var shadow = Activator.CreateInstance(_shadowType);
 
-        if (shadow == null)
-        {
-            throw new InvalidOperationException("could not create shadow");
-        }
-
-        foreach (var propMetadata in _propertiesMetadata)
-        {
-            var sourceValue = propMetadata.SourceProperty.GetValue(source);
-            var destValue = propMetadata.ConverterFromSourceToShadow(sourceValue);
-            propMetadata.ShadowProperty.SetValue(shadow, destValue);
-        }
+        var mapper = GetMapper(source.GetType(), _shadowType);
+        var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType);
 
         InterceptShadow(source, shadow);
 
         return shadow;
     }
 
-    private void InterceptShadow(object source, object shadow)
+    private Map GetMapper(Type from, Type to)
     {
-        var intercept = Activator.CreateInstance(typeof(ShadowInterception<,>).MakeGenericType(_sourceType, _shadowType)) as ShadowInterception;
-        if (intercept == null)
+        lock (_mappers)
         {
-            throw new InvalidOperationException();
+            if(_mappers.TryGetValue(from, out var mapper))
+            {
+                return mapper;
+            }
+            else
+            {
+                _mappers[from] = Map.Create(from, to);
+                return _mappers[from];
+            }
         }
-        intercept.Intercept(source, shadow);
     }
 
     public SourceTypeMetadata(Type sourceType)
@@ -67,7 +63,6 @@ class SourceTypeMetadata
         {
             throw new InvalidOperationException($"shadow type {_shadowType.FullName} has no parameterless constructor");
         }
-        _propertiesMetadata = GetProperties(sourceType, _shadowType).ToList();
         var shadowAttr = _shadowType.GetCustomAttribute<ShadowAttribute>();
         if (shadowAttr == null)
         {
@@ -76,158 +71,197 @@ class SourceTypeMetadata
         _shadowEntityName = shadowAttr.Name;
     }
 
-    private IEnumerable<SourceTypeMetadataProperty> GetProperties(Type sourceType, Type shadowType)
+    #region [ AutoMapper ]
+    abstract class Map
     {
-        if (!HasParameterlessConstructor(shadowType))
+        public static Map Create(Type from, Type to)
         {
-            throw new InvalidOperationException("shadow type must be parameterless constructor");
+            return (Map)(Activator.CreateInstance(typeof(Map<,>).MakeGenericType(from, to)) ?? throw new InvalidOperationException("could not instantiate mapper"));
         }
 
-        foreach (var property in sourceType.GetProperties().Where(p => p.CanRead && p.GetIndexParameters().Length == 0))
+        public abstract IMapper Mapper { get; }
+        protected static void CreateMapping<F, T>(IMapperConfigurationExpression cfg, HashSet<(Type From, Type To)> addedMappings)
         {
-            var attribute = property.GetCustomAttribute<TrackChangesAttribute>();
-            if (attribute == null)
+            if (addedMappings.Contains((typeof(F), typeof(T))))
             {
-                continue;
+                return;
             }
+            addedMappings.Add((typeof(F), typeof(T)));
 
-            var shadowProperty = shadowType.GetProperty(property.Name);
-            if (shadowProperty == null)
+            var start = cfg.CreateMap<F, T>();
+            foreach (var fprop in typeof(F).GetProperties())
             {
-                throw new InvalidOperationException($"{sourceType} and {shadowType} are not compatible");
-            }
-            if (!AreTypesCompatible(property.PropertyType, shadowProperty.PropertyType))
-            {
-                throw new InvalidOperationException($"{sourceType} and {shadowType} are not compatible");
-            }
+                var tprop = typeof(T).GetProperty(fprop.Name);
+                var attr = fprop.GetCustomAttribute<TrackChangesAttribute>();
+                if (tprop == null)
+                {
+                    continue;
+                }
+                if (attr == null || !IsValidType(fprop.PropertyType) || !IsValidType(tprop.PropertyType))
+                {
+                    start = start.ForMember(fprop.Name, opt => opt.Ignore());
+                    continue;
+                }
 
-            yield return new SourceTypeMetadataProperty(property, shadowProperty, CreateConverter(property.PropertyType, shadowProperty.PropertyType));
+                if (IsNullableOrPrimitiveType(fprop.PropertyType) && IsNullableOrPrimitiveType(tprop.PropertyType) && fprop.PropertyType == tprop.PropertyType)
+                {
+                }
+                else if (IsCollectionOfPrimitivesTypes(fprop.PropertyType) && IsCollectionOfPrimitivesTypes(tprop.PropertyType) && fprop.PropertyType == tprop.PropertyType)
+                {
+                }
+                else if (IsCollectionOfComplexType(fprop.PropertyType) && IsCollectionOfComplexType(tprop.PropertyType))
+                {
+                    CreateMappingNonGeneric(GetComplexTypeFromCollection(fprop.PropertyType), GetComplexTypeFromCollection(tprop.PropertyType), cfg, addedMappings);
+                }
+                else if (IsComplexType(fprop.PropertyType) && IsComplexType(tprop.PropertyType))
+                {
+                    CreateMappingNonGeneric(GetComplexTypeFromCollection(fprop.PropertyType), GetComplexTypeFromCollection(tprop.PropertyType), cfg, addedMappings);
+                }
+                else
+                {
+                    start = start.ForMember(fprop.Name, opt => opt.Ignore());
+                }
+            }
         }
-    }
 
-    private Func<object?, object?> CreateConverter(Type sourceType, Type destType)
-    {
-        lock (_converters)
+        private static void CreateMappingNonGeneric(Type from, Type to, IMapperConfigurationExpression cfg, HashSet<(Type From, Type To)> addedMappings)
         {
-            var key = (sourceType, destType);
-            if(_converters.TryGetValue(key, out var converter))
+            typeof(Map).GetMethod("CreateMapping")!.MakeGenericMethod(from, to).Invoke(null, [cfg, addedMappings]);
+        }
+
+        private static Type GetComplexTypeFromCollection(Type type)
+        {
+            if (type.IsConstructedGenericType)
             {
-                return converter;
+                var td = type.GetGenericTypeDefinition();
+                if (td == typeof(List<>))
+                {
+                    var arg = type.GetGenericArguments()[0];
+                    if (arg.IsConstructedGenericType)
+                    {
+                        var td2 = arg.GetGenericTypeDefinition();
+                        if (td2 == typeof(List<>))
+                            return GetComplexTypeFromCollection(arg);
+                        else if (td2 == typeof(Dictionary<,>))
+                            return GetComplexTypeFromCollection(arg);
+                        else
+                            return arg;
+                    }
+                    else
+                        return arg;
+                }
+                else if (td == typeof(Dictionary<,>))
+                {
+                    var arg = type.GetGenericArguments()[1];
+
+                    if (arg.IsConstructedGenericType)
+                    {
+                        var td2 = arg.GetGenericTypeDefinition();
+                        if (td2 == typeof(List<>))
+                            return GetComplexTypeFromCollection(arg);
+                        else if (td2 == typeof(Dictionary<,>))
+                            return GetComplexTypeFromCollection(arg);
+                        else
+                            return arg;
+                    }
+                    else
+                        return arg;
+                }
+                else
+                    throw new InvalidOperationException();
             }
             else
             {
-                var result = SlowCreateConverter(sourceType, destType);
-                _converters[key] = result;
-                return result;
+                throw new InvalidOperationException();
             }
         }
     }
-
-    private Func<object?, object?> SlowCreateConverter(Type sourceType, Type destType)
+    class Map<TFrom, TTo> : Map
     {
-        if (sourceType == destType)
+        private MapperConfiguration _config;
+
+        public override IMapper Mapper => _config.CreateMapper();
+
+        public Map()
         {
-            return obj => obj;
-        }
-        else
-        {
-            return obj =>
+            _config = new MapperConfiguration(cfg =>
             {
-                var result = Activator.CreateInstance(destType);
-                foreach (var property in sourceType.GetProperties().Where(p => p.CanRead && p.GetIndexParameters().Length == 0))
-                {
-                    var attribute = property.GetCustomAttribute<TrackChangesAttribute>();
-                    if (attribute == null)
-                    {
-                        continue;
-                    }
+                cfg.ShouldMapField = f => false;
+                HashSet<(Type From, Type To)> addedMappings = new HashSet<(Type From, Type To)>();
 
-                    var destProperty = destType.GetProperty(property.Name);
-                    if (destProperty == null)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    var sourceValue = property.GetValue(obj, null);
-                    destProperty.SetValue(result, CreateConverter(property.PropertyType, destProperty.PropertyType)(sourceValue));
-                }
-                return result;
-            };
+                CreateMapping<TFrom, TTo>(cfg, addedMappings);
+            });
         }
     }
+    #endregion
 
+    #region [ Tests ]
+    private static bool IsValidType(Type type)
+    {
+        return IsNullableOrPrimitiveType(type) || IsCollectionOfPrimitivesTypes(type) || IsCollectionOfComplexType(type) || IsComplexType(type);
+    }
     private static bool HasParameterlessConstructor(Type type)
     {
         var constructor = type.GetConstructor(Type.EmptyTypes);
         return constructor != null && constructor.IsPublic;
     }
-
-    // TODO: Deal with possible infinite recursion
-    private static bool AreTypesCompatible(Type sourceType, Type shadowType)
+    private static bool IsComplexType(Type type)
     {
-        if (shadowType == sourceType)
+        foreach (var prop in type.GetProperties())
         {
-            return true;
-        }
+            var attr = prop.GetCustomAttribute<TrackChangesAttribute>();
+            if (attr == null)
+            {
+                continue;
+            }
 
-        if (!HasParameterlessConstructor(shadowType))
-        {
+            if (IsNullableOrPrimitiveType(prop.PropertyType))
+            {
+                continue;
+            }
+            if (IsCollectionOfPrimitivesTypes(prop.PropertyType))
+            {
+                continue;
+            }
+            if (IsCollectionOfComplexType(prop.PropertyType))
+            {
+                continue;
+            }
+            if (IsComplexType(prop.PropertyType))
+            {
+                continue;
+            }
+
             return false;
         }
 
-        if (shadowType.IsClass && !shadowType.IsEnum && !shadowType.IsValueType && !PrimitiveTypes.Contains(shadowType) &&
-            sourceType.IsClass && !sourceType.IsEnum && !sourceType.IsValueType && !PrimitiveTypes.Contains(sourceType))
+        return true;
+    }
+    private static bool IsNullableType(Type type)
+    {
+        return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsPrimitiveType(type.GetGenericArguments()[0]);
+    }
+    private static bool IsNullableOrPrimitiveType(Type type)
+    {
+        return IsNullableType(type) || IsPrimitiveType(type);
+    }
+    private static bool IsCollectionOfPrimitivesTypes(Type type)
+    {
+        if (type.IsConstructedGenericType)
         {
-            foreach (var property in sourceType.GetProperties().Where(p => p.CanRead && p.GetIndexParameters().Length == 0))
-            {
-                var attribute = property.GetCustomAttribute<TrackChangesAttribute>();
-                if (attribute == null)
-                {
-                    continue;
-                }
-
-                var shadowProperty = shadowType.GetProperty(property.Name);
-                if (shadowProperty == null)
-                {
-                    return false;
-                }
-
-                if (!AreTypesCompatible(property.PropertyType, shadowProperty.PropertyType))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static bool IsValidPropertyType(Type propertyType)
-    {
-        return IsPrimitiveTypeOrValueObject(propertyType) || IsCollectionOfPrimitivesOrValueObjects(propertyType) || IsNullableOfPrimitiveType(propertyType);
-    }
-
-    private static bool IsNullableOfPrimitiveType(Type propertyType)
-    {
-        return propertyType.IsConstructedGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>) && IsPrimitiveTypeOrValueObject(propertyType.GetGenericArguments()[0]);
-    }
-
-    private static bool IsCollectionOfPrimitivesOrValueObjects(Type propertyType)
-    {
-        if (propertyType.IsConstructedGenericType)
-        {
-            var td = propertyType.GetGenericTypeDefinition();
+            var td = type.GetGenericTypeDefinition();
             if (td == typeof(List<>))
             {
-                return IsNullableOfPrimitiveType(propertyType.GetGenericArguments()[0]);
+                return IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[0]);
             }
             else if (td == typeof(Dictionary<,>))
             {
-                return IsNullableOfPrimitiveType(propertyType.GetGenericArguments()[0]) && IsNullableOfPrimitiveType(propertyType.GetGenericArguments()[1]);
+                return (IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[0])) && 
+                       (IsNullableOrPrimitiveType(type.GetGenericArguments()[1]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[1]));
             }
             else if (td == typeof(HashSet<>))
             {
-                return IsNullableOfPrimitiveType(propertyType.GetGenericArguments()[0]);
+                return IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[0]);
             }
             else
                 return false;
@@ -237,13 +271,44 @@ class SourceTypeMetadata
             return false;
         }
     }
-
-    private static bool IsPrimitiveTypeOrValueObject(Type propertyType)
+    private static bool IsCollectionOfComplexType(Type type)
     {
-        return typeof(ValueObject).IsAssignableFrom(propertyType) || propertyType.IsEnum || PrimitiveTypes.Contains(propertyType);
+        if (type.IsConstructedGenericType)
+        {
+            var td = type.GetGenericTypeDefinition();
+            if (td == typeof(List<>))
+            {
+                return IsComplexType(type.GetGenericArguments()[0]) || IsCollectionOfComplexType(type.GetGenericArguments()[0]);
+            }
+            else if (td == typeof(Dictionary<,>))
+            {
+                return IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) && (IsComplexType(type.GetGenericArguments()[1]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[1]));
+            }
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    private static bool IsPrimitiveType(Type type)
+    {
+        return type.IsEnum || PrimitiveTypes.Contains(type);
     }
 
-    record SourceTypeMetadataProperty(PropertyInfo SourceProperty, PropertyInfo ShadowProperty, Func<object?, object?> ConverterFromSourceToShadow);
+    #endregion
+
+    #region [ Interception ]
+    private void InterceptShadow(object source, object shadow)
+    {
+        var intercept = Activator.CreateInstance(typeof(ShadowInterception<,>).MakeGenericType(_sourceType, _shadowType)) as ShadowInterception;
+        if (intercept == null)
+        {
+            throw new InvalidOperationException();
+        }
+        intercept.Intercept(source, shadow);
+    }
 
     abstract class ShadowInterception
     {
@@ -264,5 +329,5 @@ class SourceTypeMetadata
             Intercept((TSource)source, (TShadow)shadow);
         }
     }
-
+    #endregion
 }
