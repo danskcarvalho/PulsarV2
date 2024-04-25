@@ -1,11 +1,13 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Pulsar.BuildingBlocks.EventBus.Contracts;
 using Pulsar.BuildingBlocks.EventBus.Events;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Text.Json.Serialization;
 
 namespace Pulsar.BuildingBlocks.Sync.Service;
 
+[EventName("General:EntityChanged")]
 public record EntityChangedIE : IntegrationEvent
 {
     public string EntityName { get; }
