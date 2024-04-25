@@ -1,6 +1,7 @@
 using Pulsar.BuildingBlocks.EventBus;
 using Pulsar.BuildingBlocks.EventBusAzure;
 using Pulsar.BuildingBlocks.IntegrationEventLogMongo;
+using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.EventDispatcher;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -10,7 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddMongoEventBus();
         services.AddAzureEventBus();
         services.AddHostedService<Worker>();
-        services.AddSyncService();
+        services.AddSyncService(scanForAggregateRoots: typeof(Dominio).Assembly);
     })
     .Build();
 

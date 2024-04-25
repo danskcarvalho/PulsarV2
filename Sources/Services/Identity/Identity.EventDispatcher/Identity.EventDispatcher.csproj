@@ -27,5 +27,6 @@
 	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
 	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\IntegrationEventLogMongo\IntegrationEventLogMongo.csproj" />
 	  <ProjectReference Include="..\..\..\Sync.Service\Sync.Service.csproj" />
+	  <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
 	</ItemGroup>
 </Project>
