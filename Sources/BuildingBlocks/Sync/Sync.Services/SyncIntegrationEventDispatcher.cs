@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 public partial class SyncIntegrationEventDispatcher : ISyncIntegrationEventDispatcher
 {

@@ -1,5 +1,5 @@
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
-using Pulsar.BuildingBlocks.Sync.Service;
+using Pulsar.BuildingBlocks.Sync.Services;
 
 namespace Pulsar.Services.Identity.EventDispatcher;
 

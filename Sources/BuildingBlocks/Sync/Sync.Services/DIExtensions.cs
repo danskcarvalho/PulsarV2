@@ -2,7 +2,7 @@
 using System.Reflection;
 using Pulsar.BuildingBlocks.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Pulsar.BuildingBlocks.Sync.Service;
+using Pulsar.BuildingBlocks.Sync.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -10,7 +10,7 @@ using MongoDB.Driver.Core.Events;
 using System.Diagnostics;
 using MongoDB.Bson;
 
-namespace Pulsar.BuildingBlocks.EventBus;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 public static class DIExtensions
 {
@@ -28,8 +28,10 @@ public static class DIExtensions
             settings.ReadPreference = ReadPreference.Primary;
             settings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
 #if DEBUG && !NO_COMMAND_OUTPUT
-            settings.ClusterConfigurator = cb => {
-                cb.Subscribe<CommandStartedEvent>(e => {
+            settings.ClusterConfigurator = cb =>
+            {
+                cb.Subscribe<CommandStartedEvent>(e =>
+                {
                     Debug.WriteLine($"{e.CommandName} - {e.Command.ToJson()}");
                 });
             };

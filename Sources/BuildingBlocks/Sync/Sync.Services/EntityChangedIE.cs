@@ -5,7 +5,7 @@ using Pulsar.BuildingBlocks.EventBus.Events;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Text.Json.Serialization;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 [EventName("General:EntityChanged")]
 public record EntityChangedIE : IntegrationEvent

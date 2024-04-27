@@ -1,5 +1,5 @@
 ﻿
-namespace Pulsar.BuildingBlocks.Sync.Service
+namespace Pulsar.BuildingBlocks.Sync.Services
 {
     public interface ISyncIntegrationEventDispatcher
     {

@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
-    <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
-    <ProjectReference Include="..\BuildingBlocks\Sync\Sync.Contracts\Sync.Contracts.csproj" />
+    <ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+    <ProjectReference Include="..\..\EventBus\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\Sync.Contracts\Sync.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

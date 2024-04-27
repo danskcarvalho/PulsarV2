@@ -9,7 +9,7 @@ using System.Collections;
 using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 class SourceTypeMetadata
 {
@@ -43,7 +43,7 @@ class SourceTypeMetadata
     {
         lock (_mappers)
         {
-            if(_mappers.TryGetValue(from, out var mapper))
+            if (_mappers.TryGetValue(from, out var mapper))
             {
                 return mapper;
             }
@@ -59,7 +59,7 @@ class SourceTypeMetadata
     {
         _sourceType = sourceType;
         _shadowType = sourceType.GetCustomAttribute<TrackChangesAttribute>()?.ShadowType ?? throw new ArgumentException("no TrackChangesAttribute");
-        if(!HasParameterlessConstructor(_shadowType))
+        if (!HasParameterlessConstructor(_shadowType))
         {
             throw new InvalidOperationException($"shadow type {_shadowType.FullName} has no parameterless constructor");
         }
@@ -256,7 +256,7 @@ class SourceTypeMetadata
             }
             else if (td == typeof(Dictionary<,>))
             {
-                return (IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[0])) && 
+                return (IsNullableOrPrimitiveType(type.GetGenericArguments()[0]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[0])) &&
                        (IsNullableOrPrimitiveType(type.GetGenericArguments()[1]) || IsCollectionOfPrimitivesTypes(type.GetGenericArguments()[1]));
             }
             else if (td == typeof(HashSet<>))

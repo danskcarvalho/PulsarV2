@@ -5,7 +5,12 @@ using System.Reflection;
 
 namespace Pulsar.BuildingBlocks.Sync.Domain;
 
-public class Tracker<TCollectionType>
+public abstract class Tracker
+{
+
+}
+
+public class Tracker<TCollectionType> : Tracker
 {
     protected static ForShadow<TShadow> For<TShadow>() where TShadow : class
     {

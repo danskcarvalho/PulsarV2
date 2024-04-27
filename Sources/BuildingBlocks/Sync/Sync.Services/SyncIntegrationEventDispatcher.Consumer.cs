@@ -8,7 +8,7 @@ using System.Reflection;
 using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
 using System.Text.Json;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 public partial class SyncIntegrationEventDispatcher
 {
@@ -86,7 +86,7 @@ public partial class SyncIntegrationEventDispatcher
         {
             lock (_aggregateRoots)
             {
-                if(_aggregateRoots.Count != 0)
+                if (_aggregateRoots.Count != 0)
                 {
                     return;
                 }

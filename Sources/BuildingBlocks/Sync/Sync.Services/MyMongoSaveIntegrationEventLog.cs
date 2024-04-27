@@ -4,7 +4,7 @@ using Pulsar.BuildingBlocks.DDD.Mongo;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
 using Pulsar.BuildingBlocks.EventBus.Events;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 internal class MyMongoSaveIntegrationEventLog : ISaveIntegrationEventLog
 {

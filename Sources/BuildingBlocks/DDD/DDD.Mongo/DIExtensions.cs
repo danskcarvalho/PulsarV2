@@ -1,10 +1,11 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Contexts;
+using Pulsar.BuildingBlocks.Sync.Contracts;
 
 namespace Pulsar.BuildingBlocks.DDD.Mongo;
 
 public static class DIExtensions
 {
-    public static void AddValidators(this IServiceCollection col, params Assembly[] assemblies)
+    public static IServiceCollection AddValidators(this IServiceCollection col, params Assembly[] assemblies)
     {
         foreach (var assembly in assemblies)
         {
@@ -24,8 +25,10 @@ public static class DIExtensions
                 }
             }
         }
+
+        return col;
     }
-    public static void AddMongoDB(this IServiceCollection col, params Assembly[] assemblies)
+    public static IServiceCollection AddMongoDB(this IServiceCollection col, params Assembly[] assembliesToScan)
     {
         AutoMappingConventions.Register();
 
@@ -46,7 +49,58 @@ public static class DIExtensions
         });
         col.AddScoped<IDbSession, MongoDbSession>(sp => sp.GetRequiredService<MongoDbSession>());
 
-        foreach (var assembly in assemblies)
+        // repositories
+        AddRepositories(col, assembliesToScan);
+
+        col.AddTransient<MongoSaveIntegrationEventLog>();
+        col.AddTransient<ISaveIntegrationEventLog, MongoSaveIntegrationEventLog>();
+        col.AddTransient<DbContextFactory>();
+
+        //query handlers
+        AddQueryHandlers(col, assembliesToScan);
+
+        col.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        col.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidatorBehavior<,>));
+
+        // shadow repositories
+        AddShadowRepositories(col, assembliesToScan);
+
+        return col;
+    }
+
+    private static void AddShadowRepositories(IServiceCollection col, Assembly[] assembliesToScan)
+    {
+        var types = ShadowAttribute.GetShadowTypes(assembliesToScan);
+
+        foreach (var item in types)
+        {
+            var impl = typeof(MongoShadowRepository<>).MakeGenericType(item.Type);
+            var shadowInt = typeof(IShadowRepository<>).MakeGenericType(item.Type);
+            col.AddTransient(impl);
+            col.AddTransient(shadowInt, impl);
+            col.AddTransient(typeof(IIsRepository), impl);
+        }
+    }
+
+    private static void AddQueryHandlers(IServiceCollection col, Assembly[] assembliesToScan)
+    {
+        foreach (var assembly in assembliesToScan)
+        {
+            var types = assembly.GetTypes().Where(t =>
+            {
+                return t.IsPublic && t.IsClass && !t.IsAbstract && EnumerateAllBaseTypes(t).Any(b => b == typeof(QueryHandler));
+            });
+
+            foreach (var qType in types)
+            {
+                col.AddTransient(qType);
+            }
+        }
+    }
+
+    private static void AddRepositories(IServiceCollection col, Assembly[] assembliesToScan)
+    {
+        foreach (var assembly in assembliesToScan)
         {
             var types = assembly.GetTypes().Where(t =>
             {
@@ -62,26 +116,6 @@ public static class DIExtensions
                 col.AddTransient(typeof(IIsRepository), repoType);
             }
         }
-
-        col.AddTransient<MongoSaveIntegrationEventLog>();
-        col.AddTransient<ISaveIntegrationEventLog, MongoSaveIntegrationEventLog>();
-        col.AddTransient<DbContextFactory>();
-
-        foreach (var assembly in assemblies)
-        {
-            var types = assembly.GetTypes().Where(t =>
-            {
-                return t.IsPublic && t.IsClass && !t.IsAbstract && EnumerateAllBaseTypes(t).Any(b => b == typeof(QueryHandler));
-            });
-
-            foreach (var qType in types)
-            {
-                col.AddTransient(qType);
-            }
-        }
-
-        col.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-        col.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidatorBehavior<,>));
     }
 
     private static IEnumerable<Type> EnumerateAllBaseTypes(Type t)

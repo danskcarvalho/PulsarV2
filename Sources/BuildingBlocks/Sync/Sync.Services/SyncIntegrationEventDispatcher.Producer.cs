@@ -9,7 +9,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Reflection;
 
-namespace Pulsar.BuildingBlocks.Sync.Service;
+namespace Pulsar.BuildingBlocks.Sync.Services;
 
 public partial class SyncIntegrationEventDispatcher
 {
