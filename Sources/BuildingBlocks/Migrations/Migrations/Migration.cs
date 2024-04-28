@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.Migrations;
+﻿using Pulsar.BuildingBlocks.Sync.Contracts;
+
+namespace Pulsar.BuildingBlocks.Migrations;
 
 public abstract class Migration
 {
@@ -19,5 +21,38 @@ public abstract class Migration
 
     public abstract Task Up();
     protected IMongoCollection<T> GetCollection<T>(string name) => Database!.GetCollection<T>(name);
+    
+    protected async Task CreateCollection(string collectionName, Collation collation)
+    {
+        await this.Database.CreateCollectionAsync(collectionName, new CreateCollectionOptions()
+        {
+            Collation = collation
+        });
+    }
+    
+    protected async Task CreateShadowCollection<TShadow>(Collation collation) where TShadow : class, IShadow
+    {
+        var collectionName = GetCollectionName<TShadow>();
+        await this.Database.CreateCollectionAsync(collectionName, new CreateCollectionOptions()
+        {
+            Collation = collation
+        });
+    }
+    
+    private static string GetCollectionName<T>()
+    {
+        var attr = typeof(T).GetCustomAttribute<ShadowAttribute>();
+        if (attr == null)
+        {
+            throw new InvalidOperationException($"no ShadowAttribute on type {typeof(T).FullName}");
+        }
+
+        return $"_{ValidId(attr.Name)}_Shadow";
+    }
+
+    private static string ValidId(string name)
+    {
+        return new string(name.Where(c => char.IsLetterOrDigit(c)).ToArray());
+    }
 
 }

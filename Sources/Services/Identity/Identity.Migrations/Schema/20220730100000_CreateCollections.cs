@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pulsar.Services.Facility.Contracts.Shadows;
 
 namespace Pulsar.Services.Identity.Migrations.Schema
 {
@@ -11,18 +12,16 @@ namespace Pulsar.Services.Identity.Migrations.Schema
     {
         public override async Task Up()
         {
-            await CreateCollection("Convites");
-            await CreateCollection("Dominios");
-            await CreateCollection("Grupos");
-            await CreateCollection("Usuarios");
-        }
-
-        private async Task CreateCollection(string collectionName)
-        {
-            await this.Database.CreateCollectionAsync(collectionName, new CreateCollectionOptions()
-            {
-                Collation = new Collation("pt", caseLevel: false)
-            });
+            var collation = new Collation("pt", caseLevel: false);
+            
+            await CreateCollection("Convites", collation);
+            await CreateCollection("Dominios", collation);
+            await CreateCollection("Grupos", collation);
+            await CreateCollection("Usuarios", collation);
+            
+            // shadows
+            await CreateShadowCollection<EstabelecimentoShadow>(collation);
+            await CreateShadowCollection<RedeEstabelecimentosShadow>(collation);
         }
     }
 }
