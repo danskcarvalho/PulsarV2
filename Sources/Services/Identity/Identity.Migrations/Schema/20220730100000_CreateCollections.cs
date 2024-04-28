@@ -14,8 +14,6 @@ namespace Pulsar.Services.Identity.Migrations.Schema
             await CreateCollection("Convites");
             await CreateCollection("Dominios");
             await CreateCollection("Grupos");
-            await CreateCollection("Estabelecimentos");
-            await CreateCollection("RedesEstabelecimentos");
             await CreateCollection("Usuarios");
         }
 

@@ -5,7 +5,7 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo;
 public class MongoShadowRepository<TModel> : MongoRepository<IShadowRepository<TModel>, TModel>, IShadowRepository<TModel>
     where TModel : class, IAggregateRoot
 {
-    private string _collectionName;
+    private string? _collectionName;
     public MongoShadowRepository(MongoDbSession? session, MongoDbSessionFactory sessionFactory) : base(session, sessionFactory)
     {
         _collectionName = GetCollectionName();
@@ -27,7 +27,7 @@ public class MongoShadowRepository<TModel> : MongoRepository<IShadowRepository<T
         return new string(name.Where(c => char.IsLetterOrDigit(c)).ToArray());
     }
 
-    protected override string CollectionName => _collectionName;
+    protected override string CollectionName => _collectionName ?? GetCollectionName();
 
     protected override IShadowRepository<TModel> Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
     {

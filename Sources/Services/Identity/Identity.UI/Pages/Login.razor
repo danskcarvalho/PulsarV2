@@ -51,7 +51,7 @@
         </div>
         <div class="row text-center mb-4 justify-content-center">
             <div class="col-auto">
-                <NavLink href="@(QueryHelpers.AddQueryString("/account/recover", "ReturnUrl", ReturnUrl))">Esqueci minha senha</NavLink>
+                <NavLink href="@QueryHelpers.AddQueryString("/account/recover", "ReturnUrl", ReturnUrl!)">Esqueci minha senha</NavLink>
             </div>
         </div>
     }

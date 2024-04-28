@@ -38,6 +38,6 @@ public partial class EsqueciMinhaSenha
 
     void Cancelar()
     {
-        NavManager.NavigateTo(QueryHelpers.AddQueryString("/account/login", "ReturnUrl", ReturnUrl));
+        NavManager.NavigateTo(QueryHelpers.AddQueryString("/account/login", "ReturnUrl", ReturnUrl!));
     }
 }

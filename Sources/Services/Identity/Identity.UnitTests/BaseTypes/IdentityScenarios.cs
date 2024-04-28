@@ -39,7 +39,11 @@ public partial class IdentityScenarios : IDisposable
         configuration.AddJsonFile(jsonPath, optional: false, reloadOnChange: false);
 
         collection.AddSingleton<IConfiguration>(configuration);
-        collection.AddMockedMongoDB(db, typeof(IdentityScenarios).Assembly);
+        collection.AddMockedMongoDB(db, 
+            typeof(IdentityScenarios).Assembly,
+            // shadows
+            typeof(EstabelecimentoShadow).Assembly
+            );
         collection.AddMockedEmails();
         collection.AddMockedFileSystem();
         collection.AddTransient<IdentityControllerContext>();
