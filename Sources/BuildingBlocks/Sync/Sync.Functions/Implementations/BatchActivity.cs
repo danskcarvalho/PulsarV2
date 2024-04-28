@@ -1,5 +1,6 @@
 using System.Reflection;
 using MediatR;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using MongoDB.Driver;
 using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
@@ -13,11 +14,11 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 public class BatchActivity(
     IDbSession session,
     IBatchManagerFactory batchManagerFactory,
-    IEnumerable<IIsRepository> repositories) : IBatchActivity
+    IEnumerable<IIsRepository> repositories,
+    ISyncDbContextFactory factory) : IBatchActivity
 {
     private const int MAX_RETRIES_FOR_SHADOW_UPDATE = 5;
     private static readonly Dictionary<string, Type> _shadowTypes = new Dictionary<string, Type>();
-
     private Type GetShadowTypeFromName(string name)
     {
         lock (_shadowTypes)
@@ -51,7 +52,7 @@ public class BatchActivity(
     {
         await session.TrackAggregateRoots(async ct =>
         {
-            var batchManager = batchManagerFactory.GetManagerForDatabase();
+            var batchManager = new BatchManagerForDatabase(factory);
             var batch = await batchManager.GetFromId(eb.BatchId);
             await batch.Execute();
             
@@ -117,7 +118,7 @@ public class BatchActivity(
             var batches = new List<IBatch>();
             foreach (var batchManager in managers)
             {
-                batches.AddRange(await batchManager.GetBatches());
+                batches.AddRange(await batchManager.GetBatches(factory));
             }
 
             return new PrepareBatchesActivityDescriptionResult(batches.Select(b => b.BatchId).ToList());
@@ -131,7 +132,7 @@ public class BatchActivity(
     private (IShadow Shadow, Type ShadowType) GetShadow(PrepareBatchesActivityDescription pb)
     {
         var shadowType = GetShadowTypeFromName(pb.Event.ShadowName);
-        var shadow = pb.Event.ShadowJson.FromJson(shadowType) as IShadow ?? throw new InvalidOperationException("shadow of type IShadow not found");
+        var shadow = pb.Event.ShadowJson.FromJsonString(shadowType) as IShadow ?? throw new InvalidOperationException("shadow of type IShadow not found");
         return (shadow, shadowType);
     }
 }

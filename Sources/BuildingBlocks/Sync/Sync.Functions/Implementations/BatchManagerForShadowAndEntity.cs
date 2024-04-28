@@ -12,7 +12,6 @@ using Pulsar.BuildingBlocks.Utils;
 namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 
 public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
-    IBatchDbContextFactory factory,
     Type tracker,
     FieldInfo rule,
     TrackerUpdateAction updateAction)
@@ -144,28 +143,28 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
         return element1 == element2;
     }
 
-    public IBatchManagerForShadowAndEntity<TShadow> GetBatchManagerForShadowAndEntity(EntityChangedIE evt)
+    public IBatchManagerForShadowAndEntity<TShadow> SetEvent(EntityChangedIE evt)
     {
-        return new BatchManagerForShadowAndEntity<TShadow, TEntity>(factory, tracker, rule, _updateAction)
+        return new BatchManagerForShadowAndEntity<TShadow, TEntity>(tracker, rule, _updateAction)
         {
             _entityChanged = evt,
-            _shadow = evt.ShadowJson.FromJson<TShadow>()
+            _shadow = evt.ShadowJson.FromJsonString<TShadow>()
         };
     }
 
-    public async Task<List<IBatch>> GetBatches()
+    public async Task<List<IBatch>> GetBatches(ISyncDbContextFactory factory)
     {
         if (_shadow == null || _entityChanged == null)
         {
             throw new InvalidOperationException("must call GetBatchManagerForShadowAndEntity first");
         }
 
-        return await factory.Execute<TEntity, List<IBatch>>(async (syncBatchRepository, entityRepository) =>
+        return await factory.Execute<TEntity, List<IBatch>>(async ctx =>
         {
 
             var spec = _updateAction.UpdateFunction(_shadow).GetSpec();
             var idsSpec = new FindEntitySpecification(spec.Predicate);
-            var allIds = await entityRepository.FindManyAsync(idsSpec);
+            var allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
             var batchesToInsert = new List<SyncBatch>();
 
             while (allIds.Count > 0)
@@ -197,10 +196,10 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
 
 
                 idsSpec = new FindEntitySpecification(spec.Predicate, allIds[^1].Id);
-                allIds = await entityRepository.FindManyAsync(idsSpec);
+                allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
             }
 
-            await syncBatchRepository.InsertManyAsync(batchesToInsert);
+            await ctx.SyncBatchRepository.InsertManyAsync(batchesToInsert);
 
             return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
         });

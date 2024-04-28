@@ -157,7 +157,7 @@ public static partial class GeneralExtensions
         return Encoding.UTF8.GetBytes(json).ToSafeBase64();
     }
     
-    public static string ToJson(this object obj)
+    public static string ToJsonString(this object obj)
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
@@ -171,13 +171,13 @@ public static partial class GeneralExtensions
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, options);
     }
-    public static T? FromJson<T>(this string json)
+    public static T? FromJsonString<T>(this string json)
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
         return JsonSerializer.Deserialize<T>(json, options);
     }
-    public static object? FromJson(this string json, Type type)
+    public static object? FromJsonString(this string json, Type type)
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());

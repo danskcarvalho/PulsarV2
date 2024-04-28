@@ -10,13 +10,9 @@ class BatchManagerFactory : IBatchManagerFactory
     private readonly Dictionary<string, Type> _shadowTypes = new Dictionary<string, Type>();
     private readonly Dictionary<Type, object> _managersForShadows = new Dictionary<Type, object>();
     private readonly List<(Type Type, Type TrackedEntity)> _trackers = [];
-    private readonly IBatchDbContextFactory _batchDbContextFactory;
-    private readonly BatchManagerForDatabase _managerForDatabase;
     
-    public BatchManagerFactory(IBatchDbContextFactory batchDbContextFactory)
+    public BatchManagerFactory()
     {
-        this._batchDbContextFactory = batchDbContextFactory;
-        this._managerForDatabase = new BatchManagerForDatabase(_batchDbContextFactory);
         MapShadowTypes();
         CacheTrackers();
         CacheManagersForShadows();
@@ -26,11 +22,6 @@ class BatchManagerFactory : IBatchManagerFactory
         var shadowName = evt.ShadowName;
         var shadowType = GetShadowType(shadowName);
         return GetManagersForShadow(shadowType, evt, originalShadow);
-    }
-
-    public IBatchManagerForDatabase GetManagerForDatabase()
-    {
-        return _managerForDatabase;
     }
 
     private Type GetShadowType(string shadowName)
@@ -93,7 +84,7 @@ class BatchManagerFactory : IBatchManagerFactory
     private object CreateBatchManagerForShadow(Type shadowType, string shadowName)
     {
         var cls = typeof(BatchManagerForShadow<>).MakeGenericType(shadowType);
-        return Activator.CreateInstance(cls, [_batchDbContextFactory, shadowType, shadowName, _trackers.ToList()]) ?? throw new InvalidOperationException();
+        return Activator.CreateInstance(cls, [shadowType, shadowName, _trackers.ToList()]) ?? throw new InvalidOperationException();
     }
 
     private IEnumerable<IBatchManagerForEvent> GetManagersForShadow(Type shadowType, EntityChangedIE evt, object? originalShadow)

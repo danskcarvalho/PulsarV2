@@ -9,18 +9,18 @@ using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 
-public class Batch<TShadow, TEntity>(IBatchDbContextFactory factory, ObjectId batchId)
+public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId batchId)
     : IBatchForShadowAndEntity<TShadow, TEntity>
     where TEntity : class, IAggregateRoot
     where TShadow : class, IShadow
 {
-    private readonly IBatchDbContextFactory _factory = factory;
+    private readonly ISyncDbContextFactory _factory = factory;
 
     public async Task Execute()
     {
-        await _factory.Execute<TEntity, int>(async (syncBatchRepository, entityRepository) =>
+        await _factory.Execute<TEntity, int>(async ctx =>
         {
-            var batch = await syncBatchRepository.FindOneByIdAsync(BatchId);
+            var batch = await ctx.SyncBatchRepository.FindOneByIdAsync(BatchId);
             batch = batch ?? throw new InvalidOperationException($"batch not found {BatchId}");
 
             var trackerAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == batch.TrackerAssembly);
@@ -31,7 +31,7 @@ public class Batch<TShadow, TEntity>(IBatchDbContextFactory factory, ObjectId ba
                 ?? throw new InvalidOperationException($"no field named {batch.TrackerRule} on type {batch.TrackerType}");
             var rule = (TrackerUpdateAction<TEntity>)field.GetValue(null)!;
 
-            await ExecuteBatch(entityRepository, rule, batch);
+            await ExecuteBatch(ctx.EntityRepository, rule, batch);
             
             return 0;
         });
@@ -43,7 +43,7 @@ public class Batch<TShadow, TEntity>(IBatchDbContextFactory factory, ObjectId ba
         var shadowType = shadowAssembly.GetType(batch.ShadowType) ??
                          throw new InvalidOperationException($"type not found {batch.ShadowType}");
 
-        var shadow = batch.ShadowJson.FromJson(shadowType)!;
+        var shadow = batch.ShadowJson.FromJsonString(shadowType)!;
         var updSpec = rule.UpdateFunction(shadow);
         
         await entityRepository.UpdateManyAsync(new UpdateManyById(updSpec, batch.EntitiesToUpdate));

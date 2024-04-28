@@ -4,13 +4,13 @@ using Pulsar.BuildingBlocks.Sync.Functions.Entities;
 
 namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 
-public class BatchManagerForDatabase(IBatchDbContextFactory factory) : IBatchManagerForDatabase
+public class BatchManagerForDatabase(ISyncDbContextFactory factory) : IBatchManagerForDatabase
 {
     public async Task<IBatch> GetFromId(ObjectId batchId)
     {
-        return await factory.Execute<IBatch>(async (syncBatchRepository) =>
+        return await factory.Execute<IBatch>(async ctx =>
         {
-            var syncBatch = await syncBatchRepository.FindOneByIdAsync(batchId);
+            var syncBatch = await ctx.SyncBatchRepository.FindOneByIdAsync(batchId);
             if (syncBatch == null)
             {
                 throw new InvalidOperationException("batch not found");
