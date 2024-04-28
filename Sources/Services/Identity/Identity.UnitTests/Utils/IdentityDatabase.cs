@@ -1,10 +1,11 @@
 ﻿using MongoDB.Bson;
 using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
+using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.BuildingBlocks.UnitTests.Mocking.MongoDB;
 using Pulsar.BuildingBlocks.Utils;
+using Pulsar.Services.Facility.Contracts.Shadows;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
-using Pulsar.Services.Identity.Domain.Aggregates.Others;
 using System.Linq.Expressions;
 
 namespace Identity.UnitTests.Utils;
@@ -61,15 +62,15 @@ public static class IdentityDatabase
         usuarioCollection.AddUniqueKey(u => u.Email ?? u.NomeUsuario);
         usuarioCollection.AddUniqueKey(u => u.NomeUsuario);
 
-        var estabelecimentoCollection = db.GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
-        var estabelecimentoPadrao = new Estabelecimento(ObjectId.Parse(EstabelecimentoPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", "00112233",
-            new List<ObjectId> { ObjectId.Parse(RedeEstabelecimentosPadraoId) }, true, new AuditInfo(sid), DateTime.UtcNow);
-        estabelecimentoCollection.InsertManyAsync(new Estabelecimento[] { estabelecimentoPadrao }).Wait();
+        var estabelecimentoCollection = db.GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
+        var estabelecimentoPadrao = new EstabelecimentoShadow(ObjectId.Parse(EstabelecimentoPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", "00112233",
+            new List<ObjectId> { ObjectId.Parse(RedeEstabelecimentosPadraoId) }, true, new AuditInfo(sid).ToDTO(), DateTime.UtcNow);
+        estabelecimentoCollection.InsertManyAsync(new EstabelecimentoShadow[] { estabelecimentoPadrao }).Wait();
 
-        var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
-        var redeEstabelecimentos01 = new RedeEstabelecimentos(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid), DateTime.UtcNow);
-        var redeEstabelecimentos02 = new RedeEstabelecimentos(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid), DateTime.UtcNow);
-        redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentos[] { redeEstabelecimentos01, redeEstabelecimentos02 }).Wait();
+        var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
+        var redeEstabelecimentos01 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid).ToDTO(), DateTime.UtcNow);
+        var redeEstabelecimentos02 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid).ToDTO(), DateTime.UtcNow);
+        redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentosShadow[] { redeEstabelecimentos01, redeEstabelecimentos02 }).Wait();
 
         var dominioCollection = db.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
         var dominioPadrao = new Dominio(ObjectId.Parse(DominioPadraoId), "PADRÃO", samanthaUser.Id, new AuditInfo(sid));

@@ -1,4 +1,6 @@
-﻿using Pulsar.BuildingBlocks.Utils.Bson;
+﻿using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.BuildingBlocks.Utils.Bson;
+using Pulsar.Services.Facility.Contracts.Shadows;
 using Pulsar.Services.Identity.API.Application.BaseTypes;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
@@ -143,7 +145,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
     {
         var gruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS, ReadPref.Primary);
         var dominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS, ReadPref.Primary);
-        var estabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS, ReadPref.Primary);
+        var estabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>(), ReadPref.Primary);
 
         var allIds = new ObjectId[] { usuario.Id };
         var grupos = await GruposCollection.FindAsync(Filters.Grupos.Create(f =>

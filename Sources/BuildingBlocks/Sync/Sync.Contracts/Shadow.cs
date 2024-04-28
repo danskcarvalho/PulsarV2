@@ -14,6 +14,11 @@ public class Shadow : AggregateRoot, IShadow
     {
     }
 
+    public Shadow(ObjectId id, DateTime timeStamp) : base(id)
+    {
+        this.TimeStamp = timeStamp;
+    }
+
     public DateTime TimeStamp { get; set; }
 
     public static string GetCollectionName<T>()

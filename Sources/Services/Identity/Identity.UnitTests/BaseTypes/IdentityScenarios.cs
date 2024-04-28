@@ -3,11 +3,12 @@ using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
-using Pulsar.Services.Identity.Domain.Aggregates.Others;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Functions.Application.Functions;
 using Pulsar.Services.Identity.Domain;
+using Pulsar.Services.Facility.Contracts.Shadows;
+using Pulsar.BuildingBlocks.Sync.Contracts;
 
 namespace Identity.UnitTests.BaseTypes;
 
@@ -22,8 +23,8 @@ public partial class IdentityScenarios : IDisposable
     protected IMockedCollection<Convite> Convites => Database.GetCollection<Convite>(Constants.CollectionNames.CONVITES);
     protected IMockedCollection<Usuario> Usuarios => Database.GetCollection<Usuario>(Constants.CollectionNames.USUARIOS);
     protected IMockedCollection<Dominio> Dominios => Database.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
-    protected IMockedCollection<Estabelecimento> Estabelecimentos => Database.GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
-    protected IMockedCollection<RedeEstabelecimentos> RedesEstabelecimentos => Database.GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
+    protected IMockedCollection<EstabelecimentoShadow> Estabelecimentos => Database.GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
+    protected IMockedCollection<RedeEstabelecimentosShadow> RedesEstabelecimentos => Database.GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
     protected IMockedCollection<Grupo> Grupos => Database.GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
 
     public IdentityScenarios()

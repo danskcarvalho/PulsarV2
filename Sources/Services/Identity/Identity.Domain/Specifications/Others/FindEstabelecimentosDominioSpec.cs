@@ -1,8 +1,8 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Others;
+﻿using Pulsar.Services.Facility.Contracts.Shadows;
 
 namespace Pulsar.Services.Identity.Domain.Specifications.Others;
 
-public class FindEstabelecimentosDominioSpec : IFindSpecification<Estabelecimento>
+public class FindEstabelecimentosDominioSpec : IFindSpecification<EstabelecimentoShadow>
 {
     public FindEstabelecimentosDominioSpec(ObjectId dominioId)
     {
@@ -11,8 +11,8 @@ public class FindEstabelecimentosDominioSpec : IFindSpecification<Estabeleciment
 
     public ObjectId DominioId { get; }
 
-    public FindSpecification<Estabelecimento> GetSpec()
+    public FindSpecification<EstabelecimentoShadow> GetSpec()
     {
-        return Find.Where<Estabelecimento>(x => x.DominioId == DominioId).Build();
+        return Find.Where<EstabelecimentoShadow>(x => x.DominioId == DominioId).Build();
     }
 }

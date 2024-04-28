@@ -1,6 +1,7 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Abstractions;
 using Pulsar.BuildingBlocks.DDD.Contexts;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
+using Pulsar.Services.Facility.Contracts.Shadows;
 
 namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
@@ -8,9 +9,9 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
 {
     protected IConviteRepository ConviteRepository { get; }
     protected IDominioRepository DominioRepository { get; }
-    protected IEstabelecimentoRepository EstabelecimentoRepository { get; }
+    protected IShadowRepository<EstabelecimentoShadow> EstabelecimentoRepository { get; }
     protected IGrupoRepository GrupoRepository { get; }
-    protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
+    protected IShadowRepository<RedeEstabelecimentosShadow> RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
     protected ILogger Logger { get; }
     public ISaveIntegrationEventLog EventLog { get; }
@@ -19,9 +20,9 @@ public abstract class IdentityCommandHandler<TRequest> : CommandHandler<TRequest
     {
         ConviteRepository = (IConviteRepository)ctx.Repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)ctx.Repositories.First(r => r is IDominioRepository);
-        EstabelecimentoRepository = (IEstabelecimentoRepository)ctx.Repositories.First(r => r is IEstabelecimentoRepository);
+        EstabelecimentoRepository = (IShadowRepository<EstabelecimentoShadow>)ctx.Repositories.First(r => r is IShadowRepository<EstabelecimentoShadow>);
         GrupoRepository = (IGrupoRepository)ctx.Repositories.First(r => r is IGrupoRepository);
-        RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)ctx.Repositories.First(r => r is IRedeEstabelecimentosRepository);
+        RedeEstabelecimentosRepository = (IShadowRepository<RedeEstabelecimentosShadow>)ctx.Repositories.First(r => r is IShadowRepository<RedeEstabelecimentosShadow>);
         UsuarioRepository = (IUsuarioRepository)ctx.Repositories.First(r => r is IUsuarioRepository);
         Logger = ctx.Logger;
         EventLog = ctx.EventLog;
@@ -32,9 +33,9 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
 {
     protected IConviteRepository ConviteRepository { get; }
     protected IDominioRepository DominioRepository { get; }
-    protected IEstabelecimentoRepository EstabelecimentoRepository { get; }
+    protected IShadowRepository<EstabelecimentoShadow> EstabelecimentoRepository { get; }
     protected IGrupoRepository GrupoRepository { get; }
-    protected IRedeEstabelecimentosRepository RedeEstabelecimentosRepository { get; }
+    protected IShadowRepository<RedeEstabelecimentosShadow> RedeEstabelecimentosRepository { get; }
     protected IUsuarioRepository UsuarioRepository { get; }
     protected ILogger Logger { get; }
     public ISaveIntegrationEventLog EventLog { get; }
@@ -43,9 +44,9 @@ public abstract class IdentityCommandHandler<TRequest, TResponse> : CommandHandl
     {
         ConviteRepository = (IConviteRepository)ctx.Repositories.First(r => r is IConviteRepository);
         DominioRepository = (IDominioRepository)ctx.Repositories.First(r => r is IDominioRepository);
-        EstabelecimentoRepository = (IEstabelecimentoRepository)ctx.Repositories.First(r => r is IEstabelecimentoRepository);
+        EstabelecimentoRepository = (IShadowRepository<EstabelecimentoShadow>)ctx.Repositories.First(r => r is IShadowRepository<EstabelecimentoShadow>);
         GrupoRepository = (IGrupoRepository)ctx.Repositories.First(r => r is IGrupoRepository);
-        RedeEstabelecimentosRepository = (IRedeEstabelecimentosRepository)ctx.Repositories.First(r => r is IRedeEstabelecimentosRepository);
+        RedeEstabelecimentosRepository = (IShadowRepository<RedeEstabelecimentosShadow>)ctx.Repositories.First(r => r is IShadowRepository<RedeEstabelecimentosShadow>);
         UsuarioRepository = (IUsuarioRepository)ctx.Repositories.First(r => r is IUsuarioRepository);
         Logger = ctx.Logger;
         EventLog = ctx.EventLog;

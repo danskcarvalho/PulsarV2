@@ -4,7 +4,6 @@ global using Pulsar.BuildingBlocks.DDD.Abstractions;
 global using Pulsar.Services.Identity.Domain.Aggregates.Convites;
 global using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 global using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
-global using Pulsar.Services.Identity.Domain.Aggregates.Others;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 global using Pulsar.BuildingBlocks.DDD.Mongo;
 global using Pulsar.BuildingBlocks.EventBus;

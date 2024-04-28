@@ -1,4 +1,6 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+﻿using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.Services.Facility.Contracts.Shadows;
+using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
 namespace Pulsar.Services.Identity.API.Application.BaseTypes;
 
@@ -10,8 +12,8 @@ public class IdentityQueries : QueryHandler
         DominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
         ConvitesCollection = GetCollection<Convite>(Constants.CollectionNames.CONVITES);
         GruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
-        EstabelecimentosCollection = GetCollection<Estabelecimento>(Constants.CollectionNames.ESTABELECIMENTOS);
-        RedesEstabelecimentosCollection = GetCollection<RedeEstabelecimentos>(Constants.CollectionNames.REDES_ESTABELECIMENTOS);
+        EstabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
+        RedesEstabelecimentosCollection = GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
         Filters = new IdentityFilterContext();
     }
 
@@ -19,8 +21,8 @@ public class IdentityQueries : QueryHandler
     protected IMongoCollection<Dominio> DominiosCollection { get; private set; }
     protected IMongoCollection<Convite> ConvitesCollection { get; private set; }
     protected IMongoCollection<Grupo> GruposCollection { get; private set; }
-    protected IMongoCollection<Estabelecimento> EstabelecimentosCollection { get; private set; }
-    protected IMongoCollection<RedeEstabelecimentos> RedesEstabelecimentosCollection { get; private set; }
+    protected IMongoCollection<EstabelecimentoShadow> EstabelecimentosCollection { get; private set; }
+    protected IMongoCollection<RedeEstabelecimentosShadow> RedesEstabelecimentosCollection { get; private set; }
     protected IdentityFilterContext Filters { get; private set; }
 }
 
@@ -42,8 +44,8 @@ public class IdentityFilterContext
     public FilterDefinitionBuilder<Dominio> Dominios => Builders<Dominio>.Filter;
     public FilterDefinitionBuilder<Convite> Convites => Builders<Convite>.Filter;
     public FilterDefinitionBuilder<Grupo> Grupos => Builders<Grupo>.Filter;
-    public FilterDefinitionBuilder<Estabelecimento> Estabelecimentos => Builders<Estabelecimento>.Filter;
-    public FilterDefinitionBuilder<RedeEstabelecimentos> RedesEstabelecimentos => Builders<RedeEstabelecimentos>.Filter;
+    public FilterDefinitionBuilder<EstabelecimentoShadow> Estabelecimentos => Builders<EstabelecimentoShadow>.Filter;
+    public FilterDefinitionBuilder<RedeEstabelecimentosShadow> RedesEstabelecimentos => Builders<RedeEstabelecimentosShadow>.Filter;
 
     public FilterDefinition<T> Bson<T>(BsonDocument bson) where T : class
     {
@@ -69,11 +71,11 @@ public static class IdentityCreateFilterExtensions
     {
         return lambda(builder);
     }
-    public static FilterDefinition<Estabelecimento> Create(this FilterDefinitionBuilder<Estabelecimento> builder, Func<FilterDefinitionBuilder<Estabelecimento>, FilterDefinition<Estabelecimento>> lambda)
+    public static FilterDefinition<EstabelecimentoShadow> Create(this FilterDefinitionBuilder<EstabelecimentoShadow> builder, Func<FilterDefinitionBuilder<EstabelecimentoShadow>, FilterDefinition<EstabelecimentoShadow>> lambda)
     {
         return lambda(builder);
     }
-    public static FilterDefinition<RedeEstabelecimentos> Create(this FilterDefinitionBuilder<RedeEstabelecimentos> builder, Func<FilterDefinitionBuilder<RedeEstabelecimentos>, FilterDefinition<RedeEstabelecimentos>> lambda)
+    public static FilterDefinition<RedeEstabelecimentosShadow> Create(this FilterDefinitionBuilder<RedeEstabelecimentosShadow> builder, Func<FilterDefinitionBuilder<RedeEstabelecimentosShadow>, FilterDefinition<RedeEstabelecimentosShadow>> lambda)
     {
         return lambda(builder);
     }
@@ -94,12 +96,12 @@ public static class IdentityCreateFilterExtensions
     {
         return new BsonDocumentFilterDefinition<Grupo>(bson);
     }
-    public static FilterDefinition<Estabelecimento> Bson(this FilterDefinitionBuilder<Estabelecimento> builder, BsonDocument bson)
+    public static FilterDefinition<EstabelecimentoShadow> Bson(this FilterDefinitionBuilder<EstabelecimentoShadow> builder, BsonDocument bson)
     {
-        return new BsonDocumentFilterDefinition<Estabelecimento>(bson);
+        return new BsonDocumentFilterDefinition<EstabelecimentoShadow>(bson);
     }
-    public static FilterDefinition<RedeEstabelecimentos> Bson(this FilterDefinitionBuilder<RedeEstabelecimentos> builder, BsonDocument bson)
+    public static FilterDefinition<RedeEstabelecimentosShadow> Bson(this FilterDefinitionBuilder<RedeEstabelecimentosShadow> builder, BsonDocument bson)
     {
-        return new BsonDocumentFilterDefinition<RedeEstabelecimentos>(bson);
+        return new BsonDocumentFilterDefinition<RedeEstabelecimentosShadow>(bson);
     }
 }

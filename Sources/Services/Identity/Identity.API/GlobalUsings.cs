@@ -6,7 +6,6 @@ global using MongoDB.Driver;
 global using Pulsar.Services.Identity.Domain.Aggregates.Convites;
 global using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 global using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
-global using Pulsar.Services.Identity.Domain.Aggregates.Others;
 global using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 global using Pulsar.Services.Identity.Contracts.DTOs;
 global using Pulsar.BuildingBlocks.Utils;

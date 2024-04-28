@@ -1,5 +1,4 @@
 ﻿using Pulsar.Services.Facility.Contracts.Shadows;
-using Pulsar.Services.Identity.Domain.Aggregates.Others;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 namespace Pulsar.Services.Identity.Migrations.Schema;

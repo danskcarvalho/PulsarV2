@@ -12,7 +12,7 @@ public class RedeEstabelecimentosShadow : Shadow
     public AuditInfoDTO AuditInfo { get; set; }
 
     [JsonConstructor, BsonConstructor]
-    public RedeEstabelecimentosShadow(ObjectId id, ObjectId dominioId, string nome, AuditInfoDTO auditInfo) : base(id)
+    public RedeEstabelecimentosShadow(ObjectId id, ObjectId dominioId, string nome, AuditInfoDTO auditInfo, DateTime timeStamp) : base(id, timeStamp)
     {
         DominioId = dominioId;
         Nome = nome;
