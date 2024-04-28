@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Pulsar.Services.Facility.Contracts.Shadows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +35,11 @@ builder.Services.AddControllersWithViews().AddJsonOptions(j =>
 builder.Services.AddSingleton<MongoStoreConnection>();
 builder.Services.AddRazorPages();
 builder.Services.AddQueries();
-builder.Services.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
+builder.Services.AddMongoDB(
+    typeof(UsuarioMongoRepository).Assembly,
+    // shadows
+    typeof(EstabelecimentoShadow).Assembly
+    );
 builder.Services.AddValidators(typeof(EsqueciMinhaSenhaCmd).Assembly);
 builder.Services.AddMediatR(c =>
 {

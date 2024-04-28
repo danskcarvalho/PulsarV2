@@ -5,7 +5,7 @@ namespace Pulsar.BuildingBlocks.Sync.Contracts;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class ShadowAttribute : Attribute
 {
-    public string Name { get; set; }
+    public string Name { get; }
 
     public ShadowAttribute(string name)
     {

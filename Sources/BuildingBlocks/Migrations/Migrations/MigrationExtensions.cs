@@ -5,16 +5,19 @@ namespace Pulsar.BuildingBlocks.Migrations
 {
     public static class MigrationsExtensions
     {
-        public static async Task UpIndexes(this Migration mig, Assembly assembly)
+        public static async Task UpIndexes(this Migration mig, params Assembly[] assembliesToScan)
         {
             if (mig.Database == null)
                 return;
 
-            var descriptors = IndexDescriptions.AllDescriptors(assembly).ToList();
-
-            foreach (var desc in descriptors)
+            foreach (var assembly in assembliesToScan)
             {
-                await MigrateIndexesForCollection(desc.ModelType, mig, desc);
+                var descriptors = IndexDescriptions.AllDescriptors(assembly).ToList();
+
+                foreach (var desc in descriptors)
+                {
+                    await MigrateIndexesForCollection(desc.ModelType, mig, desc);
+                }
             }
         }
 

@@ -1,4 +1,10 @@
-﻿namespace Pulsar.BuildingBlocks.DDD;
+﻿using MediatR;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Pulsar.BuildingBlocks.DDD.Abstractions;
+using System.ComponentModel;
+
+namespace Pulsar.BuildingBlocks.DDD;
 
 public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 {

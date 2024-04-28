@@ -31,6 +31,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Migrations\Migrations.EventBus\Migrations.EventBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Migrations\Migrations\Migrations.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Testing\DataFactory\DataFactory.csproj" />
+    <ProjectReference Include="..\..\Facility\Facility.Contracts\Facility.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
   </ItemGroup>
 

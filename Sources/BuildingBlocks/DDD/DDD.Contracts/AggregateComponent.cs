@@ -1,4 +1,8 @@
-﻿namespace Pulsar.BuildingBlocks.DDD;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Pulsar.BuildingBlocks.DDD.Abstractions;
+using System.ComponentModel;
+
+namespace Pulsar.BuildingBlocks.DDD;
 
 public class AggregateComponent : IAggregateComponent
 {

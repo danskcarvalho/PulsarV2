@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Pulsar.Services.Facility.Contracts.Shadows;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -11,7 +12,11 @@ var host = new HostBuilder()
     })
     .ConfigureServices(s =>
     {
-        s.AddMongoDB(typeof(UsuarioMongoRepository).Assembly);
+        s.AddMongoDB(
+            typeof(UsuarioMongoRepository).Assembly,
+            // shadows
+            typeof(EstabelecimentoShadow).Assembly
+            );
         s.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(Program).Assembly);

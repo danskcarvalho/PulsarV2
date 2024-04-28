@@ -1,4 +1,6 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+﻿using Pulsar.Services.Facility.Contracts.Shadows;
+using Pulsar.Services.Identity.Domain.Aggregates.Others;
+using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 namespace Pulsar.Services.Identity.Migrations.Schema;
 
@@ -7,6 +9,10 @@ public class AddIndexes : Migration
 {
     public override async Task Up()
     {
-        await this.UpIndexes(typeof(Usuario).Assembly);
+        await this.UpIndexes(
+            typeof(Usuario).Assembly,
+            // shadows
+            typeof(EstabelecimentoShadow).Assembly
+            );
     }
 }
