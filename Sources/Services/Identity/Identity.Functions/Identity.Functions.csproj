@@ -24,9 +24,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.17.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" />
     <PackageReference Include="MediatR" Version="12.2.0" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +45,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD\DDD.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Sync\Sync.Functions\Sync.Functions.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
     <ProjectReference Include="..\..\Facility\Facility.Contracts\Facility.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\Shared\Shared.csproj" />

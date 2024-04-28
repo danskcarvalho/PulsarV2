@@ -1,5 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
 using MongoDB.Bson;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.BuildingBlocks.Sync.Functions.Abstractions;
@@ -30,7 +30,7 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
                     var trigger = parameters[0].GetCustomAttributes<ActivityTriggerAttribute>();
                     if (trigger != null)
                     {
-                        var attr = method.GetCustomAttribute<FunctionNameAttribute>() ?? throw new InvalidOperationException("no FunctionName on method");
+                        var attr = method.GetCustomAttribute<FunctionAttribute>() ?? throw new InvalidOperationException("no FunctionName on method");
                         _activityFunctionName = attr.Name;
                     }
                 }
@@ -39,9 +39,9 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
             _activityFunctionName = _activityFunctionName ?? throw new InvalidOperationException("no activity function found");
             this._factory = factory;
         }
-        public async Task Execute(IDurableOrchestrationContext context)
+        public async Task Execute(TaskOrchestrationContext context)
         {
-            var @event = context.GetInput<string>().FromJsonString<EntityChangedIE>();
+            var @event = context.GetInput<string>()?.FromJsonString<EntityChangedIE>() ?? throw new InvalidOperationException("no input for orchestrator");
             var data = (new PortableActivityDescription(PortableActivityDescription.PREPARE_BATCHES, @event, null)).ToJsonString();
             var strResult = await context.CallActivityAsync<string>(_activityFunctionName, data);
             var result = strResult.FromJsonString<PrepareBatchesActivityDescriptionResult>() ?? throw new InvalidOperationException("no batches to process (returned null)");

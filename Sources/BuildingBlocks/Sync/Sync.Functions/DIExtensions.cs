@@ -12,6 +12,7 @@ public static class DIExtensions
         col.AddSingleton<IBatchManagerFactory, BatchManagerFactory>();
         col.AddTransient<ISyncActivity, SyncActivity>();
         col.AddTransient(typeof(ISyncOrchestrator<>), typeof(SyncOrchestrator<>));
+        col.AddTransient(typeof(ISyncOrchestratorStarter<>), typeof(SyncOrchestratorStarter<>));
         col.AddTransient<ISyncDbContextFactory, SyncDbContextFactory>();
 
         return col;

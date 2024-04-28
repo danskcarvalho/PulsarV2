@@ -1,6 +1,5 @@
 using System.Reflection;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using MongoDB.Driver;
 using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.DDD.Abstractions;

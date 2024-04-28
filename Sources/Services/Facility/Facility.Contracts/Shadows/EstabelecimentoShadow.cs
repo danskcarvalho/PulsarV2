@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 
 namespace Pulsar.Services.Facility.Contracts.Shadows;
@@ -13,6 +14,7 @@ public partial class EstabelecimentoShadow : Shadow
     public bool IsAtivo { get; set; }
     public AuditInfoDTO AuditInfo { get; set; }
 
+    [JsonConstructor, BsonConstructor]
     public EstabelecimentoShadow(ObjectId id, ObjectId dominioId, string nome, string cnes, List<ObjectId> redes, bool isAtivo, AuditInfoDTO auditInfo) : base(id)
     {
         DominioId = dominioId;
@@ -23,7 +25,4 @@ public partial class EstabelecimentoShadow : Shadow
         AuditInfo = auditInfo;
     }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public EstabelecimentoShadow() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

@@ -119,15 +119,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Contracts", "Servic
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sync", "Sync", "{C6F05BAC-CF01-4B41-8A1B-D346F9DCC3B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Contracts", "BuildingBlocks\Sync\Sync.Contracts\Sync.Contracts.csproj", "{3D9C09D6-DF87-4F20-A64B-88F97660F4C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sync.Contracts", "BuildingBlocks\Sync\Sync.Contracts\Sync.Contracts.csproj", "{3D9C09D6-DF87-4F20-A64B-88F97660F4C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Domain", "BuildingBlocks\Sync\Sync.Domain\Sync.Domain.csproj", "{60E41B80-C753-4353-9815-E92231219D4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sync.Domain", "BuildingBlocks\Sync\Sync.Domain\Sync.Domain.csproj", "{60E41B80-C753-4353-9815-E92231219D4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Services", "BuildingBlocks\Sync\Sync.Services\Sync.Services.csproj", "{7AB5006F-933E-4F18-9E4D-AEE09167960C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sync.Services", "BuildingBlocks\Sync\Sync.Services\Sync.Services.csproj", "{7AB5006F-933E-4F18-9E4D-AEE09167960C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Functions", "BuildingBlocks\Sync\Sync.Functions\Sync.Functions.csproj", "{2E48FC40-A186-49BE-A333-E1DEFF104313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sync.Functions", "BuildingBlocks\Sync\Sync.Functions\Sync.Functions.csproj", "{2E48FC40-A186-49BE-A333-E1DEFF104313}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDD.Contracts", "BuildingBlocks\DDD\DDD.Contracts\DDD.Contracts.csproj", "{F861311C-CAF7-4CB1-9E72-7211B777B9CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.Contracts", "BuildingBlocks\DDD\DDD.Contracts\DDD.Contracts.csproj", "{F861311C-CAF7-4CB1-9E72-7211B777B9CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
