@@ -13,5 +13,5 @@ var host = Host.CreateDefaultBuilder(args)
 var migrator = host.Services.GetRequiredService<Migrator>();
 
 await migrator
-    .AddAssembly(typeof(AtualizarEstabelecimentoFN).Assembly)
+    .AddAssembly(typeof(SyncFacilityFN).Assembly)
     .Migrate();

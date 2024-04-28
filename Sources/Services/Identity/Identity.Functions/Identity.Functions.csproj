@@ -53,4 +53,8 @@
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Application\Commands\" />
+    <Folder Include="Application\DomainEvents\" />
+  </ItemGroup>
 </Project>

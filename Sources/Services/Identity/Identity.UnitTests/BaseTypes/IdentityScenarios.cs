@@ -58,7 +58,7 @@ public partial class IdentityScenarios : IDisposable
         collection.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(IdentityController).Assembly);
-            c.RegisterServicesFromAssembly(typeof(AtualizarEstabelecimentoFN).Assembly);
+            c.RegisterServicesFromAssembly(typeof(SyncFacilityFN).Assembly);
         });
         AddMockedQueries(collection);
         AddControllers(collection);
@@ -110,8 +110,6 @@ public partial class IdentityScenarios : IDisposable
 
     private void AddFunctions(ServiceCollection collection)
     {
-        collection.AddTransient<AtualizarRedeEstabelecimentosFN>();
-        collection.AddTransient<AtualizarEstabelecimentoFN>();
     }
 
     public void Dispose()
