@@ -16,6 +16,16 @@ public class ShadowAttribute : Attribute
     {
         return assembliesToScan.SelectMany(a => a.GetTypes())
             .Where(x => x.GetCustomAttribute<ShadowAttribute>() != null)
-            .Select(x => (x, x.GetCustomAttribute<ShadowAttribute>()!));
+            .Select(x => (ValidateShadowType(x), x.GetCustomAttribute<ShadowAttribute>()!));
+    }
+
+    private static Type ValidateShadowType(Type type)
+    {
+        if (!typeof(IShadow).IsAssignableFrom(type))
+        {
+            throw new InvalidOperationException($"type {type.FullName} does not implement IShadow");
+        }
+
+        return type;
     }
 }

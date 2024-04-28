@@ -8,7 +8,7 @@ using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 
-class BatchManagerForShadow<TShadow> : IBatchManagerForShadow where TShadow : class
+class BatchManagerForShadow<TShadow> : IBatchManagerForShadow where TShadow : class, IShadow
 {
     private readonly Type _shadowType;
     private readonly string _shadowName;

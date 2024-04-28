@@ -314,7 +314,7 @@ class SourceTypeMetadata
     {
         abstract public void Intercept(object source, object shadow);
     }
-    class ShadowInterception<TSource, TShadow> : ShadowInterception where TShadow : class where TSource : class
+    class ShadowInterception<TSource, TShadow> : ShadowInterception where TShadow : class, IShadow where TSource : class
     {
         void Intercept(TSource source, TShadow shadow)
         {

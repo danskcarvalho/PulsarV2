@@ -12,7 +12,7 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 public class Batch<TShadow, TEntity>(IBatchDbContextFactory factory, ObjectId batchId)
     : IBatchForShadowAndEntity<TShadow, TEntity>
     where TEntity : class, IAggregateRoot
-    where TShadow : class
+    where TShadow : class, IShadow
 {
     private readonly IBatchDbContextFactory _factory = factory;
 

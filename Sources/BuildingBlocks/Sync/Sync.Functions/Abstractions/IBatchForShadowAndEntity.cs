@@ -4,6 +4,6 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 
 namespace Pulsar.BuildingBlocks.Sync.Functions.Abstractions;
 
-public interface IBatchForShadowAndEntity<out TShadow, TEntity> : IBatch where TShadow : class where TEntity : class, IAggregateRoot
+public interface IBatchForShadowAndEntity<out TShadow, TEntity> : IBatch where TShadow : class, IShadow where TEntity : class, IAggregateRoot
 {
 }

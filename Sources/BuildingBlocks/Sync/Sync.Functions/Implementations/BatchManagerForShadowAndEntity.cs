@@ -17,7 +17,7 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
     FieldInfo rule,
     TrackerUpdateAction updateAction)
     : IBatchManagerForShadowAndEntity<TShadow, TEntity>
-    where TShadow : class
+    where TShadow : class, IShadow
     where TEntity : class, IAggregateRoot
 {
     private const int PARTITION_SIZE = 10_000;
