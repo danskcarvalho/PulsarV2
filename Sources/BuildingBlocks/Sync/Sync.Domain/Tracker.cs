@@ -38,10 +38,10 @@ public class Tracker<TCollectionType> : Tracker
 
         public TrackerUpdateAction Update(Func<TShadow, IUpdateSpecification<TCollectionType>> updateFunction)
         {
-            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetEntityName(), _OnChanged, _EventKey, obj => updateFunction((TShadow)obj));
+            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _OnChanged, _EventKey, obj => updateFunction((TShadow)obj));
         }
 
-        private string GetEntityName()
+        private string GetShadowName()
         {
             var attr = typeof(TShadow).GetCustomAttribute<ShadowAttribute>();
             if (attr == null)

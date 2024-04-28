@@ -68,7 +68,7 @@ public static class DIExtensions
         return col;
     }
 
-    private static void AddShadowRepositories(IServiceCollection col, Assembly[] assembliesToScan)
+    public static void AddShadowRepositories(IServiceCollection col, Assembly[] assembliesToScan)
     {
         var types = ShadowAttribute.GetShadowTypes(assembliesToScan);
 
@@ -82,7 +82,7 @@ public static class DIExtensions
         }
     }
 
-    private static void AddQueryHandlers(IServiceCollection col, Assembly[] assembliesToScan)
+    public static void AddQueryHandlers(IServiceCollection col, Assembly[] assembliesToScan)
     {
         foreach (var assembly in assembliesToScan)
         {
@@ -98,7 +98,7 @@ public static class DIExtensions
         }
     }
 
-    private static void AddRepositories(IServiceCollection col, Assembly[] assembliesToScan)
+    public static void AddRepositories(IServiceCollection col, Assembly[] assembliesToScan)
     {
         foreach (var assembly in assembliesToScan)
         {
@@ -110,9 +110,14 @@ public static class DIExtensions
 
             foreach (var repoType in types)
             {
-                var interfaceType = repoType.GetInterfaces().Where(t => t.GetInterfaces().Any(s => s.IsGenericType && s.GetGenericTypeDefinition() == typeof(IRepository<,>))).First();
+                var interfaceType = repoType.GetInterfaces().First(t => t.GetInterfaces().Any(s => s.IsGenericType && s.GetGenericTypeDefinition() == typeof(IRepository<,>)));
+                var entityType = interfaceType.GetInterfaces().First(t =>
+                        t.IsConstructedGenericType && t.GetGenericTypeDefinition() == typeof(IRepository<,>))
+                    .GetGenericArguments()[1];
+                var baseInterfaceType = typeof(IRepositoryBase<>).MakeGenericType(entityType);
                 col.AddTransient(repoType);
                 col.AddTransient(interfaceType, repoType);
+                col.AddTransient(baseInterfaceType, repoType);
                 col.AddTransient(typeof(IIsRepository), repoType);
             }
         }

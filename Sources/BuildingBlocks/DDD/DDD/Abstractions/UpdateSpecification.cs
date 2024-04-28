@@ -50,6 +50,13 @@ public class UpdateSpecificationBuilder<TModel>
         _Predicate = predicate;
     }
 
+    public UpdateSpecificationBuilder<TModel> CopyCommandsFrom(IUpdateSpecification<TModel> spec)
+    {
+        _Commands.Clear();
+        _Commands.AddRange(spec.GetSpec().Commands);
+        return this;
+    }
+
     public UpdateSpecificationBuilder<TModel> Set<TField>(Expression<Func<TModel, TField>> Expression, TField Value)
     {
         _Commands.Add(new SetUpdateCommand<TModel, TField>(Expression, Value));

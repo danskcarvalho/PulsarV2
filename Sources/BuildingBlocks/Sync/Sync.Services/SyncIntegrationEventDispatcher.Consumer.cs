@@ -166,7 +166,14 @@ public partial class SyncIntegrationEventDispatcher
 
                     var shadow = CreateShadow(model, out var entityName);
                     var json = ToJson(shadow);
-                    var evt = new EntityChangedIE(entityName, changeEvent.EventKey, model.Id, json, changeEvent.When);
+                    var evt = new EntityChangedIE
+                    {
+                        ChangeTimestamp = changeEvent.When,
+                        ShadowJson = json,
+                        ShadowName = entityName,
+                        ChangedEntityId = model.Id,
+                        EventKey = changeEvent.EventKey
+                    };
                     await _eventLog.SaveEventAsync(evt);
                 }
                 catch (Exception ex)

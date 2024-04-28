@@ -1,9 +1,13 @@
-﻿namespace Pulsar.BuildingBlocks.DDD.Abstractions;
+﻿using System.ComponentModel;
+using MediatR;
+using MongoDB.Bson;
+
+namespace Pulsar.BuildingBlocks.DDD.Abstractions;
 
 public interface IAggregateRoot : ISupportInitialize
 {
     ObjectId Id { get; }
-    long Version { get; }
+    long Version { get; set; }
     bool IsTransient { get; }
 
     IReadOnlyCollection<INotification> DomainEvents { get; }

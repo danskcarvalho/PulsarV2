@@ -8,7 +8,9 @@ public abstract class IndexDescriptions
     public Dictionary<string, IX> AllIndexes()
     {
         Dictionary<string, IX> result = new Dictionary<string, IX>();
-        var keys = this.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType == typeof(IX)).Select(f => (f.Name, IX: f.GetValue(null) as IX));
+        var keys = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(IX))
+            .Select(f => (f.Name, IX: f.GetValue(null) as IX));
         foreach (var k in keys)
         {
             result[k.Name.ToLowerInvariant()] = k.IX ?? throw new InvalidOperationException("null index");

@@ -127,6 +127,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Services", "BuildingBl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync.Functions", "BuildingBlocks\Sync\Sync.Functions\Sync.Functions.csproj", "{2E48FC40-A186-49BE-A333-E1DEFF104313}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDD.Contracts", "BuildingBlocks\DDD\DDD.Contracts\DDD.Contracts.csproj", "{F861311C-CAF7-4CB1-9E72-7211B777B9CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -285,6 +287,10 @@ Global
 		{2E48FC40-A186-49BE-A333-E1DEFF104313}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E48FC40-A186-49BE-A333-E1DEFF104313}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E48FC40-A186-49BE-A333-E1DEFF104313}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F861311C-CAF7-4CB1-9E72-7211B777B9CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F861311C-CAF7-4CB1-9E72-7211B777B9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F861311C-CAF7-4CB1-9E72-7211B777B9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F861311C-CAF7-4CB1-9E72-7211B777B9CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -351,6 +357,7 @@ Global
 		{60E41B80-C753-4353-9815-E92231219D4F} = {C6F05BAC-CF01-4B41-8A1B-D346F9DCC3B6}
 		{7AB5006F-933E-4F18-9E4D-AEE09167960C} = {C6F05BAC-CF01-4B41-8A1B-D346F9DCC3B6}
 		{2E48FC40-A186-49BE-A333-E1DEFF104313} = {C6F05BAC-CF01-4B41-8A1B-D346F9DCC3B6}
+		{F861311C-CAF7-4CB1-9E72-7211B777B9CC} = {1702772E-678D-42DC-B000-2DA267EEE155}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}

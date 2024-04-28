@@ -8,7 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Abstractions/" />
+    <ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+    <ProjectReference Include="..\..\DDD\DDD\DDD.csproj" />
+    <ProjectReference Include="..\Sync.Contracts\Sync.Contracts.csproj" />
+    <ProjectReference Include="..\Sync.Domain\Sync.Domain.csproj" />
   </ItemGroup>
 
 </Project>

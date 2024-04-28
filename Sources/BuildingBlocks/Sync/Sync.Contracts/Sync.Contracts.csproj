@@ -7,4 +7,13 @@
     <RootNamespace>Pulsar.BuildingBlocks.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="2.25.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DDD\DDD.Contracts\DDD.Contracts.csproj" />
+    <ProjectReference Include="..\..\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

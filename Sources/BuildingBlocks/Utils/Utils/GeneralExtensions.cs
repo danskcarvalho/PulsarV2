@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
 using System.Text.Json;
+using MongoDB.Bson;
 
 namespace Pulsar.BuildingBlocks.Utils;
 
@@ -155,6 +156,14 @@ public static partial class GeneralExtensions
         var json = JsonSerializer.Serialize(obj, obj.GetType(), options);
         return Encoding.UTF8.GetBytes(json).ToSafeBase64();
     }
+    
+    public static string ToJson(this object obj)
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        return JsonSerializer.Serialize(obj, obj.GetType(), options);
+    }
+    
     public static T? FromBase64Json<T>(this string json)
     {
         var options = new JsonSerializerOptions();
@@ -162,6 +171,19 @@ public static partial class GeneralExtensions
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, options);
     }
+    public static T? FromJson<T>(this string json)
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        return JsonSerializer.Deserialize<T>(json, options);
+    }
+    public static object? FromJson(this string json, Type type)
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        return JsonSerializer.Deserialize(json, type, options);
+    }
+    
     public static object? FromBase64Json(this string json, Type type)
     {
         var options = new JsonSerializerOptions();
