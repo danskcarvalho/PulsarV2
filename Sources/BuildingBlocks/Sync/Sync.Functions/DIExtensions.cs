@@ -6,7 +6,7 @@ namespace Pulsar.BuildingBlocks.Sync.Functions;
 
 public static class DIExtensions
 {
-    public static IServiceCollection AddSyncFunctionServices(IServiceCollection col)
+    public static IServiceCollection AddSyncFunctionServices(this IServiceCollection col)
     {
         col.AddTransient<IBatchActivity, BatchActivity>();
         col.AddSingleton<IBatchManagerFactory, BatchManagerFactory>();

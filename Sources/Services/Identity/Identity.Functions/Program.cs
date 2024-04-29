@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Pulsar.BuildingBlocks.Sync.Functions;
 using Pulsar.Services.Facility.Contracts.Shadows;
 
 var host = new HostBuilder()
@@ -17,6 +18,7 @@ var host = new HostBuilder()
             // shadows
             typeof(EstabelecimentoShadow).Assembly
             );
+        s.AddSyncFunctionServices();
         s.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(Program).Assembly);
