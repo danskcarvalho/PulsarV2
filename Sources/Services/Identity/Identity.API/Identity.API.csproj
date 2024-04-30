@@ -50,5 +50,9 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\DomainEvents\Dominios\" />
+  </ItemGroup>
+
 
 </Project>
