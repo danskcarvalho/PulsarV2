@@ -14,6 +14,14 @@ public class SyncActivity(IBatchActivity batchActivity) : ISyncActivity
             var result = await batchActivity.Execute(new PrepareBatchesActivityDescription(data.Event!));
             return result.ToJsonString();
         }
+        else if (data.Key == PortableActivityDescription.EXECUTE_NOTIFICATION)
+        {
+            await batchActivity.Execute(new ExecuteNotificationActivityDescription(data.Event!,
+                data.TrackerAssembly!,
+                data.TrackerType!,
+                data.RuleName!));
+            return string.Empty;
+        }
         else
         {
             await batchActivity.Execute(new ExecuteBatchActivityDescription(data.BatchId!.Value));

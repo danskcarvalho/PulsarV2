@@ -161,48 +161,79 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
 
         return await factory.Execute<TEntity, List<IBatch>>(async ctx =>
         {
-
-            var spec = _updateAction.UpdateFunction(_shadow).GetSpec();
-            var idsSpec = new FindEntitySpecification(spec.Predicate);
-            var allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
-            var batchesToInsert = new List<SyncBatch>();
-
-            while (allIds.Count > 0)
+            if (_updateAction.UpdateFunction != null)
             {
-                var partitioned = allIds.Select(x => x.Id).Partition(PARTITION_SIZE).ToList();
+                return await CreateBatchesForUpdatingDatabase(factory, ctx);
+            }
+            else
+            {
+                var batch = new SyncBatch(
+                    ObjectId.GenerateNewId(),
+                    _entityChanged.Id,
+                    _entityChanged.CreationDate,
+                    [],
+                    _entityChanged.ShadowJson,
+                    typeof(TShadow).FullName!,
+                    typeof(TShadow).Assembly.FullName!,
+                    typeof(TEntity).FullName!,
+                    typeof(TEntity).Assembly.FullName!,
+                    tracker.FullName!,
+                    tracker.Assembly.FullName!,
+                    rule.Name,
+                    _entityChanged.EventKey,
+                    _entityChanged.ChangedEntityId,
+                    _entityChanged.ChangeTimestamp
+                );
+                
+                await ctx.SyncBatchRepository.InsertOneAsync(batch);
+                return [new Batch<TShadow, TEntity>(factory, batch.Id)];
+            }
+        });
+    }
 
-                foreach (var ids in partitioned)
-                {
-                    var batch = new SyncBatch(
-                        ObjectId.GenerateNewId(),
-                        _entityChanged.Id,
-                        _entityChanged.CreationDate,
-                        ids,
-                        _entityChanged.ShadowJson,
-                        typeof(TShadow).FullName!,
-                        typeof(TShadow).Assembly.FullName!,
-                        typeof(TEntity).FullName!,
-                        typeof(TEntity).Assembly.FullName!,
-                        tracker.FullName!,
-                        tracker.Assembly.FullName!,
-                        rule.Name,
-                        _entityChanged.EventKey,
-                        _entityChanged.ChangedEntityId,
-                        _entityChanged.ChangeTimestamp
-                    );
+    private async Task<List<IBatch>> CreateBatchesForUpdatingDatabase(ISyncDbContextFactory factory, SyncDbContext<TEntity> ctx)
+    {
+        var spec = _updateAction.UpdateFunction!(_shadow!).GetSpec();
+        var idsSpec = new FindEntitySpecification(spec.Predicate);
+        var allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
+        var batchesToInsert = new List<SyncBatch>();
 
-                    batchesToInsert.Add(batch);
-                }
+        while (allIds.Count > 0)
+        {
+            var partitioned = allIds.Select(x => x.Id).Partition(PARTITION_SIZE).ToList();
 
+            foreach (var ids in partitioned)
+            {
+                var batch = new SyncBatch(
+                    ObjectId.GenerateNewId(),
+                    _entityChanged!.Id,
+                    _entityChanged.CreationDate,
+                    ids,
+                    _entityChanged.ShadowJson,
+                    typeof(TShadow).FullName!,
+                    typeof(TShadow).Assembly.FullName!,
+                    typeof(TEntity).FullName!,
+                    typeof(TEntity).Assembly.FullName!,
+                    tracker.FullName!,
+                    tracker.Assembly.FullName!,
+                    rule.Name,
+                    _entityChanged.EventKey,
+                    _entityChanged.ChangedEntityId,
+                    _entityChanged.ChangeTimestamp
+                );
 
-                idsSpec = new FindEntitySpecification(spec.Predicate, allIds[^1].Id);
-                allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
+                batchesToInsert.Add(batch);
             }
 
-            await ctx.SyncBatchRepository.InsertManyAsync(batchesToInsert);
 
-            return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
-        });
+            idsSpec = new FindEntitySpecification(spec.Predicate, allIds[^1].Id);
+            allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
+        }
+
+        await ctx.SyncBatchRepository.InsertManyAsync(batchesToInsert);
+
+        var batches = batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
+        return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
     }
 
     class OnlyId

@@ -39,6 +39,10 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
 
     private async Task ExecuteBatch(IRepositoryBase<TEntity> entityRepository, TrackerUpdateAction<TEntity> rule, SyncBatch batch)
     {
+        if (rule.UpdateFunction == null)
+        {
+            return;
+        }
         var shadowAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == batch.ShadowAssembly);
         var shadowType = shadowAssembly.GetType(batch.ShadowType) ??
                          throw new InvalidOperationException($"type not found {batch.ShadowType}");

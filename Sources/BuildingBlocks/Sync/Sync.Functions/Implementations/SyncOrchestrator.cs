@@ -27,7 +27,7 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
                 var parameters = method.GetParameters();
                 if (parameters.Length >= 1)
                 {
-                    var trigger = parameters[0].GetCustomAttributes<ActivityTriggerAttribute>();
+                    var trigger = parameters[0].GetCustomAttribute<ActivityTriggerAttribute>();
                     if (trigger != null)
                     {
                         var attr = method.GetCustomAttribute<FunctionAttribute>() ?? throw new InvalidOperationException("no FunctionName on method");
@@ -42,29 +42,80 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
         public async Task Execute(TaskOrchestrationContext context)
         {
             var @event = context.GetInput<string>()?.FromJsonString<EntityChangedIE>() ?? throw new InvalidOperationException("no input for orchestrator");
-            var data = (new PortableActivityDescription(PortableActivityDescription.PREPARE_BATCHES, @event, null)).ToJsonString();
+            var data = (new PortableActivityDescription(PortableActivityDescription.PREPARE_BATCHES,
+                @event,
+                null,
+                null,
+                null,
+                null)).ToJsonString();
             var strResult = await context.CallActivityAsync<string>(_activityFunctionName, data);
-            var result = strResult.FromJsonString<PrepareBatchesActivityDescriptionResult>() ?? throw new InvalidOperationException("no batches to process (returned null)");
+            var result = strResult.FromJsonString<PrepareBatchesActivityDescriptionResult>() ?? 
+                         throw new InvalidOperationException("no batches to process (returned null)");
 
-            List<Task> batchesProcessing = [];
+            List<Task> tasksProcessing = [];
 
+            var t1 = ExecuteBatches(context, result, tasksProcessing);
+            
+            var t2 = SendNotifications(context, result, @event, tasksProcessing);
+
+            await Task.WhenAll(t1, t2);
+        }
+
+        private async Task ExecuteBatches(TaskOrchestrationContext context, PrepareBatchesActivityDescriptionResult result,
+            List<Task> tasksProcessing)
+        {
+            string data;
             foreach (var batchId in result.BatchIds)
             {
-                var batch = new PortableActivityDescription(PortableActivityDescription.EXECUTE_BATCH, null, batchId);
+                var batch = new PortableActivityDescription(PortableActivityDescription.EXECUTE_BATCH,
+                    null,
+                    batchId,
+                    null,
+                    null,
+                    null);
                 data = batch.ToJsonString();
-                batchesProcessing.Add(context.CallActivityAsync(_activityFunctionName, data));
+                tasksProcessing.Add(context.CallActivityAsync(_activityFunctionName, data));
 
-                if (batchesProcessing.Count >= MAX_BATCHES_PROCESSING)
+                if (tasksProcessing.Count >= MAX_BATCHES_PROCESSING)
                 {
-                    await Task.WhenAll(batchesProcessing);
-                    batchesProcessing.Clear();
+                    await Task.WhenAll(tasksProcessing);
+                    tasksProcessing.Clear();
                 }
             }
 
-            if (batchesProcessing.Count > 0)
+            if (tasksProcessing.Count > 0)
             {
-                await Task.WhenAll(batchesProcessing); 
-                batchesProcessing.Clear();
+                await Task.WhenAll(tasksProcessing); 
+                tasksProcessing.Clear();
+            }
+        }
+
+        private async Task SendNotifications(TaskOrchestrationContext context, PrepareBatchesActivityDescriptionResult result,
+            EntityChangedIE @event, List<Task> tasksProcessing)
+        {
+            string data;
+            foreach (var notification in result.SendNotifications)
+            {
+                var activity = new PortableActivityDescription(PortableActivityDescription.EXECUTE_NOTIFICATION,
+                    @event,
+                    null,
+                    notification.TrackerAssembly,
+                    notification.TrackerType,
+                    notification.RuleName);
+                data = activity.ToJsonString();
+                tasksProcessing.Add(context.CallActivityAsync(_activityFunctionName, data));
+                
+                if (tasksProcessing.Count >= MAX_BATCHES_PROCESSING)
+                {
+                    await Task.WhenAll(tasksProcessing);
+                    tasksProcessing.Clear();
+                }
+            }
+            
+            if (tasksProcessing.Count > 0)
+            {
+                await Task.WhenAll(tasksProcessing); 
+                tasksProcessing.Clear();
             }
         }
     }

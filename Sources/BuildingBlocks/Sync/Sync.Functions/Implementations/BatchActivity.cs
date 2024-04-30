@@ -5,7 +5,9 @@ using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
 using Pulsar.BuildingBlocks.DDD.Contexts;
 using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.BuildingBlocks.Sync.Domain;
 using Pulsar.BuildingBlocks.Sync.Functions.Abstractions;
+using Pulsar.BuildingBlocks.Sync.Functions.Entities;
 using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
@@ -14,7 +16,9 @@ public class BatchActivity(
     IDbSession session,
     IBatchManagerFactory batchManagerFactory,
     IEnumerable<IIsRepository> repositories,
-    ISyncDbContextFactory factory) : IBatchActivity
+    ISyncBatchRepository syncBatchRepository,
+    ISyncDbContextFactory factory,
+    IMediator mediator) : IBatchActivity
 {
     private const int MAX_RETRIES_FOR_SHADOW_UPDATE = 5;
     private static readonly Dictionary<string, Type> _shadowTypes = new Dictionary<string, Type>();
@@ -41,10 +45,35 @@ public class BatchActivity(
         {
             return ExecuteBatch(eb);
         }
+        else if (desc is ExecuteNotificationActivityDescription n)
+        {
+            return ExecuteNotification(n);
+        }
         else
         {
             throw new InvalidOperationException();
         }
+    }
+
+    private async Task ExecuteNotification(ExecuteNotificationActivityDescription desc)
+    {
+        var shadowType = GetShadowTypeFromName(desc.Event.ShadowName);
+        var shadow = desc.Event.ShadowJson.FromJsonString(shadowType);
+        var trackerAssembly = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName == desc.TrackerAssembly);
+        var trackerType = trackerAssembly.GetType(desc.TrackerType) ?? throw new InvalidOperationException("no tracker type");
+        var rule = trackerType.GetField(desc.RuleName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ?? 
+                   throw new InvalidOperationException($"no field {desc.RuleName}");
+
+        var action = (TrackerUpdateAction)(rule.GetValue(null) ?? throw new InvalidOperationException());
+        if (action.SendNotification == null)
+        {
+            return;
+        }
+        
+        var notification = action.SendNotification(shadow!);
+
+        await mediator.Send(notification);
     }
 
     private async Task ExecuteBatch(ExecuteBatchActivityDescription eb)
@@ -120,11 +149,15 @@ public class BatchActivity(
                 batches.AddRange(await batchManager.GetBatches(factory));
             }
 
-            return new PrepareBatchesActivityDescriptionResult(batches.Select(b => b.BatchId).ToList());
+            var dbBatches = await syncBatchRepository.FindManyByIdAsync(batches.Select(x => x.BatchId));
+
+            return new PrepareBatchesActivityDescriptionResult(
+                batches.Select(b => b.BatchId).ToList(),
+                dbBatches.Select(x => (x.TrackerAssembly, x.TrackerType, x.TrackerRule)).Distinct().ToList());
         }
         else
         {
-            return new PrepareBatchesActivityDescriptionResult([]);
+            return new PrepareBatchesActivityDescriptionResult([], []);
         }
     }
 

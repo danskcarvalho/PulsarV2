@@ -1,7 +1,7 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Abstractions;
 using Pulsar.BuildingBlocks.Sync.Contracts;
-using System.Linq.Expressions;
 using System.Reflection;
+using MediatR;
 
 namespace Pulsar.BuildingBlocks.Sync.Domain;
 
@@ -19,26 +19,47 @@ public class Tracker<TCollectionType> : Tracker
 
     public class ForShadow<TShadow> where TShadow : class
     {
-        private readonly List<Func<object, object?>> _OnChanged = new List<Func<object, object?>>();
-        private ChangedEventKey? _EventKey = null;
+        private readonly List<Func<object, object?>> _onChanged = new List<Func<object, object?>>();
+        private ChangedEventKey? _eventKey;
+        private Func<TShadow, INotification>? _sendNotification;
 
         public ForShadow<TShadow> On<TValue>(Func<TShadow, TValue?> onChanged)
         {
-            _EventKey = null;
-            _OnChanged.Add(obj => onChanged((TShadow)obj));
+            _eventKey = null;
+            _onChanged.Add(obj => onChanged((TShadow)obj));
             return this;
         }
 
         public ForShadow<TShadow> On(ChangedEventKey key)
         {
-            _OnChanged.Clear();
-            _EventKey = key;
+            _onChanged.Clear();
+            _eventKey = key;
             return this;
+        }
+
+        public ForShadow<TShadow> Send<TNotification>(Func<TShadow, TNotification> notificationFn) where TNotification : INotification
+        {
+            _sendNotification = s => notificationFn(s);
+            return this;
+        }
+
+        public TrackerUpdateAction NoUpdate()
+        {
+            if (_sendNotification == null)
+            {
+                throw new InvalidOperationException("must set notification");
+            }
+            
+            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+                null,
+                _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
         }
 
         public TrackerUpdateAction Update(Func<TShadow, IUpdateSpecification<TCollectionType>> updateFunction)
         {
-            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _OnChanged, _EventKey, obj => updateFunction((TShadow)obj));
+            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+                obj => updateFunction((TShadow)obj),
+                _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
         }
 
         private string GetShadowName()
