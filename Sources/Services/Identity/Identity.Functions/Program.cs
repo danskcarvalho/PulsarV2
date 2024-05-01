@@ -1,10 +1,20 @@
+using Azure.Core.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Pulsar.BuildingBlocks.Sync.Functions;
 using Pulsar.Services.Facility.Contracts.Shadows;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults((WorkerOptions cfg) =>
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
+        cfg.Serializer = new JsonObjectSerializer(options);
+    })
     .ConfigureAppConfiguration((context, builder) =>
     {
         builder

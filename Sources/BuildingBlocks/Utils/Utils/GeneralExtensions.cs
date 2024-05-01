@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using MongoDB.Bson;
+using System.Text.Json.Serialization;
 
 namespace Pulsar.BuildingBlocks.Utils;
 
@@ -153,6 +154,7 @@ public static partial class GeneralExtensions
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         var json = JsonSerializer.Serialize(obj, obj.GetType(), options);
         return Encoding.UTF8.GetBytes(json).ToSafeBase64();
     }
@@ -161,6 +163,7 @@ public static partial class GeneralExtensions
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         return JsonSerializer.Serialize(obj, obj.GetType(), options);
     }
     
@@ -168,6 +171,7 @@ public static partial class GeneralExtensions
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize<T>(og, options);
     }
@@ -175,12 +179,14 @@ public static partial class GeneralExtensions
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         return JsonSerializer.Deserialize<T>(json, options);
     }
     public static object? FromJsonString(this string json, Type type)
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         return JsonSerializer.Deserialize(json, type, options);
     }
     
@@ -188,6 +194,7 @@ public static partial class GeneralExtensions
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new ObjectIdConverter());
+        options.Converters.Add(new JsonStringEnumConverter());
         var og = Encoding.UTF8.GetString(json.FromSafeBase64());
         return JsonSerializer.Deserialize(og, type, options);
     }

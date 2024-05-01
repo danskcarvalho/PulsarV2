@@ -7,6 +7,7 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Reflection;
 using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Pulsar.BuildingBlocks.Sync.Services;
 
@@ -188,6 +189,7 @@ public partial class SyncIntegrationEventDispatcher
         {
             var options = new JsonSerializerOptions();
             options.Converters.Add(new ObjectIdConverter());
+            options.Converters.Add(new JsonStringEnumConverter());
             return JsonSerializer.Serialize(shadow, shadow.GetType(), options);
         }
 
