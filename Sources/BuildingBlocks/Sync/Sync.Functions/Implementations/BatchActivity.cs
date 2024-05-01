@@ -1,5 +1,6 @@
 using System.Reflection;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
@@ -18,7 +19,8 @@ public class BatchActivity(
     IEnumerable<IIsRepository> repositories,
     ISyncBatchRepository syncBatchRepository,
     ISyncDbContextFactory factory,
-    IMediator mediator) : IBatchActivity
+    IMediator mediator,
+    ILogger<BatchActivity> logger) : IBatchActivity
 {
     private const int MAX_RETRIES_FOR_SHADOW_UPDATE = 5;
     private static readonly Dictionary<string, Type> _shadowTypes = new Dictionary<string, Type>();
@@ -29,9 +31,9 @@ public class BatchActivity(
             if (_shadowTypes.Count == 0)
             {
                 var tys = ShadowAttribute.GetShadowTypes(AppDomain.CurrentDomain.GetAssemblies());
-                foreach (var type in tys)
+                foreach (var typeAndAttr in tys)
                 {
-                    _shadowTypes[type.Attribute.Name] = type.Type;
+                    _shadowTypes[typeAndAttr.Attribute.Name] = typeAndAttr.Type;
                 }
             }
 
@@ -65,26 +67,44 @@ public class BatchActivity(
             BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ?? 
                    throw new InvalidOperationException($"no field {desc.RuleName}");
 
-        var action = (TrackerUpdateAction)(rule.GetValue(null) ?? throw new InvalidOperationException());
+        var action = (TrackerAction)(rule.GetValue(null) ?? throw new InvalidOperationException());
         if (action.SendNotification == null)
         {
             return;
         }
-        
-        var notification = action.SendNotification(shadow!);
 
-        await mediator.Send(notification);
+        try
+        {
+            var notification = action.SendNotification(shadow!);
+
+            if (notification == null)
+            {
+                return;
+            }
+            
+            await mediator.Send(notification);
+        }
+        catch(Exception e)
+        {
+            logger.LogError(e, $"error when executing notification for shadow {shadowType.FullName} and rule {rule.Name}");
+        }
     }
 
     private async Task ExecuteBatch(ExecuteBatchActivityDescription eb)
     {
         await session.TrackAggregateRoots(async ct =>
         {
-            var batchManager = new BatchManagerForDatabase(factory);
-            var batch = await batchManager.GetFromId(eb.BatchId);
-            await batch.Execute();
+            return await session.RetryOnExceptions(
+                async _ =>
+                {
+                    var batchManager = new BatchManagerForDatabase(factory);
+                    var batch = await batchManager.GetFromId(eb.BatchId);
+                    await batch.Execute();
             
-            return Unit.Value;
+                    return Unit.Value;
+                },
+                [typeof(VersionConcurrencyException)], 
+                MAX_RETRIES_FOR_SHADOW_UPDATE);
         });
     }
 
@@ -123,9 +143,8 @@ public class BatchActivity(
 
     private async Task<PrepareBatchesActivityDescriptionResult> ContinueForShadow<TShadow>(TShadow shadow, PrepareBatchesActivityDescription pb) where TShadow : class, IShadow
     {
-        var shadowRepository = (repositories.First(x => x is IShadowRepository<TShadow>) as IShadowRepository<TShadow>)
-                               ?? throw new InvalidOperationException(
-                                   $"shadow repository for {typeof(TShadow).FullName} not found");
+        var shadowRepository =
+            (repositories.First(x => x is IShadowRepository<TShadow>) as IShadowRepository<TShadow>)!;
 
         var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
         if (previous == null || shadow.TimeStamp > previous.TimeStamp)

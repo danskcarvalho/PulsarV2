@@ -52,19 +52,17 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
             var result = strResult.FromJsonString<PrepareBatchesActivityDescriptionResult>() ?? 
                          throw new InvalidOperationException("no batches to process (returned null)");
 
-            List<Task> tasksProcessing = [];
-
-            var t1 = ExecuteBatches(context, result, tasksProcessing);
+            var t1 = ExecuteBatches(context, result);
             
-            var t2 = SendNotifications(context, result, @event, tasksProcessing);
+            var t2 = SendNotifications(context, result, @event);
 
             await Task.WhenAll(t1, t2);
         }
 
-        private async Task ExecuteBatches(TaskOrchestrationContext context, PrepareBatchesActivityDescriptionResult result,
-            List<Task> tasksProcessing)
+        private async Task ExecuteBatches(TaskOrchestrationContext context, PrepareBatchesActivityDescriptionResult result)
         {
             string data;
+            List<Task> tasksProcessing = [];
             foreach (var batchId in result.BatchIds)
             {
                 var batch = new PortableActivityDescription(PortableActivityDescription.EXECUTE_BATCH,
@@ -91,9 +89,10 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations
         }
 
         private async Task SendNotifications(TaskOrchestrationContext context, PrepareBatchesActivityDescriptionResult result,
-            EntityChangedIE @event, List<Task> tasksProcessing)
+            EntityChangedIE @event)
         {
             string data;
+            List<Task> tasksProcessing = [];
             foreach (var notification in result.SendNotifications)
             {
                 var activity = new PortableActivityDescription(PortableActivityDescription.EXECUTE_NOTIFICATION,

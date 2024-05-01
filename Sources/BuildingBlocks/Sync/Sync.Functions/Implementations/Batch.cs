@@ -29,7 +29,7 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
 
             var field = trackerType.GetField(batch.TrackerRule, BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException($"no field named {batch.TrackerRule} on type {batch.TrackerType}");
-            var rule = (TrackerUpdateAction<TEntity>)field.GetValue(null)!;
+            var rule = (TrackerAction<TEntity>)field.GetValue(null)!;
 
             await ExecuteBatch(ctx.EntityRepository, rule, batch);
             
@@ -37,7 +37,7 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
         });
     }
 
-    private async Task ExecuteBatch(IRepositoryBase<TEntity> entityRepository, TrackerUpdateAction<TEntity> rule, SyncBatch batch)
+    private async Task ExecuteBatch(IRepositoryBase<TEntity> entityRepository, TrackerAction<TEntity> rule, SyncBatch batch)
     {
         if (rule.UpdateFunction == null)
         {
@@ -55,7 +55,9 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
 
     public ObjectId BatchId { get; } = batchId;
 
-    class UpdateManyById(IUpdateSpecification<TEntity> updateSpecification, List<ObjectId> ids) : IUpdateSpecification<TEntity>
+    class UpdateManyById(
+        IUpdateSpecification<TEntity> updateSpecification,
+        List<ObjectId> ids) : IUpdateSpecification<TEntity>
     {
         public UpdateSpecification<TEntity> GetSpec()
         {

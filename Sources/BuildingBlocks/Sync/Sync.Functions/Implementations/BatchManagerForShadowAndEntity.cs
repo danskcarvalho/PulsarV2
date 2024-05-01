@@ -14,14 +14,14 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
     Type tracker,
     FieldInfo rule,
-    TrackerUpdateAction updateAction)
+    TrackerAction updateAction)
     : IBatchManagerForShadowAndEntity<TShadow, TEntity>
     where TShadow : class, IShadow
     where TEntity : class, IAggregateRoot
 {
     private const int PARTITION_SIZE = 10_000;
 
-    private readonly TrackerUpdateAction<TEntity> _updateAction = (TrackerUpdateAction<TEntity>)updateAction;
+    private readonly TrackerAction<TEntity> _updateAction = (TrackerAction<TEntity>)updateAction;
     private EntityChangedIE? _entityChanged;
     private object? _shadow;
 
@@ -33,16 +33,16 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
         }
         else
         {
-            return Compare(_updateAction, currentShadow, previousShadow);
+            return AppliesTo(_updateAction, currentShadow, previousShadow);
         }
             
     }
 
-    private bool Compare(TrackerUpdateAction<TEntity> updateAction, object currentShadow, object? previousShadow)
+    private bool AppliesTo(TrackerAction<TEntity> updateAction, object currentShadow, object? previousShadow)
     {
         if (previousShadow == null)
         {
-            return false;
+            return updateAction.SendNotification != null;
         }
 
         foreach (var fnChanged in updateAction.OnChanged)
@@ -143,7 +143,7 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
         return element1 == element2;
     }
 
-    public IBatchManagerForShadowAndEntity<TShadow> SetEvent(EntityChangedIE evt)
+    public IBatchManagerForShadowAndEntity<TShadow> FromEvent(EntityChangedIE evt)
     {
         return new BatchManagerForShadowAndEntity<TShadow, TEntity>(tracker, rule, _updateAction)
         {
@@ -194,7 +194,7 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
     private async Task<List<IBatch>> CreateBatchesForUpdatingDatabase(ISyncDbContextFactory factory, SyncDbContext<TEntity> ctx)
     {
         var spec = _updateAction.UpdateFunction!(_shadow!).GetSpec();
-        var idsSpec = new FindEntitySpecification(spec.Predicate);
+        var idsSpec = new FindEntitiesSpecification(spec.Predicate);
         var allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
         var batchesToInsert = new List<SyncBatch>();
 
@@ -226,31 +226,25 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
             }
 
 
-            idsSpec = new FindEntitySpecification(spec.Predicate, allIds[^1].Id);
+            idsSpec = new FindEntitiesSpecification(spec.Predicate, allIds[^1].Id);
             allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
         }
 
         await ctx.SyncBatchRepository.InsertManyAsync(batchesToInsert);
 
-        var batches = batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
         return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
     }
 
-    class OnlyId
+    class OnlyId(ObjectId id)
     {
-        public OnlyId(ObjectId id)
-        {
-            Id = id;
-        }
-
-        public ObjectId Id { get; set; }
+        public ObjectId Id { get; set; } = id;
     }
 
-    class FindEntitySpecification : IFindSpecification<TEntity, OnlyId>
+    class FindEntitiesSpecification : IFindSpecification<TEntity, OnlyId>
     {
         private const int MAX_ENTITIES = 1_000_000;
         
-        public FindEntitySpecification(Expression<Func<TEntity, bool>> predicate, ObjectId? lastId = null)
+        public FindEntitiesSpecification(Expression<Func<TEntity, bool>> predicate, ObjectId? lastId = null)
         {
             Predicate = predicate;
             LastId = lastId;

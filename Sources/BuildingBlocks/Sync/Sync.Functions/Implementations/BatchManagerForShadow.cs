@@ -32,27 +32,38 @@ class BatchManagerForShadow<TShadow> : IBatchManagerForShadow where TShadow : cl
             var list = _managers[tracker.TrackedEntity] = [];
             foreach (var field in tracker.Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)) 
             {
-                if (typeof(TrackerUpdateAction).IsAssignableFrom(field.FieldType))
+                if (typeof(TrackerAction).IsAssignableFrom(field.FieldType))
                 {
-                    list.Add(CreateManagerForEntity(tracker, field, 
-                        (TrackerUpdateAction)field.GetValue(null)!));
+                    var batchManagerForShadowAndEntity = CreateManagerForEntity(tracker, field, 
+                        (TrackerAction)field.GetValue(null)!);
+                    if (batchManagerForShadowAndEntity != null)
+                    {
+                        list.Add(batchManagerForShadowAndEntity);
+                    }
                 }
             }
         }
     }
 
-    private IBatchManagerForShadowAndEntity<TShadow> CreateManagerForEntity((Type Type, Type TrackedEntity) tracker, FieldInfo field, TrackerUpdateAction updateAction)
+    private IBatchManagerForShadowAndEntity<TShadow>? CreateManagerForEntity((Type Type, Type TrackedEntity) tracker, FieldInfo field, TrackerAction updateAction)
     {
         var m = this.GetType()
             .GetMethod("CreateManagerForEntityStrong", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         m = m.MakeGenericMethod(tracker.TrackedEntity);
-        return (IBatchManagerForShadowAndEntity<TShadow>)m.Invoke(this, [tracker.Type, field, updateAction])!;
+        return (IBatchManagerForShadowAndEntity<TShadow>?)m.Invoke(this, [tracker.Type, field, updateAction]);
     }
     
-    private IBatchManagerForShadowAndEntity<TShadow> CreateManagerForEntityStrong<TEntity>(Type trackerType, FieldInfo field, TrackerUpdateAction updateAction) where TEntity : class, IAggregateRoot
+    private IBatchManagerForShadowAndEntity<TShadow>? CreateManagerForEntityStrong<TEntity>(Type trackerType, FieldInfo field, TrackerAction updateAction) where TEntity : class, IAggregateRoot
     {
-        return new BatchManagerForShadowAndEntity<TShadow, TEntity>(trackerType, field, updateAction);
+        if (updateAction is TrackerAction<TEntity>)
+        {
+            return new BatchManagerForShadowAndEntity<TShadow, TEntity>(trackerType, field, updateAction);
+        }
+        else
+        {
+            return null;
+        }
     }
     
     public IEnumerable<IBatchManagerForEvent> GetManagersForEntity(Type trackedEntityType, EntityChangedIE evt, object? originalShadow)
@@ -62,7 +73,7 @@ class BatchManagerForShadow<TShadow> : IBatchManagerForShadow where TShadow : cl
         {
             if (manager.AppliesTo(shadow, originalShadow, evt.EventKey))
             {
-                yield return manager.SetEvent(evt);
+                yield return manager.FromEvent(evt);
             }
         }
     }

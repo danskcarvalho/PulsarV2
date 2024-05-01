@@ -4,20 +4,20 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 
 namespace Pulsar.BuildingBlocks.Sync.Domain;
 
-public record TrackerUpdateAction(
+public record TrackerAction(
     Type ShadowType, 
     string ShadowName, 
     IReadOnlyList<Func<object, object?>> OnChanged, 
     ChangedEventKey? EventKey,
-    Func<object, INotification>? SendNotification)
+    Func<object, INotification?>? SendNotification)
 {
 }
 
-public record TrackerUpdateAction<TCollectionType>(
+public record TrackerAction<TCollectionType>(
     Type ShadowType, string ShadowName,
     IReadOnlyList<Func<object, object?>> OnChanged,
     ChangedEventKey? EventKey,
     Func<object, IUpdateSpecification<TCollectionType>>? UpdateFunction,
-    Func<object, INotification>? SendNotification) : TrackerUpdateAction(ShadowType, ShadowName, OnChanged, EventKey, SendNotification)
+    Func<object, INotification?>? SendNotification) : TrackerAction(ShadowType, ShadowName, OnChanged, EventKey, SendNotification)
 {
 }

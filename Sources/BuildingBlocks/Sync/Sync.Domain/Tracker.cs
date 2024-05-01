@@ -10,7 +10,7 @@ public abstract class Tracker
 
 }
 
-public class Tracker<TCollectionType> : Tracker
+public class Tracker<TEntity> : Tracker where TEntity : class, IAggregateRoot
 {
     protected static ForShadow<TShadow> For<TShadow>() where TShadow : class
     {
@@ -43,21 +43,21 @@ public class Tracker<TCollectionType> : Tracker
             return this;
         }
 
-        public TrackerUpdateAction NoUpdate()
+        public TrackerAction NoUpdate()
         {
             if (_sendNotification == null)
             {
                 throw new InvalidOperationException("must set notification");
             }
             
-            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+            return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
                 null,
                 _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
         }
 
-        public TrackerUpdateAction Update(Func<TShadow, IUpdateSpecification<TCollectionType>> updateFunction)
+        public TrackerAction Update(Func<TShadow, IUpdateSpecification<TEntity>> updateFunction)
         {
-            return new TrackerUpdateAction<TCollectionType>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+            return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
                 obj => updateFunction((TShadow)obj),
                 _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
         }

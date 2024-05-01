@@ -18,7 +18,7 @@ public class SyncOrchestratorStarter<TFunctionClass> : ISyncOrchestratorStarter<
             var parameters = method.GetParameters();
             if (parameters.Length >= 1)
             {
-                var trigger = parameters[0].GetCustomAttributes<OrchestrationTriggerAttribute>();
+                var trigger = parameters[0].GetCustomAttribute<OrchestrationTriggerAttribute>();
                 if (trigger != null)
                 {
                     var attr = method.GetCustomAttribute<FunctionAttribute>() ?? throw new InvalidOperationException("no FunctionName on method");
