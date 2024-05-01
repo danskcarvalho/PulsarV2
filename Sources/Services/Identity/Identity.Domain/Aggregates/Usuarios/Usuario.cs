@@ -1,8 +1,11 @@
 ﻿using Pulsar.BuildingBlocks.DDD;
+using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.Services.Identity.Contracts.Shadows;
 using Pulsar.Services.Identity.Domain.Events.Usuarios;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
+[TrackChanges(CollectionName = Constants.CollectionNames.USUARIOS, ShadowType = typeof(UsuarioShadow))]
 public partial class Usuario : AggregateRootWithCrud<Usuario>
 {
     public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
@@ -30,13 +33,17 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
         if (nomeUsuario == "administrador")
             this.IsSuperUsuario = true;
     }
-
+    
+    [TrackChanges]
     public string? AvatarUrl { get; set; }
+
     public string TermosBusca
     {
         get => _termosBusca;
         private set => _termosBusca = value;
     }
+
+    [TrackChanges]
     public string PrimeiroNome
     {
         get => _primeiroNome;
@@ -50,6 +57,8 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
             }
         }
     }
+
+    [TrackChanges]
     public string? UltimoNome
     {
         get => _ultimoNome;
@@ -63,15 +72,23 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
             }
         }
     }
+
+    [TrackChanges]
     public string NomeCompleto
     {
         get => _nomeCompleto;
         private set => _nomeCompleto = value;
     }
+    
+    [TrackChanges]
     public bool IsAtivo { get; set; }
+
+    [TrackChanges]
     public bool IsSuperUsuario { get; private set; }
     public List<ObjectId> DominiosBloqueados { get; private set; }
     public List<ObjectId> DominiosAdministrados { get; private set; }
+
+    [TrackChanges]
     public string? Email
     {
         get => _email;
@@ -82,6 +99,8 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
                 _termosBusca = GetTermosBusca();
         }
     }
+
+    [TrackChanges]
     public string NomeUsuario
     {
         get => _nomeUsuario;
@@ -96,7 +115,11 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
     public string SenhaSalt { get; set; }
     public string? TokenMudancaSenha { get; set; }
     public DateTime? TokenMudancaSenhaExpiraEm { get; set; }
+
+    [TrackChanges]
     public bool IsConvitePendente { get; set; }
+
+    [TrackChanges]
     public AuditInfo AuditInfo { get; set; }
 
     private void UpdateNomeCompleto()

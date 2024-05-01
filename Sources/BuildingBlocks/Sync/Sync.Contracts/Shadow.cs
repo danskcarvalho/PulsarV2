@@ -21,6 +21,12 @@ public class Shadow : AggregateRoot, IShadow
 
     public DateTime TimeStamp { get; set; }
 
+    public void CopyIdVersion(AggregateRoot root)
+    {
+        this.Id = root.Id;
+        this.Version = Version;
+    }
+
     public static string GetCollectionName<T>()
     {
         var attr = typeof(T).GetCustomAttribute<ShadowAttribute>();

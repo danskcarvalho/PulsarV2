@@ -272,6 +272,10 @@ public partial class SyncIntegrationEventDispatcher
         {
             try
             {
+                if(!File.Exists($".{_CollectionName}.ResumeToken"))
+                {
+                    return null;
+                }
                 var file = await File.ReadAllTextAsync($".{_CollectionName}.ResumeToken");
                 return BsonSerializer.Deserialize<BsonDocument>(file);
             }

@@ -61,4 +61,29 @@ public class TopicSubscriptionCreator
         await adminClient.CreateRuleAsync(functionInformation.TopicName, functionInformation.SubscriptionName,
             new CreateRuleOptions("SubjectIs", filter));
     }
+
+    public async Task EnsureTopic(string topicName)
+    {
+        var developer = Environment.GetEnvironmentVariable("ServiceBusDeveloper");
+        topicName = topicName.Replace("%ServiceBusDeveloper%", developer);
+        var topicSizeInMegabytes = Configuration.GetValue<long?>("ServiceBus:TopicSizeInMegabytes") ?? DEFAULT_TOPIC_SIZE_IN_MEGABYTES;
+        var enablePartitioning = Configuration.GetValue<bool>("ServiceBus:EnablePartitioning");
+
+        var ns = Environment.GetEnvironmentVariable("ServiceBus__fullyQualifiedNamespace");
+        var adminClient = new ServiceBusAdministrationClient(ns, new DefaultAzureCredential());
+
+        if (!await adminClient.TopicExistsAsync(topicName))
+        {
+            await adminClient.CreateTopicAsync(new CreateTopicOptions(topicName)
+            {
+                MaxSizeInMegabytes = topicSizeInMegabytes,
+                DefaultMessageTimeToLive = TimeSpan.FromDays(14),
+                EnablePartitioning = enablePartitioning,
+                AutoDeleteOnIdle = TimeSpan.MaxValue,
+                RequiresDuplicateDetection = true,
+                DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30),
+                SupportOrdering = false
+            });
+        }
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using Pulsar.BuildingBlocks.DDD;
+using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.Services.Identity.Contracts.Shadows;
 using Pulsar.Services.Identity.Domain.Aggregates.Convites;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
@@ -9,10 +11,13 @@ using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioDetalhesDTO;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
+[TrackChanges(CollectionName = Constants.CollectionNames.DOMINIOS, ShadowType = typeof(DominioShadow))]
 public partial class Dominio : AggregateRootWithCrud<Dominio>
 {
     private string _nome;
     private string _termosBusca;
+
+    [TrackChanges]
     public string Nome
     {
         get => _nome;
@@ -24,8 +29,14 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
         }
     }
     public string TermosBusca { get => _termosBusca; private set => _termosBusca = value; }
+
+    [TrackChanges]
     public bool IsAtivo { get; set; }
+
+    [TrackChanges]
     public AuditInfo AuditInfo { get; set; }
+
+    [TrackChanges]
     public ObjectId? UsuarioAdministradorId { get; set; }
 
     [BsonConstructor]

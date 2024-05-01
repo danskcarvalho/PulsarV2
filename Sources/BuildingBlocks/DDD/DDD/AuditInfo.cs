@@ -1,14 +1,24 @@
-﻿namespace Pulsar.BuildingBlocks.DDD;
+﻿using Pulsar.BuildingBlocks.Sync.Contracts;
+
+namespace Pulsar.BuildingBlocks.DDD;
 
 public class AuditInfo : ValueObject
 {
+    [TrackChanges]
     public ObjectId? CriadoPorUsuarioId { get; }
+    [TrackChanges]
     public DateTime CriadoEm { get; }
+    [TrackChanges]
     public ObjectId? EditadoPorUsuarioId { get; }
+    [TrackChanges]
     public DateTime? EditadoEm { get; }
+    [TrackChanges]
     public ObjectId? RemovidoPorUsuarioId { get; }
+    [TrackChanges]
     public DateTime? RemovidoEm { get; }
+    [TrackChanges]
     public ObjectId? EscondidoPorUsuarioId { get; }
+    [TrackChanges]
     public DateTime? EscondidoEm { get; }
 
     [BsonConstructor(nameof(CriadoPorUsuarioId), nameof(CriadoEm), nameof(EditadoPorUsuarioId), nameof(EditadoEm), nameof(RemovidoPorUsuarioId), nameof(RemovidoEm),

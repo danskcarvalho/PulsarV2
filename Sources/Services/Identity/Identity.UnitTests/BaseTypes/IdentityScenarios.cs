@@ -5,10 +5,10 @@ using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
-using Pulsar.Services.Identity.Functions.Application.Functions;
 using Pulsar.Services.Identity.Domain;
 using Pulsar.Services.Facility.Contracts.Shadows;
 using Pulsar.BuildingBlocks.Sync.Contracts;
+using Pulsar.Services.Identity.Functions.Application.Synchronizations;
 
 namespace Identity.UnitTests.BaseTypes;
 

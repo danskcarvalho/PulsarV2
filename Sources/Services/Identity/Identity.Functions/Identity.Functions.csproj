@@ -56,5 +56,6 @@
   <ItemGroup>
     <Folder Include="Application\Commands\" />
     <Folder Include="Application\DomainEvents\" />
+    <Folder Include="Application\Functions\" />
   </ItemGroup>
 </Project>

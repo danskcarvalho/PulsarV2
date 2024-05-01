@@ -1,4 +1,5 @@
 ﻿using Pulsar.BuildingBlocks.EventBus.Contracts;
+using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.BuildingBlocks.EventBus.Abstractions;
 
@@ -40,7 +41,7 @@ public class IntegrationEventLogEntry
             WriteIndented = true
         };
 
-        SerializedEvent = JsonSerializer.Serialize(@event, @event.GetType(), options);
+        SerializedEvent = @event.ToJsonString();
         Status = IntegrationEventStatus.Pending;
         Attempts = new List<IntegrationEventLogEntrySendAttempt>();
         ScheduledOn = DateTime.UtcNow;

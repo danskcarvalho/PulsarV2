@@ -32,7 +32,11 @@ class SourceTypeMetadata
         }
 
         var mapper = GetMapper(source.GetType(), _shadowType);
-        var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType);
+        var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType) as Shadow;
+        var root = source as AggregateRoot;
+
+        shadow!.CopyIdVersion(root!);
+        shadow!.TimeStamp = DateTime.UtcNow;
 
         InterceptShadow(source, shadow);
 
@@ -82,6 +86,11 @@ class SourceTypeMetadata
         public abstract IMapper Mapper { get; }
         protected static void CreateMapping<F, T>(IMapperConfigurationExpression cfg, HashSet<(Type From, Type To)> addedMappings)
         {
+            if(typeof(T) == typeof(F))
+            {
+                return;
+            }
+
             if (addedMappings.Contains((typeof(F), typeof(T))))
             {
                 return;
@@ -103,11 +112,29 @@ class SourceTypeMetadata
                     continue;
                 }
 
-                if (IsNullableOrPrimitiveType(fprop.PropertyType) && IsNullableOrPrimitiveType(tprop.PropertyType) && fprop.PropertyType == tprop.PropertyType)
+                if (IsNullableOrPrimitiveType(fprop.PropertyType) && IsNullableOrPrimitiveType(tprop.PropertyType))
                 {
+                    if(fprop.PropertyType == tprop.PropertyType)
+                    {
+
+                    }
+                    else
+                    {
+                        start = start.ForMember(fprop.Name, opt => opt.Ignore());
+                        continue;
+                    }
                 }
-                else if (IsCollectionOfPrimitivesTypes(fprop.PropertyType) && IsCollectionOfPrimitivesTypes(tprop.PropertyType) && fprop.PropertyType == tprop.PropertyType)
+                else if (IsCollectionOfPrimitivesTypes(fprop.PropertyType) && IsCollectionOfPrimitivesTypes(tprop.PropertyType))
                 {
+                    if (fprop.PropertyType == tprop.PropertyType)
+                    {
+
+                    }
+                    else
+                    {
+                        start = start.ForMember(fprop.Name, opt => opt.Ignore());
+                        continue;
+                    }
                 }
                 else if (IsCollectionOfComplexType(fprop.PropertyType) && IsCollectionOfComplexType(tprop.PropertyType))
                 {
@@ -115,7 +142,7 @@ class SourceTypeMetadata
                 }
                 else if (IsComplexType(fprop.PropertyType) && IsComplexType(tprop.PropertyType))
                 {
-                    CreateMappingNonGeneric(GetComplexTypeFromCollection(fprop.PropertyType), GetComplexTypeFromCollection(tprop.PropertyType), cfg, addedMappings);
+                    CreateMappingNonGeneric(fprop.PropertyType, tprop.PropertyType, cfg, addedMappings);
                 }
                 else
                 {
@@ -126,7 +153,7 @@ class SourceTypeMetadata
 
         private static void CreateMappingNonGeneric(Type from, Type to, IMapperConfigurationExpression cfg, HashSet<(Type From, Type To)> addedMappings)
         {
-            typeof(Map).GetMethod("CreateMapping")!.MakeGenericMethod(from, to).Invoke(null, [cfg, addedMappings]);
+            typeof(Map).GetMethod("CreateMapping", BindingFlags.Static | BindingFlags.NonPublic)!.MakeGenericMethod(from, to).Invoke(null, [cfg, addedMappings]);
         }
 
         private static Type GetComplexTypeFromCollection(Type type)

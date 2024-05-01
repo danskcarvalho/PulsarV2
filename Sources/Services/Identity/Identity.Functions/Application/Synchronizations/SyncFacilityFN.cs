@@ -3,11 +3,11 @@ using Microsoft.DurableTask.Client;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.BuildingBlocks.Sync.Functions.Abstractions;
 
-namespace Pulsar.Services.Identity.Functions.Application.Functions;
+namespace Pulsar.Services.Identity.Functions.Application.Synchronizations;
 
 public class SyncFacilityFN(
-    ISyncOrchestratorStarter<SyncFacilityFN> syncOrchestratorStarter, 
-    ISyncOrchestrator<SyncFacilityFN> syncOrchestrator, 
+    ISyncOrchestratorStarter<SyncFacilityFN> syncOrchestratorStarter,
+    ISyncOrchestrator<SyncFacilityFN> syncOrchestrator,
     ISyncActivity syncActivity)
 {
     [Function("SyncFacilityStarterFN")]

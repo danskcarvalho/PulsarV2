@@ -11,7 +11,21 @@ namespace Pulsar.Services.Identity.API.Utils
             EditadoEm = ai.EditadoEm,
             EditadoPorUsuarioId = ai.EditadoPorUsuarioId?.ToString(),
             RemovidoEm = ai.RemovidoEm,
-            RemovidoPorUsuarioId = ai.RemovidoPorUsuarioId?.ToString()
+            RemovidoPorUsuarioId = ai.RemovidoPorUsuarioId?.ToString(),
+            EscondidoEm = ai.EscondidoEm,
+            EscondidoPorUsuarioId = ai.EscondidoPorUsuarioId?.ToString()
+        };
+
+        public static AuditInfoShadow ToShadow(this AuditInfo ai) => new AuditInfoShadow()
+        {
+            CriadoEm = ai.CriadoEm,
+            CriadoPorUsuarioId = ai.CriadoPorUsuarioId,
+            EditadoEm = ai.EditadoEm,
+            EditadoPorUsuarioId = ai.EditadoPorUsuarioId,
+            RemovidoEm = ai.RemovidoEm,
+            RemovidoPorUsuarioId = ai.RemovidoPorUsuarioId,
+            EscondidoEm = ai.EscondidoEm,
+            EscondidoPorUsuarioId = ai.EscondidoPorUsuarioId
         };
     }
 }

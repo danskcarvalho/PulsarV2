@@ -20,7 +20,7 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
     }
 
     [BsonId]
-    public ObjectId Id { get; private set; }
+    public ObjectId Id { get; protected set; }
     public long Version { get; set; }
     [BsonIgnore]
     public IReadOnlyCollection<INotification> DomainEvents => _notifications.AsReadOnly();
