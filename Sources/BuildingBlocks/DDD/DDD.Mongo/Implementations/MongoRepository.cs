@@ -13,6 +13,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
     protected IMongoCollection<TModel> Collection { get; private set; }
     protected bool IsSessionless => Session is null;
     protected IsolationLevel? IsolationLevel { get; private set; }
+    protected abstract string CollectionName { get; }
 
     public MongoRepository(MongoDbSession? session, MongoDbSessionFactory sessionFactory)
     {
@@ -63,8 +64,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         }
         return false;
     }
-
-    protected abstract string CollectionName { get; }
     public void Track(TModel? model)
     {
         if (model == null)
@@ -157,11 +156,11 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         else
             r = await Collection.DeleteOneAsync(Session.CurrentHandle, filter, cancellationToken: ct);
 
-        return r.IsAcknowledged ? r.DeletedCount : 0;
+        return (r.IsAcknowledged ? r.DeletedCount : 0).CheckModified();
     }
-    public async Task<long> DeleteOneAsync(TModel model, long? version = null, CancellationToken ct = default)
+    public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
     {
-        var r = await DeleteOneByIdAsync(model.Id, version, ct);
+        var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
         Track(model);
         return r;
     }
@@ -374,14 +373,14 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         return r != default(ExistIdModel);
     }
 
-    public async Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default)
+    public async Task<long> ReplaceOneAsync(TModel model, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var filter = Builders<TModel>.Filter.Eq("_id", model.Id);
-        if (version.HasValue)
-            filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", version));
+        filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", model.Version));
 
         ReplaceOneResult r;
+        model.IncVersion();
         if (Session is null || Session.CurrentHandle is null)
             r = await Collection.ReplaceOneAsync(filter, model, cancellationToken: ct);
         else
@@ -408,11 +407,14 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             options.ArrayFilters = injector.ArrayFilters;
         }
 
+        var updateDefinition = injector.UpdateDefinition!;
+        updateDefinition = updateDefinition.Inc(x => x.Version, 1);
+        
         UpdateResult r;
         if (Session is null || Session.CurrentHandle is null)
-            r = await Collection.UpdateManyAsync(where, injector.UpdateDefinition!, options: options, cancellationToken: ct);
+            r = await Collection.UpdateManyAsync(where, updateDefinition, options: options, cancellationToken: ct);
         else
-            r = await Collection.UpdateManyAsync(Session.CurrentHandle, where, injector.UpdateDefinition!, options: options, cancellationToken: ct);
+            r = await Collection.UpdateManyAsync(Session.CurrentHandle, where, updateDefinition, options: options, cancellationToken: ct);
 
         return r.IsAcknowledged ? r.ModifiedCount : 0;
     }
@@ -432,12 +434,15 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             options = new UpdateOptions();
             options.ArrayFilters = injector.ArrayFilters;
         }
+        
+        var updateDefinition = injector.UpdateDefinition!;
+        updateDefinition = updateDefinition.Inc(x => x.Version, 1);
 
         UpdateResult r;
         if (Session is null || Session.CurrentHandle is null)
-            r = await Collection.UpdateOneAsync(where, injector.UpdateDefinition!, options: options, cancellationToken: ct);
+            r = await Collection.UpdateOneAsync(where, updateDefinition, options: options, cancellationToken: ct);
         else
-            r = await Collection.UpdateOneAsync(Session.CurrentHandle, where, injector.UpdateDefinition!, options: options, cancellationToken: ct);
+            r = await Collection.UpdateOneAsync(Session.CurrentHandle, where, updateDefinition, options: options, cancellationToken: ct);
 
         return r.IsAcknowledged ? r.ModifiedCount : 0;
     }

@@ -33,7 +33,7 @@ public class DominioController : IdentityController
     /// <summary>
     /// Retorna os detalhes dos domínios com os ids informados.
     /// </summary>
-    /// <param name="ids">Ids dos usuários.</param>
+    /// <param name="ids">Ids dos domínios.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>
     /// <returns></returns>
     [HttpGet("detalhes"), ScopeAuthorize("dominios.detalhes"), SuperUsuarioAuthorize]

@@ -3,7 +3,7 @@ using Pulsar.Services.Identity.Domain.Events.Convites;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
 
-public class Convite : AggregateRootWithCrud<Convite>
+public class Convite : AggregateRootWithContext<Convite>
 {
     [BsonConstructor(nameof(Id), nameof(Email), nameof(ConviteExpiraEm), nameof(TokenAceitacao), nameof(UsuarioId), nameof(AuditInfo))]
     public Convite(ObjectId id, string email, DateTime conviteExpiraEm, string tokenAceitacao, ObjectId usuarioId, AuditInfo auditInfo) : base(id)
@@ -34,7 +34,6 @@ public class Convite : AggregateRootWithCrud<Convite>
             throw new IdentityDomainException(ExceptionKey.ConviteTokenInvalido);
 
         IsAceito = true;
-        Version++;
         this.AddDomainEvent(new ConviteAceitoDE(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));
         await this.Replace();
     }

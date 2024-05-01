@@ -6,7 +6,7 @@ using Pulsar.Services.Identity.Domain.Events.Usuarios;
 namespace Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 
 [TrackChanges(CollectionName = Constants.CollectionNames.USUARIOS, ShadowType = typeof(UsuarioShadow))]
-public partial class Usuario : AggregateRootWithCrud<Usuario>
+public partial class Usuario : AggregateRootWithContext<Usuario>
 {
     public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
 
@@ -147,8 +147,7 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
             this.TokenMudancaSenhaExpiraEm = DateTime.UtcNow.AddMinutes(30);
         }
         this.AddDomainEvent(new TokenMudancaSenhaGeradoDE(this.Id, this.PrimeiroNome, this.Email!, this.TokenMudancaSenha));
-        var previousVersion = Version++;
-        await this.Replace(previousVersion).CheckModified();
+        await this.Replace();
     }
 
     public async Task RecuperarSenha(string token, string senha)
@@ -164,8 +163,7 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
         this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
         this.TokenMudancaSenha = null;
         this.TokenMudancaSenhaExpiraEm = null;
-        var previousVersion = Version++;
-        await this.Replace(previousVersion).CheckModified();
+        await this.Replace();
     }
 
     public async Task AceitarConvite(string primeiroNome, string? sobrenome, string nomeUsuario, string senha)
@@ -177,7 +175,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
         this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
         this.IsConvitePendente = false;
         this.IsAtivo = true;
-        this.Version++;
         await this.Replace();
     }
 
@@ -197,8 +194,7 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
             throw new IdentityDomainException(ExceptionKey.SenhaAtualInvalida);
         this.MudarMinhaSenha(novaSenha);
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
-        Version++;
-        await this.Replace(previousVersion).CheckModified();
+        await this.Replace().CheckModified();
     }
 
     private void MudarMinhaSenha(string novaSenha)
@@ -211,7 +207,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
     {
         this.PrimeiroNome = primeiroNome;
         this.UltimoNome = sobrenome;
-        Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
@@ -223,7 +218,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
         if (IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueado);
         this.IsAtivo = !bloquear;
-        Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
@@ -233,7 +227,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
     public async Task AlterarAvatar(string url)
     {
         this.AvatarUrl = url;
-        this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
             this.IsConvitePendente, this.AuditInfo, ChangeEvent.Edited));
@@ -243,7 +236,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
     public async Task RemoverDominioAdministrado(ObjectId usuarioLogadoId, ObjectId dominioId)
     {
         this.DominiosAdministrados.Remove(dominioId);
-        this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         await this.Replace();
     }
@@ -252,7 +244,6 @@ public partial class Usuario : AggregateRootWithCrud<Usuario>
     {
         if (!this.DominiosAdministrados.Contains(dominioId))
             this.DominiosAdministrados.Add(dominioId);
-        this.Version++;
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
         await this.Replace();
     }

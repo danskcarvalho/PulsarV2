@@ -25,7 +25,6 @@ public class BloquearOuDesbloquearUsuariosEmDominioSpec : IUpdateSpecification<U
                 .AddToSet(u => u.DominiosBloqueados, DominioId)
                 .Set(u => u.AuditInfo.EditadoPorUsuarioId, UsuarioLogadoId)
                 .Set(u => u.AuditInfo.EditadoEm, DateTime.UtcNow)
-                .Inc(u => u.Version, 1)
                 .Build();
         }
         else
@@ -34,7 +33,6 @@ public class BloquearOuDesbloquearUsuariosEmDominioSpec : IUpdateSpecification<U
                 .Pull(u => u.DominiosBloqueados, DominioId)
                 .Set(u => u.AuditInfo.EditadoPorUsuarioId, UsuarioLogadoId)
                 .Set(u => u.AuditInfo.EditadoEm, DateTime.UtcNow)
-                .Inc(u => u.Version, 1)
                 .Build();
         }
     }

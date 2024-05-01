@@ -138,7 +138,7 @@ class Collection<T> : Collection where T : class
         return r.Select(x => _documents[x.Index]).Select(x => proj(FromBsonDocument<T>(x))).ToList();
     }
 
-    public int DeleteMany(IDeleteSpecification<T> specification, int? limit = null)
+    public int DeleteMany(IDeleteSpecification<T> specification, long? limit = null)
     {
         var spec = specification.GetSpec();
         var pred = spec.Predicate.Compile();
@@ -164,14 +164,14 @@ class Collection<T> : Collection where T : class
         return toBeRemoved.Count;
     }
 
-    public int UpdateMany(IUpdateSpecification<T> specification, int? limit = null)
+    public int UpdateMany(IUpdateSpecification<T> specification, long? limit = null)
     {
         // -- this implementation runs the risk of not being correct if the any of the lambas called mutates
         var spec = specification.GetSpec();
         var pred = spec.Predicate.Compile();
         var docs = _documents.Where(d => pred(FromBsonDocument<T>(d))).ToList();
         if (limit != null)
-            docs = docs.Take(limit.Value).ToList();
+            docs = docs.Take((int)limit.Value).ToList();
 
         foreach (var doc in docs)
         {

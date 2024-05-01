@@ -21,10 +21,9 @@ public class Shadow : AggregateRoot, IShadow
 
     public DateTime TimeStamp { get; set; }
 
-    public void CopyIdVersion(AggregateRoot root)
+    public void CopyId(AggregateRoot root)
     {
         this.Id = root.Id;
-        this.Version = Version;
     }
 
     public static string GetCollectionName<T>()

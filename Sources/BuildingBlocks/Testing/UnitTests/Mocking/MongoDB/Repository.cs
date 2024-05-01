@@ -1,4 +1,6 @@
-﻿namespace Pulsar.BuildingBlocks.UnitTests.Mocking.MongoDB;
+﻿using Pulsar.BuildingBlocks.DDD;
+
+namespace Pulsar.BuildingBlocks.UnitTests.Mocking.MongoDB;
 
 public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     where TModel : class, IAggregateRoot
@@ -77,16 +79,15 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     public async Task<long> DeleteOneByIdAsync(ObjectId id, long? version = null, CancellationToken ct = default)
     {
         if (version != null)
-            return await Collection.DeleteManyAsync(new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id && x.Version == version).Build()), 1);
+            return await Collection.DeleteManyAsync(new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id && x.Version == version).Build()), 1).CheckModified();
         else
-
             return await Collection.DeleteManyAsync(new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id).Build()), 1);
     }
-    public async Task<long> DeleteOneAsync(TModel model, long? version = null, CancellationToken ct = default)
+    public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
     {
-        var r = await DeleteOneByIdAsync(model.Id, version, ct);
+        var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
         Track(model);
-        return r;
+        return r.CheckModified();
     }
 
     public TSelf EscapeSession()
@@ -179,19 +180,19 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
         return found.Contains(id);
     }
 
-    public async Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default)
+    public async Task<long> ReplaceOneAsync(TModel model, CancellationToken ct = default)
     {
-        return await Collection.ReplaceAsync(model, model.Id, version, "Version");
+        return await Collection.ReplaceAsync(model, model.Id, model.Version, "Version").CheckModified();
     }
 
     public async Task<long> UpdateManyAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default)
     {
-        return await Collection.UpdateManyAsync(spec);
+        return await Collection.UpdateManyAsync(new UpdateVersionAndAlso<TModel>(spec));
     }
 
     public async Task<long> UpdateOneAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default)
     {
-        return await Collection.UpdateManyAsync(spec, 1);
+        return await Collection.UpdateManyAsync(new UpdateVersionAndAlso<TModel>(spec), 1);
     }
 
     public TSelf WithIsolation(IsolationLevel level)

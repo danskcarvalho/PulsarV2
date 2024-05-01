@@ -21,13 +21,18 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     [BsonId]
     public ObjectId Id { get; protected set; }
-    public long Version { get; set; }
+    public long Version { get; private set; }
     [BsonIgnore]
     public IReadOnlyCollection<INotification> DomainEvents => _notifications.AsReadOnly();
     [BsonIgnore]
     public bool IsInitializing => _isInitializing;
     [BsonIgnore]
     public bool IsTransient => Id == ObjectId.Empty;
+
+    public void IncVersion()
+    {
+        Version++;
+    }
 
     public void AddDomainEvent(INotification eventItem)
     {

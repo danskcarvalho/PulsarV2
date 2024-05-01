@@ -61,8 +61,8 @@ public class DbContextCollection<TModel> where TModel : class, IAggregateRoot
         return _repository.InsertManyAsync(models);
     }
 
-    public Task<long> Replace(TModel model, long? version = null)
+    public Task<long> Replace(TModel model)
     {
-        return _repository.ReplaceOneAsync(model, version);
+        return _repository.ReplaceOneAsync(model);
     }
 }

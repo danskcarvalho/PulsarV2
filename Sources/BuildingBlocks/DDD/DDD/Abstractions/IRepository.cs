@@ -14,11 +14,11 @@ public interface IRepositoryBase<TModel> : IIsRepository where TModel : class, I
     Task InsertOneAsync(TModel item, CancellationToken ct = default);
     Task InsertManyAsync(IEnumerable<TModel> items, CancellationToken ct = default);
     Task<long> DeleteOneByIdAsync(ObjectId id, long? version = null, CancellationToken ct = default);
-    Task<long> DeleteOneAsync(TModel model, long? version = null, CancellationToken ct = default);
+    Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default);
     Task<long> DeleteManyByIdAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default);
     Task<long> DeleteManyAsync(IDeleteSpecification<TModel> spec, CancellationToken ct = default);
     Task<long> DeleteOneAsync(IDeleteSpecification<TModel> spec, CancellationToken ct = default);
-    Task<long> ReplaceOneAsync(TModel model, long? version = null, CancellationToken ct = default);
+    Task<long> ReplaceOneAsync(TModel model, CancellationToken ct = default);
     Task<long> UpdateOneAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default);
     Task<long> UpdateManyAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default);
     Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default);

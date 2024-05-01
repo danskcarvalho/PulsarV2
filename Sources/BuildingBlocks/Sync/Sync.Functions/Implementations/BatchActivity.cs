@@ -149,16 +149,13 @@ public class BatchActivity(
         var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
         if (previous == null || shadow.TimeStamp > previous.TimeStamp)
         {
-            var previousVersion = previous?.Version;
-            shadow.Version = Math.Max(shadow.Version, previousVersion ?? 0) + 1;
-
             if (previous == null)
             {
                 await shadowRepository.InsertOneAsync(shadow);
             }
             else
             {
-                await shadowRepository.ReplaceOneAsync(shadow, previousVersion).CheckModified();
+                await shadowRepository.ReplaceOneAsync(shadow);
             }
 
             var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();

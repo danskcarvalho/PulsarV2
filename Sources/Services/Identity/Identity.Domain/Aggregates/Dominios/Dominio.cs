@@ -12,7 +12,7 @@ using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioDetalhesDTO;
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 
 [TrackChanges(CollectionName = Constants.CollectionNames.DOMINIOS, ShadowType = typeof(DominioShadow))]
-public partial class Dominio : AggregateRootWithCrud<Dominio>
+public partial class Dominio : AggregateRootWithContext<Dominio>
 {
     private string _nome;
     private string _termosBusca;
@@ -56,7 +56,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
     public async Task Esconder(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.EscondidoPor(usuarioLogadoId);
-        this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Hidden));
         await this.Replace();
     }
@@ -64,7 +63,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
     public async Task Mostrar(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.MostradoPor();
-        this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Shown));
         await this.Replace();
     }
@@ -76,7 +74,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
         this.UsuarioAdministradorId = usuarioId;
         if (editadoPorUsuarioId != null)
             this.AuditInfo = this.AuditInfo.EditadoPor(editadoPorUsuarioId.Value);
-        Version++;
     }
 
     public async Task Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
@@ -99,7 +96,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
         this.Nome = nome;
         this.UsuarioAdministradorId = usuarioAdministrador?.Id;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
-        this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, previousAdmin, ChangeEvent.Edited));
         await this.Replace();
     }
@@ -108,7 +104,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
     {
         this.IsAtivo = !bloquear;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
-        this.Version++;
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited));
         await this.Replace();
     }
@@ -120,7 +115,6 @@ public partial class Dominio : AggregateRootWithCrud<Dominio>
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueadoDominio);
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
-        this.Version++;
         this.AddDomainEvent(new UsuariosBloqueadosEmDominioDE(usuarioLogadoId, this.Id, usuarioIds, bloquear));
         await this.Replace();
     }

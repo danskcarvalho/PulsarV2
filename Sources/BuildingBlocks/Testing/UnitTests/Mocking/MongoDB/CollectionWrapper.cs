@@ -41,13 +41,13 @@ class CollectionWrapper<T> : IMockedCollection<T> where T : class
         return _col.Find(specification);
     }
 
-    public int DeleteMany(IDeleteSpecification<T> specification, int? limit = null)
+    public long DeleteMany(IDeleteSpecification<T> specification, long? limit = null)
     {
         var _col = _database.GetUnderlyingCollection<T>(_collectionName);
         return _col.DeleteMany(specification, limit);
     }
 
-    public int UpdateMany(IUpdateSpecification<T> specification, int? limit = null)
+    public long UpdateMany(IUpdateSpecification<T> specification, long? limit = null)
     {
         var _col = _database.GetUnderlyingCollection<T>(_collectionName);
         return _col.UpdateMany(specification, limit);
@@ -59,7 +59,7 @@ class CollectionWrapper<T> : IMockedCollection<T> where T : class
         return _col.Exists(id);
     }
 
-    public int Replace(T item, ObjectId id, long? version = null, string? stringPropertyName = null)
+    public long Replace(T item, ObjectId id, long? version = null, string? stringPropertyName = null)
     {
         var _col = _database.GetUnderlyingCollection<T>(_collectionName);
         return _col.Replace(item, id, version, stringPropertyName);
@@ -96,12 +96,12 @@ class CollectionWrapper<T> : IMockedCollection<T> where T : class
         }
     }
 
-    Task<int> IMockedCollection<T>.DeleteManyAsync(IDeleteSpecification<T> specification, int? limit)
+    Task<long> IMockedCollection<T>.DeleteManyAsync(IDeleteSpecification<T> specification, long? limit)
     {
         return Task.FromResult(DeleteMany(specification, limit));
     }
 
-    Task<int> IMockedCollection<T>.UpdateManyAsync(IUpdateSpecification<T> specification, int? limit)
+    Task<long> IMockedCollection<T>.UpdateManyAsync(IUpdateSpecification<T> specification, long? limit)
     {
         return Task.FromResult(UpdateMany(specification, limit));
     }
@@ -111,7 +111,7 @@ class CollectionWrapper<T> : IMockedCollection<T> where T : class
         return Task.FromResult(Exists(id));
     }
 
-    Task<int> IMockedCollection<T>.ReplaceAsync(T item, ObjectId id, long? version, string? stringPropertyName)
+    Task<long> IMockedCollection<T>.ReplaceAsync(T item, ObjectId id, long? version, string? stringPropertyName)
     {
         return Task.FromResult(Replace(item, id, version, stringPropertyName));
     }
