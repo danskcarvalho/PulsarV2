@@ -103,7 +103,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataFactory", "BuildingBloc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{74D87F54-2450-470D-9B75-A6750EFD4992}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceBus.Migrations", "ServiceBus.Migrations\ServiceBus.Migrations.csproj", "{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceBus.Migrations", "Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj", "{5D69FB0A-EF51-4212-80A8-C9D2E4C3A751}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{D9C027C5-592E-4130-9FDF-491A2CC61004}"
 EndProject
@@ -129,9 +129,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sync.Functions", "BuildingB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.Contracts", "BuildingBlocks\DDD\DDD.Contracts\DDD.Contracts.csproj", "{F861311C-CAF7-4CB1-9E72-7211B777B9CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.AppHost", "Pulsar.AppHost\Pulsar.AppHost.csproj", "{818026E1-7CC2-40AC-9A3C-5DF896F71478}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.AppHost", "Orchestration\Pulsar.AppHost\Pulsar.AppHost.csproj", "{818026E1-7CC2-40AC-9A3C-5DF896F71478}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.ServiceDefaults", "Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj", "{67D37AAF-C4FE-4AED-8480-CAF5DA91D4D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.ServiceDefaults", "Orchestration\Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj", "{67D37AAF-C4FE-4AED-8480-CAF5DA91D4D7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orchestration", "Orchestration", "{9CEDC221-01D8-4703-BFF3-5342F2E0CEB2}"
 EndProject

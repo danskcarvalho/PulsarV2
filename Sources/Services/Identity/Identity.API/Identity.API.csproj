@@ -35,7 +35,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\EmailsAzure\EmailsAzure.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Emails\Emails\Emails.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\FileSystem\FileSystemAzure\FileSystemAzure.csproj" />
-    <ProjectReference Include="..\..\..\Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\Orchestration\Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Facility\Facility.Contracts\Facility.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />

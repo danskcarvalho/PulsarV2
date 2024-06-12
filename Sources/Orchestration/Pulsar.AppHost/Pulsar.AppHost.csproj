@@ -15,11 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
-    <ProjectReference Include="..\Services\Identity\Identity.API\Identity.API.csproj" />
-    <ProjectReference Include="..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
-    <ProjectReference Include="..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
-    <ProjectReference Include="..\Services\Identity\Identity.Migrations\Identity.Migrations.csproj" />
+    <ProjectReference Include="..\..\Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
+    <ProjectReference Include="..\..\Services\Identity\Identity.API\Identity.API.csproj" />
+    <ProjectReference Include="..\..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
+    <ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
+    <ProjectReference Include="..\..\Services\Identity\Identity.Migrations\Identity.Migrations.csproj" />
   </ItemGroup>
 
 </Project>

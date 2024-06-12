@@ -31,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
-    <ProjectReference Include="..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
+    <ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
   </ItemGroup>
 
 </Project>
