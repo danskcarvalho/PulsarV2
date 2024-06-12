@@ -16,12 +16,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Services\Identity\Identity.API\Identity.API.csproj" />
+    <ProjectReference Include="..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
     <ProjectReference Include="..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
     <ProjectReference Include="..\Services\Identity\Identity.Migrations\Identity.Migrations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="mongodb\data\" />
   </ItemGroup>
 
 </Project>

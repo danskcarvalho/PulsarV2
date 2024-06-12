@@ -62,7 +62,7 @@ public static class DIExtensions
 
     private static string GetConnectionString(IConfiguration configuration)
     {
-        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionStringName = configuration.GetOrThrow("SyncService:MongoDB:ConnectionStringName");
         var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
         return connectionString;
     }
