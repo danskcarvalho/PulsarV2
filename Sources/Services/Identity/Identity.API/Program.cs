@@ -3,6 +3,8 @@ using Pulsar.Services.Facility.Contracts.Shadows;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Add services to the container.
 if (!builder.Environment.IsDevelopment() && !builder.Environment.IsTesting())
 {
@@ -127,6 +129,8 @@ idserver
     .AddInMemoryApiScopes(AllApiScopes.Resources);
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

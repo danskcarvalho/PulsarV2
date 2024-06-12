@@ -16,7 +16,7 @@ public static class DIExtensions
         col.AddSingleton<MongoDbSessionFactory>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var connStr = config.GetOrThrow("MongoDB:ConnectionString");
+            var connStr = GetConnectionString(config);
             var database = config.GetOrThrow("MongoDB:Database");
 
             return new MongoDbSessionFactory(connStr, database, null, () => sp.GetRequiredService<IMediator>());
@@ -31,6 +31,13 @@ public static class DIExtensions
 
         col.AddSingleton<MigrationRunner>();
         col.AddScoped<ScopedMigration>();
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 
     public static void AddMigrationsWithoutDatabaseMachinery(this IServiceCollection col)

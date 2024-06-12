@@ -14,7 +14,7 @@ public static class DIExtensions
         col.AddSingleton<IIntegrationEventLogStorage, MongoIntegrationEventLogStorage>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var settings = MongoClientSettings.FromConnectionString(config.GetOrThrow("EventBusDispatcher:MongoDB:ConnectionString")) ?? throw new InvalidOperationException("invalid connection string");
+            var settings = MongoClientSettings.FromConnectionString(GetConnectionString(config)) ?? throw new InvalidOperationException("invalid connection string");
 
             settings.RetryReads = true;
             settings.RetryWrites = true;
@@ -35,5 +35,12 @@ public static class DIExtensions
                 client.GetDatabase(config.GetOrThrow("EventBusDispatcher:MongoDB:Database")),
                 sp.GetRequiredService<ILogger<MongoIntegrationEventLogStorage>>());
         });
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 }

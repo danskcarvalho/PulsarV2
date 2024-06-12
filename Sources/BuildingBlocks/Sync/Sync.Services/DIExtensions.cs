@@ -19,7 +19,7 @@ public static class DIExtensions
         col.AddSingleton<ISyncIntegrationEventDispatcher, SyncIntegrationEventDispatcher>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var settings = MongoClientSettings.FromConnectionString(config.GetOrThrow("SyncService:MongoDB:ConnectionString")) ?? throw new InvalidOperationException("invalid connection string");
+            var settings = MongoClientSettings.FromConnectionString(GetConnectionString(config)) ?? throw new InvalidOperationException("invalid connection string");
 
             settings.RetryReads = true;
             settings.RetryWrites = true;
@@ -58,5 +58,12 @@ public static class DIExtensions
             throw new ArgumentOutOfRangeException($"{name} must be positive");
 
         return num;
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 }

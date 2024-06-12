@@ -35,7 +35,7 @@ public static class DIExtensions
         col.AddSingleton<MongoDbSessionFactory>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var connStr = config.GetOrThrow("MongoDB:ConnectionString");
+            var connStr = GetConnectionString(config);
             var database = config.GetOrThrow("MongoDB:Database");
             var clusterName = config.GetOrThrow("MongoDB:ClusterName");
 
@@ -66,6 +66,13 @@ public static class DIExtensions
         AddShadowRepositories(col, assembliesToScan);
 
         return col;
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 
     public static void AddShadowRepositories(IServiceCollection col, Assembly[] assembliesToScan)

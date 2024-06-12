@@ -12,7 +12,7 @@ public class MongoStoreConnection
     private const string GRANT_STORE_COLLECTION_NAME = "_GrantStore";
     public MongoStoreConnection(IConfiguration configuration)
     {
-        var connectionString = configuration.GetOrThrow("MongoDB:ConnectionString");
+        string connectionString = GetConnectionString(configuration);
         var database = configuration.GetOrThrow("MongoDB:Database");
         var settings = MongoClientSettings.FromConnectionString(connectionString) ?? throw new InvalidOperationException("invalid connection string");
 
@@ -26,6 +26,13 @@ public class MongoStoreConnection
             .WithWriteConcern(WriteConcern.WMajority)
             .WithReadConcern(ReadConcern.Majority)
             .WithReadPreference(ReadPreference.PrimaryPreferred);
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("MongoDB:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 
     public IMongoCollection<SerializedKey> KeyStoreCollection => _KeyStoreCollection;
