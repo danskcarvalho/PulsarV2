@@ -14,5 +14,5 @@ var migrator = host.Services.GetRequiredService<Migrator>();
 
 await migrator
     .AddAssembly(typeof(SyncFacilityFN).Assembly)
-    .EnsureTopic("%ServiceBusDeveloper%.Identity")
+    .EnsureTopicCreation("%ServiceBusDeveloper%.Identity")
     .Migrate();

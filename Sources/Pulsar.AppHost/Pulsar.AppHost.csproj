@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
     <ProjectReference Include="..\Services\Identity\Identity.API\Identity.API.csproj" />
     <ProjectReference Include="..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
     <ProjectReference Include="..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />

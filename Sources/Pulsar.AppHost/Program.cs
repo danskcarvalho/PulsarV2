@@ -8,6 +8,9 @@ var mongo = builder.AddMongoDB("PulsarMongoCluster", port: int.Parse(builder.Con
     .WithInitBindMount("mongodb")
     .WithDataVolume("PulsarData");
 
+// SERVICE BUS MIGRATIONS
+var serviceBusMigrations = builder.AddProject<Projects.ServiceBus_Migrations>("servicebus-migrations");
+
 // IDENTITY
 var identityMigrations = builder.AddProject<Projects.Identity_Migrations>("identity-migrations")
     .WithReference(mongo);
@@ -19,11 +22,13 @@ builder
 
 builder.AddProject<Projects.Identity_Functions>("identity-functions")
     .WithReference(mongo)
-    .WithReference(identityMigrations);
+    .WithReference(identityMigrations)
+    .WithReference(serviceBusMigrations);
 
 builder.AddProject<Projects.Identity_EventDispatcher>("identity-eventdispatcher")
     .WithReference(mongo)
-    .WithReference(identityMigrations);
+    .WithReference(identityMigrations)
+    .WithReference(serviceBusMigrations);
 
 
 builder.Build().Run();

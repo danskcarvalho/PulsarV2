@@ -92,7 +92,7 @@ public class Migrator
         }
     }
 
-    public Migrator EnsureTopic(string topicName)
+    public Migrator EnsureTopicCreation(string topicName)
     {
         _ensuredTopics.Add(topicName);
         return this;
