@@ -2,9 +2,8 @@
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Ineps;
 
-public class Inep
+public class Inep : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public string Codigo { get; set; }
     public string Nome { get; set; }
     public string TermosPesquisa { get; set; }
@@ -12,7 +11,7 @@ public class Inep
     public bool Ativo { get; set; }
 
     [BsonConstructor]
-    public Inep(ObjectId id, string codigo, string nome, string termosPesquisa, MunicipioResumido municipio, bool ativo)
+    public Inep(ObjectId id, string codigo, string nome, string termosPesquisa, MunicipioResumido municipio, bool ativo) : base(id)
     {
         Id = id;
         Codigo = codigo;

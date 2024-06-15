@@ -2,8 +2,8 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// DATABASE
-var mongo = builder.AddMongoDB("PulsarMongoCluster", port: int.Parse(builder.Configuration["MongoDB:Port"]!))
+// DATABASES
+var mongo = builder.AddMongoDB("pulsar-mongodb", port: int.Parse(builder.Configuration["MongoDB:Port"]!))
     .WithArgs("--replSet", "rs0", "--bind_ip_all")
     .WithInitBindMount("mongodb")
     .WithDataVolume("PulsarData");
@@ -29,6 +29,14 @@ builder.AddProject<Projects.Identity_EventDispatcher>("identity-eventdispatcher"
     .WithReference(mongo)
     .WithReference(identityMigrations)
     .WithReference(serviceBusMigrations);
+
+
+// CATALOG
+builder.AddProject<Projects.Catalog_Migrations>("catalog-migrations")
+    .WithReference(mongo);
+
+
+builder.AddProject<Projects.Catalog_API>("catalog-api");
 
 
 builder.Build().Run();

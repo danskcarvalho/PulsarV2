@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Pulsar.BuildingBlocks.DDD;
-using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Services;
 

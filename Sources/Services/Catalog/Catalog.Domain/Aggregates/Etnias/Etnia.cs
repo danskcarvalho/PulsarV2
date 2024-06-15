@@ -1,15 +1,14 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Etnias;
 
-public class Etnia
+public class Etnia : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public int Codigo { get; set; }
     public string Nome { get; set; }
     public string TermosPesquisa { get; set; }
     public bool Ativo { get; set; }
 
     [BsonConstructor]
-    public Etnia(ObjectId id, int codigo, string nome, string termosPesquisa, bool ativo)
+    public Etnia(ObjectId id, int codigo, string nome, string termosPesquisa, bool ativo) : base(id)
     {
         Id = id;
         Codigo = codigo;

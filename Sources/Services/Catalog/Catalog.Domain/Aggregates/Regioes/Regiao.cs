@@ -2,9 +2,8 @@
 
 [BsonDiscriminator("Regiao", RootClass = true)]
 [BsonKnownTypes(typeof(MunicipioRegiao), typeof(PaisRegiao), typeof(EstadoRegiao))]
-public class Regiao
+public class Regiao : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public TipoLocal Tipo { get; set; }
     public long Codigo { get; set; }
     public string Nome { get; set; }
@@ -12,7 +11,7 @@ public class Regiao
     public bool Ativo { get; set; }
 
     [BsonConstructor]
-    public Regiao(ObjectId id, TipoLocal tipo, long codigo, string nome, string termosPesquisa, bool ativo)
+    public Regiao(ObjectId id, TipoLocal tipo, long codigo, string nome, string termosPesquisa, bool ativo) : base(id)
     {
         Id = id;
         Tipo = tipo;

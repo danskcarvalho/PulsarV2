@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.2.0" />
-    <PackageReference Include="MongoDB.Bson" Version="2.25.0" />
+    <PackageReference Include="MediatR" Version="12.3.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.26.0" />
   </ItemGroup>
 
   <ItemGroup>

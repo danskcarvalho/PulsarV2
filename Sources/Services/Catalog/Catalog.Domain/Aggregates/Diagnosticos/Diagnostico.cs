@@ -1,8 +1,7 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
 
-public class Diagnostico
+public class Diagnostico : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public TipoDiagnostico Tipo { get; set; }
     public string Codigo { get; set; }
     public string Nome { get; set; }
@@ -12,7 +11,7 @@ public class Diagnostico
     public List<DiagnosticoResumido> Correlatos { get; set; }
 
     [BsonConstructor]
-    public Diagnostico(ObjectId id, TipoDiagnostico tipo, string codigo, string nome, Sexo? sexo, string termosPesquisa, bool ativo, List<DiagnosticoResumido> correlatos)
+    public Diagnostico(ObjectId id, TipoDiagnostico tipo, string codigo, string nome, Sexo? sexo, string termosPesquisa, bool ativo, List<DiagnosticoResumido> correlatos) : base(id)
     {
         Id = id;
         Tipo = tipo;

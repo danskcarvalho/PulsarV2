@@ -1,5 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.DTOs;
-using System.Runtime.Serialization;
+﻿using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.UI.Models
 {

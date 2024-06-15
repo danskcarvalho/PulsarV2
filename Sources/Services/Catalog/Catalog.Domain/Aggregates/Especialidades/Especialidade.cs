@@ -1,8 +1,7 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
-public class Especialidade
+public class Especialidade : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public  string Codigo { get; set; }
     public  string Nome { get; set; }
     public  bool GeraFichaCadastroIndividual { get; set; }
@@ -24,7 +23,7 @@ public class Especialidade
     public Especialidade(ObjectId id, string codigo, string nome, bool geraFichaCadastroIndividual, bool geraFichaCadastroDomiciliarTerritorial, 
         bool geraFichaAtendimentoIndividual, bool geraFichaProcedimentos, bool geraFichaAtendimentoOdontologicoIndividual, bool geraFichaAtividadeColetiva, bool geraFichaVacinacao, 
         bool geraFichaVisitaDomiciliarTerritorial, bool geraFichaMarcadoresConsumoAlimentar, bool geraFichaAvaliacaoElegibilidade, bool geraFichaAtendimentoDomiciliar, 
-        bool geraFichaComplementarZikaMicrocefalia, string termosPesquisa, bool ativo)
+        bool geraFichaComplementarZikaMicrocefalia, string termosPesquisa, bool ativo) : base(id)
     {
         Id = id;
         Codigo = codigo;

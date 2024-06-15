@@ -1,8 +1,7 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
 
-public class PrincipioAtivo
+public class PrincipioAtivo : AggregateRoot
 {
-    public ObjectId Id { get; set; }
     public string Nome { get; set; }
     public string CodigoEsus { get; set; }
     public CategoriaMedicamento Categoria { get; set; }
@@ -10,7 +9,7 @@ public class PrincipioAtivo
     public string TermosPesquisa { get; set; }
 
     [BsonConstructor]
-    public PrincipioAtivo(ObjectId id, string nome, string codigoEsus, CategoriaMedicamento categoria, TipoMedicamento tipo, string termosPesquisa)
+    public PrincipioAtivo(ObjectId id, string nome, string codigoEsus, CategoriaMedicamento categoria, TipoMedicamento tipo, string termosPesquisa) : base(id)
     {
         Id = id;
         Nome = nome;

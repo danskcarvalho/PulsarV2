@@ -2,9 +2,8 @@
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Procedimentos
 {
-    public class Procedimento
+    public class Procedimento : AggregateRoot
     {
-        public ObjectId Id { get; set; }
         public string Codigo { get; set; }
         public string Nome { get; set; }
         public Sexo? Sexo { get; set; }
@@ -22,7 +21,7 @@ namespace Pulsar.Services.Catalog.Domain.Aggregates.Procedimentos
 
         [BsonConstructor]
         public Procedimento(ObjectId id, string codigo, string nome, Sexo? sexo, Complexidade? complexidade, int? idadeMinimaEmDias, int? idadeMaximaEmDias, bool? procedimentoAb, 
-            bool podeInformarResultadoEspecifico, bool podeInformarResultadoNumerico, string termosPesquisa, List<EspecialidadeResumida> especialidades, List<ResultadoEspecifico> resultadosEspecificos, bool ativo)
+            bool podeInformarResultadoEspecifico, bool podeInformarResultadoNumerico, string termosPesquisa, List<EspecialidadeResumida> especialidades, List<ResultadoEspecifico> resultadosEspecificos, bool ativo) : base(id)
         {
             Id = id;
             Codigo = codigo;
