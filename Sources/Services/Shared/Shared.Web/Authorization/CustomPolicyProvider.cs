@@ -6,7 +6,7 @@ using Pulsar.BuildingBlocks.Utils;
 
 namespace Pulsar.Services.Shared.API.Authorization;
 
-public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
+public class CustomPolicyProvider : IAuthorizationPolicyProvider
 {
     const string DOMINIO_POLICY_PREFIX = "Dominio_";
     const string ESTABELECIMENTO_POLICY_PREFIX = "Estabelecimento_";
@@ -18,7 +18,7 @@ public class IdentityCustomPolicyProvider : IAuthorizationPolicyProvider
     private IWebHostEnvironment _environment;
     private DefaultAuthorizationPolicyProvider BackupPolicyProvider { get; }
 
-    public IdentityCustomPolicyProvider(IOptions<AuthorizationOptions> options, IWebHostEnvironment environment)
+    public CustomPolicyProvider(IOptions<AuthorizationOptions> options, IWebHostEnvironment environment)
     {
         BackupPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
         _environment = environment;

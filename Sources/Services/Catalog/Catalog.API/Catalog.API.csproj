@@ -4,6 +4,16 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>Pulsar.Services.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<NoWarn>1701;1702;1591</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<NoWarn>1701;1702;1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -14,14 +24,11 @@
 		<ProjectReference Include="..\..\..\Orchestration\Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+		<ProjectReference Include="..\..\Shared\ApiRegistry\ApiRegistry.csproj" />
 		<ProjectReference Include="..\..\Shared\Shared.Web\Shared.Web.csproj" />
 		<ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
 		<ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
 		<ProjectReference Include="..\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Controllers\" />
 	</ItemGroup>
 
 </Project>

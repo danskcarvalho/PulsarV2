@@ -63,7 +63,7 @@ builder.Services.AddTransient<IdentityQueriesContext>(sp =>
         sp.GetRequiredService<MongoDbSessionFactory>(),
         configuration.GetOrThrow("MongoDB:ClusterName"));
 });
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, IdentityCustomPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomPolicyProvider>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddJwtBearer("Bearer", options =>
     {
@@ -144,11 +144,7 @@ else
     app.UseHsts();
 }
 
-app.UseExceptionHandler(new ExceptionHandlerOptions()
-{
-    ExceptionHandler = JsonExceptionMiddleware.Invoke
-});
-
+app.UseJsonExceptionMiddleware();
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();

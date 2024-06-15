@@ -9,7 +9,7 @@ namespace Pulsar.Services.Shared.API.Services;
 
 public static class JsonExceptionMiddleware
 {
-    public static void UseJsonExceptionMiddleware(WebApplication app)
+    public static void UseJsonExceptionMiddleware(this WebApplication app)
     {
         app.UseExceptionHandler(new ExceptionHandlerOptions()
         {

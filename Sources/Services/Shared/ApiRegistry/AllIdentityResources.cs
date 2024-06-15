@@ -1,6 +1,6 @@
 ﻿using Duende.IdentityServer.Models;
 
-namespace Pulsar.Services.Identity.API.Registry;
+namespace Pulsar.Services.ApiRegistry;
 
 public static class AllIdentityResources
 {
