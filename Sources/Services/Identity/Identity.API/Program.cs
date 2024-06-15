@@ -17,10 +17,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsDefaultPolicy", policy =>
     {
         HashSet<string> origins = new HashSet<string>();
-        origins.UnionWith(builder.Configuration.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c != null).ToList()!);
+        origins.UnionWith(builder.Configuration.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(builder.Configuration)).Where(c => c != null).ToList()!);
         foreach (var child in builder.Configuration.GetSection("IdentityServer:Clients").GetChildren())
         {
-            origins.UnionWith(child.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c != null).ToList()!);
+            origins.UnionWith(child.GetSection("AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(builder.Configuration)).Where(c => c != null).ToList()!);
         }
 
         policy.WithOrigins(origins.ToArray())
@@ -67,7 +67,7 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomPolicyProvider
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = builder.Configuration.GetOrThrow("IdentityServer:Authority");
+        options.Authority = builder.Configuration.GetUri("IdentityServer:Authority");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = true,
@@ -98,8 +98,8 @@ builder.Services.AddSwaggerGen(options =>
         {
             AuthorizationCode = new OpenApiOAuthFlow()
             {
-                AuthorizationUrl = new Uri(builder.Configuration.GetOrThrow("IdentityServer:AuthorizationUrl")),
-                TokenUrl = new Uri(builder.Configuration.GetOrThrow("IdentityServer:TokenUrl")),
+                AuthorizationUrl = new Uri(builder.Configuration.GetUri("IdentityServer:AuthorizationUrl")),
+                TokenUrl = new Uri(builder.Configuration.GetUri("IdentityServer:TokenUrl")),
                 Scopes = AllApiScopes.Resources.Where(s => s.Name == "identity.*").ToDictionary(s => (s.Name, s.Description))
             }
         }

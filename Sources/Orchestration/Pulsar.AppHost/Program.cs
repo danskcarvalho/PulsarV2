@@ -15,7 +15,7 @@ var serviceBusMigrations = builder.AddProject<Projects.ServiceBus_Migrations>("s
 var identityMigrations = builder.AddProject<Projects.Identity_Migrations>("identity-migrations")
     .WithReference(mongo);
 
-builder
+var identityApi = builder
     .AddProject<Projects.Identity_API>("identity-api")
     .WithReference(mongo)
     .WithReference(identityMigrations);
@@ -32,11 +32,17 @@ builder.AddProject<Projects.Identity_EventDispatcher>("identity-eventdispatcher"
 
 
 // CATALOG
-builder.AddProject<Projects.Catalog_Migrations>("catalog-migrations")
+var catalogMigrations = builder.AddProject<Projects.Catalog_Migrations>("catalog-migrations")
     .WithReference(mongo);
 
 
-builder.AddProject<Projects.Catalog_API>("catalog-api");
+var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
+    .WithReference(mongo)
+    .WithReference(catalogMigrations);
+
+// CROSS REFERENCES
+catalogApi.WithReference(identityApi);
+identityApi.WithReference(catalogApi);
 
 
 builder.Build().Run();

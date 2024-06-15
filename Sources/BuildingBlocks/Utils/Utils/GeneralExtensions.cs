@@ -3,11 +3,49 @@ using System.Linq.Expressions;
 using System.Text.Json;
 using MongoDB.Bson;
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace Pulsar.BuildingBlocks.Utils;
 
 public static partial class GeneralExtensions
 {
+    public static string GetUri(this IConfiguration configuration, string key)
+    {
+        var myPort = configuration["ASPNETCORE_HTTPS_PORT"];
+        var uri = configuration.GetOrThrow(key);
+        if (myPort != null)
+        {
+            uri = uri.Replace("{self:port}", myPort);
+        }
+        var services = configuration.GetSection("Services");
+        foreach (var srv in services.GetChildren())
+        {
+            var srvUri = new Uri(srv.GetSection("https").GetChildren().First().Value!);
+            var port = $"{{{srv.Key}:port}}";
+            uri = uri.Replace(port, srvUri.Port.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return uri;
+    }
+
+    public static string FormatUri(this string uri, IConfiguration configuration)
+    {
+        var myPort = configuration["ASPNETCORE_HTTPS_PORT"];
+        if (myPort != null)
+        {
+            uri = uri.Replace("{self:port}", myPort);
+        }
+        var services = configuration.GetSection("Services");
+        foreach (var srv in services.GetChildren())
+        {
+            var srvUri = new Uri(srv.GetSection("https").GetChildren().First().Value!);
+            var port = $"{{{srv.Key}:port}}";
+            uri = uri.Replace(port, srvUri.Port.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return uri;
+    }
+
     public static string GetOrThrow(this IConfiguration configuration, string key)
     {
         var v = configuration[key];

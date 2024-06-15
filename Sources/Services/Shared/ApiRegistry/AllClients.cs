@@ -20,9 +20,9 @@ public static class AllClients
                 //The clients needs to be explicitly authorized to be able to use refresh tokens by setting the AllowOfflineAccess property to true.
                 //AllowOfflineAccess = true,
 
-                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:IdentitySwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c is not null).ToList()!,
-                RedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:IdentitySwaggerUI:RedirectUri") },
-                PostLogoutRedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:IdentitySwaggerUI:PostLogoutRedirectUri") },
+                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:IdentitySwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(configuration)).Where(c => c is not null).ToList()!,
+                RedirectUris = { configuration.GetUri("IdentityServer:Clients:IdentitySwaggerUI:RedirectUri") },
+                PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:IdentitySwaggerUI:PostLogoutRedirectUri") },
                 AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).Select(s => s.Name).Union(
                 [
                     "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
@@ -39,9 +39,9 @@ public static class AllClients
                 //The clients needs to be explicitly authorized to be able to use refresh tokens by setting the AllowOfflineAccess property to true.
                 //AllowOfflineAccess = true,
 
-                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:CatalogSwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value).Where(c => c is not null).ToList()!,
-                RedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:CatalogSwaggerUI:RedirectUri") },
-                PostLogoutRedirectUris = { configuration.GetOrThrow("IdentityServer:Clients:CatalogSwaggerUI:PostLogoutRedirectUri") },
+                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:CatalogSwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(configuration)).Where(c => c is not null).ToList()!,
+                RedirectUris = { configuration.GetUri("IdentityServer:Clients:CatalogSwaggerUI:RedirectUri") },
+                PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:CatalogSwaggerUI:PostLogoutRedirectUri") },
                 AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("catalog.")).Select(s => s.Name).Union(
                 [
                     "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
