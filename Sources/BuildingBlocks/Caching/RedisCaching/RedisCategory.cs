@@ -2,6 +2,7 @@
 using Pulsar.BuildingBlocks.Caching;
 using Pulsar.BuildingBlocks.Caching.Abstractions;
 using StackExchange.Redis;
+using System.Data.Common;
 using System.Text.Json;
 
 namespace Pulsar.BuildingBlocks.RedisCaching;
@@ -21,29 +22,58 @@ class RedisCategory : ICategory
 
     public async Task<TResult> Get<TResult>(ICacheKey key, Func<Task<TResult>> produceResult) where TResult : class?
     {
-        var val = (string?)await _database.HashGetAsync(_categoryName, key.ToString());
+        var val = (string?)await TryGetFromCache(key);
         if (val == null)
         {
             _logger.LogInformation($"cache MISS for {key}");
             var result = await produceResult();
-            await _database.HashSetAsync(_categoryName, key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+            await TryCache(key, result);
             return result;
         }
         else
         {
-            var cached = FromJson<TResult>(val);
-            if (cached.Failed || DateTime.UtcNow > cached.ExpiresOn)
+            var cached = FromJson<TResult>(val, out var failed);
+            if (failed)
             {
                 _logger.LogInformation($"cache EXPIRED or FAILED for {key}");
                 var result = await produceResult();
-                await _database.HashSetAsync(_categoryName, key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+                await TryCache(key, result);
                 return result;
             }
             else
             {
                 _logger.LogInformation($"cache HIT for {key}");
-                return cached.Value!;
+                return cached!;
             }
+        }
+    }
+
+    private async Task<RedisValue> TryGetFromCache(ICacheKey key)
+    {
+        try
+        {
+            return await _database.StringGetAsync(key.Category(_categoryName));
+        }
+        catch
+        {
+            return RedisValue.Null;
+        }
+    }
+
+    private async Task TryCache<TResult>(ICacheKey key, TResult result) where TResult : class?
+    {
+        var js = ToJson(result);
+        try
+        {
+            if (js != null)
+            {
+                await _database.StringSetAsync(key.Category(_categoryName), js);
+                await _database.KeyExpireAsync(key.Category(_categoryName), DateTime.UtcNow.AddHours(3), flags: CommandFlags.FireAndForget);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error caching to redis");
         }
     }
 
@@ -80,7 +110,7 @@ class RedisCategory : ICategory
         foreach (var k in keysArray)
         {
             var kc = k.ToCacheKey();
-            tasks.Add(_database.HashGetAsync(_categoryName, kc.ToString()));
+            tasks.Add(TryGetFromCache(kc));
         }
 
         await Task.WhenAll(tasks);
@@ -90,9 +120,9 @@ class RedisCategory : ICategory
             var val = (string?)tasks[i].Result;
             if (val != null)
             {
-                var cached = FromJson<TResult>(val);
-                if (!cached.Failed && DateTime.UtcNow <= cached.ExpiresOn)
-                    dic[keysArray[i]] = cached.Value!;
+                var cached = FromJson<TResult>(val, out var failed);
+                if (!failed)
+                    dic[keysArray[i]] = cached!;
                 else
                     missing.Add(keysArray[i]);
             }
@@ -101,59 +131,76 @@ class RedisCategory : ICategory
         }
 
         var results = await produceResult(missing);
-        var storeTasks = new List<Task<bool>>();
+        var storeTasks = new List<Task>();
         foreach (var k in results.Keys)
         {
             dic[k] = results[k];
             var kc = k.ToCacheKey();
-            storeTasks.Add(_database.HashSetAsync(_categoryName, kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
+            storeTasks.Add(TryCache(kc, results[k]));
         }
 
         await Task.WhenAll(storeTasks);
         return dic;
     }
 
-    private CachedValue<T> FromJson<T>(string val) where T : class?
+    public async Task Clear(ICacheKey key)
     {
         try
         {
-            return (CachedValue<T>)JsonSerializer.Deserialize(val, typeof(CachedValue<T>), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+            await _database.KeyDeleteAsync(key.Category(_categoryName), CommandFlags.FireAndForget);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "error deserializing json from redis cache");
-            return new CachedValue<T>(null, true, DateTime.UtcNow);
+            _logger.LogError(e, $"error clearing key {key}");
         }
-    }
-
-    private string ToJson<T>(T? result) where T : class?
-    {
-        var cached = new CachedValue<T>(result, false, DateTime.UtcNow.AddHours(3));
-        return JsonSerializer.Serialize(cached, typeof(CachedValue<T>), new JsonSerializerOptions
-        {
-            WriteIndented = false
-        });
-    }
-
-    public async Task Clear(ICacheKey key)
-    {
-        await _database.HashDeleteAsync(_categoryName, key.ToString(), CommandFlags.FireAndForget);
     }
 
     public async Task ClearMultiple(IEnumerable<ICacheKey> keys)
     {
-        List<Task> allTasks = new List<Task>();
-        foreach (var key in keys)
+        try
         {
-            allTasks.Add(_database.HashDeleteAsync(_categoryName, key.ToString(), CommandFlags.FireAndForget));
+            List<Task> allTasks = new List<Task>();
+            foreach (var key in keys)
+            {
+                allTasks.Add(_database.KeyDeleteAsync(key.Category(_categoryName), CommandFlags.FireAndForget));
+            }
+            await Task.WhenAll(allTasks);
         }
-        await Task.WhenAll(allTasks);
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error clearing multiple keys");
+        }
     }
 
     public Task ClearMultiple(params ICacheKey[] keys) => ClearMultiple((IEnumerable<ICacheKey>)keys);
-
-    public async Task ClearAll()
+    private T? FromJson<T>(string val, out bool failed) where T : class?
     {
-        await _database.KeyDeleteAsync(_categoryName, CommandFlags.FireAndForget);
+        failed = false;
+        try
+        {
+            return (T)JsonSerializer.Deserialize(val, typeof(T), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error deserializing json from redis cache {typeof(T).FullName}");
+            failed = true;
+            return default(T);
+        }
+    }
+
+    private string? ToJson<T>(T? result) where T : class?
+    {
+        try
+        {
+            return JsonSerializer.Serialize(result, typeof(T), new JsonSerializerOptions
+            {
+                WriteIndented = false
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error serializing to json {typeof(T).FullName}");
+            return null;
+        }
     }
 }

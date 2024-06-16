@@ -4,7 +4,7 @@ public interface ICacheKey
 {
 }
 
-static class CacheKeyExtensions {
+public static class CacheKeyExtensions {
 
     public static string NoCategory(this ICacheKey cacheKey)
     {

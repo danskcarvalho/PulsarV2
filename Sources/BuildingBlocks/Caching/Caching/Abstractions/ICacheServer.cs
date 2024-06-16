@@ -28,5 +28,4 @@ public interface ICategory
     Task Clear(ICacheKey key);
     Task ClearMultiple(IEnumerable<ICacheKey> keys);
     Task ClearMultiple(params ICacheKey[] keys);
-    Task ClearAll();
 }

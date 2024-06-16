@@ -34,29 +34,58 @@ public class RedisCacheServer : ICacheServer
     public async Task<TResult> Get<TResult>(ICacheKey key, Func<Task<TResult>> produceResult) where TResult : class?
     {
         var database = _connection.GetDatabase();
-        var val = (string?)await database.StringGetAsync(key.ToString());
+        var val = (string?)await TryGetFromCache(key, database);
         if (val == null)
         {
             _logger.LogInformation($"cache MISS for {key}");
             var result = await produceResult();
-            await database.StringSetAsync(key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+            await TryCache(key, result, database);
             return result;
         }
         else
         {
-            var cached = FromJson<TResult>(val);
-            if (cached.Failed || DateTime.UtcNow > cached.ExpiresOn)
+            var cached = FromJson<TResult>(val, out var failed);
+            if (failed)
             {
                 _logger.LogInformation($"cache EXPIRED or FAILED for {key}");
                 var result = await produceResult();
-                await database.StringSetAsync(key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+                await TryCache(key, result, database);
                 return result;
             }
             else
             {
                 _logger.LogInformation($"cache HIT for {key}");
-                return cached.Value!;
+                return cached!;
             }
+        }
+    }
+
+    private static async Task<RedisValue> TryGetFromCache(ICacheKey key, IDatabase database)
+    {
+        try
+        {
+            return await database.StringGetAsync(key.NoCategory());
+        }
+        catch
+        {
+            return RedisValue.Null;
+        }
+    }
+
+    private async Task TryCache<TResult>(ICacheKey key, TResult result, IDatabase database) where TResult : class?
+    {
+        var js = ToJson(result);
+        try
+        {
+            if (js != null)
+            {
+                await database.StringSetAsync(key.NoCategory(), js);
+                await database.KeyExpireAsync(key.NoCategory(), DateTime.UtcNow.AddHours(3), flags: CommandFlags.FireAndForget);
+            }
+        }
+        catch(Exception e)
+        {
+            _logger.LogError(e, $"error caching to redis");
         }
     }
 
@@ -94,7 +123,7 @@ public class RedisCacheServer : ICacheServer
         foreach (var k in keysArray)
         {
             var kc = k.ToCacheKey();
-            tasks.Add(database.StringGetAsync(kc.ToString()));
+            tasks.Add(TryGetFromCache(kc, database));
         }
 
         await Task.WhenAll(tasks);
@@ -104,9 +133,9 @@ public class RedisCacheServer : ICacheServer
             var val = (string?)tasks[i].Result;
             if (val != null)
             {
-                var cached = FromJson<TResult>(val);
-                if (!cached.Failed && DateTime.UtcNow <= cached.ExpiresOn)
-                    dic[keysArray[i]] = cached.Value!;
+                var cached = FromJson<TResult>(val, out var failed);
+                if (!failed)
+                    dic[keysArray[i]] = cached!;
                 else
                     missing.Add(keysArray[i]);
             }
@@ -115,12 +144,12 @@ public class RedisCacheServer : ICacheServer
         }
 
         var results = await produceResult(missing);
-        var storeTasks = new List<Task<bool>>();
+        var storeTasks = new List<Task>();
         foreach (var k in results.Keys)
         {
             dic[k] = results[k];
             var kc = k.ToCacheKey();
-            storeTasks.Add(database.StringSetAsync(kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
+            storeTasks.Add(TryCache(kc, results[k], database));
         }
 
         await Task.WhenAll(storeTasks);
@@ -129,43 +158,67 @@ public class RedisCacheServer : ICacheServer
 
     public async Task Clear(ICacheKey key)
     {
-        var database = _connection.GetDatabase();
-        await database.KeyDeleteAsync(key.ToString(), CommandFlags.FireAndForget);
+        try
+        {
+            var database = _connection.GetDatabase();
+            await database.KeyDeleteAsync(key.NoCategory(), CommandFlags.FireAndForget);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error clearing key {key}");
+        }
     }
 
     public async Task ClearMultiple(IEnumerable<ICacheKey> keys)
     {
-        var database = _connection.GetDatabase();
-        List<Task> allTasks = new List<Task>();
-        foreach (var key in keys)
-        {
-            allTasks.Add(database.KeyDeleteAsync(key.ToString(), CommandFlags.FireAndForget));
-        }
-        await Task.WhenAll(allTasks);
-    }
-
-    public Task ClearMultiple(params ICacheKey[] keys) => ClearMultiple((IEnumerable<ICacheKey>)keys);
-    private CachedValue<T> FromJson<T>(string val) where T : class?
-    {
         try
         {
-            return (CachedValue<T>)JsonSerializer.Deserialize(val, typeof(CachedValue<T>), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+            var database = _connection.GetDatabase();
+            List<Task> allTasks = new List<Task>();
+            foreach (var key in keys)
+            {
+                allTasks.Add(database.KeyDeleteAsync(key.NoCategory(), CommandFlags.FireAndForget));
+            }
+            await Task.WhenAll(allTasks);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "error deserializing json from redis cache");
-            return new CachedValue<T>(null, true, DateTime.UtcNow);
+            _logger.LogError(e, $"error clearing multiple keys");
         }
     }
 
-    private string ToJson<T>(T? result) where T : class?
+    public Task ClearMultiple(params ICacheKey[] keys) => ClearMultiple((IEnumerable<ICacheKey>)keys);
+    private T? FromJson<T>(string val, out bool failed) where T : class?
     {
-        var cached = new CachedValue<T>(result, false, DateTime.UtcNow.AddHours(3));
-        return JsonSerializer.Serialize(cached, typeof(CachedValue<T>), new JsonSerializerOptions
+        failed = false;
+        try
         {
-            WriteIndented = false
-        });
+            return (T)JsonSerializer.Deserialize(val, typeof(T), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error deserializing json from redis cache {typeof(T).FullName}");
+            failed = true;
+            return default(T);
+        }
     }
+
+    private string? ToJson<T>(T? result) where T : class?
+    {
+        try
+        {
+            return JsonSerializer.Serialize(result, typeof(T), new JsonSerializerOptions
+            {
+                WriteIndented = false
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"error serializing to json {typeof(T).FullName}");
+            return null;
+        }
+    }
+
     private static string GetGenericTypeName(Type type)
     {
         var typeName = string.Empty;
