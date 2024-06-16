@@ -6,3 +6,5 @@ global using System.Threading.Tasks;
 global using System.ComponentModel.DataAnnotations;
 global using Pulsar.Services.Catalog.Contracts.Enumerations;
 global using System.Text.Json.Serialization;
+global using MongoDB.Bson;
+global using Pulsar.Services.Catalog.Contracts.DTOs;

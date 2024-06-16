@@ -29,7 +29,8 @@ public class PopularCollectionsFixas : Migration
         {
             if (string.IsNullOrWhiteSpace(item))
                 continue;
-            dentes.Add(item.FromBson<Dente>());
+            var dente = item.FromBson<Dente>();
+            dentes.Add(dente);
         }
 
         await dentesCollection.DeleteManyAsync(e => true);

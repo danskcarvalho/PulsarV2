@@ -13,7 +13,7 @@ public class EstabelecimentoController : IdentityController
     /// Retorna os detalhes do estabelecimento logado.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("logado"), ScopeAuthorize("estabelecimentos.logado")]
+    [HttpGet("logado"), ScopeAuthorize("identity.estabelecimentos.logado")]
     public async Task<ActionResult<IdNomeViewModel>> Logado()
     {
         var estabelecimentoId = User.EstabelecimentoId();

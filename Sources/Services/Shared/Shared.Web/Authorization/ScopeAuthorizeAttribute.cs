@@ -6,7 +6,7 @@ public class ScopeAuthorizeAttribute : AuthorizeAttribute
 {
     public ScopeAuthorizeAttribute(string scope)
     {
-        Policy = "Scope_identity." + scope;
+        Policy = "Scope_" + scope;
         Scope = scope;
     }
 

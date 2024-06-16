@@ -55,5 +55,8 @@ public static class AllApiScopes
 
         //Catalog API
         new ApiScope(name: "catalog.*"),
+        // Dentes
+        new ApiScope(name: "catalog.dentes.*"),
+        new ApiScope(name: "catalog.dentes.listar"),
     };
 }

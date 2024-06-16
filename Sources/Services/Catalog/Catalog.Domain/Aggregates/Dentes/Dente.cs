@@ -1,9 +1,10 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Dentes;
 
-public class Dente : AggregateRoot
+public partial class Dente : AggregateRoot
 {
     public int Codigo { get; set; }
     public string Nome { get; set; }
+    public string TermosPesquisa { get; set; }
     public bool Ativo { get; set; }
 
     [BsonConstructor]
@@ -13,5 +14,6 @@ public class Dente : AggregateRoot
         Codigo = codigo;
         Nome = nome;
         Ativo = ativo;
+        TermosPesquisa = nome.Tokenize()!;
     }
 }

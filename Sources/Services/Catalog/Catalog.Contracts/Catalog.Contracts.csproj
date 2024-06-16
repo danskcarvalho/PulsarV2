@@ -16,4 +16,10 @@
 		<NoWarn>1701;1702;1591</NoWarn>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\Sync\Sync.Contracts\Sync.Contracts.csproj" />
+		<ProjectReference Include="..\..\Shared\Shared\Shared.csproj" />
+	</ItemGroup>
+
 </Project>

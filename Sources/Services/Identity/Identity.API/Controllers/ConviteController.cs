@@ -18,7 +18,7 @@ public class ConviteController : IdentityController
     /// <param name="cmd">Dados.</param>
     /// <returns>Ok.</returns>
 
-    [HttpPut, ScopeAuthorize("convites.criar"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ConvidarUsuario)]
+    [HttpPut, ScopeAuthorize("identity.convites.criar"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ConvidarUsuario)]
     public async Task<ActionResult> Criar([FromBody]CriarConviteCmd cmd)
     {
         cmd.UsuarioLogadoId = User.Id();
