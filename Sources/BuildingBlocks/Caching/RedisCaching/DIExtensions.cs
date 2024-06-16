@@ -14,7 +14,7 @@ public static class DIExtensions
         col.AddSingleton(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            return ConnectionMultiplexer.Connect(config.GetOrThrow("Redis:ConnectionString"));
+            return ConnectionMultiplexer.Connect(GetConnectionString(config));
         });
         col.AddSingleton<ICacheServer>(sp =>
         {
@@ -25,5 +25,12 @@ public static class DIExtensions
             else
                 return new RedisNullCacheServer();
         });
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionStringName = configuration.GetOrThrow("Redis:ConnectionStringName");
+        var connectionString = configuration.GetOrThrow("ConnectionStrings:" + connectionStringName);
+        return connectionString;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using Pulsar.BuildingBlocks.Caching.Abstractions;
 using Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
 using Pulsar.BuildingBlocks.DDD.Mongo.Queries;
 using Pulsar.BuildingBlocks.Sync.Contracts;
@@ -29,6 +30,7 @@ public class CatalogQueries : QueryHandler
         PrincipiosAtivosCollection = GetCollection<PrincipioAtivo>(Constants.CollectionNames.PRINCIPIOSATIVOS);
         ProcedimentosCollection = GetCollection<Procedimento>(Constants.CollectionNames.PROCEDIMENTOS);
         RegioesCollection = GetCollection<Regiao>(Constants.CollectionNames.REGIOES);
+        CacheServer = ctx.CacheServer;
         Filters = new CatalogFilterContext();
     }
 
@@ -42,16 +44,19 @@ public class CatalogQueries : QueryHandler
     protected IMongoCollection<Procedimento> ProcedimentosCollection { get; private set; }
     protected IMongoCollection<Regiao> RegioesCollection { get; private set; }
     protected CatalogFilterContext Filters { get; private set; }
+    protected ICacheServer CacheServer { get; private set; }
 }
 
 public class CatalogQueriesContext
 {
     public MongoDbSessionFactory Factory { get; }
+    public ICacheServer CacheServer { get; }
     public string ClusterName { get; }
 
-    public CatalogQueriesContext(MongoDbSessionFactory factory, string clusterName)
+    public CatalogQueriesContext(MongoDbSessionFactory factory, ICacheServer cacheServer, string clusterName)
     {
         Factory = factory;
+        CacheServer = cacheServer;
         ClusterName = clusterName;
     }
 }

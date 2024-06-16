@@ -2,44 +2,31 @@
 using Pulsar.BuildingBlocks.Caching;
 using Pulsar.BuildingBlocks.Caching.Abstractions;
 using StackExchange.Redis;
-using System.Data.Common;
 using System.Text.Json;
 
 namespace Pulsar.BuildingBlocks.RedisCaching;
 
-public class RedisCacheServer : ICacheServer
+class RedisCategory : ICategory
 {
-    private readonly ConnectionMultiplexer _connection;
+    private readonly IDatabase _database;
     private readonly ILogger<RedisCacheServer> _logger;
+    private readonly string _categoryName;
 
-    public RedisCacheServer(ConnectionMultiplexer connection, ILogger<RedisCacheServer> logger)
+    public RedisCategory(IDatabase database, ILogger<RedisCacheServer> logger, string categoryName)
     {
-        _connection = connection;
+        _database = database;
         _logger = logger;
+        _categoryName = "$$c:" + categoryName;
     }
 
-    public ICategory Category<TCategory>()
-    {
-        if (typeof(TCategory).IsGenericTypeDefinition)
-            throw new InvalidOperationException("TCategory is a generic type definition");
-
-        return new RedisCategory(_connection.GetDatabase(), _logger, GetGenericTypeName(typeof(TCategory)));
-    }
-    public ICategory Category(string categoryName)
-    {
-        if (categoryName == null)
-            throw new ArgumentNullException(nameof(categoryName));
-        return new RedisCategory(_connection.GetDatabase(), _logger, categoryName);
-    }
     public async Task<TResult> Get<TResult>(ICacheKey key, Func<Task<TResult>> produceResult) where TResult : class?
     {
-        var database = _connection.GetDatabase();
-        var val = (string?)await database.StringGetAsync(key.ToString());
+        var val = (string?)await _database.HashGetAsync(_categoryName, key.ToString());
         if (val == null)
         {
             _logger.LogInformation($"cache MISS for {key}");
             var result = await produceResult();
-            await database.StringSetAsync(key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+            await _database.HashSetAsync(_categoryName, key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
             return result;
         }
         else
@@ -49,7 +36,7 @@ public class RedisCacheServer : ICacheServer
             {
                 _logger.LogInformation($"cache EXPIRED or FAILED for {key}");
                 var result = await produceResult();
-                await database.StringSetAsync(key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
+                await _database.HashSetAsync(_categoryName, key.ToString(), ToJson(result), flags: CommandFlags.FireAndForget);
                 return result;
             }
             else
@@ -89,12 +76,11 @@ public class RedisCacheServer : ICacheServer
         Dictionary<TKey, TResult> dic = new Dictionary<TKey, TResult>();
         List<TKey> missing = new List<TKey>();
         List<Task<RedisValue>> tasks = new List<Task<RedisValue>>();
-        var database = _connection.GetDatabase();
 
         foreach (var k in keysArray)
         {
             var kc = k.ToCacheKey();
-            tasks.Add(database.StringGetAsync(kc.ToString()));
+            tasks.Add(_database.HashGetAsync(_categoryName, kc.ToString()));
         }
 
         await Task.WhenAll(tasks);
@@ -120,31 +106,13 @@ public class RedisCacheServer : ICacheServer
         {
             dic[k] = results[k];
             var kc = k.ToCacheKey();
-            storeTasks.Add(database.StringSetAsync(kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
+            storeTasks.Add(_database.HashSetAsync(_categoryName, kc.ToString(), ToJson(results[k]), flags: CommandFlags.FireAndForget));
         }
 
         await Task.WhenAll(storeTasks);
         return dic;
     }
 
-    public async Task Clear(ICacheKey key)
-    {
-        var database = _connection.GetDatabase();
-        await database.KeyDeleteAsync(key.ToString(), CommandFlags.FireAndForget);
-    }
-
-    public async Task ClearMultiple(IEnumerable<ICacheKey> keys)
-    {
-        var database = _connection.GetDatabase();
-        List<Task> allTasks = new List<Task>();
-        foreach (var key in keys)
-        {
-            allTasks.Add(database.KeyDeleteAsync(key.ToString(), CommandFlags.FireAndForget));
-        }
-        await Task.WhenAll(allTasks);
-    }
-
-    public Task ClearMultiple(params ICacheKey[] keys) => ClearMultiple((IEnumerable<ICacheKey>)keys);
     private CachedValue<T> FromJson<T>(string val) where T : class?
     {
         try
@@ -166,20 +134,26 @@ public class RedisCacheServer : ICacheServer
             WriteIndented = false
         });
     }
-    private static string GetGenericTypeName(Type type)
+
+    public async Task Clear(ICacheKey key)
     {
-        var typeName = string.Empty;
+        await _database.HashDeleteAsync(_categoryName, key.ToString(), CommandFlags.FireAndForget);
+    }
 
-        if (type.IsGenericType)
+    public async Task ClearMultiple(IEnumerable<ICacheKey> keys)
+    {
+        List<Task> allTasks = new List<Task>();
+        foreach (var key in keys)
         {
-            var genericTypes = string.Join(", ", type.GetGenericArguments().Select(t => GetGenericTypeName(t)).ToArray());
-            typeName = $"{type.FullName!.Remove(type.FullName.IndexOf('`'))}<{genericTypes}>";
+            allTasks.Add(_database.HashDeleteAsync(_categoryName, key.ToString(), CommandFlags.FireAndForget));
         }
-        else
-        {
-            typeName = type.FullName!;
-        }
+        await Task.WhenAll(allTasks);
+    }
 
-        return typeName;
+    public Task ClearMultiple(params ICacheKey[] keys) => ClearMultiple((IEnumerable<ICacheKey>)keys);
+
+    public async Task ClearAll()
+    {
+        await _database.KeyDeleteAsync(_categoryName, CommandFlags.FireAndForget);
     }
 }

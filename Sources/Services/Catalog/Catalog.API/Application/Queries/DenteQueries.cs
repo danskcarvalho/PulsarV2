@@ -1,4 +1,6 @@
-﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Pulsar.BuildingBlocks.Caching;
+using Pulsar.Services.Catalog.Contracts.DTOs;
 using Pulsar.Services.Catalog.Contracts.Queries;
 using Pulsar.Services.Catalog.Domain.Aggregates.Dentes;
 using System.Linq;
@@ -13,28 +15,43 @@ public class DenteQueries : CatalogQueries, IDenteQueries
 
     public async Task<List<DenteDTO>> Find(string? filtro)
     {
-        if (filtro.IsEmpty() || filtro?.Length <= 2)
+        var key = new { Filtro = filtro };
+        return await CacheServer.Category(CacheCategories.Find).Get(key.ToCacheKey(), async () =>
         {
-            return new List<DenteDTO>();
-        }
+            if (filtro.IsEmpty() || filtro?.Length <= 2)
+            {
+                return new List<DenteDTO>();
+            }
 
-        int codigo;
-        if (!int.TryParse(filtro, out codigo))
-        {
-            codigo = -1;
-        }
+            int codigo;
+            if (!int.TryParse(filtro, out codigo))
+            {
+                codigo = -1;
+            }
 
-        var dentes = await DentesCollection.FindAsync<Dente>(
-            Filters.Dentes.Create(f => 
-                f.Or(filtro.ToTextSearch<Dente>(), f.Eq(d => d.Codigo, codigo)))
-        ).ToListAsync();
+            var dentes = await DentesCollection.FindAsync<Dente>(
+                Filters.Dentes.Create(f =>
+                    f.Or(filtro.ToTextSearch<Dente>(), f.Eq(d => d.Codigo, codigo)))
+            ).ToListAsync();
 
-        return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
+            return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
+        });
+        
     }
 
     public async Task<List<DenteDTO>> FindAll()
     {
-        var dentes = await DentesCollection.FindAsync<Dente>(Filters.Dentes.Empty).ToListAsync();
-        return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
+        var key = (object?)null;
+        return await CacheServer.Category(CacheCategories.FindAll).Get(key.ToCacheKey(), async () =>
+        {
+            var dentes = await DentesCollection.FindAsync<Dente>(Filters.Dentes.Empty).ToListAsync();
+            return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
+        });
+    }
+
+    public static class CacheCategories
+    {
+        public const string Find = "DenteQueries.Find";
+        public const string FindAll = "DenteQueries.FindAll";
     }
 }

@@ -1,3 +1,5 @@
+using Pulsar.BuildingBlocks.Caching.Abstractions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
@@ -39,6 +41,7 @@ builder.Services.AddTransient<CatalogQueriesContext>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
     return new CatalogQueriesContext(
         sp.GetRequiredService<MongoDbSessionFactory>(),
+        sp.GetRequiredService<ICacheServer>(),
         configuration.GetOrThrow("MongoDB:ClusterName"));
 });
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomPolicyProvider>();
