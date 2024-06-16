@@ -79,7 +79,6 @@ public class DominioScenarios : IdentityScenarios
     {
         public static readonly string Criar = $"{BaseUrl}";
     }
-
     private static class Get
     {
         public static readonly string Listar = $"{BaseUrl}";

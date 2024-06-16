@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Identity.Contracts.Commands.Convites;
+﻿using Microsoft.AspNetCore.Components;
+using Pulsar.Services.Identity.Contracts.Commands.Convites;
 
 namespace Identity.UI.UnitTests.Pages;
 
@@ -21,10 +22,14 @@ public class AceitarConviteTests : TestContext
         var client = mock.Object;
         Services.AddSingleton(client);
 
-        var cut = RenderComponent<AceitarConvite>(parameters =>
-          parameters
-            .Add(p => p.ConviteId, "0")
-            .Add(p => p.Token, "1"));
+        var navigationManager = Services.GetRequiredService<NavigationManager>();
+        var uri = navigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["ConviteId"] = "0",
+            ["Token"] = "1" 
+        });
+        navigationManager.NavigateTo(uri);
+        var cut = RenderComponent<AceitarConvite>();
 
         //Pre-Verify
         Assert.Empty(cut.FindAll(".tc-successo"));

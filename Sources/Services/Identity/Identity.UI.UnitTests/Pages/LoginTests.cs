@@ -254,9 +254,13 @@ public class LoginTests : TestContext
         JSInterop.SetupVoid("InitializeSelectComponents", _ => true).SetVoidResult();
         Services.AddSingleton(client);
 
-        var cut = RenderComponent<Login>(parameters =>
-             parameters
-               .Add(p => p.ReturnUrl, "https://www.microsoft.com"));
+        var navigationManager = Services.GetRequiredService<NavigationManager>();
+        var uri = navigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["ReturnUrl"] = "https://www.microsoft.com"
+        });
+        navigationManager.NavigateTo(uri);
+        var cut = RenderComponent<Login>();
         return (cut, mockLogin);
     }
 

@@ -1,4 +1,6 @@
-﻿namespace Identity.UI.UnitTests.Pages;
+﻿using Microsoft.AspNetCore.Components;
+
+namespace Identity.UI.UnitTests.Pages;
 
 public class RecuperarSenhaTests : TestContext
 {
@@ -19,10 +21,14 @@ public class RecuperarSenhaTests : TestContext
 
         var client = mock.Object;
         Services.AddSingleton(client);
-        var cut = RenderComponent<RecuperarSenha>(parameters =>
-          parameters
-            .Add(p => p.Token, "0")
-            .Add(p => p.UserId, "1"));
+        var navigationManager = Services.GetRequiredService<NavigationManager>();
+        var uri = navigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["Token"] = "0",
+            ["UserId"] = "1"
+        });
+        navigationManager.NavigateTo(uri);
+        var cut = RenderComponent<RecuperarSenha>();
 
         var senha = cut.Find(".tc-senha");
         Assert.NotNull(senha);

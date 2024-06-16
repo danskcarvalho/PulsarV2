@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  pulsar-testing-mongo:
+    image: mongo:latest
+    container_name: pulsar-testing-mongo
+    restart: always
+    volumes:
+      - PulsarMongoDBTestingData:/data/db
+      - ./rs-initiate.js:/docker-entrypoint-initdb.d/rs-initiate.js
+    ports:
+      - 27019:27017
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+  pulsar-testing-redis:
+    image: redis:latest
+    container_name: pulsar-testing-redis
+    restart: always
+    volumes:
+        - PulsarRedisTestingData:/data
+    ports:
+        - 6381:6379
+    command: ["--save", "60", "1", "--loglevel", "warning"]
+
+volumes:
+    PulsarMongoDBTestingData:
+    PulsarRedisTestingData:
