@@ -1,10 +1,11 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Ineps;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 [BsonDiscriminator("Regiao", RootClass = true)]
 [BsonKnownTypes(typeof(MunicipioRegiao), typeof(PaisRegiao), typeof(EstadoRegiao))]
-public class Regiao : AggregateRoot
+public partial class Regiao : AggregateRoot
 {
     public TipoLocal Tipo { get; set; }
     public long Codigo { get; set; }

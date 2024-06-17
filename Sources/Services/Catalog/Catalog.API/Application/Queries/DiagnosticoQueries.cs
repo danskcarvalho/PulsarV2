@@ -26,21 +26,22 @@ public class DiagnosticoQueries : CatalogQueries, IDiagnosticoQueries
 
             var codigo = filtro?.Trim();
 
-            var predicate = Filters.Diagnosticos.Create(f => 
+            var predicate = Builders<Diagnostico>.Filter.Create(f => 
                 f.Or(filtro.ToTextSearch<Diagnostico>(), f.Eq(d => d.Codigo, codigo))
             );
 
             if (sexo != null)
             {
-                predicate = Filters.Diagnosticos.Create(f => f.And(predicate, f.Or(f.Eq(d => d.Sexo, sexo), f.Eq(d => d.Sexo, null))));
+                predicate = Builders<Diagnostico>.Filter.Create(f => f.And(predicate, f.Or(f.Eq(d => d.Sexo, sexo), f.Eq(d => d.Sexo, null))));
             }
             if (tipo != null)
             {
-                predicate = Filters.Diagnosticos.Create(f => f.And(predicate, f.Eq(d => d.Tipo, tipo)));
+                predicate = Builders<Diagnostico>.Filter.Create(f => f.And(predicate, f.Eq(d => d.Tipo, tipo)));
             }
             return await DiagnosticosCollection.FindAsync(predicate, new FindOptions<Diagnostico, DiagnosticoDTO>()
             {
                 Projection = Builders<Diagnostico>.Projection.Expression(d => new DiagnosticoDTO(d.Id.ToString(), d.Tipo, d.Codigo, d.Nome, d.Sexo)),
+                Sort = Builders<Diagnostico>.Sort.Ascending(d => d.Nome),
                 Limit = 100
             }).ToListAsync();
         });

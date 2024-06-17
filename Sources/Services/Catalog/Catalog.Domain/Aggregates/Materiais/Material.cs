@@ -1,11 +1,12 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 
 [BsonDiscriminator("Material", RootClass = true)]
 [BsonKnownTypes(typeof(Vacina), typeof(Medicamento))]
-public class Material : AggregateRoot
+public partial class Material : AggregateRoot
 {
     public string Nome { get; set; }
     public TipoMaterial Tipo { get; set; }

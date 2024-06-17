@@ -36,5 +36,8 @@ namespace Pulsar.BuildingBlocks.DDD.Mongo
 
             return Builders<T>.Filter.And(searchTerms.ToArray());
         }
+
+        public static FilterDefinition<T> FilterFromBson<T>(this FilterDefinitionBuilder<T> builder, BsonDocument bson) => new BsonDocumentFilterDefinition<T>(bson);
+        public static FilterDefinition<T> Create<T>(this FilterDefinitionBuilder<T> builder, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> lambda) => lambda(builder);
     }
 }

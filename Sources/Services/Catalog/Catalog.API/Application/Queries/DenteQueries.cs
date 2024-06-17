@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Pulsar.BuildingBlocks.Caching;
+﻿using Pulsar.BuildingBlocks.Caching;
 using Pulsar.Services.Catalog.Contracts.DTOs;
 using Pulsar.Services.Catalog.Contracts.Queries;
 using Pulsar.Services.Catalog.Domain.Aggregates.Dentes;
-using System.Linq;
 
 namespace Pulsar.Services.Catalog.API.Application.Queries;
 
@@ -29,10 +27,14 @@ public class DenteQueries : CatalogQueries, IDenteQueries
                 codigo = -1;
             }
 
-            var predicate = Filters.Dentes.Create(f =>
+            var predicate = Builders<Dente>.Filter.Create(f =>
                     f.Or(filtro.ToTextSearch<Dente>(), f.Eq(d => d.Codigo, codigo)));
-            var dentes = await DentesCollection.FindAsync<Dente>(
-                predicate
+            var dentes = await DentesCollection.FindAsync(
+                predicate,
+                new MongoDB.Driver.FindOptions<Dente, Dente>
+                {
+                    Sort = Builders<Dente>.Sort.Ascending(d => d.Nome)
+                }
             ).ToListAsync();
 
             return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
@@ -45,7 +47,12 @@ public class DenteQueries : CatalogQueries, IDenteQueries
         var key = (object?)null;
         return await CacheServer.Category(CacheCategories.FindAll).Get(key.ToCacheKey(), async () =>
         {
-            var dentes = await DentesCollection.FindAsync<Dente>(Filters.Dentes.Empty).ToListAsync();
+            var dentes = await DentesCollection.FindAsync<Dente>(
+                Builders<Dente>.Filter.Empty,
+                new MongoDB.Driver.FindOptions<Dente, Dente>
+                {
+                    Sort = Builders<Dente>.Sort.Ascending(d => d.Nome)
+                }).ToListAsync();
             return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();
         });
     }

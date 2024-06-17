@@ -9,5 +9,12 @@ public static class DIExtensions
     {
         collection.AddTransient<IDenteQueries, DenteQueries>();
         collection.AddTransient<IDiagnosticoQueries, DiagnosticoQueries>();
+        collection.AddTransient<IEspecialidadeQueries, EspecialidadeQueries>();
+        collection.AddTransient<IEtniaQueries, EtniaQueries>();
+        collection.AddTransient<IInepQueries, InepQueries>();
+        collection.AddTransient<IMaterialQueries, MaterialQueries>();
+        collection.AddTransient<IPrincipioAtivoQueries, PrincipioAtivoQueries>();
+        collection.AddTransient<IProcedimentoQueries, ProcedimentoQueries>();
+        collection.AddTransient<IRegiaoQueries, RegiaoQueries>();
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Ineps;
 
-public class Inep : AggregateRoot
+public partial class Inep : AggregateRoot
 {
     public string Codigo { get; set; }
     public string Nome { get; set; }

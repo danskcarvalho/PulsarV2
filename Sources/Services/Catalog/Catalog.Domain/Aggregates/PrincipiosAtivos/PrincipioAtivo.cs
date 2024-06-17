@@ -1,8 +1,9 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Ineps;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
 
-public class PrincipioAtivo : AggregateRoot
+public partial class PrincipioAtivo : AggregateRoot
 {
     public string Nome { get; set; }
     public string CodigoEsus { get; set; }

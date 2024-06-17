@@ -20,7 +20,7 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
             var (dominios, next) = await DominiosCollection.Paginated(cursor).FindAsync(
                 c => c!.showHidden == true ?
                      c.filtro.ToTextSearch<Dominio>() :
-                     Filters.Dominios.Create(f => f.And(c.filtro.ToTextSearch<Dominio>(), f.Eq(d => d.AuditInfo.EscondidoEm, null))));
+                     Builders<Dominio>.Filter.Create(f => f.And(c.filtro.ToTextSearch<Dominio>(), f.Eq(d => d.AuditInfo.EscondidoEm, null))));
 
             var usuarioIds = dominios.Where(x => x.UsuarioAdministradorId.HasValue).Select(x => x.UsuarioAdministradorId!.Value).ToList();
             var usuarios = (await UsuariosCollection.FindAsync(x => usuarioIds.Contains(x.Id)).ToListAsync()).MapByUnique(x => x.Id);
@@ -50,8 +50,8 @@ public partial class DominioQueries : IdentityQueries, IDominioQueries
             var cursor = _UsuarioPaginator.ForLimit(limit ?? 50).ForFilter(new { filtro, dominioId }).ForToken(cursorToken);
             var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsync(projection, c =>
             {
-                var textSearch = !IsEmail(c!.filtro) ? c.filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.filtro));
-                return Filters.Usuarios.Create(f => f.And(textSearch, f.AnyEq(u => u.DominiosBloqueados, c.dominioId.ToObjectId()), f.Ne(f => f.Email, null)));
+                var textSearch = !IsEmail(c!.filtro) ? c.filtro.ToTextSearch<Usuario>() : Builders<Usuario>.Filter.Create(f => f.Eq(u => u.Email, c.filtro));
+                return Builders<Usuario>.Filter.Create(f => f.And(textSearch, f.AnyEq(u => u.DominiosBloqueados, c.dominioId.ToObjectId()), f.Ne(f => f.Email, null)));
             });
 
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);

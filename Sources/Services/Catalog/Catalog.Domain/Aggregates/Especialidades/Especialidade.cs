@@ -1,8 +1,9 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
-public class Especialidade : AggregateRoot
+public partial class Especialidade : AggregateRoot
 {
     public  string Codigo { get; set; }
     public  string Nome { get; set; }

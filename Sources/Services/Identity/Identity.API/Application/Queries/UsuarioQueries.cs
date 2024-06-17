@@ -35,8 +35,8 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
             var (usuarios, next) = await UsuariosCollection.Paginated(cursor).FindAsync(projection,
             c =>
             {
-                var textSearch = !IsEmail(c!.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
-                return Filters.Usuarios.Create(f => f.And(textSearch, f.Ne(u => u.Email, null)));
+                var textSearch = !IsEmail(c!.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Builders<Usuario>.Filter.Create(f => f.Eq(u => u.Email, c.Filtro));
+                return Builders<Usuario>.Filter.Create(f => f.And(textSearch, f.Ne(u => u.Email, null)));
             });
             return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
         }, filtro.ConsistencyToken);
@@ -81,7 +81,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         {
             var allIds = usuarioIds.Select(x => x.ToObjectId()).ToList();
             var usuarios = await UsuariosCollection.FindAsync(u => allIds.Contains(u.Id)).ToListAsync();
-            var grupos = await GruposCollection.FindAsync(Filters.Grupos.Create(f => 
+            var grupos = await GruposCollection.FindAsync(Builders<Grupo>.Filter.Create(f => 
                 f.And(
                     f.Eq(g => g.AuditInfo.RemovidoEm, null), 
                     f.ElemMatch(g => g.SubGrupos, Builders<SubGrupo>.Filter.AnyIn(sg => sg.UsuarioIds, allIds))))).ToListAsync();
@@ -148,7 +148,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
         var estabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>(), ReadPref.Primary);
 
         var allIds = new ObjectId[] { usuario.Id };
-        var grupos = await GruposCollection.FindAsync(Filters.Grupos.Create(f =>
+        var grupos = await GruposCollection.FindAsync(Builders<Grupo>.Filter.Create(f =>
             f.And(
                 f.Eq(g => g.AuditInfo.RemovidoEm, null),
                 f.ElemMatch(g => g.SubGrupos, Builders<SubGrupo>.Filter.AnyIn(sg => sg.UsuarioIds, allIds))))).ToListAsync();

@@ -22,7 +22,7 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                  c =>
                  {
                      var textSearch = c!.Filtro.ToTextSearch<Grupo>();
-                     return Filters.Grupos.Create(f => f.And(
+                     return Builders<Grupo>.Filter.Create(f => f.And(
                          textSearch,
                          f.Eq(g => g.DominioId, dominioId.ToObjectId()),
                          f.Eq(g => g.AuditInfo.RemovidoEm, null)));
@@ -60,8 +60,8 @@ public partial class GrupoQueries : IdentityQueries, IGrupoQueries
                      if (subgrupo == null)
                          return null;
 
-                     var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Filters.Usuarios.Create(f => f.Eq(u => u.Email, c.Filtro));
-                     return Filters.Usuarios.Create(f => f.And(
+                     var textSearch = !IsEmail(c.Filtro) ? c.Filtro.ToTextSearch<Usuario>() : Builders<Usuario>.Filter.Create(f => f.Eq(u => u.Email, c.Filtro));
+                     return Builders<Usuario>.Filter.Create(f => f.And(
                          textSearch,
                          f.In(u => u.Id, subgrupo.UsuarioIds),
                          f.Ne(u => u.Email, null)));

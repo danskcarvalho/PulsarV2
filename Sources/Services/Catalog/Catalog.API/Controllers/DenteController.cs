@@ -13,21 +13,12 @@ public class DenteController : CatalogController
     {
     }
 
-    /// <summary>
-    /// Lista os dentes de acordo com o filtro. Se o filtro for vazio, nenhum dente será retornado.
-    /// </summary>
-    /// <param name="filtro">Filtro ou código do dente.</param>
-    /// <returns>Dentes.</returns>
     [HttpGet, ScopeAuthorize("catalog.dentes.listar")]
     public async Task<ActionResult<List<DenteDTO>>> Get(string? filtro)
     {
         return Ok(await DenteQueries.Find(filtro));
     }
 
-    /// <summary>
-    /// Lista todos os dentes.
-    /// </summary>
-    /// <returns>Todos os dentes.</returns>
     [HttpGet("todos"), ScopeAuthorize("catalog.dentes.listar")]
     public async Task<ActionResult<List<DenteDTO>>> GetAll()
     {

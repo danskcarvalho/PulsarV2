@@ -1,8 +1,9 @@
 ﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Etnias;
 
-public class Etnia : AggregateRoot
+public partial class Etnia : AggregateRoot
 {
     public int Codigo { get; set; }
     public string Nome { get; set; }

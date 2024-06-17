@@ -19,3 +19,4 @@ global using Pulsar.Services.Shared.API.Services;
 global using Constants = Pulsar.Services.Catalog.Domain.Constants;
 global using Pulsar.Services.Catalog.API.Utils;
 global using Microsoft.AspNetCore.Mvc;
+global using MongoDB.Driver;

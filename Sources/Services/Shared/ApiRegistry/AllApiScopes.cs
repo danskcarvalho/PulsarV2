@@ -58,6 +58,21 @@ public static class AllApiScopes
         // Dentes
         new ApiScope("catalog.dentes.*"),
         new ApiScope("catalog.dentes.listar"),
-        new ApiScope("catalog.diagnosticos.listar")
+        new ApiScope("catalog.diagnosticos.*"),
+        new ApiScope("catalog.diagnosticos.listar"),
+        new ApiScope("catalog.especialidades.*"),
+        new ApiScope("catalog.especialidades.listar"),
+        new ApiScope("catalog.etnias.*"),
+        new ApiScope("catalog.etnias.listar"),
+        new ApiScope("catalog.ineps.*"),
+        new ApiScope("catalog.ineps.listar"),
+        new ApiScope("catalog.materiais.*"),
+        new ApiScope("catalog.materiais.listar"),
+        new ApiScope("catalog.principiosativos.*"),
+        new ApiScope("catalog.principiosativos.listar"),
+        new ApiScope("catalog.procedimentos.*"),
+        new ApiScope("catalog.procedimentos.listar"),
+        new ApiScope("catalog.regioes.*"),
+        new ApiScope("catalog.regioes.listar"),
     };
 }

@@ -2,5 +2,5 @@
 
 public interface IMaterialQueries
 {
-    public Task<List<MaterialDTO>> Find(string? filtro, TipoMaterial? tipo);
+    public Task<List<MaterialDTO>> Find(string? filtro, TipoMaterial? tipo, string? principioAtivoId);
 }
