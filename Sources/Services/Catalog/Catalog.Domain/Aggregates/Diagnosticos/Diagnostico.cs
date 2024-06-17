@@ -1,6 +1,6 @@
 ﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
 
-public class Diagnostico : AggregateRoot
+public partial class Diagnostico : AggregateRoot
 {
     public TipoDiagnostico Tipo { get; set; }
     public string Codigo { get; set; }

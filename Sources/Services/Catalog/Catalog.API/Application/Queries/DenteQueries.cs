@@ -29,9 +29,10 @@ public class DenteQueries : CatalogQueries, IDenteQueries
                 codigo = -1;
             }
 
+            var predicate = Filters.Dentes.Create(f =>
+                    f.Or(filtro.ToTextSearch<Dente>(), f.Eq(d => d.Codigo, codigo)));
             var dentes = await DentesCollection.FindAsync<Dente>(
-                Filters.Dentes.Create(f =>
-                    f.Or(filtro.ToTextSearch<Dente>(), f.Eq(d => d.Codigo, codigo)))
+                predicate
             ).ToListAsync();
 
             return dentes.Select(d => new DenteDTO(d.Id.ToString(), d.Codigo, d.Nome)).ToList();

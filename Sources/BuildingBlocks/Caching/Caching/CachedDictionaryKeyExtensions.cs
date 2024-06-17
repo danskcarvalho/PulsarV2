@@ -14,6 +14,8 @@ public static class CachedDictionaryKeyExtensions
             return new CachedPrimitiveValue(obj);
         else if (obj.GetType().IsPrimitive)
             return new CachedPrimitiveValue(obj);
+        else if (obj.GetType().IsEnum)
+            return new CachedPrimitiveValue(obj);
         else if (obj is IEnumerable en)
             return new CachedArrayKey<object?>(en.Cast<object>().Select(x => ToCacheKey(x)));
         else if (obj is ITuple t)

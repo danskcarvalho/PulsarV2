@@ -54,7 +54,7 @@ namespace Pulsar.BuildingBlocks.Migrations
                 {
                     Unique = b.IsUnique,
                     Name = $"ix_{idx.Key}",
-                    Collation = b.IsText ? Collation.Simple : new Collation("pt", caseLevel: false)
+                    Collation = Collation.Simple
                 }));
             }
         }
