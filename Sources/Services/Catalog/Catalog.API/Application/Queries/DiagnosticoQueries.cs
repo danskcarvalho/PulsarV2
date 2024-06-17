@@ -40,7 +40,8 @@ public class DiagnosticoQueries : CatalogQueries, IDiagnosticoQueries
             }
             return await DiagnosticosCollection.FindAsync(predicate, new FindOptions<Diagnostico, DiagnosticoDTO>()
             {
-                Projection = Builders<Diagnostico>.Projection.Expression(d => new DiagnosticoDTO(d.Id.ToString(), d.Tipo, d.Codigo, d.Nome, d.Sexo))
+                Projection = Builders<Diagnostico>.Projection.Expression(d => new DiagnosticoDTO(d.Id.ToString(), d.Tipo, d.Codigo, d.Nome, d.Sexo)),
+                Limit = 100
             }).ToListAsync();
         });
     }
