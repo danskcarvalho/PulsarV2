@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 [BsonDiscriminator("Regiao", RootClass = true)]
 [BsonKnownTypes(typeof(MunicipioRegiao), typeof(PaisRegiao), typeof(EstadoRegiao))]
@@ -19,5 +21,10 @@ public class Regiao : AggregateRoot
         Nome = nome;
         TermosPesquisa = termosPesquisa;
         Ativo = ativo;
+    }
+
+    public virtual RegiaoDTO ToDTO()
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Etnias;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Etnias;
 
 public class Etnia : AggregateRoot
 {
@@ -15,5 +17,10 @@ public class Etnia : AggregateRoot
         Nome = nome;
         TermosPesquisa = termosPesquisa;
         Ativo = ativo;
+    }
+
+    public EtniaDTO ToDTO()
+    {
+        return new EtniaDTO(Id.ToString(), Codigo, Nome);
     }
 }

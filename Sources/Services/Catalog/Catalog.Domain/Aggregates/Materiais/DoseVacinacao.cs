@@ -1,4 +1,7 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
+﻿
+using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 
 public class DoseVacinacao
 {
@@ -12,5 +15,10 @@ public class DoseVacinacao
         Codigo = codigo;
         Nome = nome;
         Estrategias = estrategias;
+    }
+
+    public DoseVacinacaoDTO ToDTO()
+    {
+        return new DoseVacinacaoDTO(Codigo, Nome, Estrategias.ToList());
     }
 }

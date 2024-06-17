@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 
 [BsonDiscriminator("Vacina")]
 public class Vacina : Material
@@ -21,5 +23,10 @@ public class Vacina : Material
         Doses = doses;
         Estrategias = estrategias;
         Calendario = calendario;
+    }
+
+    public override MaterialDTO ToDTO()
+    {
+        return new VacinaDTO(Id.ToString(), ImunobiologicoNome, ImunobiologicoId, Doses.Select(d => d.ToDTO()).ToList(), Estrategias.Select(e => e.ToDTO()).ToList());
     }
 }

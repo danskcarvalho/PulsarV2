@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
 public class EspecialidadeResumida
 {
@@ -12,5 +14,10 @@ public class EspecialidadeResumida
         EspecialidadeId = especialidadeId;
         Codigo = codigo;
         Nome = nome;
+    }
+
+    public EspecialidadeDTO ToDTO()
+    {
+        return new EspecialidadeDTO(EspecialidadeId.ToString(), Codigo, Nome);
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
+﻿
+using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 public class MedicamentoUnidadeFornecimento
 {
     public ObjectId UnidadeFornecimentoId { get; set; }
@@ -11,5 +14,10 @@ public class MedicamentoUnidadeFornecimento
         UnidadeFornecimentoId = unidadeFornecimentoId;
         Nome = nome;
         CodigoEsus = codigoEsus;
+    }
+
+    public MedicamentoUnidadeFornecimentoDTO ToDTO()
+    {
+        return new MedicamentoUnidadeFornecimentoDTO(UnidadeFornecimentoId.ToString(), Nome, CodigoEsus);
     }
 }

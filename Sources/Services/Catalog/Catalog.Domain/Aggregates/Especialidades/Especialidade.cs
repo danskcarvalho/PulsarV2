@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
 public class Especialidade : AggregateRoot
 {
@@ -42,5 +44,10 @@ public class Especialidade : AggregateRoot
         GeraFichaComplementarZikaMicrocefalia = geraFichaComplementarZikaMicrocefalia;
         TermosPesquisa = termosPesquisa;
         Ativo = ativo;
+    }
+
+    public EspecialidadeDTO ToDTO()
+    {
+        return new EspecialidadeDTO(Id.ToString(), Codigo, Nome);
     }
 }

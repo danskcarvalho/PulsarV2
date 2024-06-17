@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Procedimentos
 {
@@ -37,6 +38,12 @@ namespace Pulsar.Services.Catalog.Domain.Aggregates.Procedimentos
             Especialidades = especialidades;
             ResultadosEspecificos = resultadosEspecificos;
             Ativo = ativo;
+        }
+
+        public ProcedimentoDTO ToDTO()
+        {
+            return new ProcedimentoDTO(Id.ToString(), Codigo, Nome, Sexo, Complexidade, IdadeMinimaEmDias, IdadeMaximaEmDias, ProcedimentoAb, PodeInformarResultadoEspecifico, PodeInformarResultadoNumerico,
+                Especialidades.Select(e => e.ToDTO()).ToList(), ResultadosEspecificos.ToList());
         }
     }
 }

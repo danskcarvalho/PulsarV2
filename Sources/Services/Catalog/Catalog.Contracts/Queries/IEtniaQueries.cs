@@ -2,4 +2,5 @@
 
 public interface IEtniaQueries
 {
+    public Task<List<EtniaDTO>> Find(string? filtro);
 }

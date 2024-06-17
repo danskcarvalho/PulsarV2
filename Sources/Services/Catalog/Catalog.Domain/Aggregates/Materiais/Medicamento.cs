@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 
@@ -26,5 +27,10 @@ public class Medicamento : Material
         PrincipioAtivo = principioAtivo;
         UnidadesFornecimento = unidadesFornecimento;
         Doses = doses;
+    }
+
+    public override MaterialDTO ToDTO()
+    {
+        return new MedicamentoDTO(Id.ToString(), Denominacao, Forma, Concentracao, CodigoEsus, PrincipioAtivo.ToDTO(), UnidadesFornecimento.Select(u => u.ToDTO()).ToList(), Doses.ToList());
     }
 }

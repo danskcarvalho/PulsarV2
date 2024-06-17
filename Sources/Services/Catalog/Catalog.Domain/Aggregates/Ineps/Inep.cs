@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Ineps;
 
@@ -19,5 +20,10 @@ public class Inep : AggregateRoot
         TermosPesquisa = termosPesquisa;
         Municipio = municipio;
         Ativo = ativo;
+    }
+
+    public InepDTO ToDTO()
+    {
+        return new InepDTO(Id.ToString(), Codigo, Nome);
     }
 }

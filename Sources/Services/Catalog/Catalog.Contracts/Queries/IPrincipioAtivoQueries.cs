@@ -2,4 +2,5 @@
 
 public interface IPrincipioAtivoQueries
 {
+    public Task<List<PrincipioAtivoDTO>> Find(string? filtro);
 }

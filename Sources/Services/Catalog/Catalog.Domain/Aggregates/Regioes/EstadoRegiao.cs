@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 [BsonDiscriminator("EstadoRegiao")]
 public class EstadoRegiao : Regiao
@@ -12,5 +14,10 @@ public class EstadoRegiao : Regiao
     {
         Sigla = sigla;
         Pais = pais;
+    }
+
+    public override RegiaoDTO ToDTO()
+    {
+        return new RegiaoDTO(Id.ToString(), TipoLocal.Estado, Codigo, Nome, Sigla);
     }
 }

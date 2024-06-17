@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
 
 public class PrincipioAtivo : AggregateRoot
 {
@@ -17,5 +19,10 @@ public class PrincipioAtivo : AggregateRoot
         Categoria = categoria;
         Tipo = tipo;
         TermosPesquisa = termosPesquisa;
+    }
+
+    public PrincipioAtivoDTO ToDTO()
+    {
+        return new PrincipioAtivoDTO(Id.ToString(), Nome, CodigoEsus, Categoria, Tipo);
     }
 }

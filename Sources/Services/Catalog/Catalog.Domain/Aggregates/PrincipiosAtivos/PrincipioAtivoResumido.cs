@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.PrincipiosAtivos;
 public class PrincipioAtivoResumido
 {
     public ObjectId PrincipioAtivoId { get; set; }
@@ -15,6 +17,11 @@ public class PrincipioAtivoResumido
         CodigoEsus = codigoEsus;
         Categoria = categoria;
         Tipo = tipo;
+    }
+
+    public PrincipioAtivoDTO ToDTO()
+    {
+        return new PrincipioAtivoDTO(PrincipioAtivoId.ToString(), Nome, CodigoEsus, Categoria, Tipo);
     }
 }
 

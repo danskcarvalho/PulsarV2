@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
+﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+using Pulsar.Services.Catalog.Domain.Aggregates.Regioes;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Materiais;
 
@@ -19,5 +20,10 @@ public class Material : AggregateRoot
         Tipo = tipo;
         TermosPesquisa = termosPesquisa;
         Ativo = ativo;
+    }
+
+    public virtual MaterialDTO ToDTO()
+    {
+        throw new NotImplementedException();
     }
 }
