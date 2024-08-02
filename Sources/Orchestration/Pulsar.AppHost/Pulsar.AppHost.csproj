@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Frontends\Web\Pulsar.Web\Pulsar.Web\Pulsar.Web.csproj" />
     <ProjectReference Include="..\..\Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
     <ProjectReference Include="..\..\Services\Catalog\Catalog.API\Catalog.API.csproj" />
     <ProjectReference Include="..\..\Services\Catalog\Catalog.Migrations\Catalog.Migrations.csproj" />

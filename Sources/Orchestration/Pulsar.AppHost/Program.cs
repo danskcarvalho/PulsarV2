@@ -45,9 +45,17 @@ var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
     .WithReference(redis)
     .WithReference(catalogMigrations);
 
+
+var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
+
 // CROSS REFERENCES
-catalogApi.WithReference(identityApi);
+// IDENTITY-API
 identityApi.WithReference(catalogApi);
+identityApi.WithReference(frontend);
+// CATALOG-API
+catalogApi.WithReference(identityApi);
+// FRONTEND
+frontend.WithReference(identityApi);
 
 
 builder.Build().Run();

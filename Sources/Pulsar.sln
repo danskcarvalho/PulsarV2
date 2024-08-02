@@ -135,15 +135,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.ServiceDefaults", "O
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orchestration", "Orchestration", "{9CEDC221-01D8-4703-BFF3-5342F2E0CEB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.Infrastructure", "Services\Catalog\Catalog.Infrastructure\Catalog.Infrastructure.csproj", "{E25EB11C-EE10-42EC-8391-71ACCE33AAD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Infrastructure", "Services\Catalog\Catalog.Infrastructure\Catalog.Infrastructure.csproj", "{E25EB11C-EE10-42EC-8391-71ACCE33AAD0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{5BCA7AEF-F6FC-4C00-82DD-CBAE2C1C08A3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.API", "Services\Catalog\Catalog.API\Catalog.API.csproj", "{9E46AC89-CF59-44B7-910B-915582B2B96A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Web", "Services\Shared\Shared.Web\Shared.Web.csproj", "{182F3C41-0AAC-4FCB-B279-5DB96429B20D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Web", "Services\Shared\Shared.Web\Shared.Web.csproj", "{182F3C41-0AAC-4FCB-B279-5DB96429B20D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiRegistry", "Services\Shared\ApiRegistry\ApiRegistry.csproj", "{FB98D324-4B45-49F4-AC8D-5163933952C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiRegistry", "Services\Shared\ApiRegistry\ApiRegistry.csproj", "{FB98D324-4B45-49F4-AC8D-5163933952C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontends", "Frontends", "{883449A4-3184-4BCC-99B3-42B3C534B89F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{77974CDE-DD1A-4337-B448-9E284DA663F9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.Web", "Frontends\Web\Pulsar.Web\Pulsar.Web\Pulsar.Web.csproj", "{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulsar.Web.Client", "Frontends\Web\Pulsar.Web\Pulsar.Web.Client\Pulsar.Web.Client.csproj", "{09FEB956-EFCD-45A7-B3A5-D12EB166B038}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -331,6 +339,14 @@ Global
 		{FB98D324-4B45-49F4-AC8D-5163933952C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB98D324-4B45-49F4-AC8D-5163933952C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB98D324-4B45-49F4-AC8D-5163933952C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09FEB956-EFCD-45A7-B3A5-D12EB166B038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09FEB956-EFCD-45A7-B3A5-D12EB166B038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09FEB956-EFCD-45A7-B3A5-D12EB166B038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09FEB956-EFCD-45A7-B3A5-D12EB166B038}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -406,6 +422,10 @@ Global
 		{9E46AC89-CF59-44B7-910B-915582B2B96A} = {5BCA7AEF-F6FC-4C00-82DD-CBAE2C1C08A3}
 		{182F3C41-0AAC-4FCB-B279-5DB96429B20D} = {A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29}
 		{FB98D324-4B45-49F4-AC8D-5163933952C4} = {A6FF0B87-4EC6-48AA-A6F6-E29F3FF31A29}
+		{883449A4-3184-4BCC-99B3-42B3C534B89F} = {AEBF4778-AFF1-4C30-92D1-4D72E072D613}
+		{77974CDE-DD1A-4337-B448-9E284DA663F9} = {883449A4-3184-4BCC-99B3-42B3C534B89F}
+		{7A5280A4-BCD5-4777-BDFB-13C0EE3F9165} = {77974CDE-DD1A-4337-B448-9E284DA663F9}
+		{09FEB956-EFCD-45A7-B3A5-D12EB166B038} = {77974CDE-DD1A-4337-B448-9E284DA663F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {735055DE-52CD-4E1C-AB41-C0EF5BD223A9}
