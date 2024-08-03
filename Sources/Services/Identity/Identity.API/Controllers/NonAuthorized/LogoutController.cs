@@ -27,7 +27,8 @@ public class LogoutController : IdentityController
     [HttpPost]
     public async Task<ActionResult<LogoutResultDTO>> TryLogout([FromBody] LogoutDTO logout)
     {
-        if (User == null || User.Identity == null || User.Identity.IsAuthenticated == false)
+        var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (!result.Succeeded || result.Principal == null || result.Principal.Identity == null || !result.Principal.Identity.IsAuthenticated)
         {
             // if the user is not authenticated, then just show logged out page
             return Ok(new LogoutResultDTO()
@@ -54,7 +55,11 @@ public class LogoutController : IdentityController
 
     public async Task<ActionResult<LogoutResultDTO>> Logout([FromBody] LogoutDTO lougoutModel)
     {
-        if (User?.Identity?.IsAuthenticated == true)
+        var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        var isAuthenticated = !result.Succeeded || result.Principal == null || result.Principal.Identity == null || !result.Principal.Identity.IsAuthenticated;
+        isAuthenticated = !isAuthenticated;
+
+        if (isAuthenticated)
         {
             // delete local authentication cookie
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

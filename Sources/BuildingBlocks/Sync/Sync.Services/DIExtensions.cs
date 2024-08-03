@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿#define NO_COMMAND_OUTPUT
 using System.Reflection;
 using Pulsar.BuildingBlocks.Utils;
 using Microsoft.Extensions.DependencyInjection;

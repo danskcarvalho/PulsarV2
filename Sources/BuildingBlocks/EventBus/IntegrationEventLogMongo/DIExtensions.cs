@@ -1,4 +1,4 @@
-﻿//#define NO_COMMAND_OUTPUT
+﻿#define NO_COMMAND_OUTPUT
 using MongoDB.Driver.Core.Events;
 using Pulsar.BuildingBlocks.DDD.Mongo.Mapping;
 using Pulsar.BuildingBlocks.Utils;
