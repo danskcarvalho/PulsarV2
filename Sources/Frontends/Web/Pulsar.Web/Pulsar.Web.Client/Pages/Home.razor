@@ -10,17 +10,8 @@
         <FluentLabel Typo="Typography.Subject">Home</FluentLabel>
         <FluentIcon Value="@(new Icons.Regular.Size24.Home())" Color="@Color.Neutral" Slot="start" />
     </FluentBreadcrumbItem>
-    <button @onclick="Clicked">Hello</button>
 </FluentBreadcrumb>
 
 <div style="margin-top: 25px;">
     Bem vindo ao Pulsar, <b>Danilo Carvalho</b>.
 </div>
-
-@code {
-    protected async Task Clicked()
-    {
-        var response = await Http.GetStringAsync("api/catalog/v2/dentes/todos");
-        Console.WriteLine(response);
-    }
-}

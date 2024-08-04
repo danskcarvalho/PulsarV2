@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,15 +10,32 @@
     <link rel="stylesheet" href="Pulsar.Web.styles.css" />
     <link rel="icon" type="image/x-icon" href="favicon/favicon.ico" />
     <link href="_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css" rel="stylesheet" />
-    
+
     <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 
 <body>
-    <div id="app">
-        <iframe src="loading.html" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%">
-        </iframe>
-    </div>
+    @if (!HostEnvironment.IsDevelopment())
+    {
+        @* This is because the iframe will stop loading *@
+        <div id="app">
+            <iframe src="loading.html" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%">
+            </iframe>
+        </div>
+    }
+    else
+    {
+        @* For now, we inject the loading directly into the page but risk the bootstrap css interfering with the rest of the page *@
+        <div id="app">
+            <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+            <div id="loading-bg" class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url(images/bg-profissional.jpg); background-size: cover;">
+                <div class="bg-white position-absolute top-50 start-50 translate-middle p-3 border shadow-sm" style="border-radius: 1rem;">
+                    <span class="spinner-border text-primary m-3" role="status" aria-hidden="true" style="width: 3rem; height: 3rem;"></span>
+                </div>
+            </div>
+        </div>
+    }
+
     <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
     <script src="_framework/blazor.web.js"></script>
     <script>
@@ -26,7 +44,7 @@
             app.remove();
         }
     </script>
-    
+
 </body>
 
 </html>

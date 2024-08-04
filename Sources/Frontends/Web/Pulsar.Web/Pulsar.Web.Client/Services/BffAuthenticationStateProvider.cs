@@ -34,7 +34,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
         // adjust the period accordingly if that feature is needed
         if (user.Identity != null && user.Identity.IsAuthenticated && _timer == null)
         {
-            _logger.LogInformation("starting background check..");
+            //_logger.LogInformation("starting background check..");
 
             _timer = new Timer(async _ =>
             {
@@ -57,11 +57,11 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
         var now = DateTimeOffset.Now;
         if (useCache && now < _userLastCheck + UserCacheRefreshInterval)
         {
-            _logger.LogDebug("Taking user from cache");
+            //_logger.LogDebug("Taking user from cache");
             return _cachedUser;
         }
 
-        _logger.LogDebug("Fetching user");
+        //_logger.LogDebug("Fetching user");
         _cachedUser = await FetchUser();
         _userLastCheck = now;
 
@@ -74,7 +74,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
     {
         try
         {
-            _logger.LogInformation("Fetching user information.");
+            //_logger.LogInformation("Fetching user information.");
             var response = await _client.GetAsync("bff/user?slide=false");
 
             if (response.StatusCode == HttpStatusCode.OK)
@@ -99,7 +99,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Fetching user failed.");
+            _logger.LogError(ex, "Fetching user failed.");
         }
 
         return new ClaimsPrincipal(new ClaimsIdentity());
