@@ -50,7 +50,7 @@ public class GrupoScenarios : IdentityScenarios
                 new Pulsar.Services.Identity.Contracts.Commands.Grupos.CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede()
                 {
                     RedeEstabelecimentosId = IdentityDatabase.RedeEstabelecimentosPadraoId,
-                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimentos }
+                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimento }
                 }
             }
         });
@@ -77,7 +77,7 @@ public class GrupoScenarios : IdentityScenarios
         {
             Assert.Equal(IdentityDatabase.RedeEstabelecimentosPadraoId, pe.Seletor.RedeEstabelecimentoId?.ToString());
             Assert.Single(pe.Permissoes);
-            Assert.Equal(PermissoesEstabelecimento.EditarEstabelecimentos, pe.Permissoes.First());
+            Assert.Equal(PermissoesEstabelecimento.EditarEstabelecimento, pe.Permissoes.First());
         }
     }
 
@@ -112,7 +112,7 @@ public class GrupoScenarios : IdentityScenarios
                 new Pulsar.Services.Identity.Contracts.Commands.Grupos.EditarSubGrupoCmd.PermissoesEstabelecimentoOuRede()
                 {
                     RedeEstabelecimentosId = IdentityDatabase.RedeEstabelecimentosPadraoId,
-                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimentos }
+                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimento }
                 }
             }
         });
@@ -210,7 +210,7 @@ public class GrupoScenarios : IdentityScenarios
                 new Pulsar.Services.Identity.Contracts.Commands.Grupos.CriarSubGrupoCmd.PermissoesEstabelecimentoOuRede()
                 {
                     RedeEstabelecimentosId = IdentityDatabase.RedeEstabelecimentosPadraoId,
-                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimentos }
+                    Permissoes = new List<PermissoesEstabelecimento> { PermissoesEstabelecimento.EditarEstabelecimento }
                 }
             }
         });

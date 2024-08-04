@@ -25,7 +25,7 @@ public static class AllClients
                 PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:IdentitySwaggerUI:PostLogoutRedirectUri") },
                 AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("identity.")).Select(s => s.Name).Union(
                 [
-                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
+                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_logado_perms"
                 ]).ToList()
             },
             new Client
@@ -44,7 +44,7 @@ public static class AllClients
                 PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:CatalogSwaggerUI:PostLogoutRedirectUri") },
                 AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("catalog.")).Select(s => s.Name).Union(
                 [
-                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms"
+                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_logado_perms"
                 ]).ToList()
             },
             new Client
@@ -61,9 +61,10 @@ public static class AllClients
                 AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:PulsarWeb:AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(configuration)).Where(c => c is not null).ToList()!,
                 RedirectUris = { configuration.GetUri("IdentityServer:Clients:PulsarWeb:RedirectUri") },
                 PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:PulsarWeb:PostLogoutRedirectUri") },
+                AlwaysIncludeUserClaimsInIdToken = true,
                 AllowedScopes = AllApiScopes.Resources.Select(s => s.Name).Union(
                 [
-                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_perms", "offline_access"
+                    "openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_logado_perms", "offline_access"
                 ]).ToList()
             }
         };

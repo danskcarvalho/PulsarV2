@@ -56,6 +56,7 @@ identityApi.WithReference(frontend);
 catalogApi.WithReference(identityApi);
 // FRONTEND
 frontend.WithReference(identityApi);
+frontend.WithReference(catalogApi);
 
 
 builder.Build().Run();

@@ -72,7 +72,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         {
             ValidateAudience = true,
             RequireAudience = true,
-            ValidAudience = "identity"
+            ValidAudience = "identity",
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true
         };
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>

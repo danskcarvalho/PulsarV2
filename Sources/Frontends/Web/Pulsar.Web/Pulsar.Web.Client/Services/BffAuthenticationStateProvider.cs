@@ -46,7 +46,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
                     await _timer!.DisposeAsync();
                     _timer = null;
                 }
-            }, null, 1000, 5000);
+            }, null, 5000, 5000);
         }
 
         return state;

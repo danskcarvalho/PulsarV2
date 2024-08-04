@@ -53,7 +53,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         {
             ValidateAudience = true,
             RequireAudience = true,
-            ValidAudience = "catalog"
+            ValidAudience = "catalog",
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true
         };
     });
 builder.Services.AddEndpointsApiExplorer();

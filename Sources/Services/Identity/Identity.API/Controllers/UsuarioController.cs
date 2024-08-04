@@ -68,7 +68,7 @@ public class UsuarioController : IdentityController
     /// <param name="ids">Ids dos usuários.</param>
     /// <param name="consistencyToken">Token de consistência. Opcional.</param>
     /// <returns>Dados detalhados.</returns>
-    [HttpGet("detalhes"), ScopeAuthorize("identity.usuarios.detalhes"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.ListarUsuarios)]
+    [HttpGet("detalhes"), ScopeAuthorize("identity.usuarios.detalhes"), SuperUsuarioOrDominioAuthorize(PermissoesDominio.DetalharUsuarios)]
     public async Task<ActionResult<List<UsuarioDetalhesDTO>>> Detalhes([FromQuery(Name = "id")] string[] ids, [FromQuery] string? consistencyToken)
     {
         var r = await UsuarioQueries.GetUsuarioDetalhes(ids, consistencyToken);
