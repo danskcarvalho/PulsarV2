@@ -5,20 +5,20 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Pulsar.Web.Client.Services;
 
-public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+public class PulsarAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
 {
     private static readonly TimeSpan UserCacheRefreshInterval = TimeSpan.FromSeconds(60);
 
     private readonly HttpClient _client;
-    private readonly ILogger<BffAuthenticationStateProvider> _logger;
+    private readonly ILogger<PulsarAuthenticationStateProvider> _logger;
     Timer? _timer = null;
 
     private DateTimeOffset _userLastCheck = DateTimeOffset.FromUnixTimeSeconds(0);
     private ClaimsPrincipal _cachedUser = new(new ClaimsIdentity());
 
-    public BffAuthenticationStateProvider(
+    public PulsarAuthenticationStateProvider(
         HttpClient client,
-        ILogger<BffAuthenticationStateProvider> logger)
+        ILogger<PulsarAuthenticationStateProvider> logger)
     {
         _client = client;
         _logger = logger;
@@ -46,7 +46,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
                     await _timer!.DisposeAsync();
                     _timer = null;
                 }
-            }, null, 5000, 5000);
+            }, null, 5000, 30000);
         }
 
         return state;
@@ -82,7 +82,7 @@ public class BffAuthenticationStateProvider : AuthenticationStateProvider, IDisp
                 var claims = await response.Content.ReadFromJsonAsync<List<ClaimRecord>>();
 
                 var identity = new ClaimsIdentity(
-                    nameof(BffAuthenticationStateProvider),
+                    nameof(PulsarAuthenticationStateProvider),
                     "name",
                     "role");
 

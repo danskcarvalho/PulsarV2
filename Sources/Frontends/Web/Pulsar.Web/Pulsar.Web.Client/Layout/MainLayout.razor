@@ -1,31 +1,36 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject UserService UserService
+@inject IDialogService DialogService
 
 <AuthorizeView>
     <Authorized>
-        <FluentLayout>
+        <FluentLayout Style="overflow: hidden;">
             <FluentHeader>
                 <img src="icons/logo-svg.svg" alt="Pulsar Logo" style="height: 30px; margin-right: 15px;" />
                 <FluentBadge Fill="somevalue" BackgroundColor="#FFFFFF" Color="#000000" Height="25px">
                     <span style="padding-left: 10px; padding-right: 10px;">
-                        USF ONESIA BENEDITA MIGUEL
+                        @_headerLabel
                     </span>
                 </FluentBadge>
                 <div style="flex-grow: 1;"></div>
-                <FluentCounterBadge Count="100" BackgroundColor="@Color.Error" Color="Color.Fill">
+                @* <FluentCounterBadge Count="100" BackgroundColor="@Color.Error" Color="Color.Fill">
                     <FluentButton BackgroundColor="rgba(0, 0, 0, 0)">
                         <FluentIcon Value="@(new Icons.Regular.Size24.Alert())" Color="@Color.Fill" />
                     </FluentButton>
-                </FluentCounterBadge>
+                </FluentCounterBadge> *@
                 <FluentSpacer Width="18" />
                 <FluentProfileMenu Status="@null"
-                                   HeaderLabel="USF ONESIA BENEDITA MIGUEL"
-                                   Initials="DS"
-                                   FullName="@context.User.Identity!.Name"
-                                   EMail="danskcarvalho@gmail.com"
+                                   @ref="_fluentProfileMenu"
+                                   HeaderLabel="@_headerLabel"
+                                   Initials="@_initials"
+                                   FullName="@($"{_user?.PrimeiroNome} {_user?.UltimoNome}")"
+                                   EMail="@_user?.Email"
                                    PopoverStyle="min-width: 330px;"
                                    HeaderButton="Sair"
+                                   Image="@_user?.AvatarUrl"
                                    OnHeaderButtonClick="@(() => LogOff(context))"
+                                   OnFooterLinkClick="@Configurations"
                                    FooterLink="Configurações" />
             </FluentHeader>
             <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
@@ -36,8 +41,8 @@
                         @Body
                     </div>
                 </FluentBodyContent>
-                <FluentDialogProvider />
                 <FluentToastProvider MaxToastCount="10" />
+                <FluentDialogProvider />
             </FluentStack>
             <FluentFooter>
                 <span>&#xA9; Pulsar 2024</span>
@@ -59,8 +64,90 @@
 </div>
 
 @code {
+    private UserClaims? _user;
+    private string? _headerLabel;
+    private string? _initials;
+    private FluentProfileMenu? _fluentProfileMenu;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FluentInputFile.ResourceLoadingCompleted = "Completado";
+        FluentInputFile.ResourceLoadingCanceled = "Cancelado";
+        FluentInputFile.ResourceLoadingInProgress = "Em progresso";
+
+        SetUpUserChangedEvent();
+        await InitializeUserData();
+    }
+
+    private void SetUpUserChangedEvent()
+    {
+        UserService.UserChanged += async (sender, e) =>
+        {
+            await this.InitializeUserData();
+            this.StateHasChanged();
+        };
+    }
+
+    private async Task InitializeUserData()
+    {
+        this._user = await UserService.CurrentUser();
+        if (this._user != null)
+        {
+            this._headerLabel = _user.IsSuperUsuario ? "ADMINISTRADOR" :
+                (_user.DominioNome?.ToUpperInvariant() ?? _user.EstabelecimentoNome?.ToUpperInvariant());
+            if (_user.IsSuperUsuario)
+            {
+                _initials = "AD";
+            }
+            else
+            {
+                _initials = GetFirstLetter(_user.PrimeiroNome) + GetFirstLetter(_user.UltimoNome);
+            }
+        }
+
+        string GetFirstLetter(string? name)
+        {
+            if (name == null)
+            {
+                return string.Empty;
+            }
+
+            name = name.Trim();
+
+            if (name.Length > 0)
+            {
+                return name[0].ToString().ToUpperInvariant();
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+    }
+
     private void LogOff(AuthenticationState state)
     {
         NavigationManager.NavigateTo(state.User.FindFirst("bff:logout_url")?.Value!, forceLoad: true);
+    }
+    private async void Configurations()
+    {
+        ClosePopover();
+
+        await DialogService.ShowPanelAsync<UserPanel>(new DialogParameters()
+        {
+            Title = "Dados do Usuário",
+            Alignment = HorizontalAlignment.Right,
+            DismissTitle = null,
+            PrimaryAction = null,
+            SecondaryAction = null
+        });
+    }
+    public void ClosePopover()
+    {
+        var propertyInfo = _fluentProfileMenu?
+        .GetType()
+        .GetProperty("PopoverVisible",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        propertyInfo?.SetValue(_fluentProfileMenu, false);
     }
 }    
