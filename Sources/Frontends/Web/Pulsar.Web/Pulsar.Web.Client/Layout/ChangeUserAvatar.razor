@@ -93,7 +93,7 @@
             await UserService.MudarMeuAvatar(_contentType!, _fileInfo!);
             _fileInfo?.Delete();
             await Dialog.CloseAsync();
-            ToastService.ShowSuccess("Imagem modificada com sucesso.");
+            ToastService.ShowSuccess("Imagem modificada com sucesso.", timeout: 5000);
         }, _isSaving);
     }
 }

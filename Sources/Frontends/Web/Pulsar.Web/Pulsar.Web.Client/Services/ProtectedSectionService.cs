@@ -19,11 +19,11 @@ public class ProtectedSectionService(IToastService toastService, IMessageService
         }
         catch (BackendException e)
         {
-            toastService.ShowError(e.Message);
+            toastService.ShowError(e.Message, timeout: 5000);
         }
         catch
         {
-            toastService.ShowError("Erro desconhecido. Favor tentar novamente em alguns segundos.");
+            toastService.ShowError("Erro desconhecido. Favor tentar novamente em alguns segundos.", timeout: 5000);
         }
         finally
         {

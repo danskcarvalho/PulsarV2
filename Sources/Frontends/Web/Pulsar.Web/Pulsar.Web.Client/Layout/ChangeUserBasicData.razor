@@ -36,7 +36,7 @@
         {
             await UserService.EditarMeusDados(_meusDados);
             await Dialog.CloseAsync();
-            ToastService.ShowSuccess("Dados do usuário modificado com sucesso.");
+            ToastService.ShowSuccess("Dados do usuário modificado com sucesso.", timeout: 5000);
         }, _isSaving);
     }
 }
