@@ -4,7 +4,6 @@ using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
 using System.Reflection;
 using System.Text.Json;
 using Pulsar.BuildingBlocks.Sync.Contracts;
-using Pulsar.BuildingBlocks.Syncing.DDD;
 using System.Collections;
 using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;

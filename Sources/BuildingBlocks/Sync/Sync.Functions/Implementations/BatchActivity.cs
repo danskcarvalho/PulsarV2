@@ -127,11 +127,11 @@ public class BatchActivity(
             return await session.RetryOnExceptions<PrepareBatchesActivityDescriptionResult>(
                 async _ =>
                     {
-                        var shadow = GetShadow(pb);
+                        var shadowAndType = GetShadow(pb);
                         var result = (Task<PrepareBatchesActivityDescriptionResult>)
                             this.GetType().GetMethod("ContinueForShadow", BindingFlags.NonPublic)!
-                                .MakeGenericMethod(shadow.ShadowType)
-                                .Invoke(this, [shadow, pb])!;
+                                .MakeGenericMethod(shadowAndType.ShadowType)
+                                .Invoke(this, [shadowAndType.Shadow, pb])!;
 
                         return await result;
                     },
