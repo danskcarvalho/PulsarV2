@@ -25,7 +25,7 @@ var host = new HostBuilder()
     {
         s.AddMongoDB(
             typeof(UsuarioMongoRepository).Assembly,
-            // shadows
+            // shadows from other services
             typeof(EstabelecimentoShadow).Assembly
             );
         s.AddSyncFunctionServices();

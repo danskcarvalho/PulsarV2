@@ -8,6 +8,7 @@ public class MaterialDTO
 
     public MaterialDTO(string id, string nome, TipoMaterial tipo)
     {
+        Id = id;
         Nome = nome;
         Tipo = tipo;
     }

@@ -2,11 +2,11 @@ using Azure.Core.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Pulsar.BuildingBlocks.Sync.Functions;
-using Pulsar.Services.Facility.Contracts.Shadows;
 using Pulsar.Services.Facility.Functions.Application.BaseTypes;
 using Pulsar.Services.Facility.Infrastructure.Repositories;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pulsar.Services.Identity.Contracts.Shadows;
 using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
 
 var host = new HostBuilder()
@@ -27,8 +27,8 @@ var host = new HostBuilder()
     {
         s.AddMongoDB(
             typeof(EstabelecimentoMongoRepository).Assembly,
-            // shadows
-            typeof(EstabelecimentoShadow).Assembly
+            // shadows from other services
+            typeof(UsuarioShadow).Assembly
             );
         s.AddSyncFunctionServices();
         s.AddMediatR(c =>

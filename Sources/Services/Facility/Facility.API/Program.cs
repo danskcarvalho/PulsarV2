@@ -1,3 +1,7 @@
+using Pulsar.BuildingBlocks.FileSystemAzure;
+using Pulsar.Services.Facility.Contracts.Commands.Estabelecimentos;
+using Pulsar.Services.Identity.Contracts.Shadows;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
@@ -25,15 +29,23 @@ builder.Services.AddControllers().AddJsonOptions(j =>
 });
 
 builder.Services.AddTransient<FacilityControllerContext>();
+builder.Services.AddTransient(typeof(FacilityCommandHandlerContext<>));
+builder.Services.AddTransient(typeof(FacilityDomainEventHandlerContext<>));
+builder.Services.AddTransient(typeof(FacilityCommandHandlerContext<,>));
+
 builder.Services.AddQueries();
 builder.Services.AddMongoDB(
-    typeof(EstabelecimentoMongoRepository).Assembly
+    typeof(EstabelecimentoMongoRepository).Assembly,
+    // shadow from other services
+    typeof(UsuarioShadow).Assembly
     );
+builder.Services.AddValidators(typeof(CriarEstabelecimentoCmd).Assembly);
 builder.Services.AddMediatR(c =>
 {
     c.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 builder.Services.AddRedisCache();
+builder.Services.AddAzureBlobStorage();
 builder.Services.AddTransient<FacilityQueriesContext>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

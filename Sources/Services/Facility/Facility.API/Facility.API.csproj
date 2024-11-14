@@ -21,6 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\BuildingBlocks\FileSystem\FileSystemAzure\FileSystemAzure.csproj" />
 		<ProjectReference Include="..\..\..\Orchestration\Pulsar.ServiceDefaults\Pulsar.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\Caching\RedisCaching\RedisCaching.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
