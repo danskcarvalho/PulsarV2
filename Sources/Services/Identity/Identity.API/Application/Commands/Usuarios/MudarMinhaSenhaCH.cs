@@ -17,7 +17,8 @@ public class MudarMinhaSenhaCH : IdentityCommandHandler<MudarMinhaSenhaCmd, Comm
         var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-        await usuario.MudarMinhaSenha(cmd.SenhaAtual!, cmd.Senha!);
-        return new CommandResult(Session.ConsistencyToken);
+        usuario.MudarMinhaSenha(cmd.SenhaAtual!, cmd.Senha!);
+		await UsuarioRepository.ReplaceOneAsync(usuario).CheckModified();
+		return new CommandResult(Session.ConsistencyToken);
     }
 }

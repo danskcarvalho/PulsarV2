@@ -53,18 +53,16 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
         return _nome.Tokenize()!;
     }
 
-    public async Task Esconder(ObjectId usuarioLogadoId)
+    public void Esconder(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.EscondidoPor(usuarioLogadoId);
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Hidden));
-        await this.Replace();
     }
 
-    public async Task Mostrar(ObjectId usuarioLogadoId)
+    public void Mostrar(ObjectId usuarioLogadoId)
     {
         this.AuditInfo = this.AuditInfo.MostradoPor();
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Shown));
-        await this.Replace();
     }
 
     public void SetAdministradorDominio(ObjectId usuarioId, ObjectId? editadoPorUsuarioId)
@@ -76,16 +74,15 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
             this.AuditInfo = this.AuditInfo.EditadoPor(editadoPorUsuarioId.Value);
     }
 
-    public async Task Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
+    public void Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
 
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, null, ChangeEvent.Created));
-        await this.Insert();
     }
 
-    public async Task Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
+    public void Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
@@ -97,18 +94,16 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
         this.UsuarioAdministradorId = usuarioAdministrador?.Id;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, previousAdmin, ChangeEvent.Edited));
-        await this.Replace();
     }
 
-    public async Task BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
+    public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
     {
         this.IsAtivo = !bloquear;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, this.UsuarioAdministradorId, ChangeEvent.Edited));
-        await this.Replace();
     }
 
-    public async Task BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
+    public void BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
     {
         if (usuarioIds.Any(u => u == UsuarioAdministradorId))
             throw new IdentityDomainException(ExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio);
@@ -116,6 +111,5 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
             throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueadoDominio);
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuariosBloqueadosEmDominioDE(usuarioLogadoId, this.Id, usuarioIds, bloquear));
-        await this.Replace();
     }
 }

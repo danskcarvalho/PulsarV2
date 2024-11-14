@@ -15,7 +15,8 @@ public class EditarMeusDadosCH : IdentityCommandHandler<EditarMeusDadosCmd, Comm
         var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
             throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-        await usuario.EditarMeusDados(cmd.PrimeiroNome!, cmd.Sobrenome);
-        return new CommandResult(Session.ConsistencyToken);
+        usuario.EditarMeusDados(cmd.PrimeiroNome!, cmd.Sobrenome);
+		await UsuarioRepository.ReplaceOneAsync(usuario);
+		return new CommandResult(Session.ConsistencyToken);
     }
 }

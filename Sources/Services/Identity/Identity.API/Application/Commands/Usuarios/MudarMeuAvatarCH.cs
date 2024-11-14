@@ -34,8 +34,9 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
             var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioLogadoId.ToObjectId(), ct2);
             if (usuario == null)
                 throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
-            await usuario.AlterarAvatar(url.Url);
-            return new CommandResult(Session.ConsistencyToken);
+            usuario.AlterarAvatar(url.Url);
+			await UsuarioRepository.ReplaceOneAsync(usuario);
+			return new CommandResult(Session.ConsistencyToken);
         });
     }
 }
