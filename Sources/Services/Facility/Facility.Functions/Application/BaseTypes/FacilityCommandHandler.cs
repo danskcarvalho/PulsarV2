@@ -5,7 +5,7 @@ using Pulsar.BuildingBlocks.EventBus.Abstractions;
 using Pulsar.Services.Facility.Domain.Aggregates.Estabelecimentos;
 using Pulsar.Services.Identity.Contracts.Shadows;
 
-namespace Pulsar.Services.Facility.API.Application.BaseTypes;
+namespace Pulsar.Services.Facility.Functions.Application.BaseTypes;
 
 public abstract class FacilityCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest
 {

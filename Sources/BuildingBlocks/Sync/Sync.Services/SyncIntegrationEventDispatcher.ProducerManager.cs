@@ -61,6 +61,19 @@ public partial class SyncIntegrationEventDispatcher
                 }));
             }
 
+            if (tasks.Count == 0)
+            {
+                // there are not producers, so we keep waiting until cancelation
+                while (true)
+                {
+                    await Task.Delay(500);
+                    if (ct.IsCancellationRequested)
+					{
+						throw new TaskCanceledException();
+					}
+                }
+            }
+
             await Task.WhenAny(tasks);
 
             if (changeEvent == null)

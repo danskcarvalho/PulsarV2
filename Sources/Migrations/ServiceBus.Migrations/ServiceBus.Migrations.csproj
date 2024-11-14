@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
+    <ProjectReference Include="..\..\Services\Facility\Facility.Functions\Facility.Functions.csproj" />
     <ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
   </ItemGroup>
 

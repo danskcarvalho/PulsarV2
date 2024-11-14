@@ -54,18 +54,32 @@ var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
 	.WithReference(redis)
 	.WithReference(facilityMigrations);
 
+builder.AddProject<Projects.Facility_Functions>("facility-functions")
+	.WithReference(mongo)
+	.WithReference(facilityMigrations)
+	.WithReference(serviceBusMigrations);
+
+builder.AddProject<Projects.Facility_EventDispatcher>("facility-eventdispatcher")
+	.WithReference(mongo)
+	.WithReference(facilityMigrations)
+	.WithReference(serviceBusMigrations);
+
 // FRONTEND
 var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
 
 // CROSS REFERENCES
 // IDENTITY-API
 identityApi.WithReference(catalogApi);
+identityApi.WithReference(facilityApi);
 identityApi.WithReference(frontend);
 // CATALOG-API
 catalogApi.WithReference(identityApi);
+// FACILITY-API
+facilityApi.WithReference(identityApi);
 // FRONTEND
 frontend.WithReference(identityApi);
 frontend.WithReference(catalogApi);
+frontend.WithReference(facilityApi);
 
 
 builder.Build().Run();
