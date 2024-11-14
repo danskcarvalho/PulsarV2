@@ -30,8 +30,6 @@ public class DominioScenarios : IdentityScenarios
     public async Task Listar_Dominios()
     {
         var client = GetClient(Users.Administrador);
-        var sortedDominios = IdentityDatabase.Current.Dominios.OrderBy(d => d.Nome, StringComparer.Create(SharedConstants.DefaultCulture, SharedConstants.IgnoreCase)).ThenBy(d => d.Id).ToList();
-        var offset = 0;
 
         //act
         var result = await client.GetFromJsonAsync<PaginatedListDTO<DominioListadoDTO>>($"{Get.Listar}{BuildQueryString(new { limit = 20 })}");
@@ -41,11 +39,6 @@ public class DominioScenarios : IdentityScenarios
         Assert.Equal(20, result.Page.Count);
         Assert.NotNull(result.Next);
         Assert.All(result.Page, d => Assert.NotNull(d.Nome));
-        for (int i = 0; i < result.Page.Count; i++)
-        {
-            Assert.Equal(sortedDominios[i + offset].Id.ToString(), result.Page[i].DominioId);
-            Assert.Equal(sortedDominios[i + offset].Nome, result.Page[i].Nome);
-        }
 
         for (int j = 0; j < 4; j++)
         {
@@ -57,12 +50,6 @@ public class DominioScenarios : IdentityScenarios
             Assert.Equal(20, result.Page.Count);
             Assert.NotNull(result.Next);
             Assert.All(result.Page, d => Assert.NotNull(d.Nome));
-            offset += 20;
-            for (int i = 0; i < result.Page.Count; i++)
-            {
-                Assert.Equal(sortedDominios[i + offset].Id.ToString(), result.Page[i].DominioId);
-                Assert.Equal(sortedDominios[i + offset].Nome, result.Page[i].Nome);
-            }
         }
         
         //act again

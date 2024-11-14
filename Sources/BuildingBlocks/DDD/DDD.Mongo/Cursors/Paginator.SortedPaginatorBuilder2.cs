@@ -52,7 +52,16 @@ public partial class Paginator
 
         public override PageCursor<TElement, TProjection, object, TSort1, TSort2> ForLimit(int limit)
         {
-            return new PageCursor<TElement, TProjection, object, TSort1, TSort2> { _limit = limit, _sort1 = _sort1, _sort1Fn = _sort1Fn, _sort2 = _sort2, _sort2Fn = _sort2Fn, _proj1Fn = _proj1Fn, _proj2Fn = _proj2Fn };
+            return new PageCursor<TElement, TProjection, object, TSort1, TSort2>
+            {
+                _limit = limit,
+                _sort1 = _sort1,
+                _sort1Fn = _sort1Fn,
+                _sort2 = _sort2,
+                _sort2Fn = _sort2Fn,
+                _proj1Fn = _proj1Fn,
+                _proj2Fn = _proj2Fn
+            };
         }
 
         private void TraversePropertyChain<TU, TV>(Expression<Func<TU, TV>> expression, List<string> propertyNames)

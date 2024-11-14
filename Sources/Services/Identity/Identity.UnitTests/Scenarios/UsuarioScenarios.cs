@@ -85,9 +85,12 @@ public class UsuarioScenarios : IdentityScenarios
 
         var controller = CreateController<UsuarioController>(Users.Alexia);
         var imageStream = new FileStream("Images/Face.jpg", FileMode.Open);
-        var actionResult = await controller.MudarMeuAvatar(new Pulsar.Services.Identity.API.ViewModels.MudarMeuAvatarViewModel()
+        var formFile = new FormFile(imageStream, 0, imageStream.Length, "Imagem", "Face.jpg");
+        formFile.Headers = new HeaderDictionary();
+        formFile.ContentType = "image/jpeg";
+		var actionResult = await controller.MudarMeuAvatar(new Pulsar.Services.Identity.API.ViewModels.MudarMeuAvatarViewModel()
         {
-            Imagem = new FormFile(imageStream, 0, imageStream.Length, "Imagem", "Face.jpg")
+            Imagem = formFile
         });
         Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult.Result as OkObjectResult)?.StatusCode);
         alexia = await Usuarios.FindAsync(x => x.Id == alexiaId).FirstOrDefaultAsync();
