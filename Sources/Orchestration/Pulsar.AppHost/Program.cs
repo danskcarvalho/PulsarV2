@@ -45,7 +45,16 @@ var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
     .WithReference(redis)
     .WithReference(catalogMigrations);
 
+// FACILITY
+var facilityMigrations = builder.AddProject<Projects.Facility_Migrations>("facility-migrations")
+	.WithReference(mongo);
 
+var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
+	.WithReference(mongo)
+	.WithReference(redis)
+	.WithReference(facilityMigrations);
+
+// FRONTEND
 var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
 
 // CROSS REFERENCES

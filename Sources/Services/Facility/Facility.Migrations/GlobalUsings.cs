@@ -1,0 +1,15 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using Pulsar.BuildingBlocks.Migrations;
+global using Pulsar.BuildingBlocks.Migrations.EventBus;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.DependencyInjection;
+global using MongoDB.Bson;
+global using Pulsar.BuildingBlocks.Utils;
+global using MongoDB.Driver;
+global using Pulsar.BuildingBlocks.EventBus.Abstractions;
+global using Pulsar.Services.Facility.Domain.Aggregates.Estabelecimentos;
+global using Pulsar.Services.Identity.Contracts.Shadows;

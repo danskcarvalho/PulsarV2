@@ -20,6 +20,8 @@
     <ProjectReference Include="..\..\Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
     <ProjectReference Include="..\..\Services\Catalog\Catalog.API\Catalog.API.csproj" />
     <ProjectReference Include="..\..\Services\Catalog\Catalog.Migrations\Catalog.Migrations.csproj" />
+    <ProjectReference Include="..\..\Services\Facility\Facility.API\Facility.API.csproj" />
+    <ProjectReference Include="..\..\Services\Facility\Facility.Migrations\Facility.Migrations.csproj" />
     <ProjectReference Include="..\..\Services\Identity\Identity.API\Identity.API.csproj" />
     <ProjectReference Include="..\..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
     <ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />

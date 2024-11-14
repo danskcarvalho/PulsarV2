@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Pulsar.Services.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+    <ProjectReference Include="..\Facility.Domain\Facility.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

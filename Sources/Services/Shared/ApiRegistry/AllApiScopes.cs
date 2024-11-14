@@ -58,21 +58,32 @@ public static class AllApiScopes
         // Dentes
         new ApiScope("catalog.dentes.*"),
         new ApiScope("catalog.dentes.listar"),
+        // Diagnósticos
         new ApiScope("catalog.diagnosticos.*"),
         new ApiScope("catalog.diagnosticos.listar"),
+        // Especialidades
         new ApiScope("catalog.especialidades.*"),
         new ApiScope("catalog.especialidades.listar"),
+        // Etnias
         new ApiScope("catalog.etnias.*"),
         new ApiScope("catalog.etnias.listar"),
+        // Ineps
         new ApiScope("catalog.ineps.*"),
         new ApiScope("catalog.ineps.listar"),
+        // Materiais
         new ApiScope("catalog.materiais.*"),
         new ApiScope("catalog.materiais.listar"),
+        // Principios Ativos
         new ApiScope("catalog.principiosativos.*"),
         new ApiScope("catalog.principiosativos.listar"),
+        // Procedimentos
         new ApiScope("catalog.procedimentos.*"),
         new ApiScope("catalog.procedimentos.listar"),
+        // Regiões
         new ApiScope("catalog.regioes.*"),
         new ApiScope("catalog.regioes.listar"),
-    };
+
+        //Facility API
+        new ApiScope("facility.*"),
+	};
 }
