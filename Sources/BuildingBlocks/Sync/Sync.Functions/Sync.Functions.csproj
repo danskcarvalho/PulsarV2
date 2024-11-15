@@ -1,21 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Pulsar.BuildingBlocks.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Pulsar.BuildingBlocks.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.4" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.4" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
-    <ProjectReference Include="..\..\DDD\DDD\DDD.csproj" />
-    <ProjectReference Include="..\Sync.Contracts\Sync.Contracts.csproj" />
-    <ProjectReference Include="..\Sync.Domain\Sync.Domain.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\DDD\DDD.Mongo\DDD.Mongo.csproj" />
+		<ProjectReference Include="..\..\DDD\DDD\DDD.csproj" />
+		<ProjectReference Include="..\Sync.Contracts\Sync.Contracts.csproj" />
+		<ProjectReference Include="..\Sync.Domain\Sync.Domain.csproj" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>
+	</PropertyGroup>
 
 </Project>

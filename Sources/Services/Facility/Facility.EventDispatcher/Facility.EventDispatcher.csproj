@@ -22,10 +22,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBusAzure\EventBusAzure.csproj" />
-	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
-	  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\IntegrationEventLogMongo\IntegrationEventLogMongo.csproj" />
-	  <ProjectReference Include="..\..\..\BuildingBlocks\Sync\Sync.Services\Sync.Services.csproj" />
-	  <ProjectReference Include="..\Facility.Domain\Facility.Domain.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBusAzure\EventBusAzure.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\EventBus\IntegrationEventLogMongo\IntegrationEventLogMongo.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\Sync\Sync.Services\Sync.Services.csproj" />
+		<ProjectReference Include="..\Facility.Domain\Facility.Domain.csproj" />
 	</ItemGroup>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>
+	</PropertyGroup>
 </Project>

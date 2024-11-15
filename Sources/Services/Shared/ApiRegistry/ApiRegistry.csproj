@@ -13,7 +13,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>
+	</PropertyGroup>
 
 </Project>

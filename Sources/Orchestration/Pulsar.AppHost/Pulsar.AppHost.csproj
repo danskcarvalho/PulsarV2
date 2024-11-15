@@ -1,33 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsAspireHost>true</IsAspireHost>
-    <UserSecretsId>9f1117f3-2574-455a-85c4-1901dbac9ad4</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsAspireHost>true</IsAspireHost>
+		<UserSecretsId>9f1117f3-2574-455a-85c4-1901dbac9ad4</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.MongoDB" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
+		<PackageReference Include="Aspire.Hosting.MongoDB" Version="8.1.0" />
+		<PackageReference Include="Aspire.Hosting.Redis" Version="8.1.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Frontends\Web\Pulsar.Web\Pulsar.Web\Pulsar.Web.csproj" />
-    <ProjectReference Include="..\..\Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
-    <ProjectReference Include="..\..\Services\Catalog\Catalog.API\Catalog.API.csproj" />
-    <ProjectReference Include="..\..\Services\Catalog\Catalog.Migrations\Catalog.Migrations.csproj" />
-    <ProjectReference Include="..\..\Services\Facility\Facility.API\Facility.API.csproj" />
-    <ProjectReference Include="..\..\Services\Facility\Facility.EventDispatcher\Facility.EventDispatcher.csproj" />
-    <ProjectReference Include="..\..\Services\Facility\Facility.Functions\Facility.Functions.csproj" />
-    <ProjectReference Include="..\..\Services\Facility\Facility.Migrations\Facility.Migrations.csproj" />
-    <ProjectReference Include="..\..\Services\Identity\Identity.API\Identity.API.csproj" />
-    <ProjectReference Include="..\..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
-    <ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
-    <ProjectReference Include="..\..\Services\Identity\Identity.Migrations\Identity.Migrations.csproj" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<ProjectReference Include="..\..\Frontends\Web\Pulsar.Web\Pulsar.Web\Pulsar.Web.csproj" />
+		<ProjectReference Include="..\..\Migrations\ServiceBus.Migrations\ServiceBus.Migrations.csproj" />
+		<ProjectReference Include="..\..\Services\Catalog\Catalog.API\Catalog.API.csproj" />
+		<ProjectReference Include="..\..\Services\Catalog\Catalog.Migrations\Catalog.Migrations.csproj" />
+		<ProjectReference Include="..\..\Services\Facility\Facility.API\Facility.API.csproj" />
+		<ProjectReference Include="..\..\Services\Facility\Facility.EventDispatcher\Facility.EventDispatcher.csproj" />
+		<ProjectReference Include="..\..\Services\Facility\Facility.Functions\Facility.Functions.csproj" />
+		<ProjectReference Include="..\..\Services\Facility\Facility.Migrations\Facility.Migrations.csproj" />
+		<ProjectReference Include="..\..\Services\Identity\Identity.API\Identity.API.csproj" />
+		<ProjectReference Include="..\..\Services\Identity\Identity.EventDispatcher\Identity.EventDispatcher.csproj" />
+		<ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
+		<ProjectReference Include="..\..\Services\Identity\Identity.Migrations\Identity.Migrations.csproj" />
+	</ItemGroup>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>
+	</PropertyGroup>
 </Project>
