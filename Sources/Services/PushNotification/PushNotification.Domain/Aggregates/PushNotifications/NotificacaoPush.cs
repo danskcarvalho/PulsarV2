@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications
 {
-	public class PushNotification : AggregateRoot
+	public class NotificacaoPush : AggregateRoot
 	{
 	}
 }

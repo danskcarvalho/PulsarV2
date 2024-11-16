@@ -9,7 +9,7 @@ namespace Pulsar.Services.PushNotification.Functions.Application.BaseTypes;
 
 public abstract class PushNotificationDomainEventHandler<TEvent> : DomainEventHandler<TEvent> where TEvent : INotification
 {
-	protected IPushNotificationRepository PushNotificationRepository { get; }
+	protected INotificacaoPushRepository PushNotificationRepository { get; }
 	protected IShadowRepository<DominioShadow> DominioRepository { get; }
 	protected IShadowRepository<UsuarioShadow> UsuarioRepository { get; }
 	protected ILogger Logger { get; }
@@ -17,7 +17,7 @@ public abstract class PushNotificationDomainEventHandler<TEvent> : DomainEventHa
 
 	protected PushNotificationDomainEventHandler(PushNotificationDomainEventHandlerContext<TEvent> ctx) : base(ctx.Session, ctx.DbContextFactory)
 	{
-		PushNotificationRepository = (IPushNotificationRepository)ctx.Repositories.First(r => r is IPushNotificationRepository);
+		PushNotificationRepository = (INotificacaoPushRepository)ctx.Repositories.First(r => r is INotificacaoPushRepository);
 		DominioRepository = (IShadowRepository<DominioShadow>)ctx.Repositories.First(r => r is IShadowRepository<DominioShadow>);
 		UsuarioRepository = (IShadowRepository<UsuarioShadow>)ctx.Repositories.First(r => r is IShadowRepository<UsuarioShadow>);
 		Logger = ctx.Logger;

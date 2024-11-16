@@ -4,6 +4,6 @@ public static class DIExtensions
 {
 	public static void AddQueries(this IServiceCollection collection)
 	{
-		collection.AddTransient<IPushNotificationQueries, PushNotificationsQueries>();
+		collection.AddTransient<INotificacoesPushQueries, NotificacoesPushQueries>();
 	}
 }

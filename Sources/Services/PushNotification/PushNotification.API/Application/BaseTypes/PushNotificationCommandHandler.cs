@@ -9,7 +9,7 @@ namespace Pulsar.Services.PushNotification.API.Application.BaseTypes;
 
 public abstract class PushNotificationCommandHandler<TRequest> : CommandHandler<TRequest> where TRequest : IRequest
 {
-	protected IPushNotificationRepository PushNotificationRepository { get; }
+	protected INotificacaoPushRepository NotificacaoPushRepository { get; }
 	protected IShadowRepository<DominioShadow> DominioRepository { get; }
 	protected IShadowRepository<UsuarioShadow> UsuarioRepository { get; }
 	protected ILogger Logger { get; }
@@ -17,7 +17,7 @@ public abstract class PushNotificationCommandHandler<TRequest> : CommandHandler<
 
 	protected PushNotificationCommandHandler(PushNotificationCommandHandlerContext<TRequest> ctx) : base(ctx.Session, ctx.DbContextFactory)
 	{
-		PushNotificationRepository = (IPushNotificationRepository)ctx.Repositories.First(r => r is IPushNotificationRepository);
+		NotificacaoPushRepository = (INotificacaoPushRepository)ctx.Repositories.First(r => r is INotificacaoPushRepository);
 		DominioRepository = (IShadowRepository<DominioShadow>)ctx.Repositories.First(r => r is IShadowRepository<DominioShadow>);
 		UsuarioRepository = (IShadowRepository<UsuarioShadow>)ctx.Repositories.First(r => r is IShadowRepository<UsuarioShadow>);
 		Logger = ctx.Logger;
@@ -27,7 +27,7 @@ public abstract class PushNotificationCommandHandler<TRequest> : CommandHandler<
 
 public abstract class PushNotificationCommandHandler<TRequest, TResponse> : CommandHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-	protected IPushNotificationRepository PushNotificationRepository { get; }
+	protected INotificacaoPushRepository NotificacaoPushRepository { get; }
 	protected IShadowRepository<DominioShadow> DominioRepository { get; }
 	protected IShadowRepository<UsuarioShadow> UsuarioRepository { get; }
 	protected ILogger Logger { get; }
@@ -35,7 +35,7 @@ public abstract class PushNotificationCommandHandler<TRequest, TResponse> : Comm
 
 	protected PushNotificationCommandHandler(PushNotificationCommandHandlerContext<TRequest, TResponse> ctx) : base(ctx.Session, ctx.DbContextFactory)
 	{
-		PushNotificationRepository = (IPushNotificationRepository)ctx.Repositories.First(r => r is IPushNotificationRepository);
+		NotificacaoPushRepository = (INotificacaoPushRepository)ctx.Repositories.First(r => r is INotificacaoPushRepository);
 		DominioRepository = (IShadowRepository<DominioShadow>)ctx.Repositories.First(r => r is IShadowRepository<DominioShadow>);
 		UsuarioRepository = (IShadowRepository<UsuarioShadow>)ctx.Repositories.First(r => r is IShadowRepository<UsuarioShadow>);
 		Logger = ctx.Logger;

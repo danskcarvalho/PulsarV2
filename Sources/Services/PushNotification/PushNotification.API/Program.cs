@@ -40,7 +40,7 @@ builder.Services.AddMongoDB(
     // shadow from other services
     typeof(UsuarioShadow).Assembly
     );
-builder.Services.AddValidators(typeof(MarcarComoLidaCmd).Assembly);
+builder.Services.AddValidators(typeof(MarcarNotificacaoComoLidaCmd).Assembly);
 builder.Services.AddMediatR(c =>
 {
     c.RegisterServicesFromAssembly(typeof(Program).Assembly);

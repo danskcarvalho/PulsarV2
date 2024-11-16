@@ -4,6 +4,6 @@ public static class Constants
 {
     public static class CollectionNames
     {
-        public const string PUSH_NOTIFICATIONS = "PushNotifications";
+        public const string NOTIFICACOES_PUSH = "NotificacoesPush";
     }
 }

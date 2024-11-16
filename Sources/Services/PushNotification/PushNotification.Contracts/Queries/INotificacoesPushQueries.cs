@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Pulsar.Services.PushNotification.Contracts.Queries;
 
-public interface IPushNotificationQueries
+public interface INotificacoesPushQueries
 {
 }

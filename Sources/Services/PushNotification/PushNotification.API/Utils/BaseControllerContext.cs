@@ -3,10 +3,10 @@
 namespace Pulsar.Services.PushNotification.API.Utils;
 
 public class BaseControllerContext(IMediator mediator,
-                                      IPushNotificationQueries estabelecimentoQueries,
+                                      INotificacoesPushQueries estabelecimentoQueries,
                                       IConfiguration configuration)
 {
     public IMediator Mediator => mediator;
-    public IPushNotificationQueries EstabelecimentoQueries => estabelecimentoQueries;
+    public INotificacoesPushQueries EstabelecimentoQueries => estabelecimentoQueries;
     public IConfiguration Configuration => configuration;
 }
