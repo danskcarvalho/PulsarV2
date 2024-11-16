@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Identity.Functions": {
+    "Facility.Functions": {
       "commandName": "Project",
       "commandLineArgs": "--port 7135",
       "launchBrowser": false

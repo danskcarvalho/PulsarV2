@@ -73,10 +73,10 @@ var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pus
     .WithReference(redis)
     .WithReference(pushNotificationMigrations);
 
-//builder.AddProject<Projects.PushNotification_Functions>("pushnotification-functions")
-//    .WithReference(mongo)
-//    .WithReference(pushNotificationMigrations)
-//    .WithReference(serviceBusMigrations);
+builder.AddProject<Projects.PushNotification_Functions>("pushnotification-functions")
+    .WithReference(mongo)
+    .WithReference(pushNotificationMigrations)
+    .WithReference(serviceBusMigrations);
 
 // FRONTEND
 var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
