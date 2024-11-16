@@ -1,4 +1,4 @@
-﻿namespace Pulsar.Services.Identity.Migrations.Schema;
+﻿namespace Pulsar.Services.Facility.Migrations.Schema;
 
 [Migration(20220731004700)]
 public class AddEventBusCollection : Migration

@@ -1,7 +1,7 @@
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
 using Pulsar.BuildingBlocks.Sync.Services;
 
-namespace Pulsar.Services.Identity.EventDispatcher;
+namespace Pulsar.Services.Facility.EventDispatcher;
 
 public class Worker : BackgroundService
 {

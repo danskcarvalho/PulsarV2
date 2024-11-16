@@ -1,6 +1,6 @@
 ﻿using Pulsar.Services.Shared.DTOs;
 
-namespace Pulsar.Services.Facility.Functions.Utils;
+namespace Pulsar.Services.PushNotification.Functions.Utils;
 
 public static class AuditInfoExtensions
 {

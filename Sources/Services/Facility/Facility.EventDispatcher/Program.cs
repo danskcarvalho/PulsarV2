@@ -3,7 +3,7 @@ using Pulsar.BuildingBlocks.EventBusAzure;
 using Pulsar.BuildingBlocks.IntegrationEventLogMongo;
 using Pulsar.BuildingBlocks.Sync.Services;
 using Pulsar.Services.Facility.Domain.Aggregates.Estabelecimentos;
-using Pulsar.Services.Identity.EventDispatcher;
+using Pulsar.Services.Facility.EventDispatcher;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>

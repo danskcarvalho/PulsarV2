@@ -1,0 +1,1 @@
+﻿global using Pulsar.BuildingBlocks.DDD.Abstractions;
