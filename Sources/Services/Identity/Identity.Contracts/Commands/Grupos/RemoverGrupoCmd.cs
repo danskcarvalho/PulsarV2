@@ -1,7 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.Utils;
-using Pulsar.Services.Shared.Attributes;
-
-namespace Pulsar.Services.Identity.Contracts.Commands.Grupos;
+﻿namespace Pulsar.Services.Identity.Contracts.Commands.Grupos;
 
 public class RemoverGrupoCmd : IRequest<CommandResult>
 {

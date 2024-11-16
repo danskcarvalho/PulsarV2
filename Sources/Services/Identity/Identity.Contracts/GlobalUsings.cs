@@ -9,3 +9,4 @@ global using System.ComponentModel.DataAnnotations;
 global using Pulsar.Services.Identity.Contracts.Enumerations;
 global using System.Text.Json.Serialization;
 global using Pulsar.Services.Shared;
+global using Pulsar.Services.Shared.Commands;

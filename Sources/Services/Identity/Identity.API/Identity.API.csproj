@@ -43,6 +43,7 @@
 		<ProjectReference Include="..\..\Facility\Facility.Contracts\Facility.Contracts.csproj" />
 		<ProjectReference Include="..\..\Shared\ApiRegistry\ApiRegistry.csproj" />
 		<ProjectReference Include="..\..\Shared\Shared.Web\Shared.Web.csproj" />
+		<ProjectReference Include="..\..\Shared\Shared\Shared.csproj" />
 		<ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
 		<ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
 		<ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />

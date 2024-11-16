@@ -1,6 +1,4 @@
 ﻿using Pulsar.Services.Identity.Contracts.Commands.Dominios;
-using Pulsar.Services.Identity.Contracts.Utils;
-using Pulsar.Services.Identity.Domain.Specifications;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Dominios;
 

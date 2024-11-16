@@ -1,7 +1,4 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Attributes;
-using Pulsar.Services.Identity.API.Application.BaseTypes;
-using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
-using Pulsar.Services.Identity.Contracts.Utils;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 

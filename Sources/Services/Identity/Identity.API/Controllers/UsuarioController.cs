@@ -1,9 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
-using Pulsar.Services.Identity.Contracts.Commands;
-using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
-using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.DTOs;
-using System.Security.Claims;
 
 namespace Pulsar.Services.Identity.API.Controllers;
 

@@ -1,5 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.Utils;
-using Pulsar.Services.Shared.Attributes;
+﻿using Pulsar.Services.Shared.Attributes;
 
 namespace Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 

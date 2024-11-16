@@ -1,6 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.Utils;
-
-namespace Pulsar.Services.Identity.Contracts.Commands.Dominios;
+﻿namespace Pulsar.Services.Identity.Contracts.Commands.Dominios;
 
 public class EsconderOuMostrarDominioCmd : IRequest<CommandResult>
 {

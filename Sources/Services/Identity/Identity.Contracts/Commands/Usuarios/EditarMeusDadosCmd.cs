@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using Pulsar.Services.Identity.Contracts.Commands.Convites;
-using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.Attributes;
 
 namespace Pulsar.Services.Identity.Contracts.Commands.Usuarios;

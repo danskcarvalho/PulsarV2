@@ -15,7 +15,7 @@ using Pulsar.Services.Identity.Contracts.DTOs;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
-using Pulsar.Services.Identity.Contracts.Utils;
+using Pulsar.Services.Shared.Commands;
 
 namespace Pulsar.Web.Client.Clients.Identity.Base;
 

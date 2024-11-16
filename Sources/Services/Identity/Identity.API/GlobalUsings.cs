@@ -48,3 +48,4 @@ global using Pulsar.Services.Shared.API.Filters;
 global using Pulsar.Services.Shared.API.Authorization;
 global using Pulsar.Services.Shared.API.Utils;
 global using Pulsar.Services.Shared.API.Services;
+global using Pulsar.Services.Shared.Commands;

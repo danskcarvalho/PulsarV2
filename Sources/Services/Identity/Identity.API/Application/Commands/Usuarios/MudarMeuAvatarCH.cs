@@ -1,6 +1,5 @@
 ﻿using Pulsar.BuildingBlocks.DDD.Attributes;
 using Pulsar.BuildingBlocks.FileSystem.Abstractions;
-using Pulsar.Services.Identity.Contracts.Utils;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Usuarios;
 

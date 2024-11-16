@@ -1,13 +1,12 @@
-﻿using Microsoft.JSInterop;
-using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
+﻿using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.Contracts.DTOs;
-using Pulsar.Services.Identity.Contracts.Utils;
+using Pulsar.Services.Shared.Commands;
 using Pulsar.Web.Client.Clients.Identity.Base;
 using Pulsar.Web.Client.Models.Shared;
 
 namespace Pulsar.Web.Client.Clients.Identity.Usuarios
 {
-    public class UsuarioClient(ClientContext clientContext) : ClientBase(clientContext), IUsuarioClient
+	public class UsuarioClient(ClientContext clientContext) : ClientBase(clientContext), IUsuarioClient
     {
         protected override string Section => "usuarios";
 

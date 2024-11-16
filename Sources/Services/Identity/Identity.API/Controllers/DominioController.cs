@@ -1,5 +1,4 @@
 ﻿using Pulsar.Services.Identity.Contracts.Commands.Dominios;
-using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Controllers;

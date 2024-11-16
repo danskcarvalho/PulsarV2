@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
-using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
+using Pulsar.Services.Shared.Commands;
 
 namespace Identity.UnitTests.Scenarios;
 

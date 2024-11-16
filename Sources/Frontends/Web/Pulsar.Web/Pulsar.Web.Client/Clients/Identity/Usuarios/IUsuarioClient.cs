@@ -1,6 +1,6 @@
 ﻿using Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 using Pulsar.Services.Identity.Contracts.DTOs;
-using Pulsar.Services.Identity.Contracts.Utils;
+using Pulsar.Services.Shared.Commands;
 using Pulsar.Web.Client.Models.Shared;
 
 namespace Pulsar.Web.Client.Clients.Identity.Usuarios;

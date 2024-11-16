@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using Pulsar.Services.Identity.Contracts.Utils;
 using Pulsar.Services.Shared.Attributes;
-using System.Text.Json.Serialization;
 
 namespace Pulsar.Services.Identity.Contracts.Commands.Grupos;
 

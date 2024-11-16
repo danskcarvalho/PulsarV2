@@ -1,6 +1,4 @@
 ﻿using Pulsar.Services.Identity.Contracts.Commands.Grupos;
-using Pulsar.Services.Identity.Contracts.Utils;
-using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 
 namespace Pulsar.Services.Identity.API.Application.Commands.Grupos;
 

@@ -1,11 +1,9 @@
 ﻿using Pulsar.Services.Identity.Contracts.Commands.Grupos;
-using Pulsar.Services.Identity.Contracts.Utils;
-using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Shared.DTOs;
 
 namespace Pulsar.Services.Identity.API.Controllers
 {
-    [ApiController]
+	[ApiController]
     [Route("v2/grupos")]
     [Authorize(Policy = "InferAuthenticationSchemes")]
     public class GrupoController : IdentityController

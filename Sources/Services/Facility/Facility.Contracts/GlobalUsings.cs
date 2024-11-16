@@ -10,3 +10,4 @@ global using Pulsar.BuildingBlocks.EventBus.Contracts;
 global using Pulsar.Services.Shared.Enumerations;
 global using Pulsar.Services.Shared.DTOs;
 global using MediatR;
+global using Pulsar.Services.Shared.Commands;

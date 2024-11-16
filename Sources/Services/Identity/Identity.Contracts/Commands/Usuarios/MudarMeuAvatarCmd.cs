@@ -1,6 +1,4 @@
-﻿using Pulsar.Services.Identity.Contracts.Utils;
-
-namespace Pulsar.Services.Identity.Contracts.Commands.Usuarios;
+﻿namespace Pulsar.Services.Identity.Contracts.Commands.Usuarios;
 
 public class MudarMeuAvatarCmd : IRequest<CommandResult>
 {
