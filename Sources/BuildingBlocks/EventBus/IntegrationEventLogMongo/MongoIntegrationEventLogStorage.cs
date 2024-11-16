@@ -216,7 +216,8 @@ public class MongoIntegrationEventLogStorage : IIntegrationEventLogStorage
                     .Match(x =>
                         x.OperationType == ChangeStreamOperationType.Insert &&
                         x.FullDocument.TimeStamp % producersCount == producerSeq);
-                using (var cursor = await _Collection.WatchAsync(pipeline, cancellationToken: ct))
+				_Logger.LogInformation("watching event collection");
+				using (var cursor = await _Collection.WatchAsync(pipeline, cancellationToken: ct))
                 {
                     await cursor.ForEachAsync(async change =>
                     {

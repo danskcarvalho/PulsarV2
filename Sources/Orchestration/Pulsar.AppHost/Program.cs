@@ -25,7 +25,7 @@ var identityApi = builder
     .WithReference(mongo)
     .WithReference(identityMigrations);
 
-builder.AddProject<Projects.Identity_Functions>("identity-functions")
+builder.AddAzureFunctionsProject<Projects.Identity_Functions>("identity-functions")
     .WithReference(mongo)
     .WithReference(identityMigrations)
     .WithReference(serviceBusMigrations);
@@ -54,7 +54,7 @@ var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
 	.WithReference(redis)
 	.WithReference(facilityMigrations);
 
-builder.AddProject<Projects.Facility_Functions>("facility-functions")
+builder.AddAzureFunctionsProject<Projects.Facility_Functions>("facility-functions")
 	.WithReference(mongo)
 	.WithReference(facilityMigrations)
 	.WithReference(serviceBusMigrations);
@@ -73,7 +73,7 @@ var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pus
     .WithReference(redis)
     .WithReference(pushNotificationMigrations);
 
-builder.AddProject<Projects.PushNotification_Functions>("pushnotification-functions")
+builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
     .WithReference(mongo)
     .WithReference(pushNotificationMigrations)
     .WithReference(serviceBusMigrations);
