@@ -26,9 +26,9 @@ public class SyncFacilityFN(
     }
 
     [Function("SyncFacilityActivityFN")]
-    public async Task Activity(
-            [ActivityTrigger] string input)
-    {
-        await syncActivity.Execute(input);
-    }
+	public async Task<string> Activity(
+			[ActivityTrigger] string input)
+	{
+		return await syncActivity.Execute(input);
+	}
 }

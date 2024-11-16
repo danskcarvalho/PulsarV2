@@ -34,7 +34,7 @@ public class SyncBatch(
     public string TrackerType { get; set; } = trackerType;
     public string TrackerAssembly { get; set; } = trackerAssembly;
     public string TrackerRule { get; set; } = trackerRule;
-    public ChangedEventKey EventKey { get; } = eventKey;
-    public ObjectId ChangedEntityId { get; } = changedEntityId;
-    public DateTime ChangeTimestamp { get; } = changeTimestamp;
+    public ChangedEventKey EventKey { get; private set; } = eventKey;
+    public ObjectId ChangedEntityId { get; private set; } = changedEntityId;
+    public DateTime ChangeTimestamp { get; private set; } = changeTimestamp;
 }

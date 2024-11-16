@@ -26,9 +26,9 @@ public class SyncIdentityFN(
 	}
 
 	[Function("SyncIdentityActivityFN")]
-	public async Task Activity(
+	public async Task<string> Activity(
 			[ActivityTrigger] string input)
 	{
-		await syncActivity.Execute(input);
+		return await syncActivity.Execute(input);
 	}
 }

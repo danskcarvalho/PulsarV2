@@ -129,7 +129,7 @@ public class BatchActivity(
                     {
                         var shadowAndType = GetShadow(pb);
                         var result = (Task<PrepareBatchesActivityDescriptionResult>)
-                            this.GetType().GetMethod("ContinueForShadow", BindingFlags.NonPublic)!
+                            this.GetType().GetMethod("ContinueForShadow", BindingFlags.NonPublic | BindingFlags.Instance)!
                                 .MakeGenericMethod(shadowAndType.ShadowType)
                                 .Invoke(this, [shadowAndType.Shadow, pb])!;
 
@@ -141,18 +141,36 @@ public class BatchActivity(
         });
     }
 
-    private async Task<PrepareBatchesActivityDescriptionResult> ContinueForShadow<TShadow>(TShadow shadow, PrepareBatchesActivityDescription pb) where TShadow : class, IShadow
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "This is called through reflection.")]
+	private async Task<PrepareBatchesActivityDescriptionResult> ContinueForShadow<TShadow>(TShadow shadow, PrepareBatchesActivityDescription pb) where TShadow : class, IShadow
     {
         var shadowRepository =
             (repositories.First(x => x is IShadowRepository<TShadow>) as IShadowRepository<TShadow>)!;
 
+        TryAgain:
         var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
         if (previous == null || shadow.TimeStamp > previous.TimeStamp)
         {
             if (previous == null)
             {
-                await shadowRepository.InsertOneAsync(shadow);
-            }
+                try
+                {
+                    await shadowRepository.InsertOneAsync(shadow);
+				}
+                catch (MongoWriteException me)
+                {
+                    if (me.WriteError.Category != ServerErrorCategory.DuplicateKey)
+                        throw;
+                    else
+                    {
+                        goto TryAgain;
+                    }
+                }
+				catch (MongoDuplicateKeyException)
+				{
+					goto TryAgain;
+				}
+			}
             else
             {
                 await shadowRepository.ReplaceOneAsync(shadow);

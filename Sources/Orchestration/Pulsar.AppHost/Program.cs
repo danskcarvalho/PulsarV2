@@ -2,6 +2,9 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+var storage = builder.AddAzureStorage("pulsar-fnstorage")
+                     .RunAsEmulator();
+
 // DATABASES
 var mongo = builder
     .AddMongoDB("pulsar-mongodb", port: int.Parse(builder.Configuration["MongoDB:Port"]!))
@@ -26,6 +29,7 @@ var identityApi = builder
     .WithReference(identityMigrations);
 
 builder.AddAzureFunctionsProject<Projects.Identity_Functions>("identity-functions")
+    .WithHostStorage(storage)
     .WithReference(mongo)
     .WithReference(identityMigrations)
     .WithReference(serviceBusMigrations);
@@ -55,6 +59,7 @@ var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
 	.WithReference(facilityMigrations);
 
 builder.AddAzureFunctionsProject<Projects.Facility_Functions>("facility-functions")
+	.WithHostStorage(storage)
 	.WithReference(mongo)
 	.WithReference(facilityMigrations)
 	.WithReference(serviceBusMigrations);
@@ -74,7 +79,8 @@ var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pus
     .WithReference(pushNotificationMigrations);
 
 builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
-    .WithReference(mongo)
+	.WithHostStorage(storage)
+	.WithReference(mongo)
     .WithReference(pushNotificationMigrations)
     .WithReference(serviceBusMigrations);
 
