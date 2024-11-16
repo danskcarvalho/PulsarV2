@@ -17,4 +17,5 @@ await migrator
 	.AddAssembly(typeof(Pulsar.Services.PushNotification.Functions.Application.Synchronizations.SyncIdentityFN).Assembly)
 	.EnsureTopicCreation("%ServiceBusDeveloper%.Identity")
 	.EnsureTopicCreation("%ServiceBusDeveloper%.Facility")
+	.EnsureTopicCreation("%ServiceBusDeveloper%.PushNotification")
 	.Migrate();

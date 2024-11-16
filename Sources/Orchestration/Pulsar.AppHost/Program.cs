@@ -21,68 +21,95 @@ var serviceBusMigrations = builder.AddProject<Projects.ServiceBus_Migrations>("s
 
 // IDENTITY
 var identityMigrations = builder.AddProject<Projects.Identity_Migrations>("identity-migrations")
-    .WithReference(mongo);
+    .WithReference(mongo)
+    .WaitFor(mongo);
 
 var identityApi = builder
     .AddProject<Projects.Identity_API>("identity-api")
     .WithReference(mongo)
-    .WithReference(identityMigrations);
+    .WithReference(identityMigrations)
+	.WaitFor(mongo)
+    .WaitForCompletion(identityMigrations);
 
 builder.AddAzureFunctionsProject<Projects.Identity_Functions>("identity-functions")
     .WithHostStorage(storage)
     .WithReference(mongo)
     .WithReference(identityMigrations)
-    .WithReference(serviceBusMigrations);
+    .WithReference(serviceBusMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(identityMigrations)
+	.WaitForCompletion(serviceBusMigrations);
 
 builder.AddProject<Projects.Identity_EventDispatcher>("identity-eventdispatcher")
     .WithReference(mongo)
     .WithReference(identityMigrations)
-    .WithReference(serviceBusMigrations);
+    .WithReference(serviceBusMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(identityMigrations)
+	.WaitForCompletion(serviceBusMigrations);
 
 
 // CATALOG
 var catalogMigrations = builder.AddProject<Projects.Catalog_Migrations>("catalog-migrations")
-    .WithReference(mongo);
+    .WithReference(mongo)
+	.WaitFor(mongo);
 
 var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
     .WithReference(mongo)
     .WithReference(redis)
-    .WithReference(catalogMigrations);
+    .WithReference(catalogMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(catalogMigrations);
 
 // FACILITY
 var facilityMigrations = builder.AddProject<Projects.Facility_Migrations>("facility-migrations")
-	.WithReference(mongo);
+	.WithReference(mongo)
+	.WaitFor(mongo);
 
 var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
 	.WithReference(mongo)
 	.WithReference(redis)
-	.WithReference(facilityMigrations);
+	.WithReference(facilityMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(facilityMigrations);
 
 builder.AddAzureFunctionsProject<Projects.Facility_Functions>("facility-functions")
 	.WithHostStorage(storage)
 	.WithReference(mongo)
 	.WithReference(facilityMigrations)
-	.WithReference(serviceBusMigrations);
+	.WithReference(serviceBusMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(facilityMigrations)
+	.WaitForCompletion(serviceBusMigrations);
 
 builder.AddProject<Projects.Facility_EventDispatcher>("facility-eventdispatcher")
 	.WithReference(mongo)
 	.WithReference(facilityMigrations)
-	.WithReference(serviceBusMigrations);
+	.WithReference(serviceBusMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(facilityMigrations)
+	.WaitForCompletion(serviceBusMigrations);
 
 // PUSH NOTIFICATION
 var pushNotificationMigrations = builder.AddProject<Projects.PushNotification_Migrations>("pushnotification-migrations")
-    .WithReference(mongo);
+    .WithReference(mongo)
+	.WaitFor(mongo);
 
 var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pushnotification-api")
     .WithReference(mongo)
     .WithReference(redis)
-    .WithReference(pushNotificationMigrations);
+    .WithReference(pushNotificationMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(pushNotificationMigrations);
 
 builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
 	.WithHostStorage(storage)
 	.WithReference(mongo)
     .WithReference(pushNotificationMigrations)
-    .WithReference(serviceBusMigrations);
+    .WithReference(serviceBusMigrations)
+	.WaitFor(mongo)
+	.WaitForCompletion(pushNotificationMigrations)
+	.WaitForCompletion(serviceBusMigrations);
 
 // FRONTEND
 var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
