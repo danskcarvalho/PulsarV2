@@ -14,6 +14,7 @@ var migrator = host.Services.GetRequiredService<Migrator>();
 await migrator
     .AddAssembly(typeof(Pulsar.Services.Identity.Functions.Application.Synchronizations.SyncFacilityFN).Assembly)
 	.AddAssembly(typeof(Pulsar.Services.Facility.Functions.Application.Synchronizations.SyncIdentityFN).Assembly)
+	.AddAssembly(typeof(Pulsar.Services.PushNotification.Functions.Application.Synchronizations.SyncIdentityFN).Assembly)
 	.EnsureTopicCreation("%ServiceBusDeveloper%.Identity")
 	.EnsureTopicCreation("%ServiceBusDeveloper%.Facility")
 	.Migrate();

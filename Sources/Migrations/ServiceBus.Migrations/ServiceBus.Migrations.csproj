@@ -34,6 +34,7 @@
 		<ProjectReference Include="..\..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
 		<ProjectReference Include="..\..\Services\Facility\Facility.Functions\Facility.Functions.csproj" />
 		<ProjectReference Include="..\..\Services\Identity\Identity.Functions\Identity.Functions.csproj" />
+		<ProjectReference Include="..\..\Services\PushNotification\PushNotification.Functions\PushNotification.Functions.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>

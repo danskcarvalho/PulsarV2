@@ -64,6 +64,20 @@ builder.AddProject<Projects.Facility_EventDispatcher>("facility-eventdispatcher"
 	.WithReference(facilityMigrations)
 	.WithReference(serviceBusMigrations);
 
+// PUSH NOTIFICATION
+var pushNotificationMigrations = builder.AddProject<Projects.PushNotification_Migrations>("pushnotification-migrations")
+    .WithReference(mongo);
+
+var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pushnotification-api")
+    .WithReference(mongo)
+    .WithReference(redis)
+    .WithReference(pushNotificationMigrations);
+
+//builder.AddProject<Projects.PushNotification_Functions>("pushnotification-functions")
+//    .WithReference(mongo)
+//    .WithReference(pushNotificationMigrations)
+//    .WithReference(serviceBusMigrations);
+
 // FRONTEND
 var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
 
@@ -72,14 +86,17 @@ var frontend = builder.AddProject<Projects.Pulsar_Web>("pulsar-web", "https");
 identityApi.WithReference(catalogApi);
 identityApi.WithReference(facilityApi);
 identityApi.WithReference(frontend);
+identityApi.WithReference(pushNotificationApi);
 // CATALOG-API
 catalogApi.WithReference(identityApi);
 // FACILITY-API
 facilityApi.WithReference(identityApi);
+// PUSH NOTIFICATION-API
+pushNotificationApi.WithReference(identityApi);
 // FRONTEND
 frontend.WithReference(identityApi);
 frontend.WithReference(catalogApi);
 frontend.WithReference(facilityApi);
-
+frontend.WithReference(pushNotificationApi);
 
 builder.Build().Run();

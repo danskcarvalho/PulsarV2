@@ -67,6 +67,25 @@ public static class AllClients
 				]).ToList()
 			},
 			new Client
+			{
+				ClientId = "pushnotificationswaggerui",
+				ClientName = "Push Notification Swagger UI",
+				AllowedGrantTypes = GrantTypes.Code,
+				RequireClientSecret = false,
+				AllowAccessTokensViaBrowser = true,
+                //You can request a refresh token by adding a scope called offline_access to the scope parameter list of the authorize request.
+                //The clients needs to be explicitly authorized to be able to use refresh tokens by setting the AllowOfflineAccess property to true.
+                //AllowOfflineAccess = true,
+
+                AllowedCorsOrigins = configuration.GetSection("IdentityServer:Clients:PushNotificationSwaggerUI:AllowedCorsOrigins").GetChildren().Select(c => c.Value?.FormatUri(configuration)).Where(c => c is not null).ToList()!,
+				RedirectUris = { configuration.GetUri("IdentityServer:Clients:PushNotificationSwaggerUI:RedirectUri") },
+				PostLogoutRedirectUris = { configuration.GetUri("IdentityServer:Clients:PushNotificationSwaggerUI:PostLogoutRedirectUri") },
+				AllowedScopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("pushnotification.")).Select(s => s.Name).Union(
+				[
+					"openid", "profile", "usuario_admin", "dominio_logado", "dominio_estabelecimento_logado", "estabelecimento_logado", "dominio_logado_perms", "estabelecimento_logado_perms"
+				]).ToList()
+			},
+			new Client
             {
                 ClientId = "pulsarweb",
                 ClientName = "Pulsar Web",
