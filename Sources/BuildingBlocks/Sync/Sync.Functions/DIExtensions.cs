@@ -7,10 +7,10 @@ namespace Pulsar.BuildingBlocks.Sync.Functions;
 
 public static class DIExtensions
 {
-    public static IServiceCollection AddSyncFunctionServices(this IServiceCollection col)
+    public static IServiceCollection AddSyncFunctionServices(this IServiceCollection col, params Type[] shadowTypes)
     {
         col.AddTransient<IBatchActivity, BatchActivity>();
-        col.AddSingleton<IBatchManagerFactory, BatchManagerFactory>();
+        col.AddSingleton<IBatchManagerFactory, BatchManagerFactory>(_ => new BatchManagerFactory(shadowTypes));
 		col.AddSingleton<ISyncBatchRepository, SyncBatchMongoRepository>();
 		col.AddTransient<ISyncActivity, SyncActivity>();
         col.AddTransient(typeof(ISyncOrchestrator<>), typeof(SyncOrchestrator<>));
