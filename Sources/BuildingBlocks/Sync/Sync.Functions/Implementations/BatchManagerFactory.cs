@@ -10,29 +10,68 @@ class BatchManagerFactory : IBatchManagerFactory
     private readonly Dictionary<string, Type> _shadowTypes = new Dictionary<string, Type>();
     private readonly Dictionary<Type, object> _managersForShadows = new Dictionary<Type, object>();
     private readonly List<(Type Type, Type TrackedEntity)> _trackers = [];
+    private readonly HashSet<Type> _forShadowTypes = new HashSet<Type>();
     
-    public BatchManagerFactory()
+    public BatchManagerFactory(IEnumerable<Type> shadowTypes)
     {
+        _forShadowTypes = shadowTypes.ToHashSet();
+        if (_forShadowTypes.Count == 0)
+        {
+            throw new ArgumentException("shadowTypes must have at least one type", "shadowTypes");
+        }
+        foreach (var shadowType in shadowTypes)
+        {
+            AssertIsShadowType(shadowType);
+
+		}
+
         MapShadowTypes();
         CacheTrackers();
         CacheManagersForShadows();
     }
-    public IEnumerable<IBatchManagerForEvent> GetManagersFromEvent(EntityChangedIE evt, object? originalShadow)
+
+	private void AssertIsShadowType(Type shadowType)
+	{
+        if (!typeof(IShadow).IsAssignableFrom(shadowType))
+        {
+            throw new ArgumentException($"{shadowType} is not assignable from IShadow");
+        }
+        if (shadowType.GetCustomAttribute<ShadowAttribute>() == null)
+        {
+            throw new ArgumentException($"{shadowType} does not contain attribute ShadowAttribute");
+        }
+	}
+
+	public IEnumerable<IBatchManagerForEvent> GetManagersFromEvent(EntityChangedIE evt, object? originalShadow)
     {
         var shadowName = evt.ShadowName;
         var shadowType = GetShadowType(shadowName);
-        return GetManagersForShadow(shadowType, evt, originalShadow);
+
+        if (shadowType == null)
+        {
+            yield break;
+        }
+
+        foreach(var manager in GetManagersForShadow(shadowType, evt, originalShadow))
+        {
+            yield return manager;
+        }
     }
 
-    private Type GetShadowType(string shadowName)
+    private Type? GetShadowType(string shadowName)
     {
-        return _shadowTypes[shadowName];
+        return _shadowTypes.ContainsKey(shadowName) ? _shadowTypes[shadowName] : null;
     }
 
     private void MapShadowTypes()
     {
         foreach (var item in ShadowAttribute.GetShadowTypes(AppDomain.CurrentDomain.GetAssemblies()))
         {
+            if(!_forShadowTypes.Contains(item.Type))
+            {
+                continue;
+            }
+
             _shadowTypes[item.Attribute.Name] = item.Type;
         }
     }

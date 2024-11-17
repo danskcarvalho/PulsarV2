@@ -28,7 +28,9 @@ var host = new HostBuilder()
             // shadows from other services
             typeof(EstabelecimentoShadow).Assembly
             );
-        s.AddSyncFunctionServices();
+        s.AddSyncFunctionServices(
+            typeof(EstabelecimentoShadow), 
+            typeof(RedeEstabelecimentosShadow));
         s.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(Program).Assembly);

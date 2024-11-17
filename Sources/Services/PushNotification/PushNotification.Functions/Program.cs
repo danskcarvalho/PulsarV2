@@ -30,7 +30,9 @@ var host = new HostBuilder()
             // shadows from other services
             typeof(UsuarioShadow).Assembly
             );
-        s.AddSyncFunctionServices();
+        s.AddSyncFunctionServices(
+			typeof(DominioShadow),
+			typeof(UsuarioShadow));
         s.AddMediatR(c =>
         {
             c.RegisterServicesFromAssembly(typeof(Program).Assembly);
