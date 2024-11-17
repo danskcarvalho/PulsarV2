@@ -59,7 +59,7 @@ public class UsuarioScenarios : IdentityScenarios
             Senha = "$%bYbAw9gYCxKfbkxF",
             ConfirmarSenha = "$%bYbAw9gYCxKfbkxF"
         }));
-        Assert.Equal(ExceptionKey.SenhaAtualInvalida, exception.Key);
+        Assert.Equal(IdentityExceptionKey.SenhaAtualInvalida, exception.Key);
 
         var actionResult = await controller.MudarMinhaSenha(new Pulsar.Services.Identity.Contracts.Commands.Usuarios.MudarMinhaSenhaCmd()
         {

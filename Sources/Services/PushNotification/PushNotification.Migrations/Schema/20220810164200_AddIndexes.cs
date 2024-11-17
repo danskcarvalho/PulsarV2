@@ -6,7 +6,7 @@ public class AddIndexes : Migration
     public override async Task Up()
     {
         await this.UpIndexes(
-            typeof(Domain.Aggregates.PushNotifications.NotificacaoPush).Assembly,
+			typeof(NotificacaoPush).Assembly,
             // shadows
             typeof(UsuarioShadow).Assembly
             );

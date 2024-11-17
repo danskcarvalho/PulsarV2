@@ -51,7 +51,7 @@ public class DominioController : IdentityController
     {
         var dominioId = User.DominioId();
         if (dominioId == null)
-            throw new IdentityDomainException(ExceptionKey.DominioNaoLogado);
+            throw new IdentityDomainException(IdentityExceptionKey.DominioNaoLogado);
         var r = (await DominioQueries.GetDominioDetalhes(new string[] { dominioId }, noUsuarioAdministrador: true, consistencyToken: null)).First();
         return Ok(new IdNomeViewModel(r.DominioId, r.Nome));
     }

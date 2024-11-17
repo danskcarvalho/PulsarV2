@@ -15,4 +15,5 @@ public interface IAggregateRoot : ISupportInitialize
     void RemoveDomainEvent(INotification eventItem);
     void ClearDomainEvents();
     void IncVersion();
+    void CopyVersionFrom(IAggregateRoot anotherRoot);
 }

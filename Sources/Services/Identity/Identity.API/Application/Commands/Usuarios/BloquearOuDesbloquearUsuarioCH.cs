@@ -10,7 +10,7 @@ public class BloquearOuDesbloquearUsuarioCH : IdentityCommandHandler<BloquearOuD
     {
         var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioId!.ToObjectId());
         if (usuario == null)
-            throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
         usuario.BloquearOuDesbloquear(cmd.UsuarioLogadoId.ToObjectId(), cmd.Bloquear);
 		await UsuarioRepository.ReplaceOneAsync(usuario);
 		return new CommandResult(Session.ConsistencyToken);

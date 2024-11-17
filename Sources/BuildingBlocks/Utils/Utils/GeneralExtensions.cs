@@ -20,10 +20,27 @@ public static partial class GeneralExtensions
         var services = configuration.GetSection("Services");
         foreach (var srv in services.GetChildren())
         {
-            var srvUri = new Uri(srv.GetSection("https").GetChildren().First().Value!);
-            var port = $"{{{srv.Key}:port}}";
-            uri = uri.Replace(port, srvUri.Port.ToString(CultureInfo.InvariantCulture));
-        }
+            {
+                var seq = srv.GetSection("https").GetChildren().FirstOrDefault();
+                if (seq == null)
+                {
+                    seq = srv.GetSection("http").GetChildren().FirstOrDefault();
+                    if (seq == null)
+                    {
+                        continue;
+                    }
+                    var srvUri = new Uri(seq.Value!);
+                    var port = $"{{{srv.Key}:port}}";
+                    uri = uri.Replace(port, srvUri.Port.ToString(CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    var srvUri = new Uri(seq.Value!);
+                    var port = $"{{{srv.Key}:port}}";
+                    uri = uri.Replace(port, srvUri.Port.ToString(CultureInfo.InvariantCulture));
+                }
+            }
+		}
 
         return uri;
     }

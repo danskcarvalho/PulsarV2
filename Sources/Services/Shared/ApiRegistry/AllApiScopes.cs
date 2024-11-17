@@ -85,7 +85,12 @@ public static class AllApiScopes
 
         //Facility API
         new ApiScope("facility.*"),
+
         //Push Notification API
         new ApiScope("pushnotification.*"),
+		new ApiScope("pushnotification.api.*"),
+		new ApiScope("pushnotification.api.create_session"),
+		new ApiScope("pushnotification.api.mark_as_read"),
+		new ApiScope("pushnotification.api.read"),
 	};
 }

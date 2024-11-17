@@ -111,7 +111,7 @@ public class ConviteScenarios : IdentityScenarios
             Token = createdInvite.TokenAceitacao
         }));
 
-        Assert.Equal(ExceptionKey.ConviteJaAceito, exception.Key);
+        Assert.Equal(IdentityExceptionKey.ConviteJaAceito, exception.Key);
 
     }
 
@@ -178,7 +178,7 @@ public class ConviteScenarios : IdentityScenarios
             Email = "someuser@domain.com",
             UsuarioLogadoId = IdentityDatabase.AdminUserId
         }));
-        Assert.Equal(ExceptionKey.UsuarioJaConvidado, exception.Key);
+        Assert.Equal(IdentityExceptionKey.UsuarioJaConvidado, exception.Key);
 
     }
 }

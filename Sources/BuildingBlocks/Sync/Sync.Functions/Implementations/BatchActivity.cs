@@ -173,7 +173,12 @@ public class BatchActivity(
 			}
             else
             {
-                await shadowRepository.ReplaceOneAsync(shadow);
+                shadow.CopyVersionFrom(previous);
+                var modified = await shadowRepository.ReplaceOneAsync(shadow);
+                if (modified == 0)
+                {
+                    goto TryAgain;
+                }
             }
 
             var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();

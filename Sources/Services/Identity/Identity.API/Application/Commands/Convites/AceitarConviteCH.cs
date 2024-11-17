@@ -15,7 +15,7 @@ public class AceitarConviteCH : IdentityCommandHandler<AceitarConviteCmd>
     {
         var convite = await ConviteRepository.FindOneByIdAsync(cmd.ConviteId!.ToObjectId());
         if (convite == null)
-            throw new IdentityDomainException(ExceptionKey.ConviteNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteNaoEncontrado);
 
         convite.Aceitar(cmd.PrimeiroNome, cmd.Sobrenome, cmd.NomeUsuario, cmd.Senha, cmd.Token);
         await ConviteRepository.ReplaceOneAsync(convite);

@@ -19,13 +19,13 @@ public class ValidarEstabelecimentosRedesDEH : IdentityDomainEventHandler<GrupoM
             {
                 var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
-                    throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoEncontrado);
+                    throw new IdentityDomainException(IdentityExceptionKey.EstabelecimentoNaoEncontrado);
             }
             if (redes.Count != 0)
             {
                 var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
-                    throw new IdentityDomainException(ExceptionKey.RedeEstabelecimentosNaoEncontrado);
+                    throw new IdentityDomainException(IdentityExceptionKey.RedeEstabelecimentosNaoEncontrado);
             }
         }
         if (evt.SubGruposModificados.Count != 0)
@@ -36,13 +36,13 @@ public class ValidarEstabelecimentosRedesDEH : IdentityDomainEventHandler<GrupoM
             {
                 var b = await EstabelecimentoRepository.AllExistsAsync(estabelecimentos, new FindEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
-                    throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoEncontrado);
+                    throw new IdentityDomainException(IdentityExceptionKey.EstabelecimentoNaoEncontrado);
             }
             if (redes.Count != 0)
             {
                 var b = await RedeEstabelecimentosRepository.AllExistsAsync(redes, new FindRedesEstabelecimentosDominioSpec(evt.DominioId));
                 if (!b)
-                    throw new IdentityDomainException(ExceptionKey.RedeEstabelecimentosNaoEncontrado);
+                    throw new IdentityDomainException(IdentityExceptionKey.RedeEstabelecimentosNaoEncontrado);
             }
         }
     }

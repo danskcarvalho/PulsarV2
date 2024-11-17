@@ -12,7 +12,7 @@ public class RemoverGrupoCH : IdentityCommandHandler<RemoverGrupoCmd, CommandRes
     {
         var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
-            throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.GrupoNaoEncontrado);
         grupo.Remover(cmd.UsuarioLogadoId!.ToObjectId());
 		await GrupoRepository.ReplaceOneAsync(grupo);
 		return new CommandResult(Session.ConsistencyToken);

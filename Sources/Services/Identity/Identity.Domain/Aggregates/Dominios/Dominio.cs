@@ -68,7 +68,7 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
     public void SetAdministradorDominio(ObjectId usuarioId, ObjectId? editadoPorUsuarioId)
     {
         if (this.UsuarioAdministradorId != null || !this.IsAtivo)
-            throw new IdentityDomainException(ExceptionKey.ConviteDominioInvalido);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteDominioInvalido);
         this.UsuarioAdministradorId = usuarioId;
         if (editadoPorUsuarioId != null)
             this.AuditInfo = this.AuditInfo.EditadoPor(editadoPorUsuarioId.Value);
@@ -77,7 +77,7 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
     public void Criar(ObjectId usuarioLogadoId, Usuario? usuarioAdministrador)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
 
         this.AddDomainEvent(new DominioModificadoDE(usuarioLogadoId, this.Id, this.Nome, this.IsAtivo, this.AuditInfo, this.UsuarioAdministradorId, null, ChangeEvent.Created));
     }
@@ -85,9 +85,9 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
     public void Editar(ObjectId usuarioLogadoId, string nome, Usuario? usuarioAdministrador, List<ObjectId>? usuariosBloqueados)
     {
         if (usuarioAdministrador != null && usuarioAdministrador.IsSuperUsuario)
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeAdministrarDominio);
         if (usuarioAdministrador != null && usuariosBloqueados != null && usuariosBloqueados.Any(ub => ub == usuarioAdministrador.Id))
-            throw new IdentityDomainException(ExceptionKey.UsuarioAdministradorIsBloqueadoDominio);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioAdministradorIsBloqueadoDominio);
 
         var previousAdmin = this.UsuarioAdministradorId;
         this.Nome = nome;
@@ -106,9 +106,9 @@ public partial class Dominio : AggregateRootWithContext<Dominio>
     public void BloquearOuDesbloquearUsuarios(ObjectId usuarioLogadoId, List<ObjectId> usuarioIds, bool bloquear)
     {
         if (usuarioIds.Any(u => u == UsuarioAdministradorId))
-            throw new IdentityDomainException(ExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio);
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueadoDominio);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeSerBloqueadoDominio);
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuariosBloqueadosEmDominioDE(usuarioLogadoId, this.Id, usuarioIds, bloquear));
     }

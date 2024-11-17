@@ -17,19 +17,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Enumerations\**" />
-		<EmbeddedResource Remove="Enumerations\**" />
-		<None Remove="Enumerations\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus.Contracts\EventBus.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\Sync\Sync.Contracts\Sync.Contracts.csproj" />
 		<ProjectReference Include="..\..\Shared\Shared\Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="DTOs\" />
 		<Folder Include="IntegrationEvents\" />
 		<Folder Include="Shadows\" />
 	</ItemGroup>

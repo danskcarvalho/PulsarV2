@@ -102,7 +102,7 @@ var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pus
 	.WaitFor(mongo)
 	.WaitForCompletion(pushNotificationMigrations);
 
-builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
+var pushNotificationFunctions = builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
 	.WithHostStorage(storage)
 	.WithReference(mongo)
     .WithReference(pushNotificationMigrations)
@@ -126,6 +126,7 @@ catalogApi.WithReference(identityApi);
 facilityApi.WithReference(identityApi);
 // PUSH NOTIFICATION-API
 pushNotificationApi.WithReference(identityApi);
+pushNotificationApi.WithReference(pushNotificationFunctions);
 // FRONTEND
 frontend.WithReference(identityApi);
 frontend.WithReference(catalogApi);

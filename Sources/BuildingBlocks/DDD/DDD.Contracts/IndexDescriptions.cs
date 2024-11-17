@@ -63,7 +63,7 @@ public abstract class IndexDescriptions<TModel> : IndexDescriptions
         return _ImplementationType ?? throw new InvalidOperationException("no implementation for index descriptions");
     }
 
-    public override Type ModelType => typeof(TModel);
+    public sealed override Type ModelType => typeof(TModel);
 }
 
 public abstract class IndexDescriptionsImplementation<TModel>

@@ -13,7 +13,7 @@ public class BloquearOuDesbloquearUsuariosEmDominioDEH : IdentityDomainEventHand
     {
         var dominio = await DominioRepository.FindOneByIdAsync(evt.DominioId);
         if (dominio == null)
-            throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.DominioNaoEncontrado);
         var updateUsuarios = new BloquearOuDesbloquearUsuariosEmDominioSpec(evt.UsuarioLogadoId, evt.DominioId, evt.UsuariosIds, evt.Bloquear);
         await UsuarioRepository.UpdateManyAsync(updateUsuarios);
     }

@@ -64,7 +64,7 @@ public class DominioScenarios : IdentityScenarios
         {
             UsuarioIds = new List<string> { IdentityDatabase.SamanthaUserId }
         }));
-        Assert.Equal(ExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio, exception.Key);
+        Assert.Equal(IdentityExceptionKey.UsuarioAdministradorNaoPodeSerBloqueadoDominio, exception.Key);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class DominioScenarios : IdentityScenarios
             UsuarioAdministradorId = IdentityDatabase.AdminUserId,
             Nome = "PADRÃO"
         }));
-        Assert.Equal(ExceptionKey.SuperUsuarioNaoPodeAdministrarDominio, exception.Key);
+        Assert.Equal(IdentityExceptionKey.SuperUsuarioNaoPodeAdministrarDominio, exception.Key);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class DominioScenarios : IdentityScenarios
             UsuarioAdministradorId = IdentityDatabase.AlexiaUserId,
             Nome = "PADRÃO"
         }));
-        Assert.Equal(ExceptionKey.UsuarioAdministradorIsBloqueadoDominio, exception.Key);
+        Assert.Equal(IdentityExceptionKey.UsuarioAdministradorIsBloqueadoDominio, exception.Key);
     }
 
     [Fact]

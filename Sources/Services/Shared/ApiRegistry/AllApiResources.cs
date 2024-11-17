@@ -23,5 +23,23 @@ public static class AllApiResources
                "d", "de", "e", "dp", "ep", "uag", "uad"
             }
         },
-    };
+
+		new ApiResource("facility", "Facility API")
+		{
+			Scopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("facility.")).Select(s => s.Name).ToList(),
+			UserClaims =
+			{
+			   "d", "de", "e", "dp", "ep", "uag", "uad"
+			}
+		},
+
+		new ApiResource("pushnotification", "Push Notification API")
+		{
+			Scopes = AllApiScopes.Resources.Where(s => s.Name.StartsWith("pushnotification.")).Select(s => s.Name).ToList(),
+			UserClaims =
+			{
+			   "d", "de", "e", "dp", "ep", "uag", "uad"
+			}
+		},
+	};
 }

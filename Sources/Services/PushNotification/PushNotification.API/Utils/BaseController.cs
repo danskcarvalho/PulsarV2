@@ -5,7 +5,7 @@ public class BaseController : ControllerBase
     private readonly BaseControllerContext _context;
     public IMediator Mediator => _context.Mediator;
     public IConfiguration Configuration => _context.Configuration;
-    public INotificacoesPushQueries EstabelecimentoQueries => _context.EstabelecimentoQueries;
+    public INotificacaoPushQueries NotificacoesPushQueries => _context.NotificacoesPushQueries;
     public BaseController(BaseControllerContext context)
     {
         _context = context;

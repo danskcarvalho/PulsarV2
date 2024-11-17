@@ -13,7 +13,7 @@ public class EstabelecimentoQueries : IdentityQueries, IEstabelecimentoQueries
         var id = estabelecimentoId.ToObjectId();
         var e = await EstabelecimentosCollection.FindAsync(e => e.Id == id).FirstOrDefaultAsync();
         if (e == null)
-            throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.EstabelecimentoNaoEncontrado);
         return new EstabelecimentoLogadoDTO(e.Id.ToString(), e.Nome);
     }
 }

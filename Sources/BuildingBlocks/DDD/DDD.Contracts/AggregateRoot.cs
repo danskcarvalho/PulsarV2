@@ -92,7 +92,12 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
             return other.Id == Id;
     }
 
-    public static bool operator ==(AggregateRoot? left, AggregateRoot? right)
+	public void CopyVersionFrom(IAggregateRoot anotherRoot)
+	{
+		this.Version = anotherRoot.Version;
+	}
+
+	public static bool operator ==(AggregateRoot? left, AggregateRoot? right)
     {
         if (Equals(left, null))
             return Equals(right, null) ? true : false;

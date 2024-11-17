@@ -12,9 +12,9 @@ public class BloquearOuDesbloquearUsuariosNoDominioCH : IdentityCommandHandler<B
     {
         var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId());
         if (dominio == null)
-            throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.DominioNaoEncontrado);
         if (!await UsuarioRepository.AllExistsAsync(cmd.UsuarioIds!.Select(u => u.ToObjectId())))
-            throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
         dominio.BloquearOuDesbloquearUsuarios(cmd.UsuarioLogadoId!.ToObjectId(), cmd.UsuarioIds!.Select(uid => uid.ToObjectId()).ToList(), cmd.Bloquear);
         await DominioRepository.ReplaceOneAsync(dominio);
         return new CommandResult(Session.ConsistencyToken);

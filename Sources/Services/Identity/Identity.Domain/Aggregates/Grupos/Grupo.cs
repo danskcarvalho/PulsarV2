@@ -70,7 +70,7 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
     {
         nome = nome.Trim();
         if (SubGrupos.Any(sg => string.Compare(sg.Nome, nome, true) == 0))
-            throw new IdentityDomainException(ExceptionKey.SubgrupoJaExistente);
+            throw new IdentityDomainException(IdentityExceptionKey.SubgrupoJaExistente);
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         var subgrupo = new SubGrupo(ObjectId.GenerateNewId(), nome, permissoesDominio, 
             permissoesEstabelecimento.Select(pe => new SubGrupoPermissoesEstabelecimento(new Seletor(pe.EstabelecimentoId?.ToObjectId(), pe.RedeEstabelecimentosId?.ToObjectId()), pe.Permissoes!)));
@@ -78,7 +78,7 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
         this.NumSubGrupos = this.SubGrupos.Count;
 
         if (this.NumSubGrupos > Grupo.MAX_NUM_SUBGRUPOS)
-            throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
+            throw new IdentityDomainException(IdentityExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(),new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), ChangeEvent.Edited, Version));
         return subgrupo.SubGrupoId;
@@ -89,7 +89,7 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         var subgrupo = SubGrupos.FirstOrDefault(sg => sg.SubGrupoId == subgrupoId);
         if (subgrupo == null)
-            throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.SubgrupoNaoEncontrado);
         subgrupo.Editar(nome, permissoesDominios, permissoesEstabelecimentoOuRedes);
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
     }
@@ -99,12 +99,12 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         var subgrupo = SubGrupos.FirstOrDefault(sg => sg.SubGrupoId == subgrupoId);
         if (subgrupo == null)
-            throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.SubgrupoNaoEncontrado);
         SubGrupos.Remove(subgrupo);
         this.NumSubGrupos = this.SubGrupos.Count;
 
         if (this.NumSubGrupos > Grupo.MAX_NUM_SUBGRUPOS)
-            throw new IdentityDomainException(ExceptionKey.NumSubgruposExcedeMaximo);
+            throw new IdentityDomainException(IdentityExceptionKey.NumSubgruposExcedeMaximo);
 
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo>(), new List<SubGrupo>(), new List<SubGrupo> { subgrupo }, ChangeEvent.Edited, Version));
     }
@@ -112,9 +112,9 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
     public void AdicionarUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
     {
         if (!SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))
-            throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.SubgrupoNaoEncontrado);
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
         var subgrupo = SubGrupos.First(sg => sg.SubGrupoId == subgrupoId);
         subgrupo.UsuarioIds.UnionWith(usuarioIds);
@@ -122,7 +122,7 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
         this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
 
         if (this.NumUsuarios > Grupo.MAX_NUM_USUARIOS)
-            throw new IdentityDomainException(ExceptionKey.NumUsuariosGrupoExcedeMaximo);
+            throw new IdentityDomainException(IdentityExceptionKey.NumUsuariosGrupoExcedeMaximo);
 
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));
@@ -131,9 +131,9 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
     public void RemoverUsuariosEmSubGrupo(ObjectId usuarioLogadoId, ObjectId subgrupoId, List<ObjectId> usuarioIds)
     {
         if (!SubGrupos.Any(sg => sg.SubGrupoId == subgrupoId))
-            throw new IdentityDomainException(ExceptionKey.SubgrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.SubgrupoNaoEncontrado);
         if (usuarioIds.Any(u => u == Usuario.SuperUsuarioId))
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeserAdicionadoEmGrupo);
 
         var subgrupo = SubGrupos.First(sg => sg.SubGrupoId == subgrupoId);
         subgrupo.UsuarioIds.ExceptWith(usuarioIds);
@@ -141,7 +141,7 @@ public partial class Grupo : AggregateRootWithContext<Grupo>
         this.NumUsuarios = this.SubGrupos.Sum(sg => sg.NumUsuarios);
 
         if (this.NumUsuarios > Grupo.MAX_NUM_USUARIOS)
-            throw new IdentityDomainException(ExceptionKey.NumUsuariosGrupoExcedeMaximo);
+            throw new IdentityDomainException(IdentityExceptionKey.NumUsuariosGrupoExcedeMaximo);
 
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new GrupoModificadoDE(usuarioLogadoId, this.DominioId, this.Id, this.Nome, this.AuditInfo, new List<SubGrupo> { subgrupo }, new List<SubGrupo>(), new List<SubGrupo>(), ChangeEvent.Edited, Version));

@@ -12,7 +12,7 @@ public class CriarSubGrupoCH : IdentityCommandHandler<CriarSubGrupoCmd, CreatedC
     {
         var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
-            throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.GrupoNaoEncontrado);
         var subgrupoId = grupo.CriarSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.Nome!, cmd.PermissoesDominio!, cmd.PermissoesEstabelecimento!);
         await GrupoRepository.ReplaceOneAsync(grupo);
         return new CreatedCommandResult(subgrupoId.ToString());

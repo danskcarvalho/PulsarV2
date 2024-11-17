@@ -12,9 +12,9 @@ public class AdicionarUsuariosSubGrupoCH : IdentityCommandHandler<AdicionarUsuar
     {
         var grupo = await GrupoRepository.FindOneByIdAsync(cmd.GrupoId!.ToObjectId());
         if (grupo == null || grupo.DominioId != cmd.DominioId!.ToObjectId())
-            throw new IdentityDomainException(ExceptionKey.GrupoNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.GrupoNaoEncontrado);
         if (!await UsuarioRepository.AllExistsAsync(cmd.UsuarioIds!.Select(u => u.ToObjectId())))
-            throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
 
         grupo.AdicionarUsuariosEmSubGrupo(cmd.UsuarioLogadoId!.ToObjectId(), cmd.SubGrupoId!.ToObjectId(), cmd.UsuarioIds!.Select(x => x.ToObjectId()).ToList());
         await GrupoRepository.ReplaceOneAsync(grupo);

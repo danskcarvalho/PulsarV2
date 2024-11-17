@@ -27,11 +27,11 @@ public class Convite : AggregateRootWithContext<Convite>
     public void Aceitar(string? primeiroNome, string? sobrenome, string? nomeUsuario, string? senha, string? token)
     {
         if (IsAceito)
-            throw new IdentityDomainException(ExceptionKey.ConviteJaAceito);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteJaAceito);
         if (DateTime.UtcNow > ConviteExpiraEm)
-            throw new IdentityDomainException(ExceptionKey.ConviteExpirado);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteExpirado);
         if (TokenAceitacao != token)
-            throw new IdentityDomainException(ExceptionKey.ConviteTokenInvalido);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteTokenInvalido);
 
         IsAceito = true;
         this.AddDomainEvent(new ConviteAceitoDE(this.Id, this.UsuarioId, primeiroNome!, sobrenome, nomeUsuario!, senha!, this.Email, AuditInfo.CriadoPorUsuarioId));

@@ -12,7 +12,7 @@ public class EsconderOuMostrarDominioCH : IdentityCommandHandler<EsconderOuMostr
     {
         var dominio = await DominioRepository.FindOneByIdAsync(cmd.DominioId!.ToObjectId());
         if (dominio == null)
-            throw new IdentityDomainException(ExceptionKey.DominioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.DominioNaoEncontrado);
         if (cmd.Esconder)
             dominio.Esconder(cmd.UsuarioLogadoId!.ToObjectId());
         else

@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\DDD\DDD\DDD.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Utils\Utils\Utils.csproj" />
+    <ProjectReference Include="..\PushNotification.Contracts\PushNotification.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

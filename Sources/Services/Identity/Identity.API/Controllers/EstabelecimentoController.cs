@@ -18,7 +18,7 @@ public class EstabelecimentoController : IdentityController
     {
         var estabelecimentoId = User.EstabelecimentoId();
         if (estabelecimentoId == null)
-            throw new IdentityDomainException(ExceptionKey.EstabelecimentoNaoLogado);
+            throw new IdentityDomainException(IdentityExceptionKey.EstabelecimentoNaoLogado);
         var r = await EstabelecimentoQueries.GetEstabelecimentoLogado(estabelecimentoId);
         return Ok(r);
     }

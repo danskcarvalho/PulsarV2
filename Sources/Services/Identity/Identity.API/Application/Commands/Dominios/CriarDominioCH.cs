@@ -12,7 +12,7 @@ public class CriarDominioCH : IdentityCommandHandler<CriarDominioCmd, CreatedCom
     {
         var usuarioAdministrador = cmd.UsuarioAdministradorId != null ? await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioAdministradorId.ToObjectId()) : null;
         if (usuarioAdministrador == null && cmd.UsuarioAdministradorId != null)
-            throw new IdentityDomainException(ExceptionKey.UsuarioNaoEncontrado);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
 
         var dominio = new Dominio(ObjectId.GenerateNewId(), cmd.Nome!, usuarioAdministrador?.Id, new AuditInfo(cmd.UsuarioLogadoId!.ToObjectId()));
         dominio.Criar(cmd.UsuarioLogadoId!.ToObjectId(), usuarioAdministrador);

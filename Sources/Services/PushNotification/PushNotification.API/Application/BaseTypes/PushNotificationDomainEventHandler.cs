@@ -4,12 +4,16 @@ using Pulsar.BuildingBlocks.DDD.Contexts;
 using Pulsar.BuildingBlocks.EventBus.Abstractions;
 using Pulsar.Services.Identity.Contracts.Shadows;
 using Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications;
+using Pulsar.Services.PushNotification.Domain.Aggregates.Sessions;
+using Pulsar.Services.PushNotification.Domain.Aggregates.UserContexts;
 
 namespace Pulsar.Services.PushNotification.API.Application.BaseTypes;
 
 public abstract class PushNotificationDomainEventHandler<TEvent> : DomainEventHandler<TEvent> where TEvent : INotification
 {
 	protected INotificacaoPushRepository NotificacaoPushRepository { get; }
+	protected ISessionRepository SessionRepository { get; }
+	protected IUserContextRepository UserContextRepository { get; }
 	protected IShadowRepository<DominioShadow> DominioRepository { get; }
 	protected IShadowRepository<UsuarioShadow> UsuarioRepository { get; }
 	protected ILogger Logger { get; }
@@ -20,6 +24,8 @@ public abstract class PushNotificationDomainEventHandler<TEvent> : DomainEventHa
 		NotificacaoPushRepository = (INotificacaoPushRepository)ctx.Repositories.First(r => r is INotificacaoPushRepository);
 		DominioRepository = (IShadowRepository<DominioShadow>)ctx.Repositories.First(r => r is IShadowRepository<DominioShadow>);
 		UsuarioRepository = (IShadowRepository<UsuarioShadow>)ctx.Repositories.First(r => r is IShadowRepository<UsuarioShadow>);
+		SessionRepository = (ISessionRepository)ctx.Repositories.First(r => r is ISessionRepository);
+		UserContextRepository = (IUserContextRepository)ctx.Repositories.First(r => r is IUserContextRepository);
 		Logger = ctx.Logger;
 		EventLog = ctx.EventLog;
 	}

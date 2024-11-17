@@ -17,7 +17,7 @@ public class CriarConviteCH : IdentityCommandHandler<CriarConviteCmd>
         cmd.Email = cmd.Email?.ToLowerInvariant().Trim();
         var usuarioExistente = await UsuarioRepository.FindOneAsync(new FindUsuarioByEitherUsenameOrEmailSpec(null, cmd.Email));
         if (usuarioExistente != null && !usuarioExistente.IsConvitePendente)
-            throw new IdentityDomainException(ExceptionKey.UsuarioJaConvidado);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioJaConvidado);
 
         var convite = new Convite(ObjectId.GenerateNewId(), cmd.Email!, DateTime.UtcNow.AddDays(1), GeneralExtensions.GetSalt(), usuarioExistente?.Id ?? ObjectId.GenerateNewId(), new AuditInfo(cmd.UsuarioLogadoId!.ToObjectId()));
         convite.ConvidarUsuario();

@@ -139,7 +139,7 @@ public partial class Usuario : AggregateRootWithContext<Usuario>
     public void GerarTokenMudancaSenha()
     {
         if (this.Email is null)
-            throw new IdentityDomainException(ExceptionKey.UsuarioSemEmail);
+            throw new IdentityDomainException(IdentityExceptionKey.UsuarioSemEmail);
 
         if (this.TokenMudancaSenha is null || this.TokenMudancaSenhaExpiraEm is null || DateTime.UtcNow > this.TokenMudancaSenhaExpiraEm.Value.AddMinutes(-15))
         {
@@ -152,11 +152,11 @@ public partial class Usuario : AggregateRootWithContext<Usuario>
     public void RecuperarSenha(string token, string senha)
     {
         if (TokenMudancaSenhaExpiraEm == null)
-            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaExpirado);
+            throw new IdentityDomainException(IdentityExceptionKey.TokenMudancaSenhaExpirado);
         if (DateTime.UtcNow > this.TokenMudancaSenhaExpiraEm)
-            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaExpirado);
+            throw new IdentityDomainException(IdentityExceptionKey.TokenMudancaSenhaExpirado);
         if (TokenMudancaSenha != token)
-            throw new IdentityDomainException(ExceptionKey.TokenMudancaSenhaInvalido);
+            throw new IdentityDomainException(IdentityExceptionKey.TokenMudancaSenhaInvalido);
 
         this.SenhaSalt = GeneralExtensions.GetSalt();
         this.SenhaHash = (this.SenhaSalt + senha).SHA256Hash();
@@ -185,9 +185,9 @@ public partial class Usuario : AggregateRootWithContext<Usuario>
     {
         var previousVersion = Version;
         if (IsConvitePendente)
-            throw new IdentityDomainException(ExceptionKey.ConviteNaoAceito);
+            throw new IdentityDomainException(IdentityExceptionKey.ConviteNaoAceito);
         if (!TestarSenha(senhaAtual))
-            throw new IdentityDomainException(ExceptionKey.SenhaAtualInvalida);
+            throw new IdentityDomainException(IdentityExceptionKey.SenhaAtualInvalida);
         this.MudarMinhaSenha(novaSenha);
         this.AuditInfo = this.AuditInfo.EditadoPor(this.Id);
     }
@@ -210,7 +210,7 @@ public partial class Usuario : AggregateRootWithContext<Usuario>
     public void BloquearOuDesbloquear(ObjectId usuarioLogadoId, bool bloquear)
     {
         if (IsSuperUsuario)
-            throw new IdentityDomainException(ExceptionKey.SuperUsuarioNaoPodeSerBloqueado);
+            throw new IdentityDomainException(IdentityExceptionKey.SuperUsuarioNaoPodeSerBloqueado);
         this.IsAtivo = !bloquear;
         this.AuditInfo = this.AuditInfo.EditadoPor(usuarioLogadoId);
         this.AddDomainEvent(new UsuarioModificadoDE(this.Id, this.AvatarUrl, this.PrimeiroNome, this.UltimoNome, this.NomeCompleto, this.IsAtivo, this.NomeUsuario, this.Email,
