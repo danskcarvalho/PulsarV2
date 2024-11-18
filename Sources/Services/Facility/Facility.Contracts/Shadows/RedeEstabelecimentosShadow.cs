@@ -19,7 +19,4 @@ public class RedeEstabelecimentosShadow : Shadow
         AuditInfo = auditInfo;
     }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public RedeEstabelecimentosShadow() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

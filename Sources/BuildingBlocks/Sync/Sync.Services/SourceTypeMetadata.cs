@@ -7,6 +7,7 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Collections;
 using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;
+using System.Runtime.CompilerServices;
 
 namespace Pulsar.BuildingBlocks.Sync.Services;
 
@@ -62,10 +63,7 @@ class SourceTypeMetadata
     {
         _sourceType = sourceType;
         _shadowType = sourceType.GetCustomAttribute<TrackChangesAttribute>()?.ShadowType ?? throw new ArgumentException("no TrackChangesAttribute");
-        if (!HasParameterlessConstructor(_shadowType))
-        {
-            throw new InvalidOperationException($"shadow type {_shadowType.FullName} has no parameterless constructor");
-        }
+        
         var shadowAttr = _shadowType.GetCustomAttribute<ShadowAttribute>();
         if (shadowAttr == null)
         {
@@ -97,6 +95,12 @@ class SourceTypeMetadata
             addedMappings.Add((typeof(F), typeof(T)));
 
             var start = cfg.CreateMap<F, T>();
+            start.ConstructUsing((source, context) =>
+            {
+                var obj = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+                return obj;
+            });
+
             foreach (var fprop in typeof(F).GetProperties())
             {
                 var tprop = typeof(T).GetProperty(fprop.Name);

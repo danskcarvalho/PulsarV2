@@ -23,7 +23,17 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
     public ObjectId Id { get; protected set; }
     public long Version { get; private set; }
     [BsonIgnore]
-    public IReadOnlyCollection<INotification> DomainEvents => _notifications.AsReadOnly();
+    public IReadOnlyCollection<INotification> DomainEvents
+    {
+        get
+        {
+            if (_notifications == null)
+            {
+                _notifications = new List<INotification>();
+            }
+            return _notifications.AsReadOnly();
+        }
+    }
     [BsonIgnore]
     public bool IsInitializing => _isInitializing;
     [BsonIgnore]
@@ -36,7 +46,11 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     public void AddDomainEvent(INotification eventItem)
     {
-        _notifications.Add(eventItem);
+		if (_notifications == null)
+		{
+			_notifications = new List<INotification>();
+		}
+		_notifications.Add(eventItem);
     }
 
     void ISupportInitialize.BeginInit()
@@ -47,7 +61,11 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     public void ClearDomainEvents()
     {
-        _notifications.Clear();
+		if (_notifications == null)
+		{
+			_notifications = new List<INotification>();
+		}
+		_notifications.Clear();
     }
 
     void ISupportInitialize.EndInit()
@@ -58,7 +76,11 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     public void RemoveDomainEvent(INotification eventItem)
     {
-        _notifications.Remove(eventItem);
+		if (_notifications == null)
+		{
+			_notifications = new List<INotification>();
+		}
+		_notifications.Remove(eventItem);
     }
 
     protected virtual void OnBeginInit() { }

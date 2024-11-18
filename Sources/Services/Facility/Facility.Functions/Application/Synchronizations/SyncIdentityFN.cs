@@ -10,7 +10,7 @@ public class SyncIdentityFN(
 	ISyncOrchestrator<SyncIdentityFN> syncOrchestrator,
 	ISyncActivity syncActivity)
 {
-	[Function("SyncIdentityStarterFN")]
+	[Function("SyncIdentityStarterFN_Facility")]
 	public async Task StartOrchestrator(
 		[ServiceBusTrigger("%ServiceBusDeveloper%.Identity", "SyncIdentityStarterFN.Facility", Connection = "ServiceBus")] EntityChangedIE evt,
 		[DurableClient] DurableTaskClient durableClient)
@@ -18,14 +18,14 @@ public class SyncIdentityFN(
 		await syncOrchestratorStarter.Start(evt, durableClient);
 	}
 
-	[Function("SyncIdentityOrchestratorFN")]
+	[Function("SyncIdentityOrchestratorFN_Facility")]
 	public async Task Orchestrator(
 			[OrchestrationTrigger] TaskOrchestrationContext context)
 	{
 		await syncOrchestrator.Execute(context);
 	}
 
-	[Function("SyncIdentityActivityFN")]
+	[Function("SyncIdentityActivityFN_Facility")]
 	public async Task<string> Activity(
 			[ActivityTrigger] string input)
 	{

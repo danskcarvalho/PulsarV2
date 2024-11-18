@@ -2,9 +2,6 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var storage = builder.AddAzureStorage("pulsar-fnstorage")
-                     .RunAsEmulator();
-
 // DATABASES
 var mongo = builder
     .AddMongoDB("pulsar-mongodb", port: int.Parse(builder.Configuration["MongoDB:Port"]!))
@@ -31,11 +28,14 @@ var identityApi = builder
 	.WaitFor(mongo)
     .WaitForCompletion(identityMigrations);
 
+var storageIdentityFunctions = builder.AddAzureStorage("pulsar-fnstorage-identity")
+					 .RunAsEmulator();
+
 builder.AddAzureFunctionsProject<Projects.Identity_Functions>("identity-functions")
-    .WithHostStorage(storage)
-    .WithReference(mongo)
-    .WithReference(identityMigrations)
-    .WithReference(serviceBusMigrations)
+	.WithHostStorage(storageIdentityFunctions)
+	.WithReference(mongo)
+	.WithReference(identityMigrations)
+	.WithReference(serviceBusMigrations)
 	.WaitFor(mongo)
 	.WaitForCompletion(identityMigrations)
 	.WaitForCompletion(serviceBusMigrations);
@@ -73,8 +73,11 @@ var facilityApi = builder.AddProject<Projects.Facility_API>("facility-api")
 	.WaitFor(mongo)
 	.WaitForCompletion(facilityMigrations);
 
+var storageFacilityFunctions = builder.AddAzureStorage("pulsar-fnstorage-facility")
+					 .RunAsEmulator();
+
 builder.AddAzureFunctionsProject<Projects.Facility_Functions>("facility-functions")
-	.WithHostStorage(storage)
+	.WithHostStorage(storageFacilityFunctions)
 	.WithReference(mongo)
 	.WithReference(facilityMigrations)
 	.WithReference(serviceBusMigrations)
@@ -102,11 +105,14 @@ var pushNotificationApi = builder.AddProject<Projects.PushNotification_API>("pus
 	.WaitFor(mongo)
 	.WaitForCompletion(pushNotificationMigrations);
 
+var storagePushNotifications = builder.AddAzureStorage("pulsar-fnstorage-pushnotification")
+					 .RunAsEmulator();
+
 var pushNotificationFunctions = builder.AddAzureFunctionsProject<Projects.PushNotification_Functions>("pushnotification-functions")
-	.WithHostStorage(storage)
+	.WithHostStorage(storagePushNotifications)
 	.WithReference(mongo)
-    .WithReference(pushNotificationMigrations)
-    .WithReference(serviceBusMigrations)
+	.WithReference(pushNotificationMigrations)
+	.WithReference(serviceBusMigrations)
 	.WaitFor(mongo)
 	.WaitForCompletion(pushNotificationMigrations)
 	.WaitForCompletion(serviceBusMigrations);
