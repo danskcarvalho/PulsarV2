@@ -19,15 +19,24 @@ public class PushNotificationController : BaseController
 
     [HttpPost("sessions"), ScopeAuthorize("pushnotification.api.create_session")]
     public async Task<ActionResult<SessionModel>> StartSession()
-    {
-        var result = await Mediator.Send(new CriarSessaoCmd(User.Id())
-        {
-            EstabelecimentoId = User.EstabelecimentoId(),
-            DominioId = User.DominioId()
-        });
-        var url = Configuration["Services:pushnotification-functions:http:0"]!;
+	{
+		var result = await Mediator.Send(new CriarSessaoCmd(User.Id())
+		{
+			EstabelecimentoId = User.EstabelecimentoId(),
+			DominioId = User.DominioId()
+		});
+		var url = GetUrl();
 		return Ok(new SessionModel(result.Token, url));
-    }
+	}
+
+	private string GetUrl()
+	{
+		var url = Configuration["Services:pushnotification-functions:http:0"]!;
+		if (!url.EndsWith("/"))
+			url += "/";
+
+		return url + "api";
+	}
 
 	[HttpPost("read"), ScopeAuthorize("pushnotification.api.mark_as_read")]
 	public async Task<ActionResult<CommandResult>> MarcarComoLida(MarcarNotificacoesComoLidaCmd cmd)
