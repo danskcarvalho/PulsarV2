@@ -24,9 +24,11 @@ namespace ServiceBus.Migrations.Core
 
             foreach (var type in types)
             {
-                var info = inspector.GetInformation(type);
-                if (info != null)
-                    yield return info;
+                foreach (var info in inspector.GetInformation(type))
+                {
+                    if (info != null)
+                        yield return info;
+                }
             }
         }
 

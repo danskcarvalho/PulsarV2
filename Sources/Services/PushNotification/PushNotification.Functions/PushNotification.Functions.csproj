@@ -8,6 +8,11 @@
 		<RootNamespace>Pulsar.Services.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Application\DomainEvents\**" />
+	  <EmbeddedResource Remove="Application\DomainEvents\**" />
+	  <None Remove="Application\DomainEvents\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Remove="appsettings.Development.json" />
 		<None Remove="appsettings.json" />
 	</ItemGroup>
@@ -26,7 +31,9 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.4" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.20.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.SignalRService" Version="1.14.1" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.4" />
 		<PackageReference Include="MediatR" Version="12.4.0" />
 	</ItemGroup>
@@ -52,11 +59,6 @@
 		<ProjectReference Include="..\PushNotification.Contracts\PushNotification.Contracts.csproj" />
 		<ProjectReference Include="..\PushNotification.Domain\PushNotification.Domain.csproj" />
 		<ProjectReference Include="..\PushNotification.Infrastructure\PushNotification.Infrastructure.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Application\Commands\" />
-		<Folder Include="Application\DomainEvents\" />
-		<Folder Include="Application\Functions\" />
 	</ItemGroup>
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);NU1902;NU1901;NU1903;NU1904</NoWarn>

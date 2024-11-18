@@ -259,7 +259,7 @@ public partial class GenericIntegrationEventDispatcherService
 
         private async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> PublishEvents(List<IntegrationEventLogEntry> evts)
         {
-            var eventsToPublish = evts.Select(e => (e.EventName, e.Id, e.SerializedEvent, IsPushNotification: e.EventName == PushNotificationEvent.EVENT_NAME)).ToList();
+            var eventsToPublish = evts.Select(e => (e.EventName, e.Id, e.SerializedEvent, IsPushNotification: e.EventName == PushNotificationIE.EVENT_NAME)).ToList();
 			return await _EventBus.Publish(eventsToPublish);
         }
     }

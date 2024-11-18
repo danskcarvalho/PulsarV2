@@ -24,7 +24,7 @@ public class MongoSaveIntegrationEventLog : ISaveIntegrationEventLog
             var data = ((IPushNotificationEvent)@event).GetPushNotificationData();
             if (data != null)
 			{
-				var pn = new PushNotificationEvent(data);
+				var pn = new PushNotificationIE(data);
                 var pnEntry = new IntegrationEventLogEntry(pn);
 				await _collection.InsertOneAsync(_session.CurrentHandle, pnEntry, cancellationToken: ct);
 			}

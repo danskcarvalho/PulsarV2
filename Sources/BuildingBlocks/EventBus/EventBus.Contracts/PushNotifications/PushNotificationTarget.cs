@@ -1,4 +1,5 @@
-﻿namespace Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
+﻿
+namespace Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 
 public class PushNotificationTarget
 {
@@ -14,4 +15,9 @@ public class PushNotificationTarget
 	public string? DominioId { get; private set; }
 	public string? EstabelecimentoId { get; private set; }
 	public PushNotificationTargetMatch Match { get; private set; }
+
+	internal PushNotificationTarget? Clone()
+	{
+		return new PushNotificationTarget(UsuarioId, DominioId, EstabelecimentoId, Match);
+	}
 }

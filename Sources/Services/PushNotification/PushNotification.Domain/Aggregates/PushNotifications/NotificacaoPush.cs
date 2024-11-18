@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Pulsar.BuildingBlocks.DDD;
+using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 using Pulsar.Services.Shared.PushNotifications;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,46 @@ namespace Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications
 			Key = key;
 			UserContextId = userContextId;
 			UsuarioId = usuarioId;
+		}
+
+		public NotificacaoPush(ObjectId userContextId, ObjectId usuarioId, PushNotificationData data) : base(ObjectId.GenerateNewId())
+		{
+			this.UserContextId = userContextId;
+			this.UsuarioId = usuarioId;
+			this.Title = data.Title;
+			this.Message = data.Message;
+			this.CreatedOn = data.CreatedOn;
+			this.Data = data.Data;
+			this.Key = data.Key;
+			if (data.PrimaryAction != null)
+			{
+				this.PrimaryAction = new PushNotificationAction(data.PrimaryAction.RouteKey, data.PrimaryAction.LinkText)
+				{
+					ButtonStyle = data.PrimaryAction.ButtonStyle,
+					Intent = data.PrimaryAction.Intent,
+					Placement = data.PrimaryAction.Placement,
+				};
+				foreach (var p in data.PrimaryAction.Parameters)
+				{
+					this.PrimaryAction.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
+				}
+			}
+			foreach (var a in data.Actions)
+			{
+				var action = new PushNotificationAction(a.RouteKey, a.LinkText)
+				{
+					ButtonStyle = a.ButtonStyle,
+					Intent = a.Intent,
+					Placement = a.Placement,
+				};
+				foreach (var p in a.Parameters)
+				{
+					action.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
+				}
+				this.Actions.Add(action);
+			}
+			this.Intent = data.Intent;
+			this.Display = data.Display;
 		}
 
 		public ObjectId UserContextId { get; private set; }

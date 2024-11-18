@@ -3,11 +3,11 @@
 namespace Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 
 [EventName(EVENT_NAME)]
-public record PushNotificationEvent : IntegrationEvent
+public record PushNotificationIE : IntegrationEvent
 {
 	public const string EVENT_NAME = "PushNotifications:DispatchNotification";
 
-	public PushNotificationEvent(PushNotificationData data) : base()
+	public PushNotificationIE(PushNotificationData data) : base()
 	{
 		this.PushNotificationData = data;
 	}

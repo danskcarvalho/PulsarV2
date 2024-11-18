@@ -20,4 +20,10 @@ public class PushNotificationDataAction
 	public PushNotificationActionPlacement? Placement { get; set; }
 	public PushNotificationButtonStyle? ButtonStyle { get; set; }
 
+	internal PushNotificationDataAction Clone()
+	{
+		var cloned = (PushNotificationDataAction)this.MemberwiseClone();
+		cloned.Parameters = this.Parameters.Select(p => new PushNotificationDataActionParam(p.ParamKey, p.ParamValue)).ToList();
+		return cloned;
+	}
 }

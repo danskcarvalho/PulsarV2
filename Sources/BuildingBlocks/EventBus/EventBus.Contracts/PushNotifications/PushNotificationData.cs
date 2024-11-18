@@ -4,14 +4,14 @@ namespace Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 
 public class PushNotificationData
 {
-	public PushNotificationData(PushNotificationKey key, PushNotificationTarget target, DateTime createdOn)
+	public PushNotificationData(PushNotificationKey key, PushNotificationTarget? target, DateTime createdOn)
 	{
 		Target = target;
 		CreatedOn = createdOn;
 		Key = key;
 	}
 
-	public PushNotificationTarget Target { get; private set; }
+	public PushNotificationTarget? Target { get; private set; }
 	public string? Title { get; set; }
 	public string? Message { get; set; }
 	public DateTime CreatedOn { get; private set; }
@@ -21,4 +21,13 @@ public class PushNotificationData
 	public List<PushNotificationDataAction> Actions { get; private set; } = new List<PushNotificationDataAction>();
 	public PushNotificationIntent? Intent { get; set; }
 	public PushNotificationDisplay Display { get; set; }
+
+	public PushNotificationData Clone()
+	{
+		var cloned = (PushNotificationData)this.MemberwiseClone();
+		cloned.Target = this.Target?.Clone();
+		cloned.Actions = this.Actions.Select(a => a.Clone()).ToList();
+		cloned.PrimaryAction = this.PrimaryAction?.Clone();
+		return cloned;
+	}
 }
