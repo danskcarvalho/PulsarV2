@@ -7,4 +7,8 @@
     <RootNamespace>Pulsar.BuildingBlocks.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Services\Shared\Shared\Shared.csproj" />
+  </ItemGroup>
+
 </Project>

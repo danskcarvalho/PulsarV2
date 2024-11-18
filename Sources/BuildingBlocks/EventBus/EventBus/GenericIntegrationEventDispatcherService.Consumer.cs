@@ -1,4 +1,7 @@
-﻿namespace Pulsar.BuildingBlocks.EventBus;
+﻿using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
+using Pulsar.BuildingBlocks.Utils;
+
+namespace Pulsar.BuildingBlocks.EventBus;
 
 public partial class GenericIntegrationEventDispatcherService
 {
@@ -256,7 +259,8 @@ public partial class GenericIntegrationEventDispatcherService
 
         private async Task<List<(HashSet<Guid> Ids, Exception? Exception)>> PublishEvents(List<IntegrationEventLogEntry> evts)
         {
-            return await _EventBus.Publish(evts.Select(e => (e.EventName, e.Id, e.SerializedEvent)));
+            var eventsToPublish = evts.Select(e => (e.EventName, e.Id, e.SerializedEvent, IsPushNotification: e.EventName == PushNotificationEvent.EVENT_NAME)).ToList();
+			return await _EventBus.Publish(eventsToPublish);
         }
     }
 }

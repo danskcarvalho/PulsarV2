@@ -2,5 +2,28 @@
 {
 	public enum PushNotificationIntent
 	{
+		None,
+		Error,
+		Warning,
+		Information,
+		Success,
+		Flash,
+		Calendar,
+		Upload,
+		Download,
+		Person,
+		Alert,
+		Delete,
+		News,
+		Edit,
+		New,
+		Add,
+		Heart,
+		Sync,
+		Save,
+		Folder,
+		Star,
+		Mail,
+		Home
 	}
 }

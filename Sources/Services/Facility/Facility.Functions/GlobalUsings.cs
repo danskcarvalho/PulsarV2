@@ -3,7 +3,6 @@ global using Pulsar.BuildingBlocks.DDD;
 global using Pulsar.BuildingBlocks.DDD.Abstractions;
 global using Pulsar.BuildingBlocks.DDD.Mongo;
 global using Pulsar.BuildingBlocks.EventBus;
-global using Pulsar.Services.Facility.Contracts.IntegrationEvents;
 global using Pulsar.Services.Facility.Functions.Application.BaseTypes;
 global using Pulsar.BuildingBlocks.DDD.Attributes;
 global using Pulsar.Services.Shared;

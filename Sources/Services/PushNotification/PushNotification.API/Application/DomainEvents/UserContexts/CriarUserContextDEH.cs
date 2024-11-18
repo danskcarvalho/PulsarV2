@@ -15,7 +15,7 @@ public class CriarUserContextDEH : PushNotificationDomainEventHandler<SessaoCria
 
 	protected override async Task HandleAsync(SessaoCriadaDE evt, CancellationToken ct)
 	{
-		var spec = new FindUserContextSpec(evt.UsuarioId, evt.EstabelecimentoId != null ? null : evt.DominioId, evt.EstabelecimentoId);
+		var spec = new FindUserContextSpec(evt.UsuarioId, evt.DominioId, evt.EstabelecimentoId);
 		var userContext = await UserContextRepository.FindOneAsync(spec);
 		if (userContext != null)
 		{
@@ -24,7 +24,7 @@ public class CriarUserContextDEH : PushNotificationDomainEventHandler<SessaoCria
 		await UserContextRepository.InsertOneAsync(
 			new UserContext(ObjectId.GenerateNewId(),
 				   evt.UsuarioId,
-				   evt.EstabelecimentoId != null ? null : evt.DominioId,
+				   evt.DominioId,
 				   evt.EstabelecimentoId));
 	}
 }
