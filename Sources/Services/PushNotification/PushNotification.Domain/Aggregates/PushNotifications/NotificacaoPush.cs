@@ -31,32 +31,31 @@ namespace Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications
 			this.CreatedOn = data.CreatedOn;
 			this.Data = data.Data;
 			this.Key = data.Key;
+			this.ToastDisplayOptions = data.ToastDisplayOptions;
+			this.ToastActionOptions = data.ToastActionOptions;
 			if (data.PrimaryAction != null)
 			{
-				this.PrimaryAction = new PushNotificationAction(data.PrimaryAction.RouteKey, data.PrimaryAction.LinkText)
-				{
-					ButtonStyle = data.PrimaryAction.ButtonStyle,
-					Intent = data.PrimaryAction.Intent,
-					Placement = data.PrimaryAction.Placement,
-				};
+				this.PrimaryAction = new PushNotificationAction(data.PrimaryAction.RouteKey, data.PrimaryAction.Text);
 				foreach (var p in data.PrimaryAction.Parameters)
 				{
 					this.PrimaryAction.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
 				}
 			}
-			foreach (var a in data.Actions)
+			if (data.SecondaryAction != null)
 			{
-				var action = new PushNotificationAction(a.RouteKey, a.LinkText)
+				this.SecondaryAction = new PushNotificationAction(data.SecondaryAction.RouteKey, data.SecondaryAction.Text);
+				foreach (var p in data.SecondaryAction.Parameters)
 				{
-					ButtonStyle = a.ButtonStyle,
-					Intent = a.Intent,
-					Placement = a.Placement,
-				};
-				foreach (var p in a.Parameters)
-				{
-					action.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
+					this.SecondaryAction.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
 				}
-				this.Actions.Add(action);
+			}
+			if (data.LabelAction != null)
+			{
+				this.LabelAction = new PushNotificationAction(data.LabelAction.RouteKey, data.LabelAction.Text);
+				foreach (var p in data.LabelAction.Parameters)
+				{
+					this.LabelAction.Parameters.Add(new PushNotificationActionParam(p.ParamKey, p.ParamValue));
+				}
 			}
 			this.Intent = data.Intent;
 			this.Display = data.Display;
@@ -70,9 +69,12 @@ namespace Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications
 		public string? Data { get; set; }
 		public PushNotificationKey Key { get; private set; }
 		public PushNotificationAction? PrimaryAction { get; set; }
-		public List<PushNotificationAction> Actions { get; private set; } = new List<PushNotificationAction>();
+		public PushNotificationAction? SecondaryAction { get; set; }
+		public PushNotificationAction? LabelAction { get; set; }
 		public PushNotificationIntent? Intent { get; set; }
 		public PushNotificationDisplay Display { get; set; }
+		public PushNotificationToastDisplayOptions? ToastDisplayOptions { get; set; }
+		public PushNotificationToastActionOptions? ToastActionOptions { get; set; }
 		public bool IsRead { get; set; }
 
 		public void MarcarComoLida()

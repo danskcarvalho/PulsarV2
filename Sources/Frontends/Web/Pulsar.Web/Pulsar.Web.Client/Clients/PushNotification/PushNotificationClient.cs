@@ -17,7 +17,7 @@ namespace Pulsar.Web.Client.Clients.PushNotification
 
 		protected override string Service => "pushnotification";
 
-		public Task<List<NoficacaoPushDTO>> Get() => Get<List<NoficacaoPushDTO>>(null);
+		public Task<List<NotificacaoPushDTO>> Get() => Get<List<NotificacaoPushDTO>>(null);
 
 		public Task<CommandResult> MarcarComoLida(MarcarNotificacoesComoLidaCmd cmd) => Post<CommandResult>("read", cmd);
 

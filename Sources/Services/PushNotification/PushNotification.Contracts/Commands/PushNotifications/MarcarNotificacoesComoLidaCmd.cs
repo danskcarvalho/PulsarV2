@@ -3,12 +3,11 @@
 public class MarcarNotificacoesComoLidaCmd : IRequest<CommandResult>
 {
 	[JsonConstructor]
-	public MarcarNotificacoesComoLidaCmd(List<string> notificacoes, string usuarioId)
+	public MarcarNotificacoesComoLidaCmd(List<string> notificacoes)
 	{
 		Notificacoes = notificacoes;
-		UsuarioId = usuarioId;
 	}
 
 	public List<string> Notificacoes { get; set; }
-	public string UsuarioId { get; set; }
+	public string? UsuarioId { get; set; }
 }

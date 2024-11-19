@@ -29,7 +29,9 @@ public record ConviteAceitoIE : IntegrationEvent, IPushNotificationEvent
 			Display = PushNotificationDisplay.All,
 			Intent = PushNotificationIntent.Person,
 			Message = $"Usuário {UsuarioEmail} aceitou o convite para participar do Pulsar.",
-			Title = "Convite Aceito"
+			Title = "Convite Aceito",
+			ToastDisplayOptions = PushNotificationToastDisplayOptions.UseMessage,
+			ToastActionOptions = PushNotificationToastActionOptions.NoAction
 		};
 	}
 }

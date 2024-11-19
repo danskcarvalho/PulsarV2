@@ -8,14 +8,14 @@ using System.Reflection;
 namespace Pulsar.Web.Client.Services.PushNotifications;
 
 public class PushNotificationService(
-	IPushNotificationClient _pushNotificationClient,
-	ILogger<PushNotificationService> _logger,
-	IMediator _mediator)
+	IPushNotificationClient pushNotificationClient,
+	ILogger<PushNotificationService> logger,
+	IMediator mediator,
+	List<Assembly> assembliesToScan)
 {
 	private bool _started = false;
 	private bool _scanned = false;
 	private Dictionary<PushNotificationKey, List<Type>> _eventsToFire = new ();
-	private List<Assembly> _assembliesToScan = new ();
 	private Dictionary<PushNotificationKey, List<EventHandler<PushNotificationEvent>>> _eventHandlersForKey = new();
 	private Dictionary<Type, List<Delegate>> _eventHandlersForData = new();
 
@@ -53,7 +53,7 @@ public class PushNotificationService(
 		}
 
 		_scanned = true;
-		foreach (var assembly in _assembliesToScan)
+		foreach (var assembly in assembliesToScan)
 		{
 			var types = assembly.GetTypes().Where(t => t.GetCustomAttribute<PushNotificationEventAttribute>() != null);
 			foreach (var type in types)
@@ -77,7 +77,7 @@ public class PushNotificationService(
 		}
 		try
 		{
-			var session = await _pushNotificationClient.StartSession();
+			var session = await pushNotificationClient.StartSession();
 			var connection = new HubConnectionBuilder()
 				.WithUrl(session.Url, options =>
 				{
@@ -89,25 +89,30 @@ public class PushNotificationService(
 			await connection.StartAsync();
 			_started = true;
 
-			connection.On<PushNotificationDataWithId>("Publish", pn =>
+			connection.On("Publish", (Action<PushNotificationDataWithId>)(pn =>
 			{
-				_mediator.Publish(new PushNotificationEvent(pn));
-				FireAdditionalEvents(pn);
-
-				// Fire additional events
-				OnPushNotification?.Invoke(this, new PushNotificationEvent(pn));
-				if (_eventHandlersForKey.ContainsKey(pn.Key))
-				{
-					foreach (var handler in _eventHandlersForKey[pn.Key].ToList())
-					{
-						handler(this, new PushNotificationEvent(pn));
-					}
-				}
-			});
+				OnPublish(mediator, pn);
+			}));
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "error trying to estabilish a connection to SignalR push notification service");
+			logger.LogError(ex, "error trying to estabilish a connection to SignalR push notification service");
+		}
+	}
+
+	private void OnPublish(IMediator mediator, PushNotificationDataWithId pn)
+	{
+		mediator.Publish(new PushNotificationEvent(pn));
+		FireAdditionalEvents(pn);
+
+		// Fire additional events
+		OnPushNotification?.Invoke(this, new PushNotificationEvent(pn));
+		if (_eventHandlersForKey.ContainsKey(pn.Key))
+		{
+			foreach (var handler in _eventHandlersForKey[pn.Key].ToList())
+			{
+				handler(this, new PushNotificationEvent(pn));
+			}
 		}
 	}
 
@@ -121,7 +126,7 @@ public class PushNotificationService(
 				foreach (var type in list)
 				{
 					var notification = PushNotificationEvent.StronglyTyped(pn, type);
-					_mediator.Publish(notification);
+					mediator.Publish(notification);
 
 					if (_eventHandlersForData.ContainsKey(type))
 					{

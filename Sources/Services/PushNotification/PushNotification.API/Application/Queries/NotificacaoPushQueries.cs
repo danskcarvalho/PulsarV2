@@ -20,7 +20,7 @@ public class NotificacaoPushQueries : PushNotificationQueries, INotificacaoPushQ
     {
     }
 
-	public async Task<List<NoficacaoPushDTO>> GetNoficacoes(string usuarioId, string? dominioId, string? estabelecimentoId, string? consistencyToken)
+	public async Task<List<NotificacaoPushDTO>> GetNoficacoes(string usuarioId, string? dominioId, string? estabelecimentoId, string? consistencyToken)
 	{
 		var uid = usuarioId.ToObjectId();
 		var did = dominioId?.ToObjectId();
@@ -40,33 +40,38 @@ public class NotificacaoPushQueries : PushNotificationQueries, INotificacaoPushQ
 			Expression<Func<NotificacaoPush, bool>> filter = 
 				u => ucIds.Contains(u.UserContextId) && (u.Display == PushNotificationDisplay.All || u.Display == PushNotificationDisplay.NotificationCenter);
 			
-			var notifications = await NotificacoesPushCollection.FindAsync<NoficacaoPushDTO>(
+			var notifications = await NotificacoesPushCollection.FindAsync<NotificacaoPushDTO>(
 				filter,
-				new FindOptions<NotificacaoPush, NoficacaoPushDTO>()
+				new FindOptions<NotificacaoPush, NotificacaoPushDTO>()
 				{
 					Sort = Builders<NotificacaoPush>.Sort.Descending(x => x.CreatedOn),
-					Projection = Builders<NotificacaoPush>.Projection.Expression(n => new NoficacaoPushDTO()
+					Projection = Builders<NotificacaoPush>.Projection.Expression(n => new NotificacaoPushDTO()
 					{
-						Actions = n.Actions.Select(a => new PushNotificationActionDTO() { 
-							ButtonStyle = a.ButtonStyle,
-							Intent = a.Intent,
-							LinkText = a.LinkText,	
-							Placement = a.Placement,
-							RouteKey = a.RouteKey,
-							Parameters = a.Parameters.Select(p => new PushNotificationActionParamDTO()
+						PrimaryAction = n.PrimaryAction != null ? new PushNotificationActionDTO()
+						{
+							Text = n.PrimaryAction.Text,
+							RouteKey = n.PrimaryAction.RouteKey,
+							Parameters = n.PrimaryAction.Parameters.Select(p => new PushNotificationActionParamDTO()
 							{
 								ParamKey = p.ParamKey,
 								ParamValue = p.ParamValue,
 							}).ToList()
-						}).ToList(),
-						PrimaryAction = n.PrimaryAction != null ? new PushNotificationActionDTO()
+						} : null,
+						SecondaryAction = n.SecondaryAction != null ? new PushNotificationActionDTO()
 						{
-							ButtonStyle = n.PrimaryAction.ButtonStyle,
-							Intent = n.PrimaryAction.Intent,
-							LinkText = n.PrimaryAction.LinkText,
-							Placement = n.PrimaryAction.Placement,
-							RouteKey = n.PrimaryAction.RouteKey,
-							Parameters = n.PrimaryAction.Parameters.Select(p => new PushNotificationActionParamDTO()
+							Text = n.SecondaryAction.Text,
+							RouteKey = n.SecondaryAction.RouteKey,
+							Parameters = n.SecondaryAction.Parameters.Select(p => new PushNotificationActionParamDTO()
+							{
+								ParamKey = p.ParamKey,
+								ParamValue = p.ParamValue,
+							}).ToList()
+						} : null,
+						LabelAction = n.LabelAction != null ? new PushNotificationActionDTO()
+						{
+							Text = n.LabelAction.Text,
+							RouteKey = n.LabelAction.RouteKey,
+							Parameters = n.LabelAction.Parameters.Select(p => new PushNotificationActionParamDTO()
 							{
 								ParamKey = p.ParamKey,
 								ParamValue = p.ParamValue,

@@ -16,7 +16,7 @@ namespace Pulsar.Services.PushNotification.API.Application.Commands.PushNotifica
 
 		protected override async Task<CommandResult> HandleAsync(MarcarNotificacoesComoLidaCmd cmd, CancellationToken ct)
 		{
-			var spec = new MarcarNotificacoesComoLidaSpec(cmd.Notificacoes.Select(n => n.ToObjectId()).ToList(), cmd.UsuarioId.ToObjectId());
+			var spec = new MarcarNotificacoesComoLidaSpec(cmd.Notificacoes.Select(n => n.ToObjectId()).ToList(), cmd.UsuarioId!.ToObjectId());
 			await NotificacaoPushRepository.UpdateManyAsync(spec).CheckModified();
 			return new CommandResult();
 		}

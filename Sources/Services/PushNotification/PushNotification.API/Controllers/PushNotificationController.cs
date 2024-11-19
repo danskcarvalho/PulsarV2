@@ -47,7 +47,7 @@ public class PushNotificationController : BaseController
 	}
 
     [HttpGet, ScopeAuthorize("pushnotification.api.read")]
-    public async Task<ActionResult<List<NoficacaoPushDTO>>> Get([FromQuery] string? consistencyToken)
+    public async Task<ActionResult<List<NotificacaoPushDTO>>> Get([FromQuery] string? consistencyToken)
     {
         return Ok(
             await NotificacoesPushQueries.GetNoficacoes(User.Id(), User.DominioId(), User.EstabelecimentoId(), consistencyToken)

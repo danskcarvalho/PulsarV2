@@ -19,16 +19,20 @@ public class PushNotificationData
 	public string? Data { get; set; }
 	public PushNotificationKey Key { get; private set; }
 	public PushNotificationDataAction? PrimaryAction { get; set; }
-	public List<PushNotificationDataAction> Actions { get; private set; } = new List<PushNotificationDataAction>();
+	public PushNotificationDataAction? SecondaryAction { get; set; }
+	public PushNotificationDataAction? LabelAction { get; set; }
 	public PushNotificationIntent? Intent { get; set; }
 	public PushNotificationDisplay Display { get; set; }
+	public PushNotificationToastDisplayOptions? ToastDisplayOptions { get; set; }
+	public PushNotificationToastActionOptions? ToastActionOptions { get; set; }
 
 	public PushNotificationData Clone()
 	{
 		var cloned = (PushNotificationData)this.MemberwiseClone();
 		cloned.Target = this.Target?.Clone();
-		cloned.Actions = this.Actions.Select(a => a.Clone()).ToList();
 		cloned.PrimaryAction = this.PrimaryAction?.Clone();
+		cloned.SecondaryAction = this.SecondaryAction?.Clone();
+		cloned.LabelAction = this.LabelAction?.Clone();
 		return cloned;
 	}
 
@@ -41,9 +45,12 @@ public class PushNotificationData
 			CreatedOn = this.CreatedOn,
 			Data = this.Data,
 			PrimaryAction = this.PrimaryAction?.Clone(),
-			Actions = this.Actions.Select(a => a.Clone()).ToList(),
+			SecondaryAction = this.SecondaryAction?.Clone(),
+			LabelAction = this.LabelAction?.Clone(),
 			Intent = this.Intent,
 			Display = this.Display,
+			ToastDisplayOptions = this.ToastDisplayOptions,
+			ToastActionOptions = this.ToastActionOptions,
 		};
 		return cloned;
 	}

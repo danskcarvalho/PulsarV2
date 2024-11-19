@@ -9,6 +9,6 @@ namespace Pulsar.Web.Client.Clients.PushNotification
 	{
 		Task<SessionModel> StartSession();
 		Task<CommandResult> MarcarComoLida(MarcarNotificacoesComoLidaCmd cmd);
-		Task<List<NoficacaoPushDTO>> Get();
+		Task<List<NotificacaoPushDTO>> Get();
 	}
 }
