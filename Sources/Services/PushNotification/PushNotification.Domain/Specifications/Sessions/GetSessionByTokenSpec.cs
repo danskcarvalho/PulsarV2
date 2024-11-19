@@ -13,6 +13,6 @@ public class GetSessionByTokenSpec : IFindSpecification<Session>
 
 	public FindSpecification<Session> GetSpec()
 	{
-		return Find.Where<Session>(s => s.Token == Token && s.ExpiresOn < DateTime.UtcNow).Limit(1).Build();
+		return Find.Where<Session>(s => s.Token == Token && DateTime.UtcNow < s.ExpiresOn).Limit(1).Build();
 	}
 }

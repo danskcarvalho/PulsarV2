@@ -1,0 +1,81 @@
+﻿@using Pulsar.Web.Client.Services.PushNotifications
+@inject PushNotificationManager PushNotificationManager
+@inject IMessageService MessageService
+@implements IDisposable
+@implements IDialogContentComponent
+
+<FluentDialogBody>
+    <FluentTabs>
+        <FluentTab Label="@($"Não Lidas ({_unread})")">
+            <div>
+
+                <FluentStack>
+                    <FluentSpacer />
+                    @if (_unread != 0)
+                    {
+                        <FluentAnchor Appearance="@Appearance.Hypertext" Href="javascript:void(0);" OnClick="@(e => MessageService.Clear(PushNotificationManager.NOTIFICATION_CENTER_SECTION_UNREAD) )">
+                            Limpar
+                        </FluentAnchor>
+                    }
+                </FluentStack>
+
+                <br />
+
+                @if (_unread != 0)
+                {
+                    <FluentMessageBarProvider Section="@PushNotificationManager.NOTIFICATION_CENTER_SECTION_UNREAD" MaxMessageCount="-1" Type="@MessageType.Notification" />
+                }
+                else
+                {
+                    <div style="text-align: center;">
+                        Sem notificações para exibir.
+                    </div>
+                }
+            </div>
+        </FluentTab>
+        <FluentTab Label="Todas">
+            <div>
+
+                <FluentStack>
+                    <FluentSpacer />
+                </FluentStack>
+
+                <br />
+
+                @if (_total != 0)
+                {
+                    <FluentMessageBarProvider Section="@PushNotificationManager.NOTIFICATION_CENTER_SECTION_HISTORY" MaxMessageCount="-1" Type="@MessageType.Notification" />
+                }
+                else
+                {
+                    <div style="text-align: center;">
+                        Sem notificações para exibir.
+                    </div>
+                }
+            </div>
+        </FluentTab>
+    </FluentTabs>
+</FluentDialogBody>
+
+@code {
+    private int _unread = 0;
+    private int _total = 0;
+
+    protected override void OnInitialized()
+    {
+        _unread = PushNotificationManager.Unread;
+        _total = PushNotificationManager.Notifications.Count;
+        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+    }
+
+    private void OnNotificationListChanged(object? sender, EventArgs e)
+    {
+        this._unread = PushNotificationManager.Unread;
+        this.StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        PushNotificationManager.OnNotificationListChanged -= OnNotificationListChanged;
+    }
+}

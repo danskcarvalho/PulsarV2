@@ -7,9 +7,10 @@ public record PushNotificationIE : IntegrationEvent
 {
 	public const string EVENT_NAME = "PushNotifications:DispatchNotification";
 
-	public PushNotificationIE(PushNotificationData data) : base()
+	[JsonConstructor]
+	public PushNotificationIE(PushNotificationData pushNotificationData) : base()
 	{
-		this.PushNotificationData = data;
+		this.PushNotificationData = pushNotificationData;
 	}
 
 	public PushNotificationData PushNotificationData { get; private init; }

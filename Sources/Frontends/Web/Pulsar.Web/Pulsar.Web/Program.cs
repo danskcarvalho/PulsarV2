@@ -57,7 +57,9 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("estabelecimento_logado_perms");
         options.Scope.Add("identity.*");
         options.Scope.Add("catalog.*");
-        options.Scope.Add("offline_access");
+		options.Scope.Add("facility.*");
+		options.Scope.Add("pushnotification.*");
+		options.Scope.Add("offline_access");
 
         options.MapInboundClaims = false;
         options.GetClaimsFromUserInfoEndpoint = true;

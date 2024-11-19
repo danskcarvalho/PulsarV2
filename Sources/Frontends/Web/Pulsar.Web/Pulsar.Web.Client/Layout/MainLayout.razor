@@ -1,7 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using Pulsar.Web.Client.Components.PushNotifications
+@using Pulsar.Web.Client.Services.PushNotifications
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject UserService UserService
 @inject IDialogService DialogService
+@inject PushNotificationManager PushNotificationManager
 
 <AuthorizeView>
     <Authorized>
@@ -14,8 +17,8 @@
                     </span>
                 </FluentBadge>
                 <div style="flex-grow: 1;"></div>
-                <FluentCounterBadge Count="100" BackgroundColor="@Color.Error" Color="Color.Fill">
-                    <FluentButton BackgroundColor="rgba(0, 0, 0, 0)">
+                <FluentCounterBadge Count="@_unread" BackgroundColor="@Color.Error" Color="Color.Fill">
+                    <FluentButton BackgroundColor="rgba(0, 0, 0, 0)" OnClick="@ShowNotifications">
                         <FluentIcon Value="@(new Icons.Regular.Size24.Alert())" Color="@Color.Fill" />
                     </FluentButton>
                 </FluentCounterBadge>
@@ -40,9 +43,11 @@
                         <FluentMessageBarProvider Section="MESSAGES_TOP"></FluentMessageBarProvider>
                         @Body
                     </div>
+
+                    <FluentToastProvider MaxToastCount="10" />
+                    <FluentDialogProvider />
+                    <PushNotificationProvider OnNewNotification="OnNewNotification" />
                 </FluentBodyContent>
-                <FluentToastProvider MaxToastCount="10" />
-                <FluentDialogProvider />
             </FluentStack>
             <FluentFooter>
                 <span>&#xA9; Pulsar 2024</span>
@@ -68,6 +73,7 @@
     private string? _headerLabel;
     private string? _initials;
     private FluentProfileMenu? _fluentProfileMenu;
+    private int _unread = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,6 +83,26 @@
 
         SetUpUserChangedEvent();
         await InitializeUserData();
+    }
+
+    private void OnNewNotification()
+    {
+        _unread = PushNotificationManager.Unread;
+        this.StateHasChanged();
+    }
+
+    private async Task ShowNotifications()
+    {
+        ClosePopover();
+
+        await DialogService.ShowPanelAsync<PushNotificationsPanel>(new DialogParameters()
+            {
+                Title = "Notificações",
+                Alignment = HorizontalAlignment.Right,
+                DismissTitle = null,
+                PrimaryAction = null,
+                SecondaryAction = null
+            });
     }
 
     private void SetUpUserChangedEvent()
@@ -129,18 +155,18 @@
     {
         NavigationManager.NavigateTo(state.User.FindFirst("bff:logout_url")?.Value!, forceLoad: true);
     }
-    private async void Configurations()
+    private async Task Configurations()
     {
         ClosePopover();
 
         await DialogService.ShowPanelAsync<UserPanel>(new DialogParameters()
-        {
-            Title = "Dados do Usuário",
-            Alignment = HorizontalAlignment.Right,
-            DismissTitle = null,
-            PrimaryAction = null,
-            SecondaryAction = null
-        });
+            {
+                Title = "Dados do Usuário",
+                Alignment = HorizontalAlignment.Right,
+                DismissTitle = null,
+                PrimaryAction = null,
+                SecondaryAction = null
+            });
     }
     public void ClosePopover()
     {

@@ -21,7 +21,8 @@ public partial class PushNotificationManager(
 	IToastService toastService,
 	IMediator mediator,
 	NavigationManager navigationManager,
-	List<Assembly> assembliesToScan) : IAsyncDisposable
+	List<Assembly> assembliesToScan,
+	ILogger<PushNotificationManager> logger) : IAsyncDisposable
 {
 	private bool _started = false;
 	private bool _scanned = false;
@@ -72,31 +73,38 @@ public partial class PushNotificationManager(
 
 	public async Task Start()
 	{
-		if (_started)
+		try
 		{
-			return;
+			if (_started)
+			{
+				return;
+			}
+
+			ScanAssemblies();
+			var t1 = service.Start();
+			var t2 = pushNotificationClient.Get(excluirLidas: false);
+
+			await t1;
+			_notifications.Clear();
+			_notifications.AddRange(await t2);
+			_notifications = _notifications.OrderByDescending(n => n.CreatedOn).ToList();
+			_unread = _notifications.Count(n => !n.IsRead);
+			service.OnPushNotification += Service_OnPushNotification;
+			OnNotificationListChanged?.Invoke(this, EventArgs.Empty);
+
+			messageService.Clear(NOTIFICATION_CENTER_SECTION_UNREAD);
+			messageService.Clear(NOTIFICATION_CENTER_SECTION_HISTORY);
+
+			foreach (var notification in ((IEnumerable<PushNotificationDataWithId>)_notifications).Reverse())
+			{
+				ShowPushNotification(notification, noToast: true);
+			}
+			_started = true;
 		}
-
-		ScanAssemblies();
-		var t1 = service.Start();
-		var t2 = pushNotificationClient.Get(excluirLidas: false);
-
-		await t1;
-		_notifications.Clear();
-		_notifications.AddRange(await t2);
-		_notifications = _notifications.OrderByDescending(n => n.CreatedOn).ToList();
-		_unread = _notifications.Count(n => !n.IsRead);
-		service.OnPushNotification += Service_OnPushNotification;
-		OnNotificationListChanged?.Invoke(this, EventArgs.Empty);
-
-		messageService.Clear(NOTIFICATION_CENTER_SECTION_UNREAD);
-		messageService.Clear(NOTIFICATION_CENTER_SECTION_HISTORY);
-
-		foreach (var notification in ((IEnumerable<PushNotificationDataWithId>)_notifications).Reverse())
+		catch (Exception ex)
 		{
-			ShowPushNotification(notification, noToast: true);
+			logger.LogError(ex, "error when starting push notification manager");
 		}
-		_started = true;
 	}
 
 	private void Service_OnPushNotification(object? sender, PushNotificationEvent e)

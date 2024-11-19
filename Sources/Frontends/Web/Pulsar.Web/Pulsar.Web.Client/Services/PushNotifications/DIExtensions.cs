@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Pulsar.Web.Client.Clients.PushNotification;
 using System.Reflection;
@@ -30,7 +31,8 @@ public static class DIExtensions
 				sp.GetRequiredService<IToastService>(),
 				sp.GetRequiredService<IMediator>(),
 				sp.GetRequiredService<NavigationManager>(),
-				options.AssembliesToScanForRoutingActions
+				options.AssembliesToScanForRoutingActions,
+				sp.GetRequiredService<ILogger<PushNotificationManager>>()
 				);
 		});
 

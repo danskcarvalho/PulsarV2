@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Pulsar.Services.Identity.Contracts.Shadows;
 using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
+using Pulsar.Services.PushNotification.Functions.Application.Functions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults((WorkerOptions cfg) =>
@@ -40,6 +41,7 @@ var host = new HostBuilder()
         s.AddTransient(typeof(PushNotificationCommandHandlerContext<>));
         s.AddTransient(typeof(PushNotificationDomainEventHandlerContext<>));
         s.AddTransient(typeof(PushNotificationCommandHandlerContext<,>));
+        s.AddServerlessHub<PushNotificationHub>();
     })
     .Build();
 

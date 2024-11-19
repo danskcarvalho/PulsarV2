@@ -113,9 +113,10 @@ public class CustomPolicyProvider : IAuthorizationPolicyProvider
             var builder = new AuthorizationPolicyBuilder();
             builder.RequireAuthenticatedUser();
             var claim = policyName.Substring(SCOPE_PREFIX.Length);
-            var api = claim.Substring(0, claim.IndexOf('.'));
-            var controller = claim.Substring(api.Length + 1).Substring(0, claim.IndexOf('.'));
-            var action = claim.Substring(api.Length + controller.Length + 2);
+            var parts = claim.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            var api = parts[0];
+            var controller = parts[1];
+            var action = parts[2];
             builder.RequireAssertion(ctx => ctx.User.HasClaim("scope", claim) || ctx.User.HasClaim("scope", $"{api}.*") || ctx.User.HasClaim("scope", $"{api}.{controller}.*"));
             return Task.FromResult((AuthorizationPolicy?)builder.Build());
         }

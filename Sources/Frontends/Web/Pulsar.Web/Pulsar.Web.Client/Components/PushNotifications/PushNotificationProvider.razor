@@ -1,9 +1,10 @@
 ﻿@using Pulsar.Web.Client.Services.PushNotifications
 @inject PushNotificationManager PushNotificationManager
+@implements IDisposable
 
 @code {
     [Parameter]
-    public EventCallback<EventArgs> OnClickCallback { get; set; }
+    public EventCallback<EventArgs> OnNewNotification { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -13,6 +14,11 @@
 
     private async void OnNotificationListChanged(object? sender, EventArgs e)
     {
-        await OnClickCallback.InvokeAsync(e);
+        await OnNewNotification.InvokeAsync(e);
+    }
+
+    public void Dispose()
+    {
+        PushNotificationManager.OnNotificationListChanged -= OnNotificationListChanged;
     }
 }
