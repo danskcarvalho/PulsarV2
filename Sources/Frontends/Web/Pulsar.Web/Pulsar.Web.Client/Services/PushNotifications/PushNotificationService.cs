@@ -11,13 +11,14 @@ public class PushNotificationService(
 	IPushNotificationClient pushNotificationClient,
 	ILogger<PushNotificationService> logger,
 	IMediator mediator,
-	List<Assembly> assembliesToScan)
+	List<Assembly> assembliesToScan) : IAsyncDisposable
 {
 	private bool _started = false;
 	private bool _scanned = false;
 	private Dictionary<PushNotificationKey, List<Type>> _eventsToFire = new ();
 	private Dictionary<PushNotificationKey, List<EventHandler<PushNotificationEvent>>> _eventHandlersForKey = new();
 	private Dictionary<Type, List<Delegate>> _eventHandlersForData = new();
+	private HubConnection? _connection = null;
 
 	public event EventHandler<PushNotificationEvent>? OnPushNotification;
 
@@ -78,7 +79,7 @@ public class PushNotificationService(
 		try
 		{
 			var session = await pushNotificationClient.StartSession();
-			var connection = new HubConnectionBuilder()
+			_connection = new HubConnectionBuilder()
 				.WithUrl(session.Url, options =>
 				{
 					options.Headers.Add("Authorization", $"Bearer {session.Token}");
@@ -86,10 +87,10 @@ public class PushNotificationService(
 				.WithAutomaticReconnect()
 				.Build();
 
-			await connection.StartAsync();
+			await _connection.StartAsync();
 			_started = true;
 
-			connection.On("Publish", (Action<PushNotificationDataWithId>)(pn =>
+			_connection.On("Publish", (Action<PushNotificationDataWithId>)(pn =>
 			{
 				OnPublish(mediator, pn);
 			}));
@@ -138,6 +139,16 @@ public class PushNotificationService(
 					}
 				}
 			}
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_connection != null)
+		{
+			await _connection.StopAsync();
+			await _connection.DisposeAsync();
+			_connection = null;
 		}
 	}
 }

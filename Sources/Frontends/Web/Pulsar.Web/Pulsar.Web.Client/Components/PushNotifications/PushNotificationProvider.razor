@@ -1,0 +1,18 @@
+﻿@using Pulsar.Web.Client.Services.PushNotifications
+@inject PushNotificationManager PushNotificationManager
+
+@code {
+    [Parameter]
+    public EventCallback<EventArgs> OnClickCallback { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await PushNotificationManager.Start();
+        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+    }
+
+    private async void OnNotificationListChanged(object? sender, EventArgs e)
+    {
+        await OnClickCallback.InvokeAsync(e);
+    }
+}

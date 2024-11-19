@@ -2,8 +2,12 @@ using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Pulsar.Services.Facility.Contracts.Commands.Estabelecimentos;
+using Pulsar.Services.Identity.Contracts.Commands.Convites;
+using Pulsar.Services.PushNotification.Contracts.Commands.PushNotifications;
 using Pulsar.Web.Client.Clients;
 using Pulsar.Web.Client.Services;
+using Pulsar.Web.Client.Services.PushNotifications;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -23,5 +27,20 @@ builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<ConsistencyTokenManager>();
 builder.Services.AddTransient<ProtectedSectionService>();
 builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddMediatR(config =>
+{
+    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
+builder.Services.AddPushNotificationServices(config =>
+{
+    config.AddAssembliesToScanForRoutingActions(typeof(Program).Assembly);
+    config.AddAssembliesToScanForIntegrationEvents(
+        // facility contracts
+        typeof(CriarEstabelecimentoCmd).Assembly,
+		// identity contracts
+		typeof(CriarConviteCmd).Assembly,
+		// push notification contracts
+		typeof(CriarNotificacaoPushCmd).Assembly);
+});
 
 await builder.Build().RunAsync();

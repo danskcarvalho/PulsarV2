@@ -2,6 +2,7 @@
 using Pulsar.Web.Client.Clients.Identity.Dominios;
 using Pulsar.Web.Client.Clients.Identity.Estabelecimentos;
 using Pulsar.Web.Client.Clients.Identity.Usuarios;
+using Pulsar.Web.Client.Clients.PushNotification;
 
 namespace Pulsar.Web.Client.Clients;
 
@@ -13,5 +14,6 @@ public static class DIExtensions
         services.AddTransient<IDominioClient, DominioClient>();
         services.AddTransient<IEstabelecimentoClient, EstabelecimentoClient>();
         services.AddTransient<IUsuarioClient, UsuarioClient>();
-    }
+		services.AddTransient<IPushNotificationClient, PushNotificationClient>();
+	}
 }

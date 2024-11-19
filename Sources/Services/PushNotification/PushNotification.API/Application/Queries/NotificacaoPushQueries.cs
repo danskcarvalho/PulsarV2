@@ -20,7 +20,7 @@ public class NotificacaoPushQueries : PushNotificationQueries, INotificacaoPushQ
     {
     }
 
-	public async Task<List<NotificacaoPushDTO>> GetNoficacoes(string usuarioId, string? dominioId, string? estabelecimentoId, string? consistencyToken)
+	public async Task<List<NotificacaoPushDTO>> GetNotificacoes(string usuarioId, string? dominioId, string? estabelecimentoId, bool excluirLidas, string? consistencyToken)
 	{
 		var uid = usuarioId.ToObjectId();
 		var did = dominioId?.ToObjectId();
@@ -37,8 +37,9 @@ public class NotificacaoPushQueries : PushNotificationQueries, INotificacaoPushQ
 			};
 			var ucIds = userContexts.Select(uc => uc.Id).ToList();
 
-			Expression<Func<NotificacaoPush, bool>> filter = 
-				u => ucIds.Contains(u.UserContextId) && (u.Display == PushNotificationDisplay.All || u.Display == PushNotificationDisplay.NotificationCenter);
+			Expression<Func<NotificacaoPush, bool>> filter = excluirLidas ?
+				(u => ucIds.Contains(u.UserContextId) && (u.Display == PushNotificationDisplay.All || u.Display == PushNotificationDisplay.NotificationCenter) && !u.IsRead) :
+				(u => ucIds.Contains(u.UserContextId) && (u.Display == PushNotificationDisplay.All || u.Display == PushNotificationDisplay.NotificationCenter));
 			
 			var notifications = await NotificacoesPushCollection.FindAsync<NotificacaoPushDTO>(
 				filter,

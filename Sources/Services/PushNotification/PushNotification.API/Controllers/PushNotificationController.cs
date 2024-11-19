@@ -47,10 +47,10 @@ public class PushNotificationController : BaseController
 	}
 
     [HttpGet, ScopeAuthorize("pushnotification.api.read")]
-    public async Task<ActionResult<List<NotificacaoPushDTO>>> Get([FromQuery] string? consistencyToken)
+    public async Task<ActionResult<List<NotificacaoPushDTO>>> Get([FromQuery] string? consistencyToken, [FromQuery] bool? excluirLidas)
     {
         return Ok(
-            await NotificacoesPushQueries.GetNoficacoes(User.Id(), User.DominioId(), User.EstabelecimentoId(), consistencyToken)
+            await NotificacoesPushQueries.GetNotificacoes(User.Id(), User.DominioId(), User.EstabelecimentoId(), excluirLidas ?? false, consistencyToken)
             );
     }
 }

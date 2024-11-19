@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.PushNotification.Contracts.Commands.PushNotifications;
+﻿using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
+using Pulsar.Services.PushNotification.Contracts.Commands.PushNotifications;
 using Pulsar.Services.PushNotification.Contracts.DTOs;
 using Pulsar.Services.Shared.Commands;
 using Pulsar.Web.Client.Models.PushNotification;
@@ -9,6 +10,6 @@ namespace Pulsar.Web.Client.Clients.PushNotification
 	{
 		Task<SessionModel> StartSession();
 		Task<CommandResult> MarcarComoLida(MarcarNotificacoesComoLidaCmd cmd);
-		Task<List<NotificacaoPushDTO>> Get();
+		Task<List<PushNotificationDataWithId>> Get(bool excluirLidas);
 	}
 }

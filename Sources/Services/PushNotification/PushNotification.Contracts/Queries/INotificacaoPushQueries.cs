@@ -9,5 +9,10 @@ namespace Pulsar.Services.PushNotification.Contracts.Queries;
 
 public interface INotificacaoPushQueries
 {
-	Task<List<NotificacaoPushDTO>> GetNoficacoes(string usuarioId, string? dominioId, string? estabelecimentoId, string? consistencyToken);
+	Task<List<NotificacaoPushDTO>> GetNotificacoes(
+		string usuarioId,
+		string? dominioId,
+		string? estabelecimentoId,
+		bool excluirLidas,
+		string? consistencyToken);
 }

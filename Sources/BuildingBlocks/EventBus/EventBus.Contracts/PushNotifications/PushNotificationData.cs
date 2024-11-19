@@ -64,5 +64,6 @@ public class PushNotificationDataWithId : PushNotificationData
 		this.PushNotificationId = pushNotificationId;
 	}
 
-	public string? PushNotificationId { get; private set; }
+	public string PushNotificationId { get; private init; }
+	public bool IsRead { get; set; }
 }

@@ -20,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Services\Facility\Facility.Contracts\Facility.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\..\Services\Identity\Identity.Contracts\Identity.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\..\Services\PushNotification\PushNotification.Contracts\PushNotification.Contracts.csproj" />
 	</ItemGroup>
