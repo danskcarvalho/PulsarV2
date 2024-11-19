@@ -4,6 +4,7 @@ namespace Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 
 public class PushNotificationData
 {
+	[JsonConstructor]
 	public PushNotificationData(PushNotificationKey key, PushNotificationTarget? target, DateTime createdOn)
 	{
 		Target = target;
@@ -30,4 +31,31 @@ public class PushNotificationData
 		cloned.PrimaryAction = this.PrimaryAction?.Clone();
 		return cloned;
 	}
+
+	public PushNotificationDataWithId Clone(string id)
+	{
+		var cloned = (PushNotificationDataWithId)new PushNotificationDataWithId(id, this.Key, null, this.CreatedOn)
+		{
+			Title = this.Title,
+			Message = this.Message,
+			CreatedOn = this.CreatedOn,
+			Data = this.Data,
+			PrimaryAction = this.PrimaryAction?.Clone(),
+			Actions = this.Actions.Select(a => a.Clone()).ToList(),
+			Intent = this.Intent,
+			Display = this.Display,
+		};
+		return cloned;
+	}
+}
+
+public class PushNotificationDataWithId : PushNotificationData
+{
+	[JsonConstructor]
+	public PushNotificationDataWithId(string pushNotificationId, PushNotificationKey key, PushNotificationTarget? target, DateTime createdOn) : base(key, target, createdOn)
+	{
+		this.PushNotificationId = pushNotificationId;
+	}
+
+	public string? PushNotificationId { get; private set; }
 }

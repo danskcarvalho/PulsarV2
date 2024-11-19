@@ -94,5 +94,7 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(Pulsar.Web.Client._Imports).Assembly);
 app.MapRemoteBffApiEndpoint("/api/identity", builder.Configuration["services:identity-api:https:0"]!).RequireAccessToken(Duende.Bff.TokenType.User);
 app.MapRemoteBffApiEndpoint("/api/catalog", builder.Configuration["services:catalog-api:https:0"]!).RequireAccessToken(Duende.Bff.TokenType.User);
+app.MapRemoteBffApiEndpoint("/api/facility", builder.Configuration["services:facility-api:https:0"]!).RequireAccessToken(Duende.Bff.TokenType.User);
+app.MapRemoteBffApiEndpoint("/api/pushnotification", builder.Configuration["services:pushnotification-api:https:0"]!).RequireAccessToken(Duende.Bff.TokenType.User);
 
 app.Run();

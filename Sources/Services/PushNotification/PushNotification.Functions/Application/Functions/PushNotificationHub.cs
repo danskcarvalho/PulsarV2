@@ -78,20 +78,8 @@ public class PushNotificationHub : ServerlessHub<IPushNotificationClient>
 			List<Task> published = new List<Task>();
 			foreach (var target in result.Targets)
 			{
-				published.Add(Clients.Users(target.UserContextId).Publish(
-					new
-					{
-						target.PushNotificationId,
-						result.ToPublish.Data,
-						result.ToPublish.Actions,
-						result.ToPublish.Title,
-						result.ToPublish.Message,
-						result.ToPublish.CreatedOn,
-						result.ToPublish.Key,
-						result.ToPublish.PrimaryAction,
-						result.ToPublish.Intent,
-						result.ToPublish.Display
-					}));
+				var pn = result.ToPublish.Clone(target.PushNotificationId);
+				published.Add(Clients.Users(target.UserContextId).Publish(pn));
 			}
 
 			await Task.WhenAll(published);

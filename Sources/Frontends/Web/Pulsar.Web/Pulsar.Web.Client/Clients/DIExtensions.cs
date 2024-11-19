@@ -1,4 +1,4 @@
-﻿using Pulsar.Web.Client.Clients.Identity.Base;
+﻿using Pulsar.Web.Client.Clients.Base;
 using Pulsar.Web.Client.Clients.Identity.Dominios;
 using Pulsar.Web.Client.Clients.Identity.Estabelecimentos;
 using Pulsar.Web.Client.Clients.Identity.Usuarios;

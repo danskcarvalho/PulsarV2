@@ -7,6 +7,7 @@ using Pulsar.Services.Shared.PushNotifications;
 namespace Pulsar.Services.Identity.Contracts.IntegrationEvents;
 
 [EventName("Identity:ConviteAceitoIE")]
+[PushNotificationEvent(PushNotificationKey.ConviteAceito)]
 public record ConviteAceitoIE : IntegrationEvent, IPushNotificationEvent
 {
 	/// <summary>
