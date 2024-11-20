@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using DDD.Contracts;
+using MongoDB.Bson;
 using Pulsar.BuildingBlocks.DDD;
 
 namespace Pulsar.Services.PushNotification.Domain.Aggregates.UserContexts;

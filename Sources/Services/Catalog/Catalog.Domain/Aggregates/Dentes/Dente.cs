@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Dentes;
+﻿using DDD.Contracts;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Dentes;
 
 public partial class Dente : AggregateRoot
 {

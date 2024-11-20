@@ -23,8 +23,8 @@ public partial class IdentityScenarios : IDisposable
     protected IMockedCollection<Convite> Convites => Database.GetCollection<Convite>(Constants.CollectionNames.CONVITES);
     protected IMockedCollection<Usuario> Usuarios => Database.GetCollection<Usuario>(Constants.CollectionNames.USUARIOS);
     protected IMockedCollection<Dominio> Dominios => Database.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
-    protected IMockedCollection<EstabelecimentoShadow> Estabelecimentos => Database.GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
-    protected IMockedCollection<RedeEstabelecimentosShadow> RedesEstabelecimentos => Database.GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
+    protected IMockedCollection<EstabelecimentoShadow> Estabelecimentos => Database.GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName());
+    protected IMockedCollection<RedeEstabelecimentosShadow> RedesEstabelecimentos => Database.GetCollection<RedeEstabelecimentosShadow>(Shadow<RedeEstabelecimentosShadow>.GetCollectionName());
     protected IMockedCollection<Grupo> Grupos => Database.GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
 
     public IdentityScenarios()

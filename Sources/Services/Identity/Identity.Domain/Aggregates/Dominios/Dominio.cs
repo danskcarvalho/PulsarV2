@@ -1,13 +1,8 @@
-﻿using Pulsar.BuildingBlocks.DDD;
+﻿using DDD.Contracts;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.Services.Identity.Contracts.Shadows;
-using Pulsar.Services.Identity.Domain.Aggregates.Convites;
-using Pulsar.Services.Identity.Domain.Aggregates.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Dominios;
-using Pulsar.Services.Identity.Domain.Events.Grupos;
-using Pulsar.Services.Identity.Domain.Events.Usuarios;
-using static Pulsar.Services.Identity.Contracts.DTOs.UsuarioDetalhesDTO;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Dominios;
 

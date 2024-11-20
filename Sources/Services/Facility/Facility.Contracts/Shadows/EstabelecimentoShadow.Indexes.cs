@@ -9,6 +9,6 @@ public partial class EstabelecimentoShadow
     {
         public static IX Redes_v1 = Describe.Ascending(e => e.Redes);
 
-        public override string CollectionName => Shadow.GetCollectionName<EstabelecimentoShadow>();
+        public override string CollectionName => GetCollectionName();
     }
 }

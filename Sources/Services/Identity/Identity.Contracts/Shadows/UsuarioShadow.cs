@@ -6,7 +6,7 @@ using Pulsar.Services.Shared.DTOs;
 namespace Pulsar.Services.Identity.Contracts.Shadows;
 
 [Shadow("Identity:Usuarios")]
-public class UsuarioShadow : Shadow
+public class UsuarioShadow : Shadow<UsuarioShadow>
 {
     public string? AvatarUrl { get; private set; }
     public string PrimeiroNome { get; private set; }

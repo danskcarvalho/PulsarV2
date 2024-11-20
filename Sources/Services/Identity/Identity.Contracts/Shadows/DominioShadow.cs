@@ -6,7 +6,7 @@ using Pulsar.Services.Shared.DTOs;
 namespace Pulsar.Services.Identity.Contracts.Shadows;
 
 [Shadow("Identity:Dominios")]
-public class DominioShadow : Shadow
+public class DominioShadow : Shadow<DominioShadow>
 {
     public string Nome { get; private set; }
     public bool IsAtivo { get; set; }

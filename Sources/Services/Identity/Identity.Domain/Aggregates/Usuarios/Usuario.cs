@@ -1,4 +1,5 @@
-﻿using Pulsar.BuildingBlocks.DDD;
+﻿using DDD.Contracts;
+using Pulsar.BuildingBlocks.DDD;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.Services.Identity.Contracts.Shadows;
 using Pulsar.Services.Identity.Domain.Events.Usuarios;

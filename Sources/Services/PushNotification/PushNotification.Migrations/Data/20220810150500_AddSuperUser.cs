@@ -27,9 +27,12 @@ public class AddSuperUser : Migration
 		superUser.IsAtivo = true;
 		await usuarioCollection.InsertOneAsync(Session, superUser);
 	}
-	public class UsuarioShadow : Shadow
+	public class UsuarioShadow
 	{
 		public static readonly ObjectId SuperUsuarioId = ObjectId.Parse("62f3f4201dbf5877ae6fe940");
+		public ObjectId Id { get; private set; }
+		public long Version { get; private set; }
+		public DateTime TimeStamp { get; private set; }
 		public string? AvatarUrl { get; private set; }
 		public string PrimeiroNome { get; private set; }
 		public string? UltimoNome { get; private set; }
@@ -53,8 +56,10 @@ public class AddSuperUser : Migration
 			bool isConvitePendente,
 			AuditInfoShadow auditInfo,
 			string? email,
-			DateTime timeStamp) : base(id, timeStamp)
+			DateTime timeStamp)
 		{
+			Id = id;
+			TimeStamp = timeStamp;
 			AvatarUrl = avatarUrl;
 			PrimeiroNome = primeiroNome;
 			UltimoNome = ultimoNome;

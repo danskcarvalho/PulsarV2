@@ -132,14 +132,14 @@ public abstract class NotificationHandler<TNotification> : INotificationHandler<
     private async Task CallHandler(TNotification request, CancellationToken ct)
     {
         var ctx = _contextFactory.CreateContext();
-        DbContext.SetContext(ctx);
+        DbContextImpl.SetContext(ctx);
         try
         {
             await HandleAsync(request, ct);
         }
         finally
         {
-            DbContext.ClearContext();
+            DbContextImpl.ClearContext();
         }
     }
 }

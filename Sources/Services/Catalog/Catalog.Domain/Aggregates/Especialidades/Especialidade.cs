@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Catalog.Contracts.DTOs;
+﻿using DDD.Contracts;
+using Pulsar.Services.Catalog.Contracts.DTOs;
 using Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
 
 namespace Pulsar.Services.Catalog.Domain.Aggregates.Especialidades;

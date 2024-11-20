@@ -1,4 +1,5 @@
-﻿using Pulsar.BuildingBlocks.DDD;
+﻿using DDD.Contracts;
+using Pulsar.BuildingBlocks.DDD;
 using Pulsar.Services.Identity.Contracts.Commands.Grupos;
 using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Grupos;

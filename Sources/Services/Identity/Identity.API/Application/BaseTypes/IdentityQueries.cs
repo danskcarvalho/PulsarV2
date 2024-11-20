@@ -12,8 +12,8 @@ public class IdentityQueries : QueryHandler
         DominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
         ConvitesCollection = GetCollection<Convite>(Constants.CollectionNames.CONVITES);
         GruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS);
-        EstabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
-        RedesEstabelecimentosCollection = GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
+        EstabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName());
+        RedesEstabelecimentosCollection = GetCollection<RedeEstabelecimentosShadow>(Shadow<RedeEstabelecimentosShadow>.GetCollectionName());
     }
 
     protected IMongoCollection<Usuario> UsuariosCollection { get; private set; }

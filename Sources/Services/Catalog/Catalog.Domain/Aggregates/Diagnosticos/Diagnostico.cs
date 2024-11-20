@@ -1,4 +1,6 @@
-﻿namespace Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
+﻿using DDD.Contracts;
+
+namespace Pulsar.Services.Catalog.Domain.Aggregates.Diagnosticos;
 
 public partial class Diagnostico : AggregateRoot
 {

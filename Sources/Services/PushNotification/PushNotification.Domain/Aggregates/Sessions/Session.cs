@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using DDD.Contracts;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Pulsar.BuildingBlocks.DDD;
 using Pulsar.Services.PushNotification.Domain.Events.PushNotifications;

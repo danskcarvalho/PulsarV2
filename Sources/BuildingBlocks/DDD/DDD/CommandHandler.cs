@@ -132,14 +132,14 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
     private async Task CallHandler(TCommand request, CancellationToken ct)
     {
         var ctx = _contextFactory.CreateContext();
-        DbContext.SetContext(ctx);
+        DbContextImpl.SetContext(ctx);
         try
         {
             await HandleAsync(request, ct);
         }
         finally
         {
-            DbContext.ClearContext();
+            DbContextImpl.ClearContext();
         }
     }
 }
@@ -265,14 +265,14 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
     private async Task<TResult> CallHandler(TCommand request, CancellationToken ct)
     {
         var ctx = _contextFactory.CreateContext();
-        DbContext.SetContext(ctx);
+        DbContextImpl.SetContext(ctx);
         try
         {
             return await HandleAsync(request, ct);
         }
         finally
         {
-            DbContext.ClearContext();
+            DbContextImpl.ClearContext();
         }
     }
 }

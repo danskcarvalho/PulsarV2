@@ -36,14 +36,14 @@ public abstract class DomainEventHandler<TEvent> : INotificationHandler<TEvent> 
     private async Task CallHandler(TEvent notification, CancellationToken cancellationToken)
     {
         var ctx = _contextFactory.CreateContext();
-        DbContext.SetContext(ctx);
+        DbContextImpl.SetContext(ctx);
         try
         {
             await HandleAsync(notification, cancellationToken);
         }
         finally
         {
-            DbContext.ClearContext();
+            DbContextImpl.ClearContext();
         }
     }
 

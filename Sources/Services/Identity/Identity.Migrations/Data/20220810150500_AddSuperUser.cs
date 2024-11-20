@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using DDD.Contracts;
+using MongoDB.Bson.Serialization.Attributes;
 using Pulsar.BuildingBlocks.DDD;
 
 namespace Pulsar.Services.Identity.Migrations.Data;

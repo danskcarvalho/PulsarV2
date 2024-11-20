@@ -1,17 +1,17 @@
-﻿using MediatR;
+﻿using System.ComponentModel;
+using MediatR;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
-using System.ComponentModel;
 
-namespace Pulsar.BuildingBlocks.DDD;
+namespace DDD.Contracts;
 
 public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 {
     [BsonIgnore]
     private List<INotification> _notifications = new List<INotification>();
     [BsonIgnore]
-    private bool _isInitializing = false;
+    private bool _isInitializing;
 
     public AggregateRoot() { }
     public AggregateRoot(ObjectId id) : this()

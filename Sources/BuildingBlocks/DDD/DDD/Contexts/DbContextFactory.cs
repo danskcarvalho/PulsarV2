@@ -9,8 +9,8 @@ public class DbContextFactory
         _repositories = repositories.ToList();
     }
 
-    public DbContext CreateContext()
+    public DbContextImpl CreateContext()
     {
-        return new DbContext(_repositories);
+        return new DbContextImpl(_repositories);
     }
 }

@@ -62,12 +62,12 @@ public static class IdentityDatabase
         usuarioCollection.AddUniqueKey(u => u.Email ?? u.NomeUsuario);
         usuarioCollection.AddUniqueKey(u => u.NomeUsuario);
 
-        var estabelecimentoCollection = db.GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>());
+        var estabelecimentoCollection = db.GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName());
         var estabelecimentoPadrao = new EstabelecimentoShadow(ObjectId.Parse(EstabelecimentoPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", "00112233",
             new List<ObjectId> { ObjectId.Parse(RedeEstabelecimentosPadraoId) }, true, new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
         estabelecimentoCollection.InsertManyAsync(new EstabelecimentoShadow[] { estabelecimentoPadrao }).Wait();
 
-        var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentosShadow>(Shadow.GetCollectionName<RedeEstabelecimentosShadow>());
+        var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentosShadow>(Shadow<RedeEstabelecimentosShadow>.GetCollectionName());
         var redeEstabelecimentos01 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
         var redeEstabelecimentos02 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
         redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentosShadow[] { redeEstabelecimentos01, redeEstabelecimentos02 }).Wait();

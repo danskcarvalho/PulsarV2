@@ -23,7 +23,7 @@ public class ShadowRepository<TModel> : IShadowRepository<TModel>
     }
 
     protected virtual string CollectionName => typeof(IShadow).IsAssignableFrom(typeof(TModel))
-        ? Shadow.GetCollectionName<TModel>()
+        ? Shadow<TModel>.GetCollectionName()
         : throw new InvalidOperationException("implement CollectionName");
     
     public void Track(TModel? model)

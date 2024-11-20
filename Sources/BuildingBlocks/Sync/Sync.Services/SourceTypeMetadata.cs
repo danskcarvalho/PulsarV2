@@ -8,6 +8,7 @@ using System.Collections;
 using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;
 using System.Runtime.CompilerServices;
+using DDD.Contracts;
 
 namespace Pulsar.BuildingBlocks.Sync.Services;
 
@@ -32,7 +33,7 @@ class SourceTypeMetadata
         }
 
         var mapper = GetMapper(source.GetType(), _shadowType);
-        var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType) as Shadow;
+        var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType) as IShadow;
         var root = source as AggregateRoot;
 
         shadow!.CopyId(root!);

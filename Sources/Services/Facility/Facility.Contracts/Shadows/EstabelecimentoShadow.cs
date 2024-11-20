@@ -5,7 +5,7 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 namespace Pulsar.Services.Facility.Contracts.Shadows;
 
 [Shadow("Facility:Estabelecimentos")]
-public partial class EstabelecimentoShadow : Shadow
+public partial class EstabelecimentoShadow : Shadow<EstabelecimentoShadow>
 {
     public ObjectId DominioId { get; private set; }
     public string Nome { get; set; }

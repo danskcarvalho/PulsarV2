@@ -145,7 +145,7 @@ public partial class UsuarioQueries : IdentityQueries, IUsuarioQueries
     {
         var gruposCollection = GetCollection<Grupo>(Constants.CollectionNames.GRUPOS, ReadPref.Primary);
         var dominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS, ReadPref.Primary);
-        var estabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow.GetCollectionName<EstabelecimentoShadow>(), ReadPref.Primary);
+        var estabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName(), ReadPref.Primary);
 
         var allIds = new ObjectId[] { usuario.Id };
         var grupos = await GruposCollection.FindAsync(Builders<Grupo>.Filter.Create(f =>

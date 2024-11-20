@@ -1,10 +1,12 @@
 ﻿using MongoDB.Bson;
 using Pulsar.BuildingBlocks.DDD;
 using System.Reflection;
+using DDD.Contracts;
+using Pulsar.BuildingBlocks.DDD.Abstractions;
 
 namespace Pulsar.BuildingBlocks.Sync.Contracts;
 
-public class Shadow : AggregateRoot, IShadow
+public class Shadow<TSelf> : AggregateRootWithContext<TSelf>, IShadow where TSelf : class, IAggregateRoot
 {
     public Shadow()
     {
@@ -21,17 +23,17 @@ public class Shadow : AggregateRoot, IShadow
 
     public DateTime TimeStamp { get; set; }
 
-    public void CopyId(AggregateRoot root)
+    public void CopyId(IAggregateRoot root)
     {
         this.Id = root.Id;
     }
 
-    public static string GetCollectionName<T>()
+    public static string GetCollectionName()
     {
-        var attr = typeof(T).GetCustomAttribute<ShadowAttribute>();
+        var attr = typeof(TSelf).GetCustomAttribute<ShadowAttribute>();
         if (attr == null)
         {
-            throw new InvalidOperationException($"no ShadowAttribute on type {typeof(T).FullName}");
+            throw new InvalidOperationException($"no ShadowAttribute on type {typeof(TSelf).FullName}");
         }
 
         return $"_{ValidId(attr.Name)}_Shadow";

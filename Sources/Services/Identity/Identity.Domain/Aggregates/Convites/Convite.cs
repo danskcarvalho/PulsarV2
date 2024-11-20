@@ -1,4 +1,5 @@
-﻿using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
+﻿using DDD.Contracts;
+using Pulsar.Services.Identity.Domain.Aggregates.Usuarios;
 using Pulsar.Services.Identity.Domain.Events.Convites;
 
 namespace Pulsar.Services.Identity.Domain.Aggregates.Convites;
