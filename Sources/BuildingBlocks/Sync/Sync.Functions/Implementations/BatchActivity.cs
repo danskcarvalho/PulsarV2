@@ -92,7 +92,7 @@ public class BatchActivity(
 
     private async Task ExecuteBatch(ExecuteBatchActivityDescription eb)
     {
-        await session.TrackAggregateRoots(async ct =>
+        await session.TrackConsistencyToken(async ct =>
         {
             return await session.RetryOnExceptions(
                 async _ =>
@@ -122,7 +122,7 @@ public class BatchActivity(
 
     private async Task<PrepareBatchesActivityDescriptionResult> PrepareBatches(PrepareBatchesActivityDescription pb)
     {
-        return await session.TrackAggregateRoots<PrepareBatchesActivityDescriptionResult>(async _ =>
+        return await session.TrackConsistencyToken<PrepareBatchesActivityDescriptionResult>(async _ =>
         {
             return await session.RetryOnExceptions<PrepareBatchesActivityDescriptionResult>(
                 async _ =>

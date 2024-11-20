@@ -23,7 +23,7 @@ public abstract class CommandHandler<TCommand> : IRequestHandler<TCommand> where
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        await _session.TrackAggregateRoots(async ct =>
+        await _session.TrackConsistencyToken(async ct =>
         {
             if (withIso != null && noTran != null)
             {
@@ -165,7 +165,7 @@ public abstract class CommandHandler<TCommand, TResult> : IRequestHandler<TComma
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        return await _session.TrackAggregateRoots(async ct =>
+        return await _session.TrackConsistencyToken(async ct =>
         {
             if (withIso != null)
             {

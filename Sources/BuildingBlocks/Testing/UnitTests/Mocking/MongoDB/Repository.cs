@@ -23,12 +23,13 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     }
 
     protected abstract string CollectionName { get; }
-    public void Track(TModel? model)
+    
+    private async Task DispatchDomainEvents(TModel model)
     {
-        if (model == null)
-            return;
-        if (Session is not null)
-            Session.TrackAggregateRoot(model);
+        if (Session != null)
+        {
+            await Session.DispatchDomainEvents(model);
+        }
     }
     protected abstract TSelf Clone(IMockedDbSession? session, IMockedDbSessionFactory sessionFactory);
 
@@ -86,7 +87,7 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
     {
         var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
-        Track(model);
+        await DispatchDomainEvents(model);
         return r.CheckModified();
     }
 
@@ -96,16 +97,9 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
         return cloned;
     }
 
-    public async Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, bool noTracking = false, CancellationToken ct = default)
+    public async Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, CancellationToken ct = default)
     {
         var r = await ToListAsync(Collection.FindAsync(spec));
-
-        if (!noTracking)
-        {
-            foreach (var root in r)
-                Track(root);
-        }
-
         return r;
     }
 
@@ -114,18 +108,11 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
         return await ToListAsync(Collection.FindAsync<TProjection>(spec));
     }
 
-    public async Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, bool noTracking = false, CancellationToken ct = default)
+    public async Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default)
     {
         var idList = new HashSet<ObjectId>(ids);
 
         var r = await ToListAsync(Collection.FindAsync(new FindSpecificationWrapper<TModel>(Find.Where<TModel>(x => idList.Contains(x.Id)).Build())));
-
-        if (!noTracking)
-        {
-            foreach (var root in r)
-                Track(root);
-        }
-
         return r;
     }
 
@@ -133,7 +120,6 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     {
         var r = await ToListAsync(Collection.FindAsync(spec));
 
-        Track(r.FirstOrDefault());
         return r.FirstOrDefault();
     }
 
@@ -147,7 +133,6 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     {
         var r = await ToListAsync(Collection.FindAsync(new FindSpecificationWrapper<TModel>(Find.Where<TModel>(x => x.Id == id).Build())));
 
-        Track(r.FirstOrDefault());
         return r.FirstOrDefault();
     }
 
@@ -156,14 +141,16 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
         await Collection.InsertManyAsync(items);
 
         foreach (var root in items)
-            Track(root);
+        {
+            await DispatchDomainEvents(root);
+        }
     }
 
     public async Task InsertOneAsync(TModel item, CancellationToken ct = default)
     {
         await Collection.InsertManyAsync(new TModel[] { item });
 
-        Track(item);
+        await DispatchDomainEvents(item);
     }
 
     public async Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default)

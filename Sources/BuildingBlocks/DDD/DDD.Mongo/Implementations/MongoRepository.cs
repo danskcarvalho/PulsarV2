@@ -64,13 +64,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         }
         return false;
     }
-    public void Track(TModel? model)
-    {
-        if (model == null)
-            return;
-        if (Session is not null)
-            Session.TrackAggregateRoot(model);
-    }
     protected abstract TSelf Clone(MongoDbSession? session, MongoDbSessionFactory sessionFactory);
 
     public async Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default)
@@ -161,8 +154,16 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
     public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
     {
         var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
-        Track(model);
+        await DispatchDomainEvents(model);
         return r;
+    }
+
+    private async Task DispatchDomainEvents(TModel model)
+    {
+        if (Session != null)
+        {
+            await Session.DispatchDomainEvents(model);
+        }
     }
 
     public TSelf EscapeSession()
@@ -171,7 +172,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         return cloned;
     }
 
-    public async Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, bool noTracking = false, CancellationToken ct = default)
+    public async Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var finalSpec = spec.GetSpec();
@@ -210,12 +211,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
                 Limit = finalSpec.Limit,
                 Skip = finalSpec.Skip
             }, cancellationToken: ct)).ToListAsync();
-
-        if (!noTracking)
-        {
-            foreach (var root in r)
-                Track(root);
-        }
 
         return r;
     }
@@ -263,7 +258,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             }, cancellationToken: ct)).ToListAsync();
     }
 
-    public async Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, bool noTracking = false, CancellationToken ct = default)
+    public async Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var idList = new List<ObjectId>(ids);
@@ -274,12 +269,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             r = await (await Collection.FindAsync(filter, cancellationToken: ct)).ToListAsync();
         else
             r = await (await Collection.FindAsync(Session.CurrentHandle, filter, cancellationToken: ct)).ToListAsync();
-
-        if (!noTracking)
-        {
-            foreach (var root in r)
-                Track(root);
-        }
 
         return r;
     }
@@ -296,7 +285,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         else
             r = await (await Collection.FindAsync(Session.CurrentHandle, where, new FindOptions<TModel, TModel> { Limit = 1 }, cancellationToken: ct)).FirstOrDefaultAsync();
 
-        Track(r);
         return r;
     }
 
@@ -326,7 +314,6 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         else
             r = await (await Collection.FindAsync(Session.CurrentHandle, filter, new FindOptions<TModel, TModel> { Limit = 1 }, cancellationToken: ct)).FirstOrDefaultAsync();
 
-        Track(r);
         return r;
     }
 
@@ -339,7 +326,9 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             await Collection.InsertManyAsync(Session.CurrentHandle, items, cancellationToken: ct);
 
         foreach (var root in items)
-            Track(root);
+        {
+            await DispatchDomainEvents(root);
+        }
     }
 
     public async Task InsertOneAsync(TModel item, CancellationToken ct = default)
@@ -350,7 +339,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         else
             await Collection.InsertOneAsync(Session.CurrentHandle, item, cancellationToken: ct);
 
-        Track(item);
+        await DispatchDomainEvents(item);
     }
 
     public async Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default)
@@ -387,7 +376,7 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
             r = await Collection.ReplaceOneAsync(Session.CurrentHandle, filter, model, cancellationToken: ct);
 
         var modified = r.IsAcknowledged ? r.ModifiedCount : 0;
-        Track(model);
+        await DispatchDomainEvents(model);
         return modified;
     }
 

@@ -10,7 +10,6 @@ public interface IRepository<TSelf, TModel> : IRepositoryBase<TModel>
 
 public interface IRepositoryBase<TModel> : IIsRepository where TModel : class, IAggregateRoot
 {
-    void Track(TModel model);
     Task InsertOneAsync(TModel item, CancellationToken ct = default);
     Task InsertManyAsync(IEnumerable<TModel> items, CancellationToken ct = default);
     Task<long> DeleteOneByIdAsync(ObjectId id, long? version = null, CancellationToken ct = default);
@@ -24,10 +23,10 @@ public interface IRepositoryBase<TModel> : IIsRepository where TModel : class, I
     Task<bool> OneExistsAsync(ObjectId id, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default);
     Task<bool> AllExistsAsync(IEnumerable<ObjectId> ids, IFindSpecification<TModel>? predicate = null, CancellationToken ct = default);
     Task<TModel?> FindOneByIdAsync(ObjectId id, CancellationToken ct = default);
-    Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, bool noTracking = false, CancellationToken ct = default);
+    Task<List<TModel>> FindManyByIdAsync(IEnumerable<ObjectId> ids, CancellationToken ct = default);
     Task<TModel?> FindOneAsync(IFindSpecification<TModel> spec, CancellationToken ct = default);
     Task<TProjection?> FindOneAsync<TProjection>(IFindSpecification<TModel, TProjection> spec, CancellationToken ct = default);
-    Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, bool noTracking = false, CancellationToken ct = default);
+    Task<List<TModel>> FindManyAsync(IFindSpecification<TModel> spec, CancellationToken ct = default);
     Task<List<TProjection>> FindManyAsync<TProjection>(IFindSpecification<TModel, TProjection> spec, CancellationToken ct = default);
 }
 

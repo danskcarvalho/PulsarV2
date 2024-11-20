@@ -23,7 +23,7 @@ public abstract class NotificationHandler<TNotification> : INotificationHandler<
         var retryOnExc = this.GetType().GetCustomAttributes(typeof(RetryOnExceptionAttribute), true).Cast<RetryOnExceptionAttribute>().FirstOrDefault();
         var withIso = this.GetType().GetCustomAttributes(typeof(WithIsolationLevelAttribute), true).Cast<WithIsolationLevelAttribute>().FirstOrDefault();
 
-        await _session.TrackAggregateRoots(async ct =>
+        await _session.TrackConsistencyToken(async ct =>
         {
             if (withIso != null && noTran != null)
             {

@@ -3,5 +3,5 @@
 public interface IMockedDbSession : IDbSession
 {
     IMockedDatabase Database { get; }
-    void TrackAggregateRoot(IAggregateRoot root);
+    Task DispatchDomainEvents(IAggregateRoot root);
 }
