@@ -80,27 +80,84 @@ public class PushNotificationService(
 		}
 		try
 		{
-			var session = await pushNotificationClient.StartSession();
-			_connection = new HubConnectionBuilder()
-				.WithUrl(session.Url, options =>
-				{
-					options.Headers.Add("Authorization", $"Bearer {session.Token}");
-				})
-				.WithAutomaticReconnect()
-				.Build();
-
-			await _connection.StartAsync();
-			Console.WriteLine($"Connection started: {session.Url}, {session.Token}");
-			_started = true;
-
-			_connection.On("published", (string pn) =>
-			{
-				OnPublish(mediator, pn.FromJsonString<PushNotificationDataWithId>());
-			});
+			await StartConnection();
 		}
 		catch (Exception ex)
 		{
 			logger.LogError(ex, "error trying to estabilish a connection to SignalR push notification service");
+		}
+	}
+
+	private async Task StartConnection()
+	{
+		_started = false;
+		if (_connection != null)
+		{
+			await TryDisposeConnection();
+		}
+		
+		var session = await pushNotificationClient.StartSession();
+		_connection = new HubConnectionBuilder()
+			.WithUrl(session.Url, options =>
+			{
+				options.Headers.Add("Authorization", $"Bearer {session.Token}");
+			})
+			.Build();
+			
+		_connection.Closed += ConnectionOnClosed;
+
+		await _connection.StartAsync();
+		Console.WriteLine($"Connection started: {session.Url}, {session.Token}");
+		_started = true;
+
+		_connection.On("published", (string pn) =>
+		{
+			OnPublish(mediator, pn.FromJsonString<PushNotificationDataWithId>());
+		});
+	}
+
+	private async Task TryDisposeConnection()
+	{
+		try
+		{
+			if (_connection == null)
+			{
+				return;
+			}
+			await _connection.DisposeAsync();
+			_connection = null;
+		}
+		catch
+		{
+		}
+	}
+
+	private async Task ConnectionOnClosed(Exception? arg)
+	{
+		if (!_started)
+		{
+			return;
+		}
+		
+		List<TimeSpan> timeouts = [
+			TimeSpan.FromSeconds(0), 
+			TimeSpan.FromSeconds(5), 
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromMinutes(1),
+			TimeSpan.FromMinutes(5)];
+
+		foreach (var timeout in timeouts)
+		{
+			await Task.Delay(timeout);
+			try
+			{
+				await StartConnection();
+				break;
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "error retrying to estabilish a connection to SignalR push notification service");
+			}
 		}
 	}
 
@@ -154,6 +211,7 @@ public class PushNotificationService(
 	{
 		if (_connection != null)
 		{
+			_started = false;
 			await _connection.StopAsync();
 			await _connection.DisposeAsync();
 			_connection = null;
