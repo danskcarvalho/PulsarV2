@@ -17,8 +17,6 @@ namespace Pulsar.Web.Client.Services.PushNotifications;
 public partial class PushNotificationManager(
 	PushNotificationService service,
 	IPushNotificationClient pushNotificationClient,
-	IMessageService messageService,
-	IToastService toastService,
 	IMediator mediator,
 	NavigationManager navigationManager,
 	List<Assembly> assembliesToScan,
@@ -36,6 +34,9 @@ public partial class PushNotificationManager(
 	private List<PushNotificationDataWithId> _notifications = new List<PushNotificationDataWithId>();
 	private Dictionary<PushNotificationRouteKey, PushNotificationRoutingAttribute> _routeHandlers = new();
 	private int _unread = 0;
+
+	public IMessageService? MessageService { get; set; }
+	public IToastService? ToastService { get; set; }
 
 	public event EventHandler? OnNotificationListChanged;
 
@@ -84,7 +85,6 @@ public partial class PushNotificationManager(
 			var t1 = service.Start();
 			var t2 = pushNotificationClient.Get(excluirLidas: false);
 
-			await t1;
 			_notifications.Clear();
 			_notifications.AddRange(await t2);
 			_notifications = _notifications.OrderByDescending(n => n.CreatedOn).ToList();
@@ -92,13 +92,14 @@ public partial class PushNotificationManager(
 			service.OnPushNotification += Service_OnPushNotification;
 			OnNotificationListChanged?.Invoke(this, EventArgs.Empty);
 
-			messageService.Clear(NOTIFICATION_CENTER_SECTION_UNREAD);
-			messageService.Clear(NOTIFICATION_CENTER_SECTION_HISTORY);
+			MessageService?.Clear(NOTIFICATION_CENTER_SECTION_UNREAD);
+			MessageService?.Clear(NOTIFICATION_CENTER_SECTION_HISTORY);
 
 			foreach (var notification in ((IEnumerable<PushNotificationDataWithId>)_notifications).Reverse())
 			{
 				ShowPushNotification(notification, noToast: true);
 			}
+			await t1;
 			_started = true;
 		}
 		catch (Exception ex)
@@ -138,6 +139,7 @@ public partial class PushNotificationManager(
 			notification.IsRead = true;
 		}
 		_unread = 0;
+		MessageService?.Clear(NOTIFICATION_CENTER_SECTION_UNREAD);
 		OnNotificationListChanged?.Invoke(this, EventArgs.Empty);
 		if (mark.Count > 0)
 		{

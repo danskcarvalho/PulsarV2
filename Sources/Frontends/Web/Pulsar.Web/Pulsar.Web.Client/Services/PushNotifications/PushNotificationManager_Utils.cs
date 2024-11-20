@@ -101,7 +101,7 @@ public partial class PushNotificationManager
 		var useCommunication = displayOptions == PushNotificationToastDisplayOptions.UseBoth;
 		if (useCommunication)
 		{
-			toastService.ShowCommunicationToast(new ToastParameters<CommunicationToastContent>()
+			ToastService?.ShowCommunicationToast(new ToastParameters<CommunicationToastContent>()
 			{
 				Intent = GetToastIntent(notificacao.Intent),
 				Icon = GetToastIcon(notificacao.Intent),
@@ -123,7 +123,7 @@ public partial class PushNotificationManager
 		{
 			if (IsCustomToast(notificacao.Intent))
 			{
-				toastService.ShowCustom(
+				ToastService?.ShowCustom(
 							GetToastTitle(displayOptions, notificacao),
 							TOAST_TIMEOUT,
 							GetToastAction(notificacao),
@@ -132,7 +132,7 @@ public partial class PushNotificationManager
 			}
 			else
 			{
-				toastService.ShowToast(
+				ToastService?.ShowToast(
 					GetToastIntent(notificacao.Intent),
 					GetToastTitle(displayOptions, notificacao),
 					TOAST_TIMEOUT,
@@ -146,7 +146,7 @@ public partial class PushNotificationManager
 	{
 		if (!notificacao.IsRead)
 		{
-			messageService.ShowMessageBar(options =>
+			MessageService?.ShowMessageBar(options =>
 			{
 				options.AllowDismiss = true;
 				options.OnClose = async _ =>
@@ -190,7 +190,7 @@ public partial class PushNotificationManager
 			});
 		}
 
-		messageService.ShowMessageBar(options =>
+		MessageService?.ShowMessageBar(options =>
 		{
 			options.AllowDismiss = false;
 			options.Intent = GetMessageIntent(notificacao.Intent);

@@ -27,8 +27,6 @@ public static class DIExtensions
 			return new PushNotificationManager(
 				sp.GetRequiredService<PushNotificationService>(),
 				sp.GetRequiredService<IPushNotificationClient>(),
-				sp.GetRequiredService<IMessageService>(),
-				sp.GetRequiredService<IToastService>(),
 				sp.GetRequiredService<IMediator>(),
 				sp.GetRequiredService<NavigationManager>(),
 				options.AssembliesToScanForRoutingActions,

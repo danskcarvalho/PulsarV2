@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.SignalRService;
 using Microsoft.DurableTask.Client;
@@ -7,13 +8,12 @@ using Pulsar.BuildingBlocks.Sync.Contracts;
 using Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 using Pulsar.Services.PushNotification.Contracts.Commands.PushNotifications;
 using Pulsar.Services.PushNotification.Contracts.Commands.UserContexts;
-using Pulsar.Services.PushNotification.Functions.Application.Interfaces;
 using System.Net;
 
 namespace Pulsar.Services.PushNotification.Functions.Application.Functions;
 
 [SignalRConnection("PulsarSignalRConnectionString")]
-public class PushNotificationHub : ServerlessHub<IPushNotificationClient>
+public class PushNotificationHub : ServerlessHub
 {
 	readonly IMediator Mediator;
 	public PushNotificationHub(
@@ -79,7 +79,7 @@ public class PushNotificationHub : ServerlessHub<IPushNotificationClient>
 			foreach (var target in result.Targets)
 			{
 				var pn = result.ToPublish.Clone(target.PushNotificationId);
-				published.Add(Clients.Users(target.UserContextId).Publish(pn));
+				published.Add(Clients.User(target.UserContextId).SendAsync("published", pn.ToJsonString()));
 			}
 
 			await Task.WhenAll(published);

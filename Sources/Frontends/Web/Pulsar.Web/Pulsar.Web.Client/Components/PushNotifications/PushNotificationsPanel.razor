@@ -13,7 +13,7 @@
                     <FluentSpacer />
                     @if (_unread != 0)
                     {
-                        <FluentAnchor Appearance="@Appearance.Hypertext" Href="javascript:void(0);" OnClick="@(e => MessageService.Clear(PushNotificationManager.NOTIFICATION_CENTER_SECTION_UNREAD) )">
+                        <FluentAnchor Appearance="@Appearance.Hypertext" Href="javascript:void(0);" OnClick="@ClearNotifications">
                             Limpar
                         </FluentAnchor>
                     }
@@ -63,9 +63,14 @@
 
     protected override void OnInitialized()
     {
+        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
         _unread = PushNotificationManager.Unread;
         _total = PushNotificationManager.Notifications.Count;
-        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+    }
+
+    private async Task ClearNotifications()
+    {
+        await PushNotificationManager.MarkAllRead();
     }
 
     private void OnNotificationListChanged(object? sender, EventArgs e)

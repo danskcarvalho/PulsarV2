@@ -1,5 +1,7 @@
 ﻿@using Pulsar.Web.Client.Services.PushNotifications
 @inject PushNotificationManager PushNotificationManager
+@inject IMessageService MessageService
+@inject IToastService ToastService
 @implements IDisposable
 
 @code {
@@ -8,8 +10,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await PushNotificationManager.Start();
         PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+        PushNotificationManager.MessageService = MessageService;
+        PushNotificationManager.ToastService = ToastService;
+        await PushNotificationManager.Start();
     }
 
     private async void OnNotificationListChanged(object? sender, EventArgs e)

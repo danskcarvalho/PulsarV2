@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
+using Pulsar.Services.Shared;
 using Pulsar.Services.Shared.PushNotifications;
 using Pulsar.Web.Client.Clients.PushNotification;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Pulsar.Web.Client.Services.PushNotifications;
@@ -88,12 +90,13 @@ public class PushNotificationService(
 				.Build();
 
 			await _connection.StartAsync();
+			Console.WriteLine($"Connection started: {session.Url}, {session.Token}");
 			_started = true;
 
-			_connection.On("Publish", (Action<PushNotificationDataWithId>)(pn =>
+			_connection.On("published", (string pn) =>
 			{
-				OnPublish(mediator, pn);
-			}));
+				OnPublish(mediator, pn.FromJsonString<PushNotificationDataWithId>());
+			});
 		}
 		catch (Exception ex)
 		{
@@ -101,8 +104,13 @@ public class PushNotificationService(
 		}
 	}
 
-	private void OnPublish(IMediator mediator, PushNotificationDataWithId pn)
+	private void OnPublish(IMediator mediator, PushNotificationDataWithId? pn)
 	{
+		if (pn == null)
+		{
+			return;
+		}
+
 		mediator.Publish(new PushNotificationEvent(pn));
 		FireAdditionalEvents(pn);
 
