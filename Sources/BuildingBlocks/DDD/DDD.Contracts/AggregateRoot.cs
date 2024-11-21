@@ -21,7 +21,7 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     [BsonId]
     public ObjectId Id { get; protected set; }
-    public long Version { get; protected set; }
+    public long Version { get; set; }
     [BsonIgnore]
     public long? LastVersion { get; set; }
     [BsonIgnore]
