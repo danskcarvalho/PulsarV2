@@ -36,8 +36,7 @@ class SourceTypeMetadata
         var shadow = mapper.Mapper.Map(source, source.GetType(), _shadowType) as IShadow;
         var root = source as AggregateRoot;
 
-        shadow!.CopyId(root!);
-        shadow!.TimeStamp = DateTime.UtcNow;
+        shadow!.InitializeShadowFromRoot(root!);
 
         InterceptShadow(source, shadow);
 

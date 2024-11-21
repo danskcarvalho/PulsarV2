@@ -14,7 +14,7 @@ public class DominioShadow : Shadow<DominioShadow>
     public ObjectId? UsuarioAdministradorId { get; set; }
 
     [JsonConstructor, BsonConstructor]
-    public DominioShadow(ObjectId id, string nome, bool isAtivo, AuditInfoShadow auditInfo, ObjectId? usuarioAdministradorId, DateTime timeStamp) : base(id, timeStamp)
+    public DominioShadow(ObjectId id, string nome, bool isAtivo, AuditInfoShadow auditInfo, ObjectId? usuarioAdministradorId) : base(id)
     {
         Nome = nome;
         IsAtivo = isAtivo;

@@ -31,8 +31,7 @@ public class UsuarioShadow : Shadow<UsuarioShadow>
         string nomeUsuario,
         bool isConvitePendente,
         AuditInfoShadow auditInfo,
-        string? email,
-        DateTime timeStamp) : base(id, timeStamp)
+        string? email) : base(id)
     {
         AvatarUrl = avatarUrl;
         PrimeiroNome = primeiroNome;

@@ -149,7 +149,7 @@ public class BatchActivity(
 
         TryAgain:
         var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
-        if (previous == null || shadow.TimeStamp > previous.TimeStamp)
+        if (previous == null || shadow.Version > previous.Version)
         {
             if (previous == null)
             {

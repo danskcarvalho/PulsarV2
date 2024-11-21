@@ -64,12 +64,12 @@ public static class IdentityDatabase
 
         var estabelecimentoCollection = db.GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName());
         var estabelecimentoPadrao = new EstabelecimentoShadow(ObjectId.Parse(EstabelecimentoPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", "00112233",
-            new List<ObjectId> { ObjectId.Parse(RedeEstabelecimentosPadraoId) }, true, new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
+            new List<ObjectId> { ObjectId.Parse(RedeEstabelecimentosPadraoId) }, true, new AuditInfo(sid).ToShadow());
         estabelecimentoCollection.InsertManyAsync(new EstabelecimentoShadow[] { estabelecimentoPadrao }).Wait();
 
         var redeEstabelecimentosCollection = db.GetCollection<RedeEstabelecimentosShadow>(Shadow<RedeEstabelecimentosShadow>.GetCollectionName());
-        var redeEstabelecimentos01 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
-        var redeEstabelecimentos02 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid).ToShadow(), DateTime.UtcNow);
+        var redeEstabelecimentos01 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosPadraoId), ObjectId.Parse(DominioPadraoId), "PADRÃO", new AuditInfo(sid).ToShadow());
+        var redeEstabelecimentos02 = new RedeEstabelecimentosShadow(ObjectId.Parse(RedeEstabelecimentosNaoPadraoId), ObjectId.Parse(DominioPadraoId), "NÃO-PADRÃO", new AuditInfo(sid).ToShadow());
         redeEstabelecimentosCollection.InsertManyAsync(new RedeEstabelecimentosShadow[] { redeEstabelecimentos01, redeEstabelecimentos02 }).Wait();
 
         var dominioCollection = db.GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);

@@ -16,16 +16,10 @@ public class Shadow<TSelf> : AggregateRootWithContext<TSelf>, IShadow where TSel
     {
     }
 
-    public Shadow(ObjectId id, DateTime timeStamp) : base(id)
-    {
-        this.TimeStamp = timeStamp;
-    }
-
-    public DateTime TimeStamp { get; set; }
-
-    public void CopyId(IAggregateRoot root)
+    public void InitializeShadowFromRoot(IAggregateRoot root)
     {
         this.Id = root.Id;
+        this.Version = root.Version;
     }
 
     public static string GetCollectionName()

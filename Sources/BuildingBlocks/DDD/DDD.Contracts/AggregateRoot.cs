@@ -21,7 +21,7 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
 
     [BsonId]
     public ObjectId Id { get; protected set; }
-    public long Version { get; private set; }
+    public long Version { get; protected set; }
     [BsonIgnore]
     public IReadOnlyCollection<INotification> DomainEvents
     {

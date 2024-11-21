@@ -15,7 +15,7 @@ public partial class EstabelecimentoShadow : Shadow<EstabelecimentoShadow>
     public AuditInfoShadow AuditInfo { get; set; }
 
     [JsonConstructor, BsonConstructor]
-    public EstabelecimentoShadow(ObjectId id, ObjectId dominioId, string nome, string cnes, List<ObjectId> redes, bool isAtivo, AuditInfoShadow auditInfo, DateTime timeStamp) : base(id, timeStamp)
+    public EstabelecimentoShadow(ObjectId id, ObjectId dominioId, string nome, string cnes, List<ObjectId> redes, bool isAtivo, AuditInfoShadow auditInfo) : base(id)
     {
         DominioId = dominioId;
         Nome = nome;
