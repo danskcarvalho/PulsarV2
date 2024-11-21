@@ -75,7 +75,7 @@ public partial class GenericIntegrationEventDispatcherService
         #region [ Main Jobs ]
         private async Task PollChanges(CancellationToken ct)
         {
-            await Task.Run(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 while (true)
                 {
@@ -138,12 +138,12 @@ public partial class GenericIntegrationEventDispatcherService
                         _Logger.LogError(ex, "error while pooling for events");
                     }
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         private async Task WatchChanges(CancellationToken ct)
         {
-            await Task.Run(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 int timeout = 1000;
                 while (true)
@@ -198,12 +198,12 @@ public partial class GenericIntegrationEventDispatcherService
                         timeout = Math.Min(timeout, 5 * 60 * 1000); // --> max of 5 minutes
                     }
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         private async Task EnqueueWatchedEvents(CancellationToken ct)
         {
-            await Task.Run(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 while (true)
                 {
@@ -252,12 +252,12 @@ public partial class GenericIntegrationEventDispatcherService
                         _Logger.LogError(ex, "error while dispatching events");
                     }
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         private async Task CheckInProducer(CancellationToken ct)
         {
-            await Task.Run(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 while (true)
                 {
@@ -318,7 +318,7 @@ public partial class GenericIntegrationEventDispatcherService
                 {
                     _Logger.LogError(ex, "error while checking-out producer");
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         #endregion
