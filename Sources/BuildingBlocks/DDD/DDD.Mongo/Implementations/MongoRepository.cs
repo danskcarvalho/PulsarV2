@@ -149,12 +149,19 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         else
             r = await Collection.DeleteOneAsync(Session.CurrentHandle, filter, cancellationToken: ct);
 
-        return (r.IsAcknowledged ? r.DeletedCount : 0).CheckModified();
+        return r.IsAcknowledged ? r.DeletedCount : 0;
     }
-    public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
+    public async Task<long> DeleteOneAsync(TModel model, bool checkModified = true, CancellationToken ct = default)
     {
-        var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
-        await DispatchDomainEvents(model);
+        var r = await DeleteOneByIdAsync(model.Id, model.LastVersion ?? model.Version, ct);
+        if (checkModified)
+        {
+            r.CheckModified();
+        }
+        if (r != 0)
+        {
+            await DispatchDomainEvents(model);
+        }
         return r;
     }
 
@@ -362,22 +369,30 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         return r != default(ExistIdModel);
     }
 
-    public async Task<long> ReplaceOneAsync(TModel model, CancellationToken ct = default)
+    public async Task<long> ReplaceOneAsync(TModel model, bool checkModified = true, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
         var filter = Builders<TModel>.Filter.Eq("_id", model.Id);
-        filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", model.Version));
+        filter = Builders<TModel>.Filter.And(filter, Builders<TModel>.Filter.Eq("Version", model.LastVersion ?? model.Version));
 
-        ReplaceOneResult r;
+        ReplaceOneResult replaceOneResult;
         model.IncVersion();
         if (Session is null || Session.CurrentHandle is null)
-            r = await Collection.ReplaceOneAsync(filter, model, cancellationToken: ct);
+            replaceOneResult = await Collection.ReplaceOneAsync(filter, model, cancellationToken: ct);
         else
-            r = await Collection.ReplaceOneAsync(Session.CurrentHandle, filter, model, cancellationToken: ct);
+            replaceOneResult = await Collection.ReplaceOneAsync(Session.CurrentHandle, filter, model, cancellationToken: ct);
 
-        var modified = r.IsAcknowledged ? r.ModifiedCount : 0;
-        await DispatchDomainEvents(model);
-        return modified;
+        var r = replaceOneResult.IsAcknowledged ? replaceOneResult.ModifiedCount : 0;
+        if (checkModified)
+        {
+            r.CheckModified();
+        }
+        if (r != 0)
+        {
+            await DispatchDomainEvents(model);
+        }
+
+        return r;
     }
 
     public async Task<long> UpdateManyAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default)

@@ -184,7 +184,6 @@ public partial class Usuario : AggregateRootWithContext<Usuario>
 
     public void MudarMinhaSenha(string senhaAtual, string novaSenha)
     {
-        var previousVersion = Version;
         if (IsConvitePendente)
             throw new IdentityDomainException(IdentityExceptionKey.ConviteNaoAceito);
         if (!TestarSenha(senhaAtual))

@@ -80,15 +80,25 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
     public async Task<long> DeleteOneByIdAsync(ObjectId id, long? version = null, CancellationToken ct = default)
     {
         if (version != null)
-            return await Collection.DeleteManyAsync(new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id && x.Version == version).Build()), 1).CheckModified();
+            return await Collection.DeleteManyAsync(
+                new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id && x.Version == version)
+                    .Build()), 1);
         else
-            return await Collection.DeleteManyAsync(new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id).Build()), 1);
+            return await Collection.DeleteManyAsync(
+                new DeleteSpecificationWrapper<TModel>(Delete.Where<TModel>(x => x.Id == id).Build()), 1);
     }
-    public async Task<long> DeleteOneAsync(TModel model, CancellationToken ct = default)
+    public async Task<long> DeleteOneAsync(TModel model, bool checkModified = true, CancellationToken ct = default)
     {
-        var r = await DeleteOneByIdAsync(model.Id, model.Version, ct);
-        await DispatchDomainEvents(model);
-        return r.CheckModified();
+        var r = await DeleteOneByIdAsync(model.Id, model.LastVersion ?? model.Version, ct);
+        if (checkModified)
+        {
+            r.CheckModified();
+        }
+        if (r != 0)
+        {
+            await DispatchDomainEvents(model);
+        }
+        return r;
     }
 
     public TSelf EscapeSession()
@@ -167,9 +177,18 @@ public abstract class Repository<TSelf, TModel> : IRepository<TSelf, TModel>
         return found.Contains(id);
     }
 
-    public async Task<long> ReplaceOneAsync(TModel model, CancellationToken ct = default)
+    public async Task<long> ReplaceOneAsync(TModel model, bool checkModified = true, CancellationToken ct = default)
     {
-        return await Collection.ReplaceAsync(model, model.Id, model.Version, "Version").CheckModified();
+        var r = await Collection.ReplaceAsync(model, model.Id, model.LastVersion ?? model.Version, "Version");
+        if (checkModified)
+        {
+            r.CheckModified();
+        }
+        if (r != 0)
+        {
+            await DispatchDomainEvents(model);
+        }
+        return r;
     }
 
     public async Task<long> UpdateManyAsync(IUpdateSpecification<TModel> spec, CancellationToken ct = default)

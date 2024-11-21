@@ -148,55 +148,57 @@ public class BatchActivity(
             (repositories.First(x => x is IShadowRepository<TShadow>) as IShadowRepository<TShadow>)!;
 
         TryAgain:
-        var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
-        if (previous == null || shadow.Version > previous.Version)
         {
-            if (previous == null)
+            var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
+            if (previous == null || shadow.Version > previous.Version)
             {
-                try
+                if (previous == null)
                 {
-                    await shadowRepository.InsertOneAsync(shadow);
-				}
-                catch (MongoWriteException me)
-                {
-                    if (me.WriteError.Category != ServerErrorCategory.DuplicateKey)
-                        throw;
-                    else
+                    try
+                    {
+                        await shadowRepository.InsertOneAsync(shadow);
+                    }
+                    catch (MongoWriteException me)
+                    {
+                        if (me.WriteError.Category != ServerErrorCategory.DuplicateKey)
+                            throw;
+                        else
+                        {
+                            goto TryAgain;
+                        }
+                    }
+                    catch (MongoDuplicateKeyException)
                     {
                         goto TryAgain;
                     }
                 }
-				catch (MongoDuplicateKeyException)
-				{
-					goto TryAgain;
-				}
-			}
+                else
+                {
+                    shadow.LastVersion = previous.Version;
+                    var modified = await shadowRepository.ReplaceOneAsync(shadow, checkModified: false);
+                    if (modified == 0)
+                    {
+                        goto TryAgain;
+                    }
+                }
+
+                var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();
+                var batches = new List<IBatch>();
+                foreach (var batchManager in managers)
+                {
+                    batches.AddRange(await batchManager.GetBatches(factory));
+                }
+
+                var dbBatches = await syncBatchRepository.FindManyByIdAsync(batches.Select(x => x.BatchId));
+
+                return new PrepareBatchesActivityDescriptionResult(
+                    batches.Select(b => b.BatchId).ToList(),
+                    dbBatches.Select(x => (x.TrackerAssembly, x.TrackerType, x.TrackerRule)).Distinct().ToList());
+            }
             else
             {
-                shadow.CopyVersionFrom(previous);
-                var modified = await shadowRepository.ReplaceOneAsync(shadow);
-                if (modified == 0)
-                {
-                    goto TryAgain;
-                }
+                return new PrepareBatchesActivityDescriptionResult([], []);
             }
-
-            var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();
-            var batches = new List<IBatch>();
-            foreach (var batchManager in managers)
-            {
-                batches.AddRange(await batchManager.GetBatches(factory));
-            }
-
-            var dbBatches = await syncBatchRepository.FindManyByIdAsync(batches.Select(x => x.BatchId));
-
-            return new PrepareBatchesActivityDescriptionResult(
-                batches.Select(b => b.BatchId).ToList(),
-                dbBatches.Select(x => (x.TrackerAssembly, x.TrackerType, x.TrackerRule)).Distinct().ToList());
-        }
-        else
-        {
-            return new PrepareBatchesActivityDescriptionResult([], []);
         }
     }
 

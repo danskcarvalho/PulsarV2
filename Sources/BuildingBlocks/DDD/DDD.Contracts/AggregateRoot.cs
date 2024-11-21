@@ -23,6 +23,8 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
     public ObjectId Id { get; protected set; }
     public long Version { get; protected set; }
     [BsonIgnore]
+    public long? LastVersion { get; set; }
+    [BsonIgnore]
     public IReadOnlyCollection<INotification> DomainEvents
     {
         get
@@ -39,9 +41,12 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
     [BsonIgnore]
     public bool IsTransient => Id == ObjectId.Empty;
 
-    public void IncVersion()
+    public void IncVersion(bool force = false)
     {
-        Version++;
+        if (LastVersion == null || force)
+        {
+            Version++;
+        }
     }
 
     public void AddDomainEvent(INotification eventItem)
@@ -113,11 +118,6 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
         else
             return other.Id == Id;
     }
-
-	public void CopyVersionFrom(IAggregateRoot anotherRoot)
-	{
-		this.Version = anotherRoot.Version;
-	}
 
 	public static bool operator ==(AggregateRoot? left, AggregateRoot? right)
     {

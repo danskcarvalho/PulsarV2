@@ -28,14 +28,17 @@ public class MudarMeuAvatarCH : IdentityCommandHandler<MudarMeuAvatarCmd, Comman
         if (ct.IsCancellationRequested)
             return new CommandResult();
 
-        return await Session.OpenTransactionAsync(async ct2 =>
+        return await Session.TrackConsistencyToken(async _ =>
         {
-            var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioLogadoId.ToObjectId(), ct2);
-            if (usuario == null)
-                throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
-            usuario.AlterarAvatar(url.Url);
-			await UsuarioRepository.ReplaceOneAsync(usuario);
-			return new CommandResult(Session.ConsistencyToken);
+            return await Session.OpenTransactionAsync(async _ =>
+            {
+                var usuario = await UsuarioRepository.FindOneByIdAsync(cmd.UsuarioLogadoId.ToObjectId());
+                if (usuario == null)
+                    throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);
+                usuario.AlterarAvatar(url.Url);
+                await UsuarioRepository.ReplaceOneAsync(usuario);
+                return new CommandResult(Session.ConsistencyToken);
+            });
         });
     }
 }
