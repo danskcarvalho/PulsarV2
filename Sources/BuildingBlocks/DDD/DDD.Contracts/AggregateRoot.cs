@@ -22,6 +22,8 @@ public abstract class AggregateRoot : IAggregateRoot, IEquatable<AggregateRoot>
     [BsonId]
     public ObjectId Id { get; protected set; }
     public long Version { get; set; }
+    public SyncPendingKey? SyncPendingKey { get; set; }
+    public bool IsSyncPending { get; set; }
     [BsonIgnore]
     public long? LastVersion { get; set; }
     [BsonIgnore]

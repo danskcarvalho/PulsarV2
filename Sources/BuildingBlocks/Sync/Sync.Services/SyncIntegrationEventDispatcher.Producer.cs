@@ -8,6 +8,7 @@ using MongoDB.Bson.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 using Pulsar.BuildingBlocks.Sync.Contracts;
 using System.Reflection;
+using DDD.Contracts;
 
 namespace Pulsar.BuildingBlocks.Sync.Services;
 
@@ -15,11 +16,14 @@ public partial class SyncIntegrationEventDispatcher
 {
     class Producer<TModel> : IProducer where TModel : class, IAggregateRoot
     {
+        private const int POLLING_INTERVAL_IN_MS = 60_000;
+        public const int MAX_POLLED_ENTITIES = 2000;
+        
         private Queue<ChangeEvent> _Queue = new Queue<ChangeEvent>();
         private ILogger _Logger;
         private IMongoCollection<TModel> _Collection;
         private string? _ResumeToken = null;
-        public string _CollectionName;
+        private string _CollectionName;
 
         public Producer(
             IMongoDatabase database,
@@ -35,9 +39,11 @@ public partial class SyncIntegrationEventDispatcher
             return typeof(T).GetCustomAttribute<TrackChangesAttribute>()?.CollectionName ?? throw new InvalidOperationException($"no TrackChangesAttribute on {typeof(T).Name}");
         }
 
-        public Task Run(CancellationToken ct)
+        public async Task Run(CancellationToken ct)
         {
-            return WatchChanges(ct);
+            var t1 = WatchChanges(ct);
+            var t2 = PollChanges(ct);
+            await Task.WhenAll(t1, t2);
         }
 
         public async Task<ChangeEvent> Pop(CancellationToken ct)
@@ -179,9 +185,105 @@ public partial class SyncIntegrationEventDispatcher
                 }
             }, TaskCreationOptions.LongRunning);
         }
+        
+        private async Task PollChanges(CancellationToken ct)
+        {
+            await Task.Factory.StartNew(async () =>
+            {
+                while (true)
+                {
+                    if (ct.IsCancellationRequested)
+                    {
+                        _Logger.LogInformation("polling cancelled");
+                        break;
+                    }
+                    try
+                    {
+                        await Task.Delay(POLLING_INTERVAL_IN_MS, ct);
+
+                        while (true)
+                        {
+                            if (ct.IsCancellationRequested)
+                                break;
+                            
+                            _Logger.LogInformation($"about to poll up to {MAX_POLLED_ENTITIES} events");
+                            var entities = (await RetrievePendingEntitiesAsync(MAX_POLLED_ENTITIES, ct)).ToList();
+                            if (entities.Count == 0)
+                                break;
+
+                            _Logger.LogInformation($"polled {entities.Count} entities");
+                            HashSet<ChangeEvent> enqueuedEvents = new HashSet<ChangeEvent>();
+                            BatchEntities(entities, enqueuedEvents);
+
+                            // -- we wait the queue to be empty
+                            await QueueWasProcessed(enqueuedEvents, ct);
+                        }
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        _Logger.LogInformation("polling cancelled through exception");
+                        if (ct.IsCancellationRequested)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _Logger.LogError(ex, "error while pooling for events");
+                    }
+                }
+            }, TaskCreationOptions.LongRunning);
+        }
         #endregion
 
         #region [ Helpers ]
+        private async Task QueueWasProcessed(HashSet<ChangeEvent> enqueuedModels, CancellationToken ct)
+        {
+            bool delay = false;
+            while (true)
+            {
+                if (ct.IsCancellationRequested)
+                    throw new TaskCanceledException();
+                if (delay)
+                {
+                    delay = false;
+                    await Task.Delay(20);
+                }
+                lock (_Queue)
+                {
+                    var copy = new HashSet<ChangeEvent>(enqueuedModels);
+                    copy.IntersectWith(_Queue);
+
+                    if (copy.Count != 0)
+                    {
+                        delay = true;
+                        continue;
+                    }
+
+                    return;
+                }
+            }
+        }
+        private void BatchEntities(IEnumerable<TModel> entities, HashSet<ChangeEvent> enqueuedEvents)
+        {
+            lock (_Queue)
+            {
+                foreach (var entity in entities)
+                {
+                    var evt = new ChangeEvent(_CollectionName, entity.Id,
+                        entity, null, DateTime.UtcNow, GetOperationType(entity.SyncPendingKey!.Value));
+                    _Queue.Enqueue(evt);
+                    enqueuedEvents.Add(evt);
+                }
+            }
+        }
+
+        private async Task<List<TModel>> RetrievePendingEntitiesAsync(int maxPolledEntities, CancellationToken ct)
+        {
+            return await (await _Collection.FindAsync(m => m.IsSyncPending && m.SyncPendingKey != null, new FindOptions<TModel>()
+            {
+                Limit = maxPolledEntities
+            })).ToListAsync();
+        }
+        
         private void BatchEvent(ChangeStreamDocument<TModel> change)
         {
             lock (_Queue)
@@ -219,6 +321,21 @@ public partial class SyncIntegrationEventDispatcher
                 case ChangeStreamOperationType.Insert:
                     return ChangedEventKey.Inserted;
                 case ChangeStreamOperationType.Replace:
+                    return ChangedEventKey.Replaced;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+        
+        private ChangedEventKey GetOperationType(SyncPendingKey operationType)
+        {
+            switch (operationType)
+            {
+                case SyncPendingKey.Updated:
+                    return ChangedEventKey.Updated;
+                case SyncPendingKey.Inserted:
+                    return ChangedEventKey.Inserted;
+                case SyncPendingKey.Replaced:
                     return ChangedEventKey.Replaced;
                 default:
                     throw new InvalidOperationException();

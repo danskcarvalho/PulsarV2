@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using Pulsar.BuildingBlocks.Utils;
 using System.Linq.Expressions;
+using DDD.Contracts;
 
 namespace Pulsar.BuildingBlocks.DDD.Mongo.Implementations;
 
@@ -327,6 +328,13 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
     public async Task InsertManyAsync(IEnumerable<TModel> items, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
+
+        foreach (var item in items)
+        {
+            item.SyncPendingKey = SyncPendingKey.Inserted;
+            item.IsSyncPending = true;
+        }
+        
         if (Session is null || Session.CurrentHandle is null)
             await Collection.InsertManyAsync(items, cancellationToken: ct);
         else
@@ -341,6 +349,10 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
     public async Task InsertOneAsync(TModel item, CancellationToken ct = default)
     {
         ApplyIsolationLevelFromSession();
+        
+        item.SyncPendingKey = SyncPendingKey.Inserted;
+        item.IsSyncPending = true;
+        
         if (Session is null || Session.CurrentHandle is null)
             await Collection.InsertOneAsync(item, cancellationToken: ct);
         else
@@ -377,6 +389,9 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
 
         ReplaceOneResult replaceOneResult;
         model.IncVersion();
+        model.SyncPendingKey = SyncPendingKey.Replaced;
+        model.IsSyncPending = true;
+        
         if (Session is null || Session.CurrentHandle is null)
             replaceOneResult = await Collection.ReplaceOneAsync(filter, model, cancellationToken: ct);
         else
@@ -413,6 +428,8 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
 
         var updateDefinition = injector.UpdateDefinition!;
         updateDefinition = updateDefinition.Inc(x => x.Version, 1);
+        updateDefinition = updateDefinition.Set(x => x.SyncPendingKey, SyncPendingKey.Updated);
+        updateDefinition = updateDefinition.Set(x => x.IsSyncPending, true);
         
         UpdateResult r;
         if (Session is null || Session.CurrentHandle is null)
@@ -441,6 +458,8 @@ public abstract class MongoRepository<TSelf, TModel> : IRepository<TSelf, TModel
         
         var updateDefinition = injector.UpdateDefinition!;
         updateDefinition = updateDefinition.Inc(x => x.Version, 1);
+        updateDefinition = updateDefinition.Set(x => x.SyncPendingKey, SyncPendingKey.Updated);
+        updateDefinition = updateDefinition.Set(x => x.IsSyncPending, true);
 
         UpdateResult r;
         if (Session is null || Session.CurrentHandle is null)

@@ -176,6 +176,7 @@ public partial class SyncIntegrationEventDispatcher
                         EventKey = changeEvent.EventKey
                     };
                     await _eventLog.SaveEventAsync(evt);
+                    await TryResetSyncPendingFlag(model);
                 }
                 catch (Exception ex)
                 {
@@ -183,6 +184,25 @@ public partial class SyncIntegrationEventDispatcher
                     throw;
                 }
             }, ct);
+        }
+
+        private async Task TryResetSyncPendingFlag(TModel model)
+        {
+            try
+            {
+                var updateDefinition = Builders<TModel>.Update
+                    .Set(x => x.SyncPendingKey, null)
+                    .Set(x => x.IsSyncPending, false);
+                var filterDefinition = Builders<TModel>.Filter.And(
+                    Builders<TModel>.Filter.Eq("_id", model.Id),
+                    Builders<TModel>.Filter.Eq(x => x.Version, model.Version));
+
+                await _collection.UpdateOneAsync(filterDefinition, updateDefinition);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "error while trying to reset sync pending flag");
+            }
         }
 
         private string ToJson(object shadow)
@@ -199,8 +219,13 @@ public partial class SyncIntegrationEventDispatcher
             return _sourceTypeMetadata.ToShadow(model);
         }
 
-        private bool AnyPropertiesTracked(TModel model, List<string> changedProperties)
+        private bool AnyPropertiesTracked(TModel model, List<string>? changedProperties)
         {
+            if (changedProperties == null)
+            {
+                // we don't know so we return true
+                return true;
+            }
             var trackedProps = GetTrackedProps(model.GetType());
             trackedProps.IntersectWith(changedProperties);
             return trackedProps.Any();
