@@ -12,7 +12,7 @@ public class SyncBatch(
     Guid eventId,
     DateTime eventTimestamp,
     List<ObjectId> entitiesToUpdate,
-    string shadowJson,
+    string? shadowJson,
     string shadowType,
     string shadowAssembly,
     string entityType,
@@ -27,7 +27,7 @@ public class SyncBatch(
     public Guid EventId { get; set; } = eventId;
     public DateTime EventTimestamp { get; set; } = eventTimestamp;
     public List<ObjectId> EntitiesToUpdate { get; set; } = entitiesToUpdate;
-    public string ShadowJson { get; set; } = shadowJson;
+    public string? ShadowJson { get; set; } = shadowJson;
     public string ShadowType { get; set; } = shadowType;
     public string ShadowAssembly { get; set; } = shadowAssembly;
     public string EntityType { get; set; } = entityType;

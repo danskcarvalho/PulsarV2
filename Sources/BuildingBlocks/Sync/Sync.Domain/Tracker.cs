@@ -21,7 +21,7 @@ public class Tracker<TEntity> : Tracker where TEntity : class, IAggregateRoot
     {
         private readonly List<Func<object, object?>> _onChanged = new List<Func<object, object?>>();
         private ChangedEventKey? _eventKey;
-        private Func<TShadow, INotification>? _sendNotification;
+        private Func<TShadow?, INotification?>? _sendNotification;
 
         public ForShadow<TShadow> On<TValue>(Func<TShadow, TValue?> onChanged)
         {
@@ -37,7 +37,7 @@ public class Tracker<TEntity> : Tracker where TEntity : class, IAggregateRoot
             return this;
         }
 
-        public ForShadow<TShadow> Send<TNotification>(Func<TShadow, TNotification> notificationFn) where TNotification : INotification
+        public ForShadow<TShadow> Send<TNotification>(Func<TShadow?, TNotification?> notificationFn) where TNotification : INotification
         {
             _sendNotification = s => notificationFn(s);
             return this;
@@ -52,14 +52,14 @@ public class Tracker<TEntity> : Tracker where TEntity : class, IAggregateRoot
             
             return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
                 null,
-                _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
+                _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
         }
 
-        public TrackerAction Update(Func<TShadow, IUpdateSpecification<TEntity>> updateFunction)
+        public TrackerAction Update(Func<TShadow?, IUpdateSpecification<TEntity>> updateFunction)
         {
             return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
-                obj => updateFunction((TShadow)obj),
-                _sendNotification != null ? obj => _sendNotification((TShadow)obj) : null);
+                obj => updateFunction((TShadow?)obj),
+                _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
         }
 
         private string GetShadowName()

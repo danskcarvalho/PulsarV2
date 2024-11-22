@@ -150,7 +150,7 @@ public partial class SyncIntegrationEventDispatcher
                 try
                 {
                     var model = (TModel?)changeEvent.Model;
-                    if (model == null)
+                    if (model == null && changeEvent.EventKey != ChangedEventKey.Deleted)
                     {
                         var filterDefinition = Builders<TModel>.Filter.Eq("_id", changeEvent.Id);
                         model = await (await _collection.FindAsync(filterDefinition, cancellationToken: ct2)).FirstOrDefaultAsync();
@@ -160,9 +160,14 @@ public partial class SyncIntegrationEventDispatcher
                         }
                     }
 
-                    if (changeEvent.EventKey == ChangedEventKey.Updated && !AnyPropertiesTracked(model, changeEvent.ChangedProperties))
+                    if (changeEvent.EventKey == ChangedEventKey.Updated && model != null && !AnyPropertiesTracked(model, changeEvent.ChangedProperties))
                     {
                         return;
+                    }
+
+                    if (changeEvent.EventKey == ChangedEventKey.Deleted)
+                    {
+                        model = null;
                     }
 
                     var shadow = CreateShadow(model, out var entityName);
@@ -172,7 +177,7 @@ public partial class SyncIntegrationEventDispatcher
                         ChangeTimestamp = changeEvent.When,
                         ShadowJson = json,
                         ShadowName = entityName,
-                        ChangedEntityId = model.Id,
+                        ChangedEntityId = changeEvent.Id,
                         EventKey = changeEvent.EventKey
                     };
                     await _eventLog.SaveEventAsync(evt);
@@ -186,8 +191,12 @@ public partial class SyncIntegrationEventDispatcher
             }, ct);
         }
 
-        private async Task TryResetSyncPendingFlag(TModel model)
+        private async Task TryResetSyncPendingFlag(TModel? model)
         {
+            if (model == null)
+            {
+                return;
+            }
             try
             {
                 var updateDefinition = Builders<TModel>.Update
@@ -205,18 +214,22 @@ public partial class SyncIntegrationEventDispatcher
             }
         }
 
-        private string ToJson(object shadow)
+        private string? ToJson(object? shadow)
         {
+            if (shadow == null)
+            {
+                return null;
+            }
             var options = new JsonSerializerOptions();
             options.Converters.Add(new ObjectIdConverter());
             options.Converters.Add(new JsonStringEnumConverter());
             return JsonSerializer.Serialize(shadow, shadow.GetType(), options);
         }
 
-        private object CreateShadow(TModel model, out string entityName)
+        private object? CreateShadow(TModel? model, out string entityName)
         {
             entityName = _sourceTypeMetadata.ShadowEntityName;
-            return _sourceTypeMetadata.ToShadow(model);
+            return model != null ? _sourceTypeMetadata.ToShadow(model) : null;
         }
 
         private bool AnyPropertiesTracked(TModel model, List<string>? changedProperties)

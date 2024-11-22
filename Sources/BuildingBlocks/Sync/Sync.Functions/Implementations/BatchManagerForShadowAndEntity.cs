@@ -25,7 +25,7 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
     private EntityChangedIE? _entityChanged;
     private object? _shadow;
 
-    public bool AppliesTo(object currentShadow, object? previousShadow, ChangedEventKey eventKey)
+    public bool AppliesTo(object? currentShadow, object? previousShadow, ChangedEventKey eventKey)
     {
         if (_updateAction.EventKey == eventKey)
         {
@@ -38,9 +38,9 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
             
     }
 
-    private bool AppliesTo(TrackerAction<TEntity> updateAction, object currentShadow, object? previousShadow)
+    private bool AppliesTo(TrackerAction<TEntity> updateAction, object? currentShadow, object? previousShadow)
     {
-        if (previousShadow == null)
+        if (previousShadow == null || currentShadow == null)
         {
             return updateAction.SendNotification != null;
         }
@@ -148,7 +148,7 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
         return new BatchManagerForShadowAndEntity<TShadow, TEntity>(tracker, rule, _updateAction)
         {
             _entityChanged = evt,
-            _shadow = evt.ShadowJson.FromJsonString<TShadow>()
+            _shadow = evt.ShadowJson?.FromJsonString<TShadow>()
         };
     }
 

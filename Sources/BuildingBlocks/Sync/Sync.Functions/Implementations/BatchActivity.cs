@@ -60,7 +60,7 @@ public class BatchActivity(
     private async Task ExecuteNotification(ExecuteNotificationActivityDescription desc)
     {
         var shadowType = GetShadowTypeFromName(desc.Event.ShadowName);
-        var shadow = desc.Event.ShadowJson.FromJsonString(shadowType);
+        var shadow = desc.Event.ShadowJson?.FromJsonString(shadowType);
         var trackerAssembly = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName == desc.TrackerAssembly);
         var trackerType = trackerAssembly.GetType(desc.TrackerType) ?? throw new InvalidOperationException("no tracker type");
         var rule = trackerType.GetField(desc.RuleName,
@@ -75,7 +75,7 @@ public class BatchActivity(
 
         try
         {
-            var notification = action.SendNotification(shadow!);
+            var notification = action.SendNotification(shadow);
 
             if (notification == null)
             {
@@ -142,70 +142,90 @@ public class BatchActivity(
     }
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "This is called through reflection.")]
-	private async Task<PrepareBatchesActivityDescriptionResult> ContinueForShadow<TShadow>(TShadow shadow, PrepareBatchesActivityDescription pb) where TShadow : class, IShadow
+	private async Task<PrepareBatchesActivityDescriptionResult> ContinueForShadow<TShadow>(TShadow? shadow, PrepareBatchesActivityDescription pb) where TShadow : class, IShadow
     {
+        if (shadow == null && pb.Event.EventKey != ChangedEventKey.Deleted)
+        {
+            return new PrepareBatchesActivityDescriptionResult([], []);
+        }
+        
         var shadowRepository =
             (repositories.First(x => x is IShadowRepository<TShadow>) as IShadowRepository<TShadow>)!;
 
         TryAgain:
         {
-            var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
-            if (previous == null || shadow.Version > previous.Version)
+            if (shadow == null)
             {
-                if (previous == null)
+                var previous = await shadowRepository.FindOneByIdAsync(pb.Event.ChangedEntityId);
+                await shadowRepository.DeleteOneByIdAsync(pb.Event.ChangedEntityId);
+                return await CreateBatches(pb, previous);
+            }
+            else
+            {
+                var previous = await shadowRepository.FindOneByIdAsync(shadow.Id);
+                if (previous == null || shadow.Version > previous.Version)
                 {
-                    try
+                    if (previous == null)
                     {
-                        await shadowRepository.InsertOneAsync(shadow);
-                    }
-                    catch (MongoWriteException me)
-                    {
-                        if (me.WriteError.Category != ServerErrorCategory.DuplicateKey)
-                            throw;
-                        else
+                        try
+                        {
+                            await shadowRepository.InsertOneAsync(shadow);
+                        }
+                        catch (MongoWriteException me)
+                        {
+                            if (me.WriteError.Category != ServerErrorCategory.DuplicateKey)
+                                throw;
+                            else
+                            {
+                                goto TryAgain;
+                            }
+                        }
+                        catch (MongoDuplicateKeyException)
                         {
                             goto TryAgain;
                         }
                     }
-                    catch (MongoDuplicateKeyException)
+                    else
                     {
-                        goto TryAgain;
+                        shadow.LastVersion = previous.Version;
+                        var modified = await shadowRepository.ReplaceOneAsync(shadow, checkModified: false);
+                        if (modified == 0)
+                        {
+                            goto TryAgain;
+                        }
                     }
+
+                    return await CreateBatches(pb, previous);
                 }
                 else
                 {
-                    shadow.LastVersion = previous.Version;
-                    var modified = await shadowRepository.ReplaceOneAsync(shadow, checkModified: false);
-                    if (modified == 0)
-                    {
-                        goto TryAgain;
-                    }
+                    return new PrepareBatchesActivityDescriptionResult([], []);
                 }
-
-                var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();
-                var batches = new List<IBatch>();
-                foreach (var batchManager in managers)
-                {
-                    batches.AddRange(await batchManager.GetBatches(factory));
-                }
-
-                var dbBatches = await syncBatchRepository.FindManyByIdAsync(batches.Select(x => x.BatchId));
-
-                return new PrepareBatchesActivityDescriptionResult(
-                    batches.Select(b => b.BatchId).ToList(),
-                    dbBatches.Select(x => (x.TrackerAssembly, x.TrackerType, x.TrackerRule)).Distinct().ToList());
-            }
-            else
-            {
-                return new PrepareBatchesActivityDescriptionResult([], []);
             }
         }
     }
 
-    private (IShadow Shadow, Type ShadowType) GetShadow(PrepareBatchesActivityDescription pb)
+    private async Task<PrepareBatchesActivityDescriptionResult> CreateBatches<TShadow>(PrepareBatchesActivityDescription pb, TShadow? previous)
+        where TShadow : class, IShadow
+    {
+        var managers = batchManagerFactory.GetManagersFromEvent(pb.Event, previous).ToList();
+        var batches = new List<IBatch>();
+        foreach (var batchManager in managers)
+        {
+            batches.AddRange(await batchManager.GetBatches(factory));
+        }
+
+        var dbBatches = await syncBatchRepository.FindManyByIdAsync(batches.Select(x => x.BatchId));
+
+        return new PrepareBatchesActivityDescriptionResult(
+            batches.Select(b => b.BatchId).ToList(),
+            dbBatches.Select(x => (x.TrackerAssembly, x.TrackerType, x.TrackerRule)).Distinct().ToList());
+    }
+
+    private (IShadow? Shadow, Type ShadowType) GetShadow(PrepareBatchesActivityDescription pb)
     {
         var shadowType = GetShadowTypeFromName(pb.Event.ShadowName);
-        var shadow = pb.Event.ShadowJson.FromJsonString(shadowType) as IShadow ?? throw new InvalidOperationException("shadow of type IShadow not found");
+        var shadow = pb.Event.ShadowJson?.FromJsonString(shadowType) as IShadow ?? throw new InvalidOperationException("shadow of type IShadow not found");
         return (shadow, shadowType);
     }
 }

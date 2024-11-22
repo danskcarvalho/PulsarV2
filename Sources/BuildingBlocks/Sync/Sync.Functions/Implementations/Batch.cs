@@ -47,7 +47,7 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
         var shadowType = shadowAssembly.GetType(batch.ShadowType) ??
                          throw new InvalidOperationException($"type not found {batch.ShadowType}");
 
-        var shadow = batch.ShadowJson.FromJsonString(shadowType)!;
+        var shadow = batch.ShadowJson?.FromJsonString(shadowType);
         var updSpec = rule.UpdateFunction(shadow);
         
         await entityRepository.UpdateManyAsync(new UpdateManyById(updSpec, batch.EntitiesToUpdate));

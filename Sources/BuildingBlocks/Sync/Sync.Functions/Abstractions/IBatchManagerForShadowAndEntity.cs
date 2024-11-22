@@ -5,7 +5,7 @@ namespace Pulsar.BuildingBlocks.Sync.Functions.Abstractions;
 
 public interface IBatchManagerForShadowAndEntity<out TShadow> : IBatchManagerForEvent where TShadow : class, IShadow
 {
-    bool AppliesTo(object currentShadow, object? previousShadow, ChangedEventKey eventKey);
+    bool AppliesTo(object? currentShadow, object? previousShadow, ChangedEventKey eventKey);
     IBatchManagerForShadowAndEntity<TShadow> FromEvent(EntityChangedIE evt);
 }
 

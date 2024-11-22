@@ -12,6 +12,6 @@ public record EntityChangedIE : IntegrationEvent
     public required string ShadowName { get; init; }
     public required ChangedEventKey EventKey { get; init; }
     public required ObjectId ChangedEntityId { get; init; }
-    public required string ShadowJson { get; init; }
+    public required string? ShadowJson { get; init; }
     public required DateTime ChangeTimestamp { get; init; }
 }

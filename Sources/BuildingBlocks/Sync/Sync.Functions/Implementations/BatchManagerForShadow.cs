@@ -68,7 +68,7 @@ class BatchManagerForShadow<TShadow> : IBatchManagerForShadow where TShadow : cl
     
     public IEnumerable<IBatchManagerForEvent> GetManagersForEntity(Type trackedEntityType, EntityChangedIE evt, object? originalShadow)
     {
-        var shadow = evt.ShadowJson.FromJsonString<TShadow>()!;
+        var shadow = evt.ShadowJson?.FromJsonString<TShadow>();
         foreach (var manager in _managers[trackedEntityType])
         {
             if (manager.AppliesTo(shadow, originalShadow, evt.EventKey))

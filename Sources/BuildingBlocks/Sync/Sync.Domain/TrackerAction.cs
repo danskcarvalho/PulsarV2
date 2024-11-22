@@ -9,7 +9,7 @@ public record TrackerAction(
     string ShadowName, 
     IReadOnlyList<Func<object, object?>> OnChanged, 
     ChangedEventKey? EventKey,
-    Func<object, INotification?>? SendNotification)
+    Func<object?, INotification?>? SendNotification)
 {
 }
 
@@ -17,7 +17,7 @@ public record TrackerAction<TCollectionType>(
     Type ShadowType, string ShadowName,
     IReadOnlyList<Func<object, object?>> OnChanged,
     ChangedEventKey? EventKey,
-    Func<object, IUpdateSpecification<TCollectionType>>? UpdateFunction,
-    Func<object, INotification?>? SendNotification) : TrackerAction(ShadowType, ShadowName, OnChanged, EventKey, SendNotification)
+    Func<object?, IUpdateSpecification<TCollectionType>>? UpdateFunction,
+    Func<object?, INotification?>? SendNotification) : TrackerAction(ShadowType, ShadowName, OnChanged, EventKey, SendNotification)
 {
 }
