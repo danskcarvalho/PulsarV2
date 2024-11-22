@@ -18,6 +18,8 @@ public record TrackerAction<TCollectionType>(
     IReadOnlyList<Func<object, object?>> OnChanged,
     ChangedEventKey? EventKey,
     Func<object?, IUpdateSpecification<TCollectionType>>? UpdateFunction,
+    Func<object?, IDeleteSpecification<TCollectionType>>? DeleteFunction,
+    Func<object?, TCollectionType[]>? InsertFunction,
     Func<object?, INotification?>? SendNotification) : TrackerAction(ShadowType, ShadowName, OnChanged, EventKey, SendNotification)
 {
 }

@@ -43,22 +43,60 @@ public class Tracker<TEntity> : Tracker where TEntity : class, IAggregateRoot
             return this;
         }
 
-        public TrackerAction NoUpdate()
+        public TrackerAction NoAction()
         {
             if (_sendNotification == null)
             {
                 throw new InvalidOperationException("must set notification");
             }
             
-            return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+            return new TrackerAction<TEntity>(
+                typeof(TShadow), 
+                GetShadowName(), 
+                _onChanged, 
+                _eventKey,
+                null,
+                null,
                 null,
                 _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
         }
 
         public TrackerAction Update(Func<TShadow?, IUpdateSpecification<TEntity>> updateFunction)
         {
-            return new TrackerAction<TEntity>(typeof(TShadow), GetShadowName(), _onChanged, _eventKey,
+            return new TrackerAction<TEntity>(
+                typeof(TShadow), 
+                GetShadowName(), 
+                _onChanged, 
+                _eventKey,
                 obj => updateFunction((TShadow?)obj),
+                null,
+                null,
+                _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
+        }
+        
+        public TrackerAction Delete(Func<TShadow?, IDeleteSpecification<TEntity>> deleteFunction)
+        {
+            return new TrackerAction<TEntity>(
+                typeof(TShadow), 
+                GetShadowName(), 
+                _onChanged, 
+                _eventKey,
+                null,
+                obj => deleteFunction((TShadow?)obj),
+                null,
+                _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
+        }
+        
+        public TrackerAction Insert(Func<TShadow?, TEntity[]> insertFunction)
+        {
+            return new TrackerAction<TEntity>(
+                typeof(TShadow), 
+                GetShadowName(), 
+                _onChanged, 
+                _eventKey,
+                null,
+                null,
+                obj => insertFunction((TShadow?)obj),
                 _sendNotification != null ? obj => _sendNotification((TShadow?)obj) : null);
         }
 

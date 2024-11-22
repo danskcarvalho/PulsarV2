@@ -165,6 +165,10 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
             {
                 return await CreateBatchesForUpdatingDatabase(factory, ctx);
             }
+            else if (_updateAction.DeleteFunction != null)
+            {
+                return await CreateBatchesForDeletingDatabase(factory, ctx);
+            }
             else
             {
                 var batch = new SyncBatch(
@@ -235,6 +239,50 @@ public class BatchManagerForShadowAndEntity<TShadow, TEntity>(
         return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
     }
 
+    private async Task<List<IBatch>> CreateBatchesForDeletingDatabase(ISyncDbContextFactory factory, SyncDbContext<TEntity> ctx)
+    {
+        var spec = _updateAction.DeleteFunction!(_shadow!).GetSpec();
+        var idsSpec = new FindEntitiesSpecification(spec.Predicate);
+        var allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
+        var batchesToInsert = new List<SyncBatch>();
+
+        while (allIds.Count > 0)
+        {
+            var partitioned = allIds.Select(x => x.Id).Partition(PARTITION_SIZE).ToList();
+
+            foreach (var ids in partitioned)
+            {
+                var batch = new SyncBatch(
+                    ObjectId.GenerateNewId(),
+                    _entityChanged!.Id,
+                    _entityChanged.CreationDate,
+                    ids,
+                    _entityChanged.ShadowJson,
+                    typeof(TShadow).FullName!,
+                    typeof(TShadow).Assembly.FullName!,
+                    typeof(TEntity).FullName!,
+                    typeof(TEntity).Assembly.FullName!,
+                    tracker.FullName!,
+                    tracker.Assembly.FullName!,
+                    rule.Name,
+                    _entityChanged.EventKey,
+                    _entityChanged.ChangedEntityId,
+                    _entityChanged.ChangeTimestamp
+                );
+
+                batchesToInsert.Add(batch);
+            }
+
+
+            idsSpec = new FindEntitiesSpecification(spec.Predicate, allIds[^1].Id);
+            allIds = await ctx.EntityRepository.FindManyAsync(idsSpec);
+        }
+
+        await ctx.SyncBatchRepository.InsertManyAsync(batchesToInsert);
+
+        return batchesToInsert.Select(x => (IBatch)new Batch<TShadow, TEntity>(factory, x.Id)).ToList();
+    }
+    
     class OnlyId(ObjectId id)
     {
         public ObjectId Id { get; set; } = id;

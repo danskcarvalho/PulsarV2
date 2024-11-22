@@ -39,7 +39,7 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
 
     private async Task ExecuteBatch(IRepositoryBase<TEntity> entityRepository, TrackerAction<TEntity> rule, SyncBatch batch)
     {
-        if (rule.UpdateFunction == null)
+        if (rule.UpdateFunction == null && rule.DeleteFunction == null && rule.InsertFunction == null)
         {
             return;
         }
@@ -48,9 +48,20 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
                          throw new InvalidOperationException($"type not found {batch.ShadowType}");
 
         var shadow = batch.ShadowJson?.FromJsonString(shadowType);
-        var updSpec = rule.UpdateFunction(shadow);
-        
-        await entityRepository.UpdateManyAsync(new UpdateManyById(updSpec, batch.EntitiesToUpdate));
+        if (rule.UpdateFunction != null)
+        {
+            var updSpec = rule.UpdateFunction(shadow);
+            await entityRepository.UpdateManyAsync(new UpdateManyById(updSpec, batch.EntitiesToUpdate));
+        }
+        else if (rule.DeleteFunction != null)
+        {
+            await entityRepository.DeleteManyAsync(new DeleteManyById(batch.EntitiesToUpdate));
+        }
+        else if (rule.InsertFunction != null)
+        {
+            var entities = rule.InsertFunction(shadow);
+            await entityRepository.InsertManyAsync(entities);
+        }
     }
 
     public ObjectId BatchId { get; } = batchId;
@@ -62,6 +73,15 @@ public class Batch<TShadow, TEntity>(ISyncDbContextFactory factory, ObjectId bat
         public UpdateSpecification<TEntity> GetSpec()
         {
             return Update.Where<TEntity>(x => ids.Contains(x.Id)).CopyCommandsFrom(updateSpecification).Build();
+        }
+    }
+    
+    class DeleteManyById(
+        List<ObjectId> ids) : IDeleteSpecification<TEntity>
+    {
+        public DeleteSpecification<TEntity> GetSpec()
+        {
+            return Delete.Where<TEntity>(x => ids.Contains(x.Id)).Build();
         }
     }
 }
