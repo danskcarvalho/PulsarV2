@@ -225,7 +225,9 @@ public class BatchActivity(
     private (IShadow? Shadow, Type ShadowType) GetShadow(PrepareBatchesActivityDescription pb)
     {
         var shadowType = GetShadowTypeFromName(pb.Event.ShadowName);
-        var shadow = pb.Event.ShadowJson?.FromJsonString(shadowType) as IShadow ?? throw new InvalidOperationException("shadow of type IShadow not found");
+        var shadow = pb.Event.ShadowJson?.FromJsonString(shadowType) as IShadow;
+        if (shadow == null && pb.Event.ShadowJson != null)
+            throw new InvalidOperationException("shadow of type IShadow not found");
         return (shadow, shadowType);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Pulsar.BuildingBlocks.DDD.Abstractions;
 
 namespace Pulsar.BuildingBlocks.DDD;
@@ -11,7 +12,7 @@ public abstract class IndexDescriptions
     {
         Dictionary<string, IX> result = new Dictionary<string, IX>();
         var keys = this.GetType()
-            .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+            .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(f => f.FieldType == typeof(IX))
             .Select(f => (f.Name, IX: f.GetValue(null) as IX));
         foreach (var k in keys)
@@ -35,12 +36,19 @@ public abstract class IndexDescriptions
 
 public abstract class IndexDescriptions<TModel> : IndexDescriptions where TModel : class, IAggregateRoot
 {
-    // Index for IsSyncPending
-    public static IX IsSyncPending_v1 = Describe.Ascending(x => x.IsSyncPending);
+    static IndexDescriptions()
+    {
+        _ImplementationType = null;
+        _Lock = new();
+		IsSyncPending_v1 = Describe.Ascending(x => x.IsSyncPending);
+	}
     
-    private static Type? _ImplementationType = null;
-    private static readonly object _Lock = new();
-    protected static IndexBuilder<TModel> Describe
+    private static Type? _ImplementationType;
+    private static readonly object _Lock;
+	// Index for IsSyncPending
+	public static IX IsSyncPending_v1;
+
+	protected static IndexBuilder<TModel> Describe
     {
         get
         {
