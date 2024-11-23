@@ -2,6 +2,7 @@
 
 namespace Pulsar.Web.Client.Services.PushNotifications;
 
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class PushNotificationRoutingAttribute : Attribute
 {
 	public PushNotificationRouteKey RouteKey { get; private init; }
