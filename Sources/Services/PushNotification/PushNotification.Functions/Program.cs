@@ -7,8 +7,8 @@ using Pulsar.Services.PushNotification.Infrastructure.Repositories;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Pulsar.Services.Identity.Contracts.Shadows;
+using Pulsar.Services.PushNotification.Functions.Application.Hubs;
 using static Pulsar.BuildingBlocks.Utils.GeneralExtensions;
-using Pulsar.Services.PushNotification.Functions.Application.Functions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults((WorkerOptions cfg) =>

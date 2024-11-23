@@ -31,7 +31,7 @@ public class PushNotificationController : BaseController
 
 	private string GetUrl()
 	{
-		var url = Configuration["Services:pushnotification-functions:http:0"]!;
+		var url = Configuration.GetUri("PushNotificationHubUrl");
 		if (!url.EndsWith("/"))
 			url += "/";
 

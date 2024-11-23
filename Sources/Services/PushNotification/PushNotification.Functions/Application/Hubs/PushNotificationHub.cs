@@ -1,16 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Azure.Amqp.Framing;
+﻿using System.Net;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.SignalRService;
-using Microsoft.DurableTask.Client;
 using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
-using Pulsar.BuildingBlocks.Sync.Contracts;
-using Pulsar.BuildingBlocks.Sync.Functions.Implementations;
 using Pulsar.Services.PushNotification.Contracts.Commands.PushNotifications;
 using Pulsar.Services.PushNotification.Contracts.Commands.UserContexts;
-using System.Net;
 
-namespace Pulsar.Services.PushNotification.Functions.Application.Functions;
+namespace Pulsar.Services.PushNotification.Functions.Application.Hubs;
 
 [SignalRConnection("PulsarSignalRConnectionString")]
 public class PushNotificationHub : ServerlessHub
