@@ -44,7 +44,7 @@
                 <NavMenu />
                 <FluentBodyContent Class="body-content">
                     <div class="content">
-                        <FluentMessageBarProvider Section="MESSAGES_TOP"></FluentMessageBarProvider>
+                        <FluentMessageBarProvider Section="MESSAGES_TOP" Style="margin-bottom: 7px;"></FluentMessageBarProvider>
                         @Body
                     </div>
 
@@ -85,8 +85,8 @@
         {
             MessageService.ShowMessageBar(options =>
             {
-                options.Title = "Ambiente";
-                options.Body = $"Esta versão do Pulsar não é a versão do ambiente de produção. Ambiente: {HostEnvironment.Environment}.";
+                options.Title = HostEnvironment.Environment;
+                options.Body = $"Esta versão do Pulsar não é a versão do ambiente de produção. Versão indicada apenas para testes.";
                 options.Intent = MessageIntent.Warning;
                 options.Section = "MESSAGES_TOP";
             });

@@ -184,6 +184,7 @@ public partial class PushNotificationManager(
 		signalRManager.Reconnecting += SignalRManager_Reconnecting;
 		signalRManager.Reconnected += SignalRManager_Reconnected;
 		signalRManager.Closed += SignalRManager_Closed;
+		signalRManager.Unconnected += SignalRManager_Unconnected;
 		_inititalized = true;
 	}
 	private void ScanAssemblies()
@@ -314,6 +315,28 @@ public partial class PushNotificationManager(
 		NotificationListChanged?.Invoke(this, EventArgs.Empty);
 		ShowPushNotification(e.PushNotificationData);
 	}
+	private void SignalRManager_Unconnected(object? sender, EventArgs e)
+	{
+		try
+		{
+			if (MessageService == null)
+			{
+				return;
+			}
+			ClearMessages();
+
+			var message = "Não foi possível conectar-se ao servidor. Por favor, recarregue a página para visualizar novas notificações.";
+			_messages.Add(MessageService.ShowMessageBar(options =>
+			{
+				options.Intent = MessageIntent.Error;
+				options.Body = message;
+				options.Title = "Notificações";
+				options.Section = MESSAGES_TOP;
+				options.AllowDismiss = true;
+			}));
+		}
+		catch { }
+	}
 	private void ShowPushNotification(PushNotificationDataWithId notificacao, bool noToast = false)
 	{
 		if (notificacao.Display == PushNotificationDisplay.All || notificacao.Display == PushNotificationDisplay.Toast)
@@ -331,6 +354,10 @@ public partial class PushNotificationManager(
 	public async ValueTask DisposeAsync()
 	{
 		signalRManager.PushNotificationReceived -= Service_PushNotificationReceived;
+		signalRManager.Reconnecting -= SignalRManager_Reconnecting;
+		signalRManager.Reconnected -= SignalRManager_Reconnected;
+		signalRManager.Closed -= SignalRManager_Closed;
+		signalRManager.Unconnected -= SignalRManager_Unconnected;
 		await signalRManager.DisposeAsync();
 	}
 }

@@ -15,7 +15,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddFluentUIComponents();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddSingleton<AuthenticationStateProvider, PulsarAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, PulsarAuthenticationStateProvider>();
 
 // HTTP client configuration
 builder.Services.AddTransient<AntiforgeryHandler>();
@@ -24,9 +24,9 @@ builder.Services.AddHttpClient("backend", client => client.BaseAddress = new Uri
     .AddHttpMessageHandler<AntiforgeryHandler>();
 builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("backend"));
 builder.Services.AddClients();
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<ConsistencyTokenManager>();
-builder.Services.AddTransient<ProtectedSectionService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ConsistencyTokenManager>();
+builder.Services.AddScoped<ProtectedSectionService>();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddMediatR(config =>
 {

@@ -25,6 +25,7 @@ public class SignalRManager(
 	public event EventHandler<PushNotificationEvent>? PushNotificationReceived;
 	public event EventHandler? Reconnecting;
 	public event EventHandler? Reconnected;
+	public event EventHandler? Unconnected;
 	public event EventHandler? Closed;
 
 	public Action Subscribe(PushNotificationKey key, EventHandler<PushNotificationEvent> eventHandler)
@@ -88,6 +89,7 @@ public class SignalRManager(
 		catch (Exception ex)
 		{
 			logger.LogError(ex, "error trying to estabilish a connection to SignalR push notification service");
+			Unconnected?.Invoke(this, EventArgs.Empty);
 		}
 	}
 

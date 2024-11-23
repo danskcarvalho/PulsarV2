@@ -14,7 +14,7 @@ public static class DIExtensions
 		var options = new PushNotificationServiceOptions();
 		setOptions(options);
 
-		services.AddSingleton<SignalRManager>(sp =>
+		services.AddScoped<SignalRManager>(sp =>
 		{
 			return new SignalRManager(
 				sp.GetRequiredService<IPushNotificationClient>(),
@@ -22,7 +22,7 @@ public static class DIExtensions
 				sp.GetRequiredService<IMediator>(),
 				options.AssembliesToScanForIntegrationEvents);
 		});
-		services.AddSingleton<PushNotificationManager>(sp =>
+		services.AddScoped<PushNotificationManager>(sp =>
 		{
 			return new PushNotificationManager(
 				sp.GetRequiredService<SignalRManager>(),

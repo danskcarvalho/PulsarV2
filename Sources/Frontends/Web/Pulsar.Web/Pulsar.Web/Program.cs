@@ -69,6 +69,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+
+app.Use(async (context, next) =>
+{
+	context.Response.Headers.Append("Blazor-Environment", builder.Environment.EnvironmentName);
+	await next(context);
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

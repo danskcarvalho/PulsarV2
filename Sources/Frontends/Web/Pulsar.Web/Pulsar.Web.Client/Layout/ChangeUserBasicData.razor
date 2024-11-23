@@ -4,20 +4,23 @@
 @inject ProtectedSectionService ProtectedSectionService
 @inject IToastService ToastService
 
-<EditForm Model="@_meusDados" OnValidSubmit="@SaveDados" novalidate>
-    <FluentValidationValidator />
-    <FluentStack Orientation="Orientation.Vertical">
-        <div style="width: 100%;">
-            <FluentTextField @bind-Value="_meusDados.PrimeiroNome" Label="Primeiro Nome" Required style="width: 100%;" />
-            <FluentValidationMessage For="@(() => _meusDados.PrimeiroNome)" />
-        </div>
-        <div style="width: 100%;">
-            <FluentTextField @bind-Value="_meusDados.Sobrenome" Label="Último Nome" style="width: 100%;" />
-            <FluentValidationMessage For="@(() => _meusDados.Sobrenome)" />
-        </div>
-        <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" Loading="_isSaving.IsLoading">Salvar</FluentButton>
-    </FluentStack>
-</EditForm>
+<FluentStack Orientation="@Orientation.Vertical">
+    <FluentSpacer />
+    <EditForm Model="@_meusDados" OnValidSubmit="@SaveDados" novalidate style="width:100%;">
+        <FluentValidationValidator />
+        <FluentStack Orientation="Orientation.Vertical">
+            <div style="width: 100%;">
+                <FluentTextField @bind-Value="_meusDados.PrimeiroNome" Label="Primeiro Nome" Required style="width: 100%;" />
+                <FluentValidationMessage For="@(() => _meusDados.PrimeiroNome)" />
+            </div>
+            <div style="width: 100%;">
+                <FluentTextField @bind-Value="_meusDados.Sobrenome" Label="Último Nome" style="width: 100%;" />
+                <FluentValidationMessage For="@(() => _meusDados.Sobrenome)" />
+            </div>
+            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" Loading="_isSaving.IsLoading">Salvar</FluentButton>
+        </FluentStack>
+    </EditForm>
+</FluentStack>
 
 @code {
     EditarMeusDadosCmd _meusDados = new EditarMeusDadosCmd();

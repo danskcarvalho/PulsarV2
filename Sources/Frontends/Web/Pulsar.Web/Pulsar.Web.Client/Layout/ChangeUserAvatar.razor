@@ -5,46 +5,49 @@
 @inject IToastService ToastService
 @inject IMessageService MessageService
 
-<FluentMessageBarProvider Section="MESSAGES_DIALOG" MaxMessageCount="1"></FluentMessageBarProvider>
-@if (_imgSrc == null)
-{
-    <FluentInputFile Id="my-file-uploader"
-                 Mode="InputFileMode.SaveToTemporaryFolder"
-                 Multiple="false"
-                 MaximumFileSize="@(500*1024)"
-                 OnCompleted="@OnCompletedAsync"
-                 @bind-ProgressPercent="@_progressPercent"
-                 Style="height: 300px; border: 1px dashed var(--accent-fill-rest);"
-                 Accept="image/png, image/jpeg, image/jpg">
-    <ChildContent>
-        <div style="margin-left: 15px; margin-right: 15px;">
-            <label for="my-file-uploader">
-                <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())" />
-            </label>
+<FluentStack Orientation="@Orientation.Vertical">
+    <FluentSpacer />
+    <FluentMessageBarProvider Section="MESSAGES_DIALOG" MaxMessageCount="1"></FluentMessageBarProvider>
+    @if (_imgSrc == null)
+    {
+        <FluentInputFile Id="my-file-uploader"
+                         Mode="InputFileMode.SaveToTemporaryFolder"
+                         Multiple="false"
+                         MaximumFileSize="@(500*1024)"
+                         OnCompleted="@OnCompletedAsync"
+                         @bind-ProgressPercent="@_progressPercent"
+                         Style="height: 300px; border: 1px dashed var(--accent-fill-rest); width: 100%;"
+                         Accept="image/png, image/jpeg, image/jpg">
+            <ChildContent>
+                <div style="margin-left: 15px; margin-right: 15px;">
+                    <label for="my-file-uploader">
+                        <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())" />
+                    </label>
 
-            <div>
-                Arraste o arquivo que você deseja
-                ou <label for="my-file-uploader">selecione</label>
-                o arquivo<span style="color: red;">*</span>.
-            </div>
+                    <div>
+                        Arraste o arquivo que você deseja
+                        ou <label for="my-file-uploader">selecione</label>
+                        o arquivo<span style="color: red;">*</span>.
+                    </div>
 
-            <div style="margin-top: 20px">
-                Máximo de 500 KB.
-            </div>
-        </div>
-    </ChildContent>
-</FluentInputFile>
-}
+                    <div style="margin-top: 20px">
+                        Máximo de 500 KB.
+                    </div>
+                </div>
+            </ChildContent>
+        </FluentInputFile>
+    }
 
-@if (_imgSrc != null)
-{
-    <img src="@_imgSrc" style="width: 100%; border: 1px dashed var(--accent-fill-rest);" />
+    @if (_imgSrc != null)
+    {
+        <img src="@_imgSrc" style="width: 100%; border: 1px dashed var(--accent-fill-rest);" />
 
-    <FluentStack Orientation="Orientation.Horizontal">
-        <FluentButton Appearance="Appearance.Outline" Loading="_isSaving.IsLoading" OnClick="@CleanImage">Limpar</FluentButton> 
-        <FluentButton Appearance="Appearance.Accent" Loading="_isSaving.IsLoading" OnClick="@SaveImage">Salvar</FluentButton>
-    </FluentStack>
-}
+        <FluentStack Orientation="Orientation.Horizontal">
+            <FluentButton Appearance="Appearance.Outline" Loading="_isSaving.IsLoading" OnClick="@CleanImage">Limpar</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" Loading="_isSaving.IsLoading" OnClick="@SaveImage">Salvar</FluentButton>
+        </FluentStack>
+    }
+</FluentStack>
 
 @code {
     [CascadingParameter]
