@@ -9,9 +9,9 @@ using System.Reflection;
 
 namespace Pulsar.Web.Client.Services.PushNotifications;
 
-public class PushNotificationService(
+public class SignalRManager(
 	IPushNotificationClient pushNotificationClient,
-	ILogger<PushNotificationService> logger,
+	ILogger<SignalRManager> logger,
 	IMediator mediator,
 	List<Assembly> assembliesToScan) : IAsyncDisposable
 {
@@ -22,7 +22,10 @@ public class PushNotificationService(
 	private Dictionary<Type, List<Delegate>> _eventHandlersForData = new();
 	private HubConnection? _connection = null;
 
-	public event EventHandler<PushNotificationEvent>? OnPushNotification;
+	public event EventHandler<PushNotificationEvent>? PushNotificationReceived;
+	public event EventHandler? Reconnecting;
+	public event EventHandler? Reconnected;
+	public event EventHandler? Closed;
 
 	public Action Subscribe(PushNotificationKey key, EventHandler<PushNotificationEvent> eventHandler)
 	{
@@ -88,6 +91,20 @@ public class PushNotificationService(
 		}
 	}
 
+	public async Task<bool> Reconnect()
+	{
+		try
+		{
+			await StartConnection();
+			return true;
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "error retrying to estabilish a connection to SignalR push notification service");
+			return false;
+		}
+	}
+
 	private async Task StartConnection()
 	{
 		_started = false;
@@ -105,15 +122,14 @@ public class PushNotificationService(
 			.Build();
 			
 		_connection.Closed += ConnectionOnClosed;
-
-		await _connection.StartAsync();
-		Console.WriteLine($"Connection started: {session.Url}, {session.Token}");
-		_started = true;
-
 		_connection.On("published", (string pn) =>
 		{
 			OnPublish(mediator, pn.FromJsonString<PushNotificationDataWithId>());
 		});
+
+		await _connection.StartAsync();
+		Console.WriteLine($"Connection started: {session.Url}, {session.Token}");
+		_started = true;
 	}
 
 	private async Task TryDisposeConnection()
@@ -138,26 +154,53 @@ public class PushNotificationService(
 		{
 			return;
 		}
-		
+
 		List<TimeSpan> timeouts = [
-			TimeSpan.FromSeconds(0), 
-			TimeSpan.FromSeconds(5), 
+			TimeSpan.FromSeconds(0),
+			TimeSpan.FromSeconds(5),
 			TimeSpan.FromSeconds(30),
 			TimeSpan.FromMinutes(1),
 			TimeSpan.FromMinutes(5)];
+		bool eventFired = false;
+		bool reconnected = false;
 
 		foreach (var timeout in timeouts)
 		{
 			await Task.Delay(timeout);
 			try
 			{
+				if (!eventFired)
+				{
+					try
+					{
+						this.Reconnecting?.Invoke(this, EventArgs.Empty);
+					}
+					catch { }
+					eventFired = true;
+				}
 				await StartConnection();
+
+				reconnected = true;
+				try
+				{
+					this.Reconnected?.Invoke(this, EventArgs.Empty);
+				}
+				catch { }
 				break;
 			}
 			catch (Exception ex)
 			{
 				logger.LogError(ex, "error retrying to estabilish a connection to SignalR push notification service");
 			}
+		}
+
+		if (!reconnected)
+		{
+			try
+			{
+				this.Closed?.Invoke(this, EventArgs.Empty);
+			}
+			catch { }
 		}
 	}
 
@@ -168,16 +211,28 @@ public class PushNotificationService(
 			return;
 		}
 
-		mediator.Publish(new PushNotificationEvent(pn));
+		try
+		{
+			mediator.Publish(new PushNotificationEvent(pn));
+		}
+		catch { }
 		FireAdditionalEvents(pn);
 
 		// Fire additional events
-		OnPushNotification?.Invoke(this, new PushNotificationEvent(pn));
+		try
+		{
+			PushNotificationReceived?.Invoke(this, new PushNotificationEvent(pn));
+		}
+		catch { }
 		if (_eventHandlersForKey.ContainsKey(pn.Key))
 		{
 			foreach (var handler in _eventHandlersForKey[pn.Key].ToList())
 			{
-				handler(this, new PushNotificationEvent(pn));
+				try
+				{
+					handler(this, new PushNotificationEvent(pn));
+				}
+				catch { }
 			}
 		}
 	}
@@ -192,14 +247,22 @@ public class PushNotificationService(
 				foreach (var type in list)
 				{
 					var notification = PushNotificationEvent.StronglyTyped(pn, type);
-					mediator.Publish(notification);
+					try
+					{
+						mediator.Publish(notification);
+					}
+					catch { }
 
 					if (_eventHandlersForData.ContainsKey(type))
 					{
 						var strongEvent = PushNotificationEvent.StronglyTyped(pn, type);
 						foreach (var handler in _eventHandlersForData[type].ToList())
 						{
-							handler.DynamicInvoke(this, strongEvent);
+							try
+							{
+								handler.DynamicInvoke(this, strongEvent);
+							}
+							catch { }
 						}
 					}
 				}

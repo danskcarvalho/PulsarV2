@@ -10,7 +10,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+        PushNotificationManager.NotificationListChanged += OnNotificationListChanged;
         PushNotificationManager.MessageService = MessageService;
         PushNotificationManager.ToastService = ToastService;
         await PushNotificationManager.Start();
@@ -23,6 +23,6 @@
 
     public void Dispose()
     {
-        PushNotificationManager.OnNotificationListChanged -= OnNotificationListChanged;
+        PushNotificationManager.NotificationListChanged -= OnNotificationListChanged;
     }
 }

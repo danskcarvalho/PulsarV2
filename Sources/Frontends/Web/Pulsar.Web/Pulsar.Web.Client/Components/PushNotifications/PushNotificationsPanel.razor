@@ -33,7 +33,7 @@
                 }
             </div>
         </FluentTab>
-        <FluentTab Label="Todas">
+        <FluentTab Label="Histórico">
             <div>
 
                 <FluentStack>
@@ -63,7 +63,7 @@
 
     protected override void OnInitialized()
     {
-        PushNotificationManager.OnNotificationListChanged += OnNotificationListChanged;
+        PushNotificationManager.NotificationListChanged += OnNotificationListChanged;
         _unread = PushNotificationManager.Unread;
         _total = PushNotificationManager.Notifications.Count;
     }
@@ -81,6 +81,6 @@
 
     public void Dispose()
     {
-        PushNotificationManager.OnNotificationListChanged -= OnNotificationListChanged;
+        PushNotificationManager.NotificationListChanged -= OnNotificationListChanged;
     }
 }

@@ -14,18 +14,18 @@ public static class DIExtensions
 		var options = new PushNotificationServiceOptions();
 		setOptions(options);
 
-		services.AddSingleton<PushNotificationService>(sp =>
+		services.AddSingleton<SignalRManager>(sp =>
 		{
-			return new PushNotificationService(
+			return new SignalRManager(
 				sp.GetRequiredService<IPushNotificationClient>(),
-				sp.GetRequiredService<ILogger<PushNotificationService>>(),
+				sp.GetRequiredService<ILogger<SignalRManager>>(),
 				sp.GetRequiredService<IMediator>(),
 				options.AssembliesToScanForIntegrationEvents);
 		});
 		services.AddSingleton<PushNotificationManager>(sp =>
 		{
 			return new PushNotificationManager(
-				sp.GetRequiredService<PushNotificationService>(),
+				sp.GetRequiredService<SignalRManager>(),
 				sp.GetRequiredService<IPushNotificationClient>(),
 				sp.GetRequiredService<IMediator>(),
 				sp.GetRequiredService<NavigationManager>(),

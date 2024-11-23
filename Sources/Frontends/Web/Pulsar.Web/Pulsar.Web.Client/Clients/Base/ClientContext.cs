@@ -1,5 +1,5 @@
 ﻿using Microsoft.JSInterop;
-using Pulsar.Web.Client.Services;
+using Pulsar.Web.Client.Services.Others;
 
 namespace Pulsar.Web.Client.Clients.Base
 {
