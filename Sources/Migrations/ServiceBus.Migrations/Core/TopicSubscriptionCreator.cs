@@ -55,8 +55,12 @@ public class TopicSubscriptionCreator
         {
             await adminClient.DeleteRuleAsync(functionInformation.TopicName, functionInformation.SubscriptionName, "SubjectIs");
         }
+		if (await adminClient.RuleExistsAsync(functionInformation.TopicName, functionInformation.SubscriptionName, "$Default"))
+		{
+			await adminClient.DeleteRuleAsync(functionInformation.TopicName, functionInformation.SubscriptionName, "$Default");
+		}
 
-        var filter = new CorrelationRuleFilter();
+		var filter = new CorrelationRuleFilter();
         filter.Subject = functionInformation.EventName;
         await adminClient.CreateRuleAsync(functionInformation.TopicName, functionInformation.SubscriptionName,
             new CreateRuleOptions("SubjectIs", filter));
