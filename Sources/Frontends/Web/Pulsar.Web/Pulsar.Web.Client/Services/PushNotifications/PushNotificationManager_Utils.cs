@@ -3,6 +3,8 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Pulsar.BuildingBlocks.EventBus.Contracts.PushNotifications;
 using Pulsar.Services.PushNotification.Contracts.DTOs;
 using Pulsar.Services.Shared.PushNotifications;
+using static Microsoft.FluentUI.AspNetCore.Components.Icons.Filled.Size24;
+using Color = Microsoft.FluentUI.AspNetCore.Components.Color;
 
 namespace Pulsar.Web.Client.Services.PushNotifications;
 
@@ -23,41 +25,42 @@ public partial class PushNotificationManager
 			case PushNotificationIntent.Success:
 				return null;
 			case PushNotificationIntent.Flash:
-				return new Icons.Regular.Size24.Flash();
+				// Rest of the code remains unchanged
+				return new Flash();
 			case PushNotificationIntent.Calendar:
-				return new Icons.Regular.Size24.Calendar();
+				return new Calendar();
 			case PushNotificationIntent.Upload:
-				return new Icons.Regular.Size24.ArrowUpload();
+				return new ArrowUpload();
 			case PushNotificationIntent.Download:
-				return new Icons.Regular.Size24.ArrowDownload();
+				return new ArrowDownload();
 			case PushNotificationIntent.Person:
-				return new Icons.Regular.Size24.Person();
+				return new Person();
 			case PushNotificationIntent.Alert:
-				return new Icons.Regular.Size24.Alert();
+				return new Alert();
 			case PushNotificationIntent.Delete:
-				return new Icons.Regular.Size24.Delete();
+				return new Delete();
 			case PushNotificationIntent.News:
-				return new Icons.Regular.Size24.News();
+				return new News();
 			case PushNotificationIntent.Edit:
-				return new Icons.Regular.Size24.Edit();
+				return new Edit();
 			case PushNotificationIntent.New:
-				return new Icons.Regular.Size24.New();
+				return new New();
 			case PushNotificationIntent.Add:
-				return new Icons.Regular.Size24.Add();
+				return new Add();
 			case PushNotificationIntent.Heart:
-				return new Icons.Regular.Size24.Heart();
+				return new Heart();
 			case PushNotificationIntent.Sync:
-				return new Icons.Regular.Size24.ArrowSync();
+				return new ArrowSync();
 			case PushNotificationIntent.Save:
-				return new Icons.Regular.Size24.Save();
+				return new Save();
 			case PushNotificationIntent.Folder:
-				return new Icons.Regular.Size24.Folder();
+				return new Folder();
 			case PushNotificationIntent.Star:
-				return new Icons.Regular.Size24.Star();
+				return new Star();
 			case PushNotificationIntent.Mail:
-				return new Icons.Regular.Size24.Mail();
+				return new Mail();
 			case PushNotificationIntent.Home:
-				return new Icons.Regular.Size24.Home();
+				return new Home();
 			default:
 				return null;
 		}
@@ -263,6 +266,7 @@ public partial class PushNotificationManager
 		return route;
 	}
 
+	// ...existing code...
 	private (Icon Value, Color Color)? GetToastIcon(PushNotificationIntent? intent)
 	{
 		if (intent == null)
@@ -283,31 +287,31 @@ public partial class PushNotificationManager
 			case PushNotificationIntent.Person:
 				return null;
 			case PushNotificationIntent.Alert:
-				return (new Icons.Regular.Size24.Alert(), Color.Accent);
+				return (new Alert(), Color.Neutral);
 			case PushNotificationIntent.Delete:
-				return (new Icons.Regular.Size24.Delete(), Color.Accent);
+				return (new Delete(), Color.Neutral);
 			case PushNotificationIntent.News:
-				return (new Icons.Regular.Size24.News(), Color.Accent);
+				return (new News(), Color.Neutral);
 			case PushNotificationIntent.Edit:
-				return (new Icons.Regular.Size24.Edit(), Color.Accent);
+				return (new Edit(), Color.Neutral);
 			case PushNotificationIntent.New:
-				return (new Icons.Regular.Size24.New(), Color.Accent);
+				return (new New(), Color.Neutral);
 			case PushNotificationIntent.Add:
-				return (new Icons.Regular.Size24.Add(), Color.Accent);
+				return (new Add(), Color.Neutral);
 			case PushNotificationIntent.Heart:
-				return (new Icons.Regular.Size24.Heart(), Color.Accent);
+				return (new Heart(), Color.Neutral);
 			case PushNotificationIntent.Sync:
-				return (new Icons.Regular.Size24.ArrowSync(), Color.Accent);
+				return (new ArrowSync(), Color.Neutral);
 			case PushNotificationIntent.Save:
-				return (new Icons.Regular.Size24.Save(), Color.Accent);
+				return (new Save(), Color.Neutral);
 			case PushNotificationIntent.Folder:
-				return (new Icons.Regular.Size24.Folder(), Color.Accent);
+				return (new Folder(), Color.Neutral);
 			case PushNotificationIntent.Star:
-				return (new Icons.Regular.Size24.Star(), Color.Accent);
+				return (new Star(), Color.Neutral);
 			case PushNotificationIntent.Mail:
-				return (new Icons.Regular.Size24.Mail(), Color.Accent);
+				return (new Mail(), Color.Neutral);
 			case PushNotificationIntent.Home:
-				return (new Icons.Regular.Size24.Home(), Color.Accent);
+				return (new Home(), Color.Neutral);
 			default:
 				return null;
 		}
