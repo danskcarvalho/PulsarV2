@@ -7,6 +7,12 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Pulsar.Services.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 	</PropertyGroup>
+	<Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build">
+		<ItemGroup>
+			<NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="$(OutDir)runtimes/osx-arm64/native/*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" />
+	</Target>
 	<ItemGroup>
 		<None Remove="appsettings.Development.json" />
 		<None Remove="appsettings.json" />
@@ -29,6 +35,7 @@
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.20.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.4" />
 		<PackageReference Include="MediatR" Version="12.4.0" />
+		<PackageReference Include="Contrib.Grpc.Core.M1" Version="2.46.7" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="host.json">
