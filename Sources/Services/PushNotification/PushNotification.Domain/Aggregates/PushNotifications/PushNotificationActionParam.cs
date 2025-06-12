@@ -8,13 +8,13 @@ namespace Pulsar.Services.PushNotification.Domain.Aggregates.PushNotifications
 	public class PushNotificationActionParam : ValueObject
 	{
 		[BsonConstructor]
-		public PushNotificationActionParam(PushNotificationRouteKey paramKey, string paramValue)
+		public PushNotificationActionParam(PushNotificationRouteParamKey paramKey, string paramValue)
 		{
 			ParamKey = paramKey;
 			ParamValue = paramValue;
 		}
 
-		public PushNotificationRouteKey ParamKey { get; private set; }
+		public PushNotificationRouteParamKey ParamKey { get; private set; }
 		public string ParamValue { get; private set; }
 
 		protected override IEnumerable<object?> GetEqualityComponents()
