@@ -124,6 +124,8 @@ public partial class Session : AggregateRoot
 
 Value objects derive from `ValueObject`; `AuditInfo` is provided as a ready-to-use value object for tracking changes.
 
+> ℹ️ **Enum collections** — whenever you persist `List<Enum>` or `HashSet<Enum>` properties, decorate them with `[BsonRepresentation(BsonType.String)]`. MongoDB stores enums as integers by default, which breaks readability and migrations if you ever reorder values. The attribute forces the driver to serialize each enum entry as its string name so your lists and sets stay stable over time.
+
 ### Domain events
 
 Any `INotification` you add through `AddDomainEvent` will be dispatched after the repository operation succeeds. Example event used above:
