@@ -265,6 +265,54 @@ var spec = new DeleteExpiredSessionsSpec();
 await _sessionRepository.DeleteManyAsync(spec, ct);
 ```
 
+### Shadows and shadow repositories
+
+Shadows are denormalized read models that live alongside your contracts (for example, `Services.Facility.Contracts.Shadows.EstabelecimentoShadow`). They inherit from `Shadow<T>` in `Pulsar.BuildingBlocks.Sync.Contracts` and are decorated with `[Shadow("<scope>:<name>")]` so the synchronization pipeline knows how to materialize them from integration events. Each shadow captures a curated subset of an aggregate root that needs to stay in sync across microservices; the sync machinery publishes integration events whenever the source aggregate changes and downstream services consume those events to keep their local shadows current. Because other services reference these types directly, always define them in the service’s Contracts project where they can be shared safely.
+
+- Real example (`Services/Facility/Facility.Contracts/Shadows/EstabelecimentoShadow.cs`):
+
+```csharp
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Pulsar.BuildingBlocks.Sync.Contracts;
+
+namespace Pulsar.Services.Facility.Contracts.Shadows;
+
+[Shadow("Facility:Estabelecimentos")]
+public partial class EstabelecimentoShadow : Shadow<EstabelecimentoShadow>
+{
+    public ObjectId DominioId { get; private set; }
+    public string Nome { get; set; }
+    public string Cnes { get; set; }
+    public List<ObjectId> Redes { get; private set; }
+    public bool IsAtivo { get; set; }
+    public AuditInfoShadow AuditInfo { get; set; }
+
+    [JsonConstructor, BsonConstructor]
+    public EstabelecimentoShadow(
+        ObjectId id,
+        ObjectId dominioId,
+        string nome,
+        string cnes,
+        List<ObjectId> redes,
+        bool isAtivo,
+        AuditInfoShadow auditInfo) : base(id)
+    {
+        DominioId = dominioId;
+        Nome = nome;
+        Cnes = cnes;
+        Redes = redes;
+        IsAtivo = isAtivo;
+        AuditInfo = auditInfo;
+    }
+}
+```
+
+- When you call `AddMongoDB`, pass the assemblies that contain your shadow types. The bootstrapper discovers every `Shadow<T>` and automatically registers an `IShadowRepository<T>` in DI.
+- `IShadowRepository<T>` implements the same repository abstractions exposed to aggregates, so you use the usual find/update/delete specifications to query shadows without duplicating infrastructure code.
+- Shadow repositories run outside the aggregate’s transactional context by default, giving handlers and background workers a cheap way to read the latest projections while commands keep working on rich aggregates.
+- Because shadows are lightweight DTOs, prefer them for UI/query use cases and reserve aggregates for invariants and write flows. You can still opt into causal consistency by wrapping reads with `QueryHandler` or `StartCausallyConsistentSectionAsync` when a client provides a token.
+
 ## Command handlers (write side)
 
 `CommandHandler<T>` and `CommandHandler<T, TResult>` wrap MediatR handlers with transaction, retry, isolation-level, and causal-consistency helpers. Attributes like `RetryOnException`, `NoTransaction`, `WithIsolationLevel`, and `RequiresCausalConsistency` control the behavior.
@@ -316,6 +364,384 @@ Key points:
 - The base class opens a transaction by default and dispatches domain events after persistence.
 - `RetryOnException(DuplicatedKey = true)` retries on duplicate-key or concurrency errors.
 - Inject `IDbSession` and `DbContextFactory` so the base class can manage context and isolation.
+
+### Service-specific handler pattern
+
+Every microservice should expose its own base class on top of `CommandHandler` so **all** command handlers inside that service share the same dependency funnel (repositories, loggers, integration event log, etc.). Whether you name it `IdentityCommandHandler`, `FacilityCommandHandler`, or `PushNotificationCommandHandler`, the idea is identical. The Push Notification version looks like this:
+
+```csharp
+public abstract class PushNotificationCommandHandler<TRequest, TResponse>
+    : CommandHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+{
+    protected ISessionRepository SessionRepository { get; }
+    protected IShadowRepository<DominioShadow> DominioRepository { get; }
+    protected ILogger Logger { get; }
+
+    protected PushNotificationCommandHandler(
+        PushNotificationCommandHandlerContext<TRequest, TResponse> ctx) : base(ctx.Session, ctx.DbContextFactory)
+    {
+        SessionRepository = (ISessionRepository)ctx.Repositories.First(r => r is ISessionRepository);
+        DominioRepository = (IShadowRepository<DominioShadow>)ctx.Repositories.First(r => r is IShadowRepository<DominioShadow>);
+        Logger = ctx.Logger;
+    }
+}
+```
+
+Pattern rationale (applies to every service):
+- **Constructor hygiene**: each handler requests only the service-specific context so new dependencies get added in one spot.
+- **Consistency**: transactions, logging, auditing, and integration-event persistence are configured once (the `CommandHandler` base plus the service context).
+- **Testability**: handlers can be unit-tested by providing fake contexts with stub repositories instead of recreating the full DI graph.
+
+When implementing your service-level base, keep the constructor lean, expose protected properties for the repositories every handler needs, and always pass the `IDbSession`/`DbContextFactory` up to `CommandHandler` so retry/transaction behaviors stay uniform across all microservices.
+
+## Domain event handlers
+
+Domain event handlers follow the same pattern. Each service defines its own base (for example, `PushNotificationDomainEventHandler<TEvent>`) that inherits from `DomainEventHandler<TEvent>` and accepts a context bundling the session, shared repositories, logger, and integration event log. Concrete handlers stay focused on the domain workflow:
+
+```csharp
+[RetryOnException(DuplicatedKey = true)]
+public class CriarUserContextDEH : PushNotificationDomainEventHandler<SessaoCriadaDE>
+{
+    public CriarUserContextDEH(
+        PushNotificationDomainEventHandlerContext<SessaoCriadaDE> ctx) : base(ctx)
+    {
+    }
+
+    protected override async Task HandleAsync(SessaoCriadaDE evt, CancellationToken ct)
+    {
+        var spec = new FindUserContextSpec(evt.UsuarioId, evt.DominioId, evt.EstabelecimentoId);
+        var userContext = await UserContextRepository.FindOneAsync(spec);
+        if (userContext != null)
+            return;
+
+        await UserContextRepository.InsertOneAsync(
+            new UserContext(ObjectId.GenerateNewId(), evt.UsuarioId, evt.DominioId, evt.EstabelecimentoId));
+    }
+}
+```
+
+Guidelines for service-specific domain event handlers (applies to every microservice):
+- **Reuse the context** so every handler gets the same repositories, logger, and session scope without constructor bloat.
+- **Stay side-effect focused**: the `DomainEventHandler` base ensures events run inside the same transaction (unless opted out) and honors retry/isolation attributes, so handler logic can concentrate on idempotent state changes.
+- **Propagate cancellation tokens** when calling repositories to keep consistency with the ambient transaction lifetime.
+
+Creating these thin derived classes keeps the entire solution uniform: the building blocks own transactional and consistency concerns, the service-level base injects shared infrastructure, and individual handlers only express the domain action triggered by a command or event.
+
+## Domain vs integration events
+
+Domain events (`INotification` instances raised through `AddDomainEvent`) never leave the bounded context. They are great for keeping aggregates small and letting in-process handlers, such as `PushNotificationDomainEventHandler<SessaoCriadaDE>`, react to state transitions without calling other microservices. Integration events, on the other hand, are serialized DTOs that cross boundaries through the event bus. They inherit from `Pulsar.BuildingBlocks.EventBus.Events.IntegrationEvent`, carry a durable `Id`/`CreationDate`, and live in the Contracts project so consumers in other services (or mobile apps) can reference them without pulling the entire domain.
+
+Real integration events look like `Sources/Services/Identity/Identity.Contracts/IntegrationEvents/ConviteAceitoIE.cs`:
+
+```csharp
+[EventName("Identity:ConviteAceitoIE")]
+[PushNotificationEvent(PushNotificationKey.ConviteAceito)]
+public record ConviteAceitoIE : IntegrationEvent, IPushNotificationEvent
+{
+    public required string UsuarioId { get; init; }
+    public required string UsuarioEmail { get; init; }
+    public required string UsuarioConvidanteId { get; init; }
+    public required string UsuarioConvidanteEmail { get; init; }
+    public PushNotificationData? GetPushNotificationData() => ...;
+}
+```
+
+### Saving integration events with `ISaveIntegrationEventLog`
+
+`ISaveIntegrationEventLog` (`Sources/BuildingBlocks/EventBus/EventBus/Abstractions/ISaveIntegrationEventLog.cs`) gives handlers a single method, `SaveEventAsync`, to persist integration events inside the same Mongo transaction used for the aggregate. Every service-specific handler context (e.g., `PushNotificationCommandHandlerContext`, `IdentityCommandHandlerContext`) resolves this interface so commands and domain-event handlers can append events right after they mutate state:
+
+```csharp
+// Sources/Services/Identity/Identity.API/Application/Commands/Convites/AceitarConviteCH.cs
+convite.Aceitar(...);
+await ConviteRepository.ReplaceOneAsync(convite);
+await EventLog.SaveEventAsync(new ConviteAceitoIE
+{
+    UsuarioConvidanteEmail = usuarioConvidante.Email ?? "Desconhecido",
+    UsuarioConvidanteId = usuarioConvidante.Id.ToString(),
+    UsuarioEmail = convite.Email,
+    UsuarioId = convite.UsuarioId.ToString()
+});
+```
+
+The default implementation, `MongoSaveIntegrationEventLog` (`Sources/BuildingBlocks/DDD/DDD.Mongo/EventBus/MongoSaveIntegrationEventLog.cs`), writes the serialized payload to the `IntegrationEventLog` collection using the ambient `MongoDbSession`. If the event implements `IPushNotificationEvent`, it also materializes a `PushNotificationIE` entry so mobile/web clients can receive the same intent without duplicating code:
+
+```csharp
+public async Task SaveEventAsync(IntegrationEvent @event, CancellationToken ct = default)
+{
+    var entry = new IntegrationEventLogEntry(@event);
+    await _collection.InsertOneAsync(_session.CurrentHandle, entry, cancellationToken: ct);
+    if (@event is IPushNotificationEvent pnEvent && pnEvent.GetPushNotificationData() is { } data)
+    {
+        var pnEntry = new IntegrationEventLogEntry(new PushNotificationIE(data));
+        await _collection.InsertOneAsync(_session.CurrentHandle, pnEntry, cancellationToken: ct);
+    }
+}
+```
+
+Net effect: domain events keep invariants local, while integration events (plus their log entries) become the durable source for cross-service communication.
+
+### Push notification payload contract
+
+Any `IPushNotificationEvent` (`Sources/BuildingBlocks/EventBus/EventBus.Contracts/PushNotifications/IPushNotificationEvent.cs`) must return a fully populated `PushNotificationData` (`.../PushNotificationData.cs`) from `GetPushNotificationData()`. The object is what the push service saves and what the Blazor client (`Frontends/Web/Pulsar.Web/Pulsar.Web.Client/Services/PushNotifications/*`) renders, so every property has a defined responsibility.
+
+#### Property reference
+
+| Property | Type | Details |
+| --- | --- | --- |
+| `Target` | `PushNotificationTarget` (`.../PushNotificationTarget.cs`) | Identifies the recipient (`UsuarioId`, optional `DominioId`/`EstabelecimentoId`) plus the `Match` strategy (see `PushNotificationTargetMatch` below). Used server-side by `PushNotification.Functions` to fan-out notifications and client-side to scope SignalR subscriptions. |
+| `Key` | `PushNotificationKey` | Logical identifier that must match the `[PushNotificationEvent]` attribute attached to the integration event. `SignalRManager` uses it to map incoming payloads to strongly typed events. |
+| `Title`, `Message` | `string?` | Primary copy for cards/toasts. `ShowToast` decides whether the toast header shows the title or the message based on `ToastDisplayOptions`, while `ShowNotificationCenter` always renders both with Fluent UI `MessageBar`. |
+| `CreatedOn` | `DateTime` | Timestamp shown in the notification center and used to order `PushNotificationManager.Notifications`. |
+| `Intent` | `PushNotificationIntent` | Drives iconography and colors (see table below). `PushNotificationManager_Utils.GetMessageIntent/GetToastIntent` translate it into Fluent UI intents and icons. |
+| `Display` | `PushNotificationDisplay` | Controls whether the UI emits a toast, a notification-center entry, both, or neither. `ShowPushNotification` checks this flag before calling `ShowToast`/`ShowNotificationCenter`. |
+| `ToastDisplayOptions` | `PushNotificationToastDisplayOptions` | Decides which string becomes the toast title/body when `Display` includes `Toast`. `UseTitle` shows the `Title`, `UseMessage` shows the `Message`, and `UseBoth` uses a “communication toast” with both blocks. |
+| `ToastActionOptions` | `PushNotificationToastActionOptions` | Picks which CTA (if any) becomes the toast action button. See enum reference for the mapping between options and actions wired up in `ShowToast`. |
+| `PrimaryAction`, `SecondaryAction`, `LabelAction` | `PushNotificationDataAction` (`.../PushNotificationDataAction.cs`) | Describe commands bound to buttons/links inside toasts and notification-center cards. Each action carries a `Text`, a `RouteKey`, and optional `Parameters` (`PushNotificationDataActionParam`) that the Blazor router translates using `PushNotificationRoutingAttribute`. Multiple actions can coexist; `ToastActionOptions` decides which one (if any) surfaces inside toasts, while `ShowNotificationCenter` renders them all. |
+| `Data` | `string?` (JSON) | Optional payload that backs strongly typed events. When non-null, `PushNotificationEvent<TData>` deserializes it so components can call `SignalRManager.Subscribe<TData>()` and receive domain-specific context (e.g., the `ConviteAceitoIE` data contract). |
+
+Filling these properties is what lets the web client reuse a single rendering pipeline for every service: the Identity `ConviteAceitoIE` example above sets `Message`, `Intent`, `Display`, and `Target`, and the UI automatically decides how to present it.
+
+#### Enum reference
+
+##### `PushNotificationTargetMatch` (`.../PushNotificationTargetMatch.cs`)
+- `ExactMatch`: deliver only when the user is in the exact domain/establishment tuple specified in `Target`.
+- `MatchUsuarioOnly`: broadcast to the user regardless of domain/establishment (all sessions receive it).
+- `MatchUsuarioDominio`: deliver to the user across all domains but keep the establishment filter.
+- `MatchUsuarioEstabelecimentos`: deliver to the user across all establishments but keep the domain filter.
+- `MatchUsuarioEstabelecimentosFromDominio`: deliver to every establishment inside the specified domain.
+
+##### `PushNotificationDisplay` (`.../PushNotificationDisplay.cs`)
+- `None`: suppress both toast and notification-center rendering (useful when an event only refreshes badges).
+- `Toast`: only raise the transient toast via `ToastService`.
+- `NotificationCenter`: only persist it in the Fluent UI message list.
+- `All`: do both (default behavior across the solution).
+
+##### `PushNotificationToastDisplayOptions` (`.../PushNotificationToastOptions.cs`)
+- `UseTitle`: toast title shows `Title`, body stays empty.
+- `UseMessage`: toast title shows `Message`, mirroring “message-only” banners.
+- `UseBoth`: use the Fluent UI communication toast component to show both title and message (SignalR manager picks this automatically when `ToastActionOptions` is `UsePrimaryAndSecondaryAction`).
+
+##### `PushNotificationToastActionOptions` (`.../PushNotificationToastOptions.cs`)
+- `NoAction`: toast is informational only.
+- `UseLabel`: single action button bound to `LabelAction`.
+- `UsePrimaryAction`: button bound to `PrimaryAction` (typically the main CTA).
+- `UseSecondaryAction`: button bound to `SecondaryAction`.
+- `UsePrimaryAndSecondaryAction`: renders both primary and secondary buttons (forces `ToastDisplayOptions.UseBoth` so there is enough layout space).
+
+##### `PushNotificationIntent` (`.../PushNotificationIntent.cs`)
+`PushNotificationManager_Utils.GetMessageIcon`, `GetToastIcon`, and `GetToastIntent` map each value to a Fluent UI icon/color:
+- `None`: neutral message with no icon.
+- `Error`, `Warning`, `Information`, `Success`: map directly to Fluent UI `MessageIntent`/`ToastIntent` to render red/amber/blue/green system banners.
+- `Flash`: progress/lightning icon for urgent or in-progress items.
+- `Calendar`: calendar glyph for scheduling updates.
+- `Upload` / `Download`: arrow icons for transfer operations.
+- `Person`: mention badge for user-focused events.
+- `Alert`: neutral alert icon (used for general warnings).
+- `Delete`: trash icon for destructive outcomes.
+- `News`: newspaper icon for announcements.
+- `Edit`: pencil icon for editable content.
+- `New`: badge icon for brand-new objects.
+- `Add`: plus icon for creation flows.
+- `Heart`: heart icon for social/relationship cues.
+- `Sync`: sync arrows for background jobs.
+- `Save`: floppy icon for persistence events.
+- `Folder`: folder icon for file/workspace notifications.
+- `Star`: star icon for featured/favorite content.
+- `Mail`: envelope icon for messaging.
+- `Home`: home icon for tenancy/organization updates.
+
+##### `PushNotificationTarget`, `PushNotificationDataAction`, and routing keys
+- `PushNotificationTarget` holds `UsuarioId` plus optional `DominioId` and `EstabelecimentoId`. Its `Clone()` method allows the push service to safely duplicate targets when batching.
+- `PushNotificationDataAction` wraps CTA metadata; it clones parameters so `PushNotificationManager` can reuse cached payloads without mutating shared state.
+- `PushNotificationRouteKey` and `PushNotificationRouteParamKey` live in `Sources/Services/Shared/Shared/PushNotifications/` and are typically extended per frontend to describe navigation routes and template parameters consumed by `PushNotificationRoutingAttribute`.
+
+### Registering push notification event types
+
+Every class that implements `IPushNotificationEvent` must also be annotated with `[PushNotificationEvent(...)]` (`Sources/Services/Shared/Shared/PushNotifications/PushNotificationEventAttribute.cs`). The Blazor `SignalRManager` (`Frontends/Web/Pulsar.Web/Pulsar.Web.Client/Services/PushNotifications/SignalRManager.cs`) scans all loaded assemblies for that attribute, builds a dictionary that maps each `PushNotificationKey` to the concrete event type, and then uses `PushNotificationEvent.StronglyTyped` plus MediatR to fan out strongly typed notifications (`SignalRManager.FireAdditionalEvents`). Without the attribute the event is invisible to the scanner, meaning:
+
+1. Subscribers that call `SignalRManager.Subscribe(key, handler)` will never fire because the key is not registered.
+2. `PushNotificationEvent<TData>` will never be instantiated, so components expecting a typed payload cannot deserialize the `Data` blob.
+
+Attaching the attribute is therefore mandatory for every `IPushNotificationEvent`; it ties the integration event to a `PushNotificationKey`, gives the UI enough metadata to deserialize `Data`, and keeps the SignalR dispatcher aligned with the actions declared in `PushNotificationData`.
+
+### Dispatching the log to the bus
+
+`IntegrationEventLogMongo` stores events alongside a small leasing system (`EventProducer` collection) so multiple dispatcher instances can partition the work. `GenericIntegrationEventDispatcherService` (`Sources/BuildingBlocks/EventBus/EventBus/GenericIntegrationEventDispatcherService*.cs`) hosts two loops:
+
+1. A **producer** watches and polls `IntegrationEventLogEntry` documents via `MongoIntegrationEventLogStorage` (`IntegrationEventLogMongo/MongoIntegrationEventLogStorage.cs`), batching the records that are due.
+2. Several **consumers** pop those batches, mark them as `InProgress`, publish each payload through the configured `IEventBus`, and update the log to `Published`, `Pending` (rescheduled), or `Failed` depending on the outcome.
+
+Because the dispatcher uses the same log abstraction everywhere (`IIntegrationEventLogStorage`), you can run it in API hosts, workers, or Azure Functions without special plumbing—the only responsibility of the command/domain-event handler is to call `EventLog.SaveEventAsync`. Once the handler transaction commits, the dispatcher eventually pushes the event to Azure Service Bus (or any other `IEventBus` implementation) with retries, exponential backoff, and automatic rescheduling if a consumer is temporarily down.
+
+## Domain exceptions
+
+`DomainException` is the shared base for business-rule violations. Each microservice must derive its own strongly typed exception (e.g., `IdentityDomainException`, `CatalogDomainException`, `PushNotificationDomainException`) so:
+
+- Keys live in the service’s contracts and can be surfaced to clients or other services without exposing internal strings.
+- Middleware (like `Shared.Web`’s `JsonExceptionMiddleware`) can map a service’s exceptions to consistent HTTP payloads.
+- Unit tests can assert against service-specific exception types instead of generic messages.
+
+Real example from the identity service (`Sources/Services/Identity/Identity.Domain/Exceptions/IdentityDomainException.cs`):
+
+```csharp
+public class IdentityDomainException : DomainException
+{
+    public IdentityExceptionKey Key { get; }
+
+    public IdentityDomainException(IdentityExceptionKey key) : this(key, GetMessageFromKey(key))
+    {
+    }
+
+    public IdentityDomainException(IdentityExceptionKey key, string message)
+        : base(key.ToString(), message)
+    {
+        Key = key;
+    }
+
+    public IdentityDomainException(IdentityExceptionKey key, string message, Exception innerException)
+        : base(key.ToString(), message, innerException)
+    {
+        Key = key;
+    }
+}
+```
+
+The keys themselves live in the service contracts, e.g. `Sources/Services/Identity/Identity.Contracts/Enumerations/IdentityExceptionKey.cs`:
+
+```csharp
+public enum IdentityExceptionKey
+{
+    [Display(Description = "Usuário não encontrado.")]
+    UsuarioNaoEncontrado = 1,
+    [Display(Description = "Usuário não possui e-mail cadastrado.")]
+    UsuarioSemEmail = 2,
+    [Display(Description = "Token para a mudança de senha expirado.")]
+    TokenMudancaSenhaExpirado = 3,
+    [Display(Description = "Token para a mudança de senha inválido.")]
+    TokenMudancaSenhaInvalido = 4,
+    [Display(Description = "Convite não encontrado.")]
+    ConviteNaoEncontrado = 5,
+    [Display(Description = "Convite expirado.")]
+    ConviteExpirado = 6,
+    [Display(Description = "Este convite já foi aceito.")]
+    ConviteJaAceito = 7,
+    [Display(Description = "Já existe um usuário para o e-mail informado neste convite.")]
+    UsuarioJaConvidado = 8,
+    [Display(Description = "Token inválido.")]
+    ConviteTokenInvalido = 9,
+    [Display(Description = "Usuário foi convidado para administrar o domínio mas o domínio já tem administrador ou está inativo.")]
+    ConviteDominioInvalido = 10,
+    [Display(Description = "Convite Inválido.")]
+    ConviteInvalido = 11,
+    [Display(Description = "Já existe um usuário com o nome de usuário informado.")]
+    NomeUsuarioNaoUnico = 12,
+    [Display(Description = "Convite para este usuário ainda não foi aceito.")]
+    ConviteNaoAceito = 13,
+    [Display(Description = "Senha atual inválida.")]
+    SenhaAtualInvalida = 14,
+    [Display(Description = "O usuário 'administrador' não pode ser bloqueado/desbloqueado.")]
+    SuperUsuarioNaoPodeSerBloqueado = 15,
+    [Display(Description = "O usuário 'administrador' não pode administrar um domínio.")]
+    SuperUsuarioNaoPodeAdministrarDominio = 16,
+    [Display(Description = "Domínio não encontrado.")]
+    DominioNaoEncontrado = 17,
+    [Display(Description = "O usuário informado para administrar este domínio está bloqueado nele.")]
+    UsuarioAdministradorIsBloqueadoDominio = 18,
+    [Display(Description = "O usuário administrador não pode ser bloqueado neste domínio.")]
+    UsuarioAdministradorNaoPodeSerBloqueadoDominio = 19,
+    [Display(Description = "O usuário 'administrador' não pode ser bloqueado ou desbloqueado dentro deste domínio.")]
+    SuperUsuarioNaoPodeSerBloqueadoDominio = 20,
+    [Display(Description = "Grupo não encontrado.")]
+    GrupoNaoEncontrado = 21,
+    [Display(Description = "Subgrupo com o nome informado já existe.")]
+    SubgrupoJaExistente = 22,
+    [Display(Description = "Subgrupo não encontrado.")]
+    SubgrupoNaoEncontrado = 23,
+    [Display(Description = "O usuário 'administrador' não pode ser adicionado ou removido de um grupo.")]
+    SuperUsuarioNaoPodeserAdicionadoEmGrupo = 24,
+    [Display(Description = "Você não está logado em um domínio.")]
+    DominioNaoLogado = 25,
+    [Display(Description = "Estabelecimento não encontrado.")]
+    EstabelecimentoNaoEncontrado = 26,
+    [Display(Description = "Rede de Estabelecimentos não encontrado.")]
+    RedeEstabelecimentosNaoEncontrado = 27,
+    [Display(Description = "Você não está logado em um estabelecimento.")]
+    EstabelecimentoNaoLogado = 28,
+    [Display(Description = "Um grupo pode ter no máximo 100 subgrupos.")]
+    NumSubgruposExcedeMaximo = 29,
+    [Display(Description = "Um grupo pode ter no máximo 5000 usuários membros.")]
+    NumUsuariosGrupoExcedeMaximo = 30,
+}
+```
+
+Usage pattern:
+- Define an enum (e.g., `IdentityExceptionKey`) describing every domain error with a stable key.
+- Derive `YourServiceDomainException : DomainException` and capture the enum value in the constructor.
+- Throw the service-specific exception from aggregates/handlers (`throw new IdentityDomainException(IdentityExceptionKey.UsuarioNaoEncontrado);`).
+- Api/worker middleware logs the key and translates it to error responses while tests assert `await Assert.ThrowsAsync<IdentityDomainException>(...)`.
+
+Following this pattern makes cross-service error handling predictable and avoids stringly-typed exception logic.
+
+## DbContext and AggregateRootWithContext
+
+`DbContext` is the ambient gateway that gives aggregates read access to other aggregates within the same transaction. Each handler receives a `DbContextFactory` (see `DDD/Contexts/DbContextFactory.cs`) built from the resolved repositories. The base `CommandHandler`/`DomainEventHandler` creates a `DbContextImpl`, pushes it via `DbContextImpl.SetContext`, and clears it after execution, so `DDD.Contracts.DbContext.Current` always points to a live `IDbContext` during handler execution.
+
+`AggregateRootWithContext<T>` extends `AggregateRoot` and exposes navigation-style helpers backed by that ambient context (file `DDD.Contracts/AggregateRootWithContext.cs`):
+
+```csharp
+public abstract class AggregateRootWithContext<TSelf> : AggregateRoot
+        where TSelf : class, IAggregateRoot
+{
+        public static Task<bool> Exists(ObjectId id) => DbContext.Current.Exists<TSelf>(id);
+        public static Task<TSelf?> TryGet(ObjectId id) => DbContext.Current.TryGet<TSelf>(id);
+        public static Task<TSelf> Get(ObjectId id) => DbContext.Current.Get<TSelf>(id);
+        public static Task<TSelf> GetAndCache(ObjectId id, string key) => DbContext.Current.GetAndCache<TSelf>(id, key);
+        // ... additional helpers (TryGetAndCache, GetMany, etc.)
+}
+```
+
+Real usage examples:
+- `Convite` exposes a navigation helper that returns the invited `Usuario` by calling those static helpers (file `Services/Identity/Identity.Domain/Aggregates/Convites/Convite.cs`):
+
+    ```csharp
+    public Task<Usuario> GetUsuario() => Usuario.GetAndCache(this.UsuarioId, nameof(UsuarioId));
+    ```
+
+    Domain logic can invoke `await convite.GetUsuario()` anywhere inside the aggregate without receiving an `IUsuarioRepository`; the ambient `DbContext` resolves the repository, issues the query with the same Mongo session/transaction, and caches the result by key for the lifetime of the aggregate instance.
+
+- All shadows inherit from `Shadow<T>` which itself derives from `AggregateRootWithContext<T>` (`BuildingBlocks/Sync/Sync.Contracts/Shadow.cs`). That gives projection types, such as `Services/Facility/Facility.Contracts/Shadows/EstabelecimentoShadow`, the same ability to pull additional aggregates when the synchronization pipeline materializes or enriches shadows.
+
+Guidelines:
+- Use the helpers for read-only lookups that support your invariant checks or domain events; writes still go through repositories so concurrency rules stay centralized.
+- Prefer `GetAndCache(id, key)` if you expect repeated reads of the same aggregate inside one operation; the key scopes a per-aggregate cache so you avoid duplicate queries.
+- Because the context runs inside the handler’s session, all reads observe the same snapshot as the write model, mirroring ORM-style navigation properties but without leaking repository dependencies into domain code.
+
+## Version concurrency
+
+`VersionConcurrencyException` shields aggregates from lost updates. Every document persisted through `MongoRepository` carries a `Version` column that increments on each `ReplaceOne`/`Update`. Repository methods filter by the previous version and call `CheckModified()` to ensure exactly one document was touched; if MongoDB reports zero modifications, a `VersionConcurrencyException` is thrown.
+
+Patterns for application code:
+- **Always read the aggregate before writing** so `LastVersion` is populated.
+- **Leave `checkModified` enabled** (default) so repository methods throw when the version does not match.
+- **Wrap command handlers with `[RetryOnException(VersionConcurrency = true)]`** when concurrent updates are expected. The building-block handler catches `VersionConcurrencyException` and retries the command a configurable number of times (see `RetryOnExceptionAttribute`).
+- **Use `CheckModified()` after custom update specs** (`await repo.UpdateManyAsync(spec).CheckModified();`) to surface concurrency conflicts even when working with specifications instead of aggregates.
+
+Real handler usage (Push Notification service):
+
+```csharp
+[NoTransaction, RetryOnException(VersionConcurrency = true)]
+public class MarcarNotificacoesComoLidaCH : PushNotificationCommandHandler<MarcarNotificacoesComoLidaCmd, CommandResult>
+{
+    protected override async Task<CommandResult> HandleAsync(MarcarNotificacoesComoLidaCmd cmd, CancellationToken ct)
+    {
+        var spec = new MarcarNotificacoesComoLidaSpec(cmd.Notificacoes.Select(n => n.ToObjectId()).ToList(), cmd.UsuarioId!.ToObjectId());
+        await NotificacaoPushRepository.UpdateManyAsync(spec).CheckModified();
+        return new CommandResult();
+    }
+}
+```
+
+Identity commands follow the same pattern (`[RetryOnException(VersionConcurrency = true, Retries = 2)]`) so temporary conflicts just re-read the aggregate and try again. If retries are exhausted, the exception bubbles up and gets serialized by the shared middleware, prompting the caller to refresh state.
 
 ## Queries
 
