@@ -8,6 +8,22 @@ This repo contains three NuGet packages that let a service use a consistent DDD 
 
 All services in this solution follow the same recipe: model your aggregate in the domain project, implement the repository in the infrastructure project, wire `AddMongoDB` in the API/worker, and handle commands/queries with MediatR using the provided base classes.
 
+## Summary
+
+- [Quick start](#quick-start) – add the NuGet packages, configure MongoDB, and register `AddMongoDB`/MediatR in `Program.cs`.
+- [Model your domain](#model-your-domain) – build aggregates, value objects, and domain events using the shared base types.
+- [Repositories and specifications](#repositories-and-specifications) – implement Mongo repositories plus reusable find/update/delete specs and index descriptions.
+- [Command handlers (write side)](#command-handlers-write-side) – derive service-specific handlers from `CommandHandler` to encapsulate transactions, retries, and shared dependencies.
+- [Domain event handlers](#domain-event-handlers) – process in-process events with service-level bases that reuse the same infrastructure context.
+- [Domain vs integration events](#domain-vs-integration-events) – understand when to raise domain events, how to log integration events, and how push notifications hook in.
+- [Domain exceptions](#domain-exceptions) – define service-scoped exception types and keys so APIs return consistent error payloads.
+- [DbContext and AggregateRootWithContext](#dbcontext-and-aggregaterootwithcontext) – use the ambient context helpers to navigate aggregates safely during a transaction.
+- [Version concurrency](#version-concurrency) – rely on optimistic concurrency, retries, and helper methods like `CheckModified()` to prevent lost updates.
+- [Queries](#queries) – structure read models with `QueryHandler`, causal-consistency tokens, and cursor-based pagination helpers.
+- [Validation](#validation) – plug FluentValidation through the MediatR pipeline.
+- [Transactions, isolation, and consistency](#transactions-isolation-and-consistency) – control Mongo session behavior via attributes such as `[NoTransaction]` or `[RequiresCausalConsistency]`.
+- [Tips](#tips) – grab quick reminders on specs, repository exposure, and session management.
+
 ## Quick start
 
 1. **Add package references**
@@ -264,6 +280,32 @@ Bulk delete example:
 var spec = new DeleteExpiredSessionsSpec();
 await _sessionRepository.DeleteManyAsync(spec, ct);
 ```
+
+### Index descriptions and migrations
+
+Declarative indexes live next to the aggregate so migrations can discover and create them automatically. Implement `IndexDescriptions<T>` (defined in `DDD.Contracts/IndexDescriptions.cs`) inside the aggregate’s partial class and describe every index through the `Describe` builder. Example from `Services/Identity/Identity.Domain/Aggregates/Usuarios/Usuario.Indexes.cs`:
+
+```csharp
+public partial class Usuario
+{
+    public class Indexes : IndexDescriptions<Usuario>
+    {
+        public static IX Email_v1 = Describe.Ascending(u => u.Email).Unique();
+        public static IX NomeUsuario_v1 = Describe.Ascending(u => u.NomeUsuario).Unique();
+        public static IX TermosBusca_Email_v1 = Describe.Text(u => u.TermosBusca).Ascending(u => u.Email);
+        public static IX DominiosBloqueados_Email_v1 = Describe.Ascending(u => u.DominiosBloqueados).Ascending(u => u.Email);
+
+        public override string CollectionName => Constants.CollectionNames.USUARIOS;
+    }
+}
+```
+
+How it works:
+- `IndexDescriptions.AllDescriptors(assembly)` is executed during Mongo migrations. Each descriptor exposes `CollectionName`, `ModelType`, and a static set of `IX` fields. The migration runner compares those names against MongoDB, creating any missing indexes.
+- Naming convention is `<LogicalName>_v<version>` (e.g., `Email_v1`). If the index definition changes (fields, sort order, uniqueness), bump the suffix (`Email_v2`) so migrations drop/create the new definition cleanly. Reusing a stale name would leave the previous structure untouched.
+- The helper adds a default `IsSyncPending_v1` index for every aggregate to keep sync projections efficient; service-specific indexes just layer on top of it.
+
+Because descriptors live in source control, you can review index changes alongside aggregate modifications, and the migration host ensures every environment (local dev, staging, production) is brought up to date on startup.
 
 ### Shadows and shadow repositories
 
@@ -749,7 +791,112 @@ Identity commands follow the same pattern (`[RetryOnException(VersionConcurrency
 
 ## Queries
 
-`DDD.Mongo` includes a lightweight `QueryHandler` for read models that need causal consistency. Register it by scanning assemblies in `AddMongoDB` and inject `MongoDbSessionFactory`/`QueryHandler` into your query services. Use `StartCausallyConsistentSectionAsync` when a client passes a consistency token.
+`QueryHandler` (`DDD.Mongo/Queries/QueryHandler.cs`) is the read-side counterpart to `CommandHandler`. It hides MongoDB driver plumbing so query services can focus on projections while still honoring consistency guarantees provided by clients (mobile/web). Core capabilities:
+
+- **Collection helpers**: `GetCollection<T>(name, ReadPref)` wires majority read/write concerns and read preferences (`Secondary` by default, override with `ReadPref.Primary` when you need the latest state, e.g., login endpoints).
+- **Causal consistency**: `StartCausallyConsistentSectionAsync` accepts the `consistencyToken` emitted by write handlers. The token advances the session’s cluster/operation time so reads observe the caller’s last write before returning results.
+- **Scoped sessions**: the handler keeps one base `IClientSessionHandle` per instance and temporarily switches to a causally consistent session when needed, then merges the cluster time back.
+
+### Service-level query base
+
+Follow the same pattern used on the write side: each service exposes a base `*Queries` class deriving from `QueryHandler` to centralize collection wiring and dependencies. The identity service version (`Services/Identity/Identity.API/Application/BaseTypes/IdentityQueries.cs`) looks like this:
+
+```csharp
+public class IdentityQueries : QueryHandler
+{
+    public IdentityQueries(IdentityQueriesContext ctx) : base(ctx.Factory, ctx.ClusterName)
+    {
+        UsuariosCollection = GetCollection<Usuario>(Constants.CollectionNames.USUARIOS);
+        DominiosCollection = GetCollection<Dominio>(Constants.CollectionNames.DOMINIOS);
+        // shadows can reuse the same helper
+        EstabelecimentosCollection = GetCollection<EstabelecimentoShadow>(Shadow<EstabelecimentoShadow>.GetCollectionName());
+    }
+
+    protected IMongoCollection<Usuario> UsuariosCollection { get; }
+    protected IMongoCollection<Dominio> DominiosCollection { get; }
+    protected IMongoCollection<EstabelecimentoShadow> EstabelecimentosCollection { get; }
+}
+```
+
+`IdentityQueriesContext` is resolved through DI and bundles the `MongoDbSessionFactory` plus the cluster name expected in consistency tokens. `AddMongoDB` scans for subclasses of `QueryHandler`, so registering the assembly is enough to make these types available.
+
+### Using `StartCausallyConsistentSectionAsync`
+
+Concrete query classes inherit from the service base and wrap their logic with `StartCausallyConsistentSectionAsync` any time a `consistencyToken` is provided by the caller. The `FindUsuarios` method inside `UsuarioQueries` demonstrates the pattern:
+
+```csharp
+public async Task<PaginatedListDTO<UsuarioListadoDTO>> FindUsuarios(UsuarioFiltroDTO filtro)
+{
+    filtro.Filtro = filtro.Filtro?.ToLowerInvariant().Trim();
+    return await StartCausallyConsistentSectionAsync(async ct =>
+    {
+        var projection = Builders<Usuario>.Projection.Expression(u => new UsuarioListadoDTO(...));
+        var cursor = _UsuarioPaginator.ForLimit(filtro.Limit ?? 50).ForFilter(new { filtro.Filtro }).ForToken(filtro.CursorToken);
+        var (usuarios, next) = await UsuariosCollection
+            .Paginated(cursor)
+            .FindAsync(projection, c => /* text search vs exact email */);
+        return new PaginatedListDTO<UsuarioListadoDTO>(usuarios, next);
+    }, filtro.ConsistencyToken);
+}
+```
+
+Key takeaways:
+- Query logic stays inside the callback; `QueryHandler` injects the appropriate session and ensures causal ordering when a token exists.
+- Collections retrieved in the base class already honor the desired read preference, so individual queries only deal with projections and filtering.
+- If a request must bypass eventual consistency (e.g., credential checks), call `GetCollection` with `ReadPref.Primary` to override the default secondary-preferred behavior.
+
+This approach keeps read models thin, consistent, and reusable across APIs, background jobs, and SignalR hubs without sprinkling driver code or session management throughout the codebase.
+
+### Cursor-based pagination
+
+All cursor helpers live under `DDD.Mongo/Cursors`. They combine three tiny pieces—`Paginator`, `IPageCursor`, and the `Paginated` collection extension—so query handlers can return deterministic, resumable pages without manually juggling `$gt` filters or serialized state.
+
+1. **Declare a paginator once per collection/projection.** `Paginator.Builder.For<TEntity, TProjection>()` wires the entity type that Mongo returns and (optionally) the DTO projection you send to callers. Call `SortBy` with the primary ordering field and `AndBy` with a deterministic tie-breaker (typically `Id`). When `TProjection` is different from `TEntity`, pass both expressions so the cursor can read sort values out of the projected DTO when building the next token.
+
+   ```csharp
+   // Sources/Services/Identity/Identity.API/Application/Queries/UsuarioQueries.cs
+   private static readonly Paginator<Usuario> UsuariosPaginator =
+       Paginator.Builder
+           .For<Usuario, UsuarioListadoDTO>()
+           .SortBy(u => u.Email, dto => dto.Email)
+           .AndBy(u => u.Id, dto => dto.Id);
+   ```
+
+2. **Create a cursor for each request.** The builder returns a `PageCursor` that captures the page size, the inbound filter payload, and (optionally) the caller’s `cursorToken`. Call `ForFilter` *before* `ForToken`; the implementation throws if you try to swap the order because the token is deserialized using the last filter type.
+
+   ```csharp
+   var cursor = UsuariosPaginator
+       .ForLimit(filtro.Limit ?? 50)
+       .ForFilter(new { filtro.Filtro })
+       .ForToken(filtro.CursorToken);
+   ```
+
+   The object you pass to `ForFilter` is stored on `cursor.Filter` and later surfaced to your filter builder, so feel free to pass anonymous objects, records, or typed DTOs.
+
+3. **Execute the paginated query.** `IMongoCollection.Paginated(cursor)` returns a `MongoDbCollectionWithCursor` wrapper with synchronous and asynchronous filter delegates. Those delegates receive the filter object from step 2, letting you derive Mongo predicates with full IntelliSense. `FindAsync` (or `FindAsyncWithAsyncFilter`) applies the filter, adds the `$gt/$or` clauses required to resume from the previous last item, and returns both the data and the next token.
+
+   ```csharp
+   var projection = Builders<Usuario>.Projection.Expression(u => new UsuarioListadoDTO(...));
+   var (rows, next) = await UsuariosCollection
+       .Paginated(cursor)
+       .FindAsync(projection, c =>
+       {
+           var textSearch = !IsEmail(c!.Filtro)
+               ? c.Filtro.ToTextSearch<Usuario>()
+               : Builders<Usuario>.Filter.Eq(u => u.Email, c.Filtro);
+           return Builders<Usuario>.Filter.And(textSearch, Builders<Usuario>.Filter.Ne(u => u.Email, null));
+       });
+
+   return new PaginatedListDTO<UsuarioListadoDTO>(rows, next);
+   ```
+
+   `next` is either `null` (no more pages) or a Base64 token that already contains the filter and the last sort values (`SerializedCursor<TFilter, TSort1, TSort2>` inside `PageCursor`). Echo it to the client so the next request can call `ForToken(next)` and resume exactly where this page stopped, even if new documents were inserted in the meantime.
+
+Additional tips:
+- Keep the paginator in a static/readonly field so every query run uses the exact same ordering. Changing the sort chain invalidates previously issued tokens.
+- Always provide a deterministic tie-breaker via `AndBy`, especially when the primary sort field is not unique. Without it, Mongo’s `$gt` comparison might skip or repeat documents with identical values.
+- If you project into DTOs, pass the corresponding projection expression to `SortBy`/`AndBy`; otherwise `NextFromProjection` cannot extract the last sort values from the projected objects and the cursor will throw.
+- The `Paginated` wrapper also exposes `FindAsyncWithAsyncFilter` when composing the filter requires I/O (for example, looking up IDs in another collection before building the predicate).
 
 ## Validation
 
