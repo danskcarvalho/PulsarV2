@@ -488,18 +488,18 @@ Any `IPushNotificationEvent` (`Sources/BuildingBlocks/EventBus/EventBus.Contract
 
 | Property | Type | Details |
 | --- | --- | --- |
-| `Target` | `PushNotificationTarget` (`.../PushNotificationTarget.cs`) | Identifies the recipient (`UsuarioId`, optional `DominioId`/`EstabelecimentoId`) plus the `Match` strategy (see `PushNotificationTargetMatch` below). Used server-side by `PushNotification.Functions` to fan-out notifications and client-side to scope SignalR subscriptions. |
-| `Key` | `PushNotificationKey` | Logical identifier that must match the `[PushNotificationEvent]` attribute attached to the integration event. `SignalRManager` uses it to map incoming payloads to strongly typed events. |
-| `Title`, `Message` | `string?` | Primary copy for cards/toasts. `ShowToast` decides whether the toast header shows the title or the message based on `ToastDisplayOptions`, while `ShowNotificationCenter` always renders both with Fluent UI `MessageBar`. |
-| `CreatedOn` | `DateTime` | Timestamp shown in the notification center and used to order `PushNotificationManager.Notifications`. |
-| `Intent` | `PushNotificationIntent` | Drives iconography and colors (see table below). `PushNotificationManager_Utils.GetMessageIntent/GetToastIntent` translate it into Fluent UI intents and icons. |
-| `Display` | `PushNotificationDisplay` | Controls whether the UI emits a toast, a notification-center entry, both, or neither. `ShowPushNotification` checks this flag before calling `ShowToast`/`ShowNotificationCenter`. |
-| `ToastDisplayOptions` | `PushNotificationToastDisplayOptions` | Decides which string becomes the toast title/body when `Display` includes `Toast`. `UseTitle` shows the `Title`, `UseMessage` shows the `Message`, and `UseBoth` uses a “communication toast” with both blocks. |
-| `ToastActionOptions` | `PushNotificationToastActionOptions` | Picks which CTA (if any) becomes the toast action button. See enum reference for the mapping between options and actions wired up in `ShowToast`. |
-| `PrimaryAction`, `SecondaryAction`, `LabelAction` | `PushNotificationDataAction` (`.../PushNotificationDataAction.cs`) | Describe commands bound to buttons/links inside toasts and notification-center cards. Each action carries a `Text`, a `RouteKey`, and optional `Parameters` (`PushNotificationDataActionParam`) that the Blazor router translates using `PushNotificationRoutingAttribute`. Multiple actions can coexist; `ToastActionOptions` decides which one (if any) surfaces inside toasts, while `ShowNotificationCenter` renders them all. |
-| `Data` | `string?` (JSON) | Optional payload that backs strongly typed events. When non-null, `PushNotificationEvent<TData>` deserializes it so components can call `SignalRManager.Subscribe<TData>()` and receive domain-specific context (e.g., the `ConviteAceitoIE` data contract). |
+| `Target` | `PushNotificationTarget` (`.../PushNotificationTarget.cs`) | Identifies the recipient (`UsuarioId`, optional `DominioId`/`EstabelecimentoId`) plus the `Match` strategy (see `PushNotificationTargetMatch` below). Used by the push service to fan-out notifications and by clients to scope subscriptions. |
+| `Key` | `PushNotificationKey` | Logical identifier that must match the `[PushNotificationEvent]` attribute attached to the integration event so consumers can resolve the correct handler. |
+| `Title`, `Message` | `string?` | Primary copy for cards/toasts. `ToastDisplayOptions` decides whether the toast header shows the title, the message, or both, while notification centers commonly render both values. |
+| `CreatedOn` | `DateTime` | Timestamp used for ordering and presentation. |
+| `Intent` | `PushNotificationIntent` | Indicates which iconography/color scheme should represent the message (see table below). |
+| `Display` | `PushNotificationDisplay` | Controls whether the client should emit a toast, a notification-center entry, both, or neither. |
+| `ToastDisplayOptions` | `PushNotificationToastDisplayOptions` | Decides which string becomes the toast header/body when the toast channel is enabled. |
+| `ToastActionOptions` | `PushNotificationToastActionOptions` | Picks which CTA (if any) becomes the toast action button. |
+| `PrimaryAction`, `SecondaryAction`, `LabelAction` | `PushNotificationDataAction` (`.../PushNotificationDataAction.cs`) | Describe commands bound to buttons/links. Each action carries `Text`, a `RouteKey`, and optional `Parameters` (`PushNotificationDataActionParam`) interpreted by the routing layer. Multiple actions can coexist; `ToastActionOptions` determines which ones surface in toasts. |
+| `Data` | `string?` (JSON) | Optional payload that backs strongly typed events so subscribers can deserialize domain-specific context (e.g., the `ConviteAceitoIE` data contract). |
 
-Filling these properties is what lets the web client reuse a single rendering pipeline for every service: the Identity `ConviteAceitoIE` example above sets `Message`, `Intent`, `Display`, and `Target`, and the UI automatically decides how to present it.
+Filling these properties is what lets every client reuse a single rendering pipeline: the Identity `ConviteAceitoIE` example above sets `Message`, `Intent`, `Display`, and `Target`, and the consumer automatically decides how to present it.
 
 #### Enum reference
 
@@ -529,7 +529,7 @@ Filling these properties is what lets the web client reuse a single rendering pi
 - `UsePrimaryAndSecondaryAction`: renders both primary and secondary buttons (forces `ToastDisplayOptions.UseBoth` so there is enough layout space).
 
 ##### `PushNotificationIntent` (`.../PushNotificationIntent.cs`)
-`PushNotificationManager_Utils.GetMessageIcon`, `GetToastIcon`, and `GetToastIntent` map each value to a Fluent UI icon/color:
+Each value maps to a different intent/icon so clients can pick consistent visuals:
 - `None`: neutral message with no icon.
 - `Error`, `Warning`, `Information`, `Success`: map directly to Fluent UI `MessageIntent`/`ToastIntent` to render red/amber/blue/green system banners.
 - `Flash`: progress/lightning icon for urgent or in-progress items.
