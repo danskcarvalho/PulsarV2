@@ -21,5 +21,17 @@ public enum PushNotificationTargetMatch
 	/// <summary>
 	/// Entrega mensagem para o usuário em todos os estabelecimentos do domínio informado
 	/// </summary>
-	MatchUsuarioEstabelecimentosFromDominio
+	MatchUsuarioEstabelecimentosFromDominio,
+	/// <summary>
+	/// Represents a match involving all users within the domain.
+	/// </summary>
+	MatchTodosUsuariosDominio,
+	/// <summary>
+	/// Represents a match involving all users within the establishment.
+	/// </summary>
+	MatchTodosUsuariosEstabelecimento,
+	/// <summary>
+	/// Represents a match involving all users within a specified domain.
+	/// </summary>
+	MatchTodosUsuariosEmEstabelecimentosDoDominio
 }

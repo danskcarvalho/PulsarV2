@@ -35,6 +35,12 @@ public class FindUserContextsByTargetSpec : IFindSpecification<UserContext>
 				return Find.Where<UserContext>(u => u.UsuarioId == uid).Build();
 			case PushNotificationTargetMatch.MatchUsuarioDominio:
 				return Find.Where<UserContext>(u => u.UsuarioId == uid && u.DominioId == did && u.EstabelecimentoId == null).Build();
+			case PushNotificationTargetMatch.MatchTodosUsuariosDominio:
+				return Find.Where<UserContext>(u => u.DominioId == did && u.EstabelecimentoId == null).Build();
+			case PushNotificationTargetMatch.MatchTodosUsuariosEmEstabelecimentosDoDominio:
+				return Find.Where<UserContext>(u => u.DominioId == did && u.EstabelecimentoId != null).Build();
+			case PushNotificationTargetMatch.MatchTodosUsuariosEstabelecimento:
+				return Find.Where<UserContext>(u => u.EstabelecimentoId == eid).Build();
 			case PushNotificationTargetMatch.MatchUsuarioEstabelecimentos:
 				return Find.Where<UserContext>(u => u.UsuarioId == uid && u.EstabelecimentoId != null).Build();
 			case PushNotificationTargetMatch.MatchUsuarioEstabelecimentosFromDominio:

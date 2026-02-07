@@ -504,11 +504,15 @@ Filling these properties is what lets every client reuse a single rendering pipe
 #### Enum reference
 
 ##### `PushNotificationTargetMatch` (`.../PushNotificationTargetMatch.cs`)
-- `ExactMatch`: deliver only when the user is in the exact domain/establishment tuple specified in `Target`.
-- `MatchUsuarioOnly`: broadcast to the user regardless of domain/establishment (all sessions receive it).
-- `MatchUsuarioDominio`: deliver to the user across all domains but keep the establishment filter.
-- `MatchUsuarioEstabelecimentos`: deliver to the user across all establishments but keep the domain filter.
-- `MatchUsuarioEstabelecimentosFromDominio`: deliver to every establishment inside the specified domain.
+The filters used by each option are implemented in `FindUserContextsByTargetSpec` (`Services/PushNotification/PushNotification.Domain/Specifications/UserContexts/FindUserContextsByTargetSpec.cs`). That specification translates the enum into Mongo predicates over the `UserContext` collection, so the exact behavior below mirrors the real query paths:
+- `ExactMatch`: requires either `Target.DominioId` or `Target.EstabelecimentoId` (otherwise the spec returns an empty filter). When `DominioId` is provided, it matches `UsuarioId`, `DominioId`, and `EstabelecimentoId` exactly—even if the establishment is `null`, which targets the domain root. When only an establishment is provided, it matches `UsuarioId` + `EstabelecimentoId`. Example: `DominioId=D1`, `EstabelecimentoId=null` notifies U1 only when they are in D1's domain dashboard; `DominioId=D1`, `EstabelecimentoId=E1` reaches the single clinic context instead.
+- `MatchUsuarioOnly`: filters solely by `UsuarioId`, ignoring domain and establishment altogether. Example: send a password expiry alert to every session opened by U1 regardless of where they are browsing.
+- `MatchUsuarioDominio`: filters by `UsuarioId`, `DominioId`, and enforces `EstabelecimentoId == null`. Use it for domain-level announcements that should only appear when the user is on the root domain view, not drilled into any establishment. Example: notify U1 about a new governance policy while they are at D1's overview page.
+- `MatchUsuarioEstabelecimentos`: filters by `UsuarioId` and requires `EstabelecimentoId != null`, leaving `DominioId` unconstrained. This hits every establishment session the user currently owns, even across different domains. Example: warn U1 about expiring room licenses in whichever clinics they are inside.
+- `MatchUsuarioEstabelecimentosFromDominio`: filters by `UsuarioId`, `DominioId`, and requires `EstabelecimentoId != null`. That combination fans out to every establishment session under the specified domain, but nowhere else. Example: broadcast a rollout notice to all of U1's clinics within `DominioId=D1` without touching clinics the user operates in other domains.
+- `MatchTodosUsuariosDominio`: ignores `UsuarioId` and targets every session in the specified `DominioId` where `EstabelecimentoId == null` (the domain root). Example: announce a maintenance window to every administrator currently scoped to D1's overview page.
+- `MatchTodosUsuariosEstabelecimento`: ignores `UsuarioId` and targets everyone whose `EstabelecimentoId` matches `Target.EstabelecimentoId`, regardless of domain shadow state. Example: alert all staff inside clinic E1 about a temporary outage, no matter which user initiated the event.
+- `MatchTodosUsuariosEmEstabelecimentosDoDominio`: ignores `UsuarioId`, requires `DominioId`, and matches every session under that domain where `EstabelecimentoId != null`. Example: broadcast a vaccine recall to every establishment session inside D1 while leaving domain-root sessions untouched.
 
 ##### `PushNotificationDisplay` (`.../PushNotificationDisplay.cs`)
 - `None`: suppress both toast and notification-center rendering (useful when an event only refreshes badges).
