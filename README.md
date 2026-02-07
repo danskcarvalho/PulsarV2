@@ -2,7 +2,7 @@
 
 Pulsar V2 is a modern microservices-based application built with .NET 9, showcasing enterprise-grade architecture patterns and best practices.
 
-## ??? Architecture
+## Architecture
 
 This solution implements a **microservices architecture** with the following key components:
 
@@ -12,7 +12,7 @@ This solution implements a **microservices architecture** with the following key
 - **Event-Driven**: Event dispatchers and Azure Functions for asynchronous processing
 - **Data**: MongoDB for persistence with DDD patterns
 
-## ?? Technologies
+## Technologies
 
 - **.NET 9** - Latest .NET framework
 - **.NET Aspire** - Cloud-native orchestration
@@ -25,7 +25,7 @@ This solution implements a **microservices architecture** with the following key
 - **OpenID Connect** - Authentication
 - **FluentUI** - Microsoft Fluent UI components
 
-## ?? Prerequisites
+## Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (for running dependencies)
@@ -34,7 +34,7 @@ This solution implements a **microservices architecture** with the following key
 - [Redis](https://redis.io/download) (or use Docker)
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local) (for local function development)
 
-## ?? Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 
@@ -96,30 +96,38 @@ dotnet run
 
 The Aspire dashboard will open in your browser, showing all running services and their endpoints.
 
-## ?? Project Structure
+## Project Structure
 
 ```
 PulsarV2/
-??? BuildingBlocks/           # Shared building blocks and infrastructure
-?   ??? Caching/              # Caching abstractions and implementations
-?   ??? DDD/                  # Domain-Driven Design base classes
-?   ??? EventBus/             # Event bus contracts and implementations
-?   ??? FileSystem/           # File system abstractions (Azure Blob)
-?   ??? Migrations/           # Migration framework
-?   ??? Sync/                 # Synchronization patterns
-?   ??? Utils/                # Utility libraries
-??? Frontends/
-?   ??? Web/Pulsar.Web/       # Blazor WebAssembly frontend
-??? Migrations/               # Shared migrations (Service Bus)
-??? Orchestration/
-?   ??? Pulsar.AppHost/       # .NET Aspire orchestration
-?   ??? Pulsar.ServiceDefaults/ # Shared service defaults
-??? Services/                 # Microservices
-?   ??? Catalog/              # Catalog service
-?   ??? Facility/             # Facility management service
-?   ??? Identity/             # Identity and authentication service
-?   ??? PushNotification/     # Push notification service
-??? README.md
+|-- Docker/
+|   |-- Testing/
+|       |-- docker-compose.yml
+|-- Sources/
+|   |-- BuildingBlocks/
+|   |   |-- Caching/
+|   |   |-- DDD/
+|   |   |-- EventBus/
+|   |   |-- FileSystem/
+|   |   |-- Migrations/
+|   |   |-- Sync/
+|   |   |-- Utils/
+|   |-- Pulsar.sln
+|   |-- README.md
+|-- Frontends/
+|   |-- Web/
+|       |-- Pulsar.Web/
+|-- Migrations/
+|   |-- ServiceBus.Migrations/
+|-- Orchestration/
+|   |-- Pulsar.AppHost/
+|   |-- Pulsar.ServiceDefaults/
+|-- Services/
+|   |-- Catalog/
+|   |-- Facility/
+|   |-- Identity/
+|   |-- PushNotification/
+|-- README.md
 ```
 
 ### Service Structure
@@ -134,7 +142,7 @@ Each service follows a consistent structure:
 - **{Service}.EventDispatcher** - Event handling workers
 - **{Service}.Migrations** - Database migrations
 
-## ??? Development
+## Development
 
 ### Building the Solution
 
@@ -165,15 +173,15 @@ The solution implements DDD patterns:
 - **Repositories** - Data access abstractions
 - **CQRS** - Command Query Responsibility Segregation
 
-?? **[Read the complete DDD Building Blocks Guide](BuildingBlocks/DDD/README.md)** - Comprehensive documentation with code examples and best practices for using the DDD libraries in your microservices.
+**[Read the complete DDD Building Blocks Guide](Sources/BuildingBlocks/DDD/README.md)** - Comprehensive documentation with code examples and best practices for using the DDD libraries in your microservices.
 
-## ?? Security
+## Security
 
 - **Authentication**: OpenID Connect with Duende BFF
 - **Authorization**: Role-based and policy-based
 - **API Security**: Backend for Frontend (BFF) pattern
 
-## ?? Configuration
+## Configuration
 
 Key configuration settings:
 
@@ -188,7 +196,7 @@ Configuration can be provided via:
 - User secrets (for local development)
 - Environment variables (for production)
 
-## ?? Troubleshooting
+## Troubleshooting
 
 ### MongoDB Connection Issues
 
@@ -215,7 +223,7 @@ dotnet clean
 dotnet build
 ```
 
-## ?? Additional Resources
+## Additional Resources
 
 - [.NET 9 Documentation](https://docs.microsoft.com/dotnet/core/whats-new/dotnet-9)
 - [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire/)
@@ -223,7 +231,7 @@ dotnet build
 - [MongoDB .NET Driver](https://docs.mongodb.com/drivers/csharp/)
 - [Duende BFF Documentation](https://docs.duendesoftware.com/identityserver/v6/bff/)
 
-## ?? Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -231,15 +239,15 @@ dotnet build
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## ?? License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## ?? Authors
+## Authors
 
 - **Dansk Carvalho** - *Initial work* - [danskcarvalho](https://github.com/danskcarvalho)
 
-## ?? Acknowledgments
+## Acknowledgments
 
 - Built with .NET 9 and .NET Aspire
 - Inspired by modern microservices architecture patterns
